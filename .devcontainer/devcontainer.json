@@ -1,0 +1,42 @@
+{
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "donjayamanne.python-extension-pack",
+        "ms-python.isort",
+        "njpwerner.autodocstring",
+        "yzhang.markdown-all-in-one",
+        "carlos-algms.make-task-provider"
+      ],
+      "settings": {
+        "files.exclude": {
+          "**/.git": true,
+          "**/.svn": true,
+          "**/.hg": true,
+          "**/CVS": true,
+          "**/.DS_Store": true,
+          "**/Thumbs.db": true,
+          ".dotnet/": true,
+          ".vscode-server": true,
+          ".gitconfig": true,
+          ".ruff_cache": true
+        },
+        "editor.rulers": [
+          72,
+          88
+        ],
+        "editor.tabSize": 4,
+        "editor.formatOnSave": true,
+        "python.formatting.provider": "black",
+        "python.envFile": "${workspaceFolder}/.env",
+        "editor.codeActionsOnSave": {
+          "source.organizeImports": true
+        }
+      }
+    }
+  }
+}

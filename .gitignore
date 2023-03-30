@@ -1,0 +1,10 @@
+# environment files
+.env
+
+# Personal vscode settings 
+.vscode/
+
+# Python artifacts
+.ipynb_checkpoints
+__pycache__
+*.py[cod]
