@@ -10,7 +10,8 @@
         "ms-python.isort",
         "njpwerner.autodocstring",
         "yzhang.markdown-all-in-one",
-        "carlos-algms.make-task-provider"
+        "carlos-algms.make-task-provider",
+        "DavidAnson.vscode-markdownlint"
       ],
       "settings": {
         "files.exclude": {
