@@ -8,3 +8,6 @@
 .ipynb_checkpoints
 __pycache__
 *.py[cod]
+
+# excel artifact
+~$columns_and_validators.xlsx
