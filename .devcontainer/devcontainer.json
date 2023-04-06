@@ -24,7 +24,8 @@
           ".dotnet/": true,
           ".vscode-server": true,
           ".gitconfig": true,
-          ".ruff_cache": true
+          ".ruff_cache": true,
+          "**/~$*": true
         },
         "editor.rulers": [
           72,

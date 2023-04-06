@@ -10,4 +10,4 @@ __pycache__
 *.py[cod]
 
 # excel artifact
-~$columns_and_validators.xlsx
+~$example_sblar.xlsx
