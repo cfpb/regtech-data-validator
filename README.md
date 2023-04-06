@@ -10,4 +10,4 @@ Open this repository within VS Code and press `COMMAND + SHIFT + p` on your keyb
 
 ## Running the Demo
 
-TODO: I need to write this.
+If using VS Code, setup is completed by simply running the code within a Dev Container. If you're not making use of VS Code, make your life easier and use VS Code :sunglasses:. See the instructions above for setting up the Dev Container. There is a single Jupyter Notebook of interest called `validating_example_sblar.ipynb`. Double click this file and it will open. The default base interpreter is fine beucase we are working in a container. Take a look at `custom_checks.py` and `schema.py`. Feel free to make changes to the code in a different branch. If you make changes to the check functions or Pandera schema, you'll need to restart the Jupyter kernel in order for the import to be reloaded.
