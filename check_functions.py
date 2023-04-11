@@ -1,11 +1,10 @@
 """A collection of custom check functions for the Pandera schema.
 
-These are checks that are outside the scope of built in checks or 
+These are functions that are outside the scope of built in checks or 
 functionality that is a too complex for a one-line lambda function.
 
-We may wish to split this module into separate modules for single column
-validators, group by validators, whole dataset validators, etc. For now, 
-we'll just use a single module.
+We may wish to split this module into separate files if it grows to an
+unwieldy size. For now we'll just use a single module.
 
 The names of the check functions should be prefixed with the name of the
 field or fields they validate."""
