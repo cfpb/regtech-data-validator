@@ -9,30 +9,14 @@ Refer to the Pandera documentation for details.
 https://pandera.readthedocs.io/en/stable/dataframe_schemas.html"""
 
 
-from pandera import Check, Column, DataFrameSchema
-from pandera.backends.pandas.checks import PandasCheckBackend
-
-from check_functions import (
+from parser.check_functions import (
     app_date_valid_yyyymmdd,
     ct_credit_product_ff_blank_validity,
     uli_ensure_each_record_begins_with_the_same_lei,
 )
 
-
-class NamedCheck(Check):
-
-    """A custom Pandera.Check subclasss that requires a `name`."""
-
-    def __init__(self, *args, **kwargs):
-        if "name" not in kwargs:
-            raise ValueError("Each check must be assigned a `name`.")
-        super().__init__(*args, **kwargs)
-
-    @classmethod
-    def get_backend(cls, *args) -> PandasCheckBackend:
-        """Assume Pandas DataFrame and return PandasCheckBackend"""
-        return PandasCheckBackend
-
+from pandera import Check, Column, DataFrameSchema
+from pandera.backends.pandas.checks import PandasCheckBackend
 
 sblar_schema = DataFrameSchema(
     {
