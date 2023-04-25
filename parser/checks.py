@@ -13,9 +13,9 @@ from pandera.backends.pandas.checks import PandasCheckBackend
 
 
 class SBLBaseCheck(Check):
-    """A custom Pandera.Check subclasss that requires a `name`. 
-    
-    Don't use this class directly. Make use of the SBLErrorCheck and 
+    """A custom Pandera.Check subclasss that requires a `name`.
+
+    Don't use this class directly. Make use of the SBLErrorCheck and
     SBLWarningCheck subclasses below."""
 
     # TODO: ARE THERE OTHER FIELDS THAT WE WISH TO REQUIRE HERE?
@@ -31,15 +31,19 @@ class SBLBaseCheck(Check):
         return PandasCheckBackend
 
 
+#! FIGURE OUT: DO WE WANT TO HAVE TWO CHECK CLASSES OR A SINGLE CHECK
+#!  CLASS WITH A `warning=True/False` FLAG?
+
+
 class SBLErrorCheck(SBLBaseCheck):
     """For validations that should be interpreted as errors."""
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+
 
 class SBLErrorCheck(SBLBaseCheck):
     """For validations that should be interpreted as warnings."""
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
