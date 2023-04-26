@@ -9,6 +9,7 @@
 __pycache__
 *.py[cod]
 .DS_Store
+.ruff_cache/
 
 # excel artifact
 ~$example_sblar.xlsx
