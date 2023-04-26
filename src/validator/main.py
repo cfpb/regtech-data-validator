@@ -5,7 +5,7 @@ Run from the terminal to see the generated output."""
 import pandas as pd
 import pandera as pa
 
-from schema import sblar_schema
+from validator.schema import sblar_schema
 
 # here is a dataframe containing valid data
 valid_sblar_df = pd.read_excel(
