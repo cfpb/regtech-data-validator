@@ -28,7 +28,7 @@ class SBLCheck(Check):
     Don't use this class directly. Make use of the SBLErrorCheck and
     SBLWarningCheck subclasses below."""
 
-    def __init__(self, warning=False, *args, **kwargs):
+    def __init__(self, check_fn, warning=False, *args, **kwargs):
         """Custom init method that verifies the presence of `name` in
         kwargs creates a custom class attribute called `warning`. All
         other initializaiton is handled by the parent Check class.
@@ -47,9 +47,16 @@ class SBLCheck(Check):
         # if warning==False treat check as an error check
         self.warning = warning
 
-        super().__init__(*args, **kwargs)
+        super().__init__(check_fn=check_fn, *args, **kwargs)
 
     @classmethod
     def get_backend(cls, *args) -> PandasCheckBackend:
         """Assume Pandas DataFrame and return PandasCheckBackend"""
         return PandasCheckBackend
+
+
+if __name__ == "__main__":
+    warning_check = SBLCheck(lambda: True, warning=True, name="Just a Warning")
+
+    error_check_implied = SBLCheck(lambda: True, name="Error Check")
+    error_check_explicit = SBLCheck(lambda: True, warning=False, name="Also an Error")
