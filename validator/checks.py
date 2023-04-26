@@ -1,49 +1,55 @@
-"""Custom subclasses for warnings and errors. 
+"""Custom subclass for warnings and errors. 
 
-The class SBLBaseCheck is a subclass of the standard Pandera Check class
-that requires the `name` knwarg to be supplied. There are two additional
-subclasses created from SBLBaseCheck called SBLErrorCheck and 
-SBLWarningCheck. These contain no additional functionality and serve 
-only to be explicit and facilitate calls to `isinstance` so we can 
-handle errors and warnings appropriately."""
+The class SBLCheck is a subclass of the standard Pandera Check class
+that requires the `name` kwarg to be supplied. Errors and warnings are
+distinguised based on the value of the warning attribute. It defaults
+to false but can be set to True during init to indicate the validation
+should be handled as a warning rather than an error. 
+
+Examples:
+
+    warning_check = SBLCheck(warning=True, name="Just a Warning")
+    
+    error_check_implied = SBLCheck(name="Error Check")
+    error_check_explicit = SBLCheck(warning=False, name="Also an Error")
+"""
 
 
 from pandera import Check
 from pandera.backends.pandas.checks import PandasCheckBackend
 
 
-class SBLBaseCheck(Check):
-    """A custom Pandera.Check subclasss that requires a `name`.
+class SBLCheck(Check):
+    """A custom Pandera.Check subclasss that requires a `name` be
+    specificed. Additionally, an attribute named `warning` is added to
+    the class to enable distinction between warnings and errors. The
+    default value of warning is `False` which corresponds to an error.
 
     Don't use this class directly. Make use of the SBLErrorCheck and
     SBLWarningCheck subclasses below."""
 
-    # TODO: ARE THERE OTHER FIELDS THAT WE WISH TO REQUIRE HERE?
+    def __init__(self, warning=False, *args, **kwargs):
+        """Custom init method that verifies the presence of `name` in
+        kwargs creates a custom class attribute called `warning`. All
+        other initializaiton is handled by the parent Check class.
 
-    def __init__(self, *args, **kwargs):
+        Args:
+            warning (bool, optional): Boolean specifying whether to
+                treat the check as a warning rather than an error.
+
+        Raises:
+            ValueError: Raised if `name` not supplied in kwargs.
+        """
+
         if "name" not in kwargs:
             raise ValueError("Each check must be assigned a `name`.")
+
+        # if warning==False treat check as an error check
+        self.warning = warning
+
         super().__init__(*args, **kwargs)
 
     @classmethod
     def get_backend(cls, *args) -> PandasCheckBackend:
         """Assume Pandas DataFrame and return PandasCheckBackend"""
         return PandasCheckBackend
-
-
-#! FIGURE OUT: DO WE WANT TO HAVE TWO CHECK CLASSES OR A SINGLE CHECK
-#!  CLASS WITH A `warning=True/False` FLAG?
-
-
-class SBLErrorCheck(SBLBaseCheck):
-    """For validations that should be interpreted as errors."""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-
-class SBLErrorCheck(SBLBaseCheck):
-    """For validations that should be interpreted as warnings."""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
