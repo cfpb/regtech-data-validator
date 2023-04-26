@@ -1,6 +1,6 @@
 # An Alternative SBLAR Parser POC
 
-This is a POC for a SBLAR file parser and validator that does not rely on data classes. More to come.
+This is a POC for a SBLAR file parser and validator which makes use of Pandera. You can read about Pandera schemas [here](https://pandera.readthedocs.io/en/stable/dataframe_schemas.html).
 
 ## Dev Container Setup
 
