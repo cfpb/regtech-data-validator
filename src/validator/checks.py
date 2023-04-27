@@ -8,12 +8,23 @@ should be handled as a warning rather than an error.
 
 Examples:
 
-    warning_check = SBLCheck(warning=True, name="Just a Warning")
+    warning_check = SBLCheck(
+        lambda: True, 
+        warning=True, 
+        name="Just a Warning"
+    )
     
-    error_check_implied = SBLCheck(name="Error Check")
-    error_check_explicit = SBLCheck(warning=False, name="Also an Error")
+    error_check_implied = SBLCheck(lambda: Truename="Error Check")
+    
+    error_check_explicit = SBLCheck(
+        lambda: True,
+        warning=False, 
+        name="Also an Error"
+    )
 """
 
+
+from typing import Callable
 
 from pandera import Check
 from pandera.backends.pandas.checks import PandasCheckBackend
@@ -28,12 +39,15 @@ class SBLCheck(Check):
     Don't use this class directly. Make use of the SBLErrorCheck and
     SBLWarningCheck subclasses below."""
 
-    def __init__(self, check_fn, warning=False, *args, **kwargs):
+    # TODO: ADD CORRECT TYPE HINT FOR check_fn
+    def __init__(self, check_fn: Callable, warning=False, *args, **kwargs):
         """Custom init method that verifies the presence of `name` in
         kwargs creates a custom class attribute called `warning`. All
         other initializaiton is handled by the parent Check class.
 
         Args:
+            check_fn (Callable): A function which evaluates the validity
+                of the column(s) being tested.
             warning (bool, optional): Boolean specifying whether to
                 treat the check as a warning rather than an error.
 
