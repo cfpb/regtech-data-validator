@@ -91,3 +91,77 @@ def ct_credit_product_ff_blank_validity(
             validation_holder.append(ct_credit_product_ff_series != "")
 
     return pd.concat(validation_holder)
+
+   
+def multi_invalid_number_of_values(
+    grouped_data: Dict[str, pd.Series], max_length: int, separator: str = ";"
+) -> pd.Series:
+    # process internal series and return validations
+    def _get_related_series_validations(value_count: int, series: pd.Series) -> dict:
+        series_validations = {}
+        for index, value in series.items():
+            series_count = len(value.split(separator))
+            series_validations[index] = (series_count + value_count) <= max_length
+        return series_validations
+            
+    validation_holder = []
+    items = grouped_data.items()
+
+    for value, other_series in items:
+        validation_holder.append(
+            pd.Series(
+                index=other_series.index,
+                name=other_series.name,
+                data=_get_related_series_validations(len(value.split(separator)), other_series),
+            )
+        )
+
+    return pd.concat(validation_holder)
+
+
+def conditional_field_conflict(
+    grouped_data: Dict[str, pd.Series],
+    condition_value: str = "977",
+    separator: str = ";",
+) -> pd.Series:
+    # will hold individual boolean series to be concatenated at return
+    validation_holder = []
+    for value, other_series in grouped_data.items():
+        if condition_value in value.split(separator):
+            # free form text field should NOT be blank if condition_value existed in list
+            validation_holder.append(other_series != "")
+        else:
+            # free form should be blank if condition_value NOT existed in list
+            validation_holder.append(other_series == "")
+    return pd.concat(validation_holder)
+
+
+def duplicates_in_field(ct_value: str, separator: str = ";") -> bool:
+    values = ct_value.split(separator)
+    return len(set(values)) == len(values)
+
+
+def multi_value_field_restriction(
+    ct_value: str, single_value: str, separator: str = ";"
+) -> bool:
+    ct_values_set = set(ct_value.split(separator))
+    if (not single_value in ct_values_set) or (
+        len(ct_values_set) == 1 and single_value in ct_values_set
+    ):
+        return True
+    else:
+        return False
+
+
+def invalid_enum_value(
+    ct_value: str, accepted_values: list[str], separator: str = ";"
+) -> bool:
+    ct_values_set = set(ct_value.split(separator))
+    return ct_values_set.issubset(accepted_values)
+
+
+def invalid_number_of_values(
+    ct_value: str, min_length: int, max_length: int, separator: str = ";"
+) -> bool:
+    values_count = len(ct_value.split(separator))
+    return min_length <= values_count and values_count <= max_length

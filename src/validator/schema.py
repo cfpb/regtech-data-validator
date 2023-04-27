@@ -6,7 +6,15 @@ https://pandera.readthedocs.io/en/stable/dataframe_schemas.html
 The only major modification from native Pandera is the use of custom
 Check classes to differentiate between warnings and errors. """
 
-
+from check_functions import (app_date_valid_yyyymmdd,
+                             conditional_field_conflict,
+                             ct_credit_product_ff_blank_validity,
+                             duplicates_in_field, invalid_enum_value,
+                             invalid_number_of_values,
+                             multi_invalid_number_of_values,
+                             multi_value_field_restriction,
+                             uli_ensure_each_record_begins_with_the_same_lei)
+from checks import SBLCheck
 from pandera import Column, DataFrameSchema
 
 sblar_schema = DataFrameSchema(
@@ -44,12 +52,72 @@ sblar_schema = DataFrameSchema(
         "ct_guarantee": Column(
             str,
             title="Field 7: Type of guarantee",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    invalid_number_of_values,
+                    name="ct_guarantee.invalid_number_of_values",
+                    element_wise=True,
+                    min_length=1,
+                    max_length=5,
+                ),
+                SBLCheck(
+                    duplicates_in_field,
+                    warning=True,
+                    name="ct_guarantee.duplicates_in_field",
+                    element_wise=True,
+                ),
+                SBLCheck(
+                    multi_value_field_restriction,
+                    warning=True,
+                    name="ct_guarantee.multi_value_field_restriction",
+                    element_wise=True,
+                    single_value="999",
+                ),
+                SBLCheck(
+                    invalid_enum_value,
+                    name="ct_guarantee.invalid_enum_value",
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8",
+                        "9",
+                        "10",
+                        "11",
+                        "977",
+                        "999",
+                    ],
+                ),
+            ],
         ),
         "ct_guarantee_ff": Column(
             str,
             title="Field 8: Free-form text field for other guarantee",
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="‘Free-form text field for other guarantee’ must not exceed 300 characters in length",
+                ),
+                SBLCheck(
+                    conditional_field_conflict,
+                    name="When ‘type of guarantee’ does not contain 977 (other), ‘free-form text field for other guarantee’ must be blank. When ‘type of guarantee’ contains 977, ‘free-form text field for other guarantee’ must not be blank.",
+                    groupby="ct_guarantee",
+                    condition_value="977",
+                ),
+                SBLCheck(
+                    multi_invalid_number_of_values,
+                    warning=True,
+                    name="‘Type of guarantee’ and ‘free-form text field for other guarantee‘ combined should not contain more than five values. Code 977 (other), within 'type of guarantee', does not count toward the maximum number of values for the purpose of this validation check.",
+                    groupby="ct_guarantee",
+                    max_length=5,
+                ),      
+            ],
         ),
         "ct_loan_term_flag": Column(
             str,
