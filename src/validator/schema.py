@@ -6,7 +6,15 @@ https://pandera.readthedocs.io/en/stable/dataframe_schemas.html
 The only major modification from native Pandera is the use of custom
 Check classes to differentiate between warnings and errors. """
 
-
+from check_functions import (app_date_valid_yyyymmdd,
+                             conditional_field_conflict,
+                             ct_credit_product_ff_blank_validity,
+                             duplicates_in_field, invalid_enum_value,
+                             invalid_number_of_values,
+                             multi_invalid_number_of_values,
+                             multi_value_field_restriction,
+                             uli_ensure_each_record_begins_with_the_same_lei)
+from checks import SBLCheck
 from pandera import Column, DataFrameSchema
 
 sblar_schema = DataFrameSchema(
@@ -64,7 +72,52 @@ sblar_schema = DataFrameSchema(
         "credit_purpose": Column(
             str,
             title="Field 11: Credit purpose",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    invalid_enum_value,
+                    name="credit_purpose.invalid_enum_value",
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8",
+                        "9",
+                        "10",
+                        "11",
+                        "977",
+                        "988",
+                        "999",
+                    ],
+                ),
+                SBLCheck(
+                    invalid_number_of_values,
+                    name="credit_purpose.invalid_number_of_values",
+                    element_wise=True,
+                    min_length=1,
+                    max_length=3,
+                ),
+                SBLCheck(
+                    multi_value_field_restriction,
+                    warning=True,
+                    name="credit_purpose.multi_value_field_restriction",
+                    element_wise=True,
+                    single_values=[
+                        "988",
+                        "999",
+                    ]
+                ),
+                SBLCheck(
+                    duplicates_in_field,
+                    warning=True,
+                    name="credit_purpose.duplicates_in_field",
+                    element_wise=True,
+                ),
+            ],
         ),
         "credit_purpose_ff": Column(
             str,
