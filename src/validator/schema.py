@@ -122,7 +122,26 @@ sblar_schema = DataFrameSchema(
         "credit_purpose_ff": Column(
             str,
             title="Field 12: Free-form text field for other credit purpose",
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="‘Free-form text field for other guarantee’ must not exceed 300 characters in length",
+                ),
+                SBLCheck(
+                    conditional_field_conflict,
+                    name="When ‘credit purpose’ does not contain 977 (other), ‘free-form text field for other credit purpose’ must be blank. When ‘credit purpose’ contains 977, ‘free-form text field for other credit purpose’ must not be blank.",
+                    groupby="credit_purpose",
+                    condition_value="977",
+                ),
+                SBLCheck(
+                    multi_invalid_number_of_values,
+                    warning=True,
+                    name="‘credit purpose’ and ‘free-form text field for other credit purpose‘ combined should not contain more than one. Code 977 (other), within 'credit purpose', does not count toward the maximum number of values for the purpose of this validation check.",
+                    groupby="credit_purpose",
+                    max_length=1,
+                ),
+            ],
         ),
         "amount_applied_for_flag": Column(
             str,
