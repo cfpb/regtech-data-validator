@@ -45,8 +45,10 @@ def run_validation_on_df(df: pd.DataFrame) -> None:
 
             # built in checks such as unique=True are different than custom
             # checks unfortunately so the name needs to be accessed differently
+            check_description = "<n/a>"
             try:
                 check_name = error["error"].check.name
+                check_description = error["error"].check.description
                 # This will either be a boolean series or a single bool
                 check_output = error["error"].check_output
             except AttributeError:
@@ -55,6 +57,7 @@ def run_validation_on_df(df: pd.DataFrame) -> None:
                 check_output = error["error"].args[0]
 
             print(f"Validation `{check_name}` failed for column `{column_name}`")
+            print(f"Description: `{check_description}`")
             print(check_output)
             print("")
 
