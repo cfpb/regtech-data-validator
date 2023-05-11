@@ -81,7 +81,7 @@ sblar_schema = DataFrameSchema(
                         " value."
                     ),
                     element_wise=True,
-                    single_value="999",
+                    single_values=["999"],
                 ),
                 SBLCheck(
                     invalid_enum_value,
@@ -222,15 +222,20 @@ sblar_schema = DataFrameSchema(
                 ),
                 SBLCheck(
                     conditional_field_conflict,
-                    name="When ‘credit purpose’ does not contain 977 (other), ‘free-form text field for other credit purpose’ must be blank. When ‘credit purpose’ contains 977, ‘free-form text field for other credit purpose’ must not be blank.",
+                    name="credit_purpose_ff.conditional_field_conflict",
+                    description=(
+                        "When ‘credit purpose’ does not contain 977 (other), ‘free-form text field for other credit purpose’ "
+                        "must be blank. When ‘credit purpose’ contains 977, ‘free-form text field for other credit purpose’ "
+                        "must not be blank."
+                    ),
                     groupby="credit_purpose",
                     condition_value="977",
                 ),
                 SBLCheck(
-                    multi_invalid_number_of_values,
-                    warning=True,
-                    name="‘credit purpose’ and ‘free-form text field for other credit purpose‘ combined should not contain more than one. Code 977 (other), within 'credit purpose', does not count toward the maximum number of values for the purpose of this validation check.",
-                    groupby="credit_purpose",
+                    invalid_number_of_values,
+                    name="credit_purpose_ff.invalid_number_of_values",
+                    element_wise=True,
+                    min_length=0,
                     max_length=1,
                 ),
             ],
