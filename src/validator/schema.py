@@ -192,21 +192,22 @@ sblar_schema = DataFrameSchema(
                 SBLCheck(
                     invalid_numeric_format,
                     name="ct_loan_term.invalid_numeric_format",
-                    description=("When present, ‘loan term’ must be a whole number."),
+                    description="When present, ‘loan term’ must be a whole number.",
                     element_wise=True,
                 ),
                 SBLCheck.greater_than_or_equal_to(
                     min_value="1",
                     name="ct_loan_term.invalid_numeric_value",
                     description=(
-                        "When present, ‘loan term’ must be greater than or equal to 1."
+                        "When present, ‘loan term’ must be greater than or equal"
+                        "to 1."
                     ),
                 ),
                 SBLCheck.less_than(
                     max_value="1200",
                     name="ct_loan_term.unreasonable_numeric_value",
                     description=(
-                        "When present, ‘loan term’ should be less than 1200 "
+                        "When present, ‘loan term’ should be less than 1200"
                         "(100 years)."
                     ),
                 ),
