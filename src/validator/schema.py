@@ -237,6 +237,7 @@ sblar_schema = DataFrameSchema(
                 ),
             ],
         ),
+
         "credit_purpose": Column(
             str,
             title="Field 11: Credit purpose",
