@@ -172,3 +172,7 @@ def invalid_number_of_values(
 ) -> bool:
     values_count = len(ct_value.split(separator))
     return min_length <= values_count and values_count <= max_length
+
+def invalid_numeric_format(ct_value: str) -> bool:
+    return ct_value.isdigit()
+
