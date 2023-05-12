@@ -173,6 +173,10 @@ sblar_schema = DataFrameSchema(
                         "Each value in ‘Loan term: NA/NP flag’ (separated by "
                         " semicolons) must equal 900, 988, or 999."
                     ),
+                    description=(
+                        "Each value in ‘Loan term: NA/NP flag’ (separated by "
+                        " semicolons) must equal 900, 988, or 999."
+                    ),
                     element_wise=True,
                     accepted_values=[
                         "900",
@@ -210,6 +214,12 @@ sblar_schema = DataFrameSchema(
                         "and reported), ‘loan term’ must be blank. When ‘loan term:"
                         "NA/NP flag equals 900, ‘loan term’ must not be blank."
                     ),
+                    name="ct_loan_term.conditional_field_conflict",
+                    description=(
+                        "When ‘loan term: NA/NP flag’ does not equal 900 (applicable "
+                        "and reported), ‘loan term’ must be blank. When ‘loan term:"
+                        "NA/NP flag equals 900, ‘loan term’ must not be blank."
+                    ),
                     groupby="ct_loan_term_flag",
                     condition_value="900",
                 ),
@@ -237,7 +247,6 @@ sblar_schema = DataFrameSchema(
                 ),
             ],
         ),
-
         "credit_purpose": Column(
             str,
             title="Field 11: Credit purpose",
