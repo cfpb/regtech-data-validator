@@ -152,7 +152,7 @@ def multi_value_field_restriction(
     ct_value: str, single_values: list[str], separator: str = ";"
 ) -> bool:
     ct_values_list = ct_value.split(separator)
-    if (not any(v in ct_values_list for v in single_values)) or (
+    if (set(ct_values_list).isdisjoint(set(single_values))) or (
         len(ct_values_list) == 1 and ct_values_list[0] in single_values
     ):
         return True
