@@ -188,7 +188,21 @@ sblar_schema = DataFrameSchema(
         "action_taken": Column(
             str,
             title="Field 16: Action taken",
-            checks=[],
+            checks=[
+                    SBLCheck(
+                        invalid_enum_value,
+                        name="action_taken.invalid_enum_value",
+                        description="‘Action taken’ must equal 1, 2, 3, 4, or 5.",
+                        element_wise=True,
+                        accepted_values=[
+                            "1",
+                            "2",
+                            "3",
+                            "4",
+                            "5",
+                        ],
+                    ),
+                ],
         ),
         "action_taken_date": Column(
             str,
