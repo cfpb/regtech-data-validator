@@ -81,7 +81,7 @@ sblar_schema = DataFrameSchema(
                         " value."
                     ),
                     element_wise=True,
-                    single_values=["999"],
+                    single_values={"999"},
                 ),
                 SBLCheck(
                     invalid_enum_value,
@@ -212,10 +212,10 @@ sblar_schema = DataFrameSchema(
                         " value."
                     ),
                     element_wise=True,
-                    single_values=[
+                    single_values={
                         "988",
                         "999",
-                    ]
+                    }
                 ),
                 SBLCheck(
                     duplicates_in_field,
