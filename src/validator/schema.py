@@ -9,7 +9,8 @@ Check classes to differentiate between warnings and errors. """
 from check_functions import (conditional_field_conflict, duplicates_in_field,
                              invalid_enum_value, invalid_number_of_values,
                              multi_invalid_number_of_values,
-                             multi_value_field_restriction)
+                             multi_value_field_restriction,
+                             date_valid_yyyymmdd)
 from checks import SBLCheck
 from pandera import Column, DataFrameSchema
 
@@ -193,7 +194,17 @@ sblar_schema = DataFrameSchema(
         "action_taken_date": Column(
             str,
             title="Field 17: Action taken date",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    date_valid_yyyymmdd,
+                    name="action_taken_date.date_valid_yyyymmdd",
+                    description=(
+                        "'Action taken date' must be a real calendar"
+                        " date using YYYYMMDD format"
+                    ),
+                    element_wise=True,
+                ),
+            ],
         ),
         "denial_reasons": Column(
             str,

@@ -34,7 +34,7 @@ def uli_ensure_each_record_begins_with_the_same_lei(ulis: pd.Series) -> bool:
     return leis.nunique() == 1
 
 
-def app_date_valid_yyyymmdd(date: str) -> bool:
+def date_valid_yyyymmdd(date: str) -> bool:
     """Attempt datetime conversion.
 
     This checks whether the date string has the format %Y%m%d and
