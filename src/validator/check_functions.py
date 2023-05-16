@@ -181,6 +181,6 @@ def date_in_range(
         date = datetime.strptime(date_value, "%Y%m%d")
         start_date = datetime.strptime(start_date_value, "%Y%m%d")
         end_date = datetime.strptime(end_date_value, "%Y%m%d")
-        return start_date < date < end_date
+        return start_date <= date <= end_date
     except ValueError:
         return False
