@@ -172,3 +172,15 @@ def invalid_number_of_values(
 ) -> bool:
     values_count = len(ct_value.split(separator))
     return min_length <= values_count and values_count <= max_length
+
+
+def date_in_range(
+        date_value: str, start_date_value: str, end_date_value: str
+) -> bool:
+    try:
+        date = datetime.strptime(date_value, "%Y%m%d")
+        start_date = datetime.strptime(start_date_value, "%Y%m%d")
+        end_date = datetime.strptime(end_date_value, "%Y%m%d")
+        return start_date < date < end_date
+    except ValueError:
+        return False
