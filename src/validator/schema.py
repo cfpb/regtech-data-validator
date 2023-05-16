@@ -10,6 +10,7 @@ from check_functions import (conditional_field_conflict, duplicates_in_field,
                              invalid_enum_value, invalid_number_of_values,
                              multi_invalid_number_of_values,
                              multi_value_field_restriction)
+
 from checks import SBLCheck
 from pandera import Column, DataFrameSchema
 
@@ -92,7 +93,7 @@ sblar_schema = DataFrameSchema(
                         " value."
                     ),
                     element_wise=True,
-                    single_value="999",
+                    single_values={"999"},
                 ),
                 SBLCheck(
                     invalid_enum_value,
@@ -175,12 +176,107 @@ sblar_schema = DataFrameSchema(
         "credit_purpose": Column(
             str,
             title="Field 11: Credit purpose",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    invalid_enum_value,
+                    name="credit_purpose.invalid_enum_value",
+                    description=(
+                        "Each value in ‘credit purpose’ (separated by "
+                        " semicolons) must equal 1, 2, 3, 4, 5, 6, 7, 8,"
+                        " 9, 10, 11, 977, 988, or 999."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8",
+                        "9",
+                        "10",
+                        "11",
+                        "977",
+                        "988",
+                        "999",
+                    ],
+                ),
+                SBLCheck(
+                    invalid_number_of_values,
+                    name="credit_purpose.invalid_number_of_values",
+                    description=(
+                        "‘Credit purpose’ must contain at least one and at"
+                        " most three values, separated by semicolons."
+                    ),
+                    element_wise=True,
+                    min_length=1,
+                    max_length=3,
+                ),
+                SBLCheck(
+                    multi_value_field_restriction,
+                    warning=True,
+                    name="credit_purpose.multi_value_field_restriction",
+                    description=(
+                        "When ‘credit purpose’ contains 988 or 999,"
+                        " ‘credit purpose’ should not contain more than one"
+                        " value."
+                    ),
+                    element_wise=True,
+                    single_values={
+                        "988",
+                        "999",
+                    }
+                ),
+                SBLCheck(
+                    duplicates_in_field,
+                    warning=True,
+                    name="credit_purpose.duplicates_in_field",
+                    description=(
+                        "‘Credit purpose’ should not contain "
+                        " duplicated values."
+                    ),
+                    element_wise=True,
+                ),
+            ],
         ),
         "credit_purpose_ff": Column(
             str,
             title="Field 12: Free-form text field for other credit purpose",
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="credit_purpose_ff.invalid_text_length",
+                    description=(
+                        "‘Free-form text field for other credit purpose’ "
+                        " must not exceed 300 characters in length"
+                    ),
+                ),
+                SBLCheck(
+                    conditional_field_conflict,
+                    name="credit_purpose_ff.conditional_field_conflict",
+                    description=(
+                        "When ‘credit purpose’ does not contain 977 (other), ‘free-form text field for other credit purpose’ "
+                        " must be blank. When ‘credit purpose’ contains 977, ‘free-form text field for other credit purpose’ "
+                        " must not be blank."
+                    ),
+                    groupby="credit_purpose",
+                    condition_value="977",
+                ),
+                SBLCheck(
+                    invalid_number_of_values,
+                    name="credit_purpose_ff.invalid_number_of_values",
+                    description=(
+                        "‘Other Credit purpose’ must not contain more "
+                        " than one other credit purpose."
+                    ),
+                    element_wise=True,
+                    min_length=0,
+                    max_length=1,
+                ),
+            ],
         ),
         "amount_applied_for_flag": Column(
             str,
