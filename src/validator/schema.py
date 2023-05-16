@@ -33,8 +33,20 @@ sblar_schema = DataFrameSchema(
         "app_recipient": Column(
             str,
             title="Field 4: Application recipient",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    invalid_enum_value,
+                    name="app_recipient.invalid_enum_value",
+                    description="‘Application recipient’ must equal 1 or 2",
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                    ],
+                ),
+            ],
         ),
+
         "ct_credit_product": Column(
             str,
             title="Field 5: Credit product",
