@@ -128,17 +128,21 @@ def multi_invalid_number_of_values(
 
 def conditional_field_conflict(
     grouped_data: Dict[str, pd.Series],
-    condition_value: str = "977",
+    condition_values: list[str] = ["977"],
     separator: str = ";",
 ) -> pd.Series:
     # will hold individual boolean series to be concatenated at return
     validation_holder = []
     for value, other_series in grouped_data.items():
-        if condition_value in value.split(separator):
-            # free form text should NOT be blank if condition_value existed in list
+        received_values = set(value.split(separator))
+        accepted_values = set(condition_values)
+        if len(received_values.intersection(accepted_values)) > 0 :
+            # free form text should NOT be blank if acceptable values 
+            # existed in received list
             validation_holder.append(other_series != "")
         else:
-            # free form should be blank if condition_value NOT existed in list
+            # free form should be blank if acceptable values NOT existed 
+            # in received list
             validation_holder.append(other_series == "")
     return pd.concat(validation_holder)
 
@@ -172,3 +176,7 @@ def invalid_number_of_values(
 ) -> bool:
     values_count = len(ct_value.split(separator))
     return min_length <= values_count and values_count <= max_length
+
+
+def invalid_numeric_format(ct_value: str) -> bool:
+    return ct_value.isdigit()
