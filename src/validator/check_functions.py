@@ -131,6 +131,23 @@ def conditional_field_conflict(
     condition_values: list[str] = ["977"],
     separator: str = ";",
 ) -> pd.Series:
+    """
+    function to get validations that validate a column's content based on other column values
+    - if (at least one) other column values is in condition_values list then create 
+        validation that validate current column value is not empty  
+    - if other column values are NOT part of condition_values list then current column
+        value supposed to be empty
+        
+    Args:
+        grouped_data (Dict[str, pd.Series]): parsed data/series from source file
+        condition_values (list[str], optional): list of acceptable values for other column. 
+                                                Defaults to ["977"].
+        separator (str, optional): character used to separate multiple values. 
+                                                Defaults to ";".
+
+    Returns:
+        pd.Series: series of current column validations
+    """
     # will hold individual boolean series to be concatenated at return
     validation_holder = []
     for value, other_series in grouped_data.items():
@@ -179,4 +196,13 @@ def invalid_number_of_values(
 
 
 def invalid_numeric_format(ct_value: str) -> bool:
+    """
+    function to check a string is a number
+    return True if value is number , False if value is not number
+    Args:
+        ct_value (str): string value
+
+    Returns:
+        bool: True if value is number , False if value is not number
+    """
     return ct_value.isdigit()
