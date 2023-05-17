@@ -34,7 +34,7 @@ def uli_ensure_each_record_begins_with_the_same_lei(ulis: pd.Series) -> bool:
     return leis.nunique() == 1
 
 
-def date_valid_yyyymmdd(date: str) -> bool:
+def invalid_date_format(date: str) -> bool:
     """Attempt datetime conversion.
 
     This checks whether the date string has the format %Y%m%d and
@@ -174,7 +174,7 @@ def invalid_number_of_values(
     return min_length <= values_count and values_count <= max_length
 
 
-def date_in_range(
+def invalid_date_value(
         date_value: str, start_date_value: str, end_date_value: str
 ) -> bool:
     try:

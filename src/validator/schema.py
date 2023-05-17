@@ -10,7 +10,7 @@ from check_functions import (conditional_field_conflict, duplicates_in_field,
                              invalid_enum_value, invalid_number_of_values,
                              multi_invalid_number_of_values,
                              multi_value_field_restriction,
-                             date_valid_yyyymmdd, date_in_range)
+                             invalid_date_format, invalid_date_value)
 from checks import SBLCheck
 from pandera import Column, DataFrameSchema
 
@@ -317,8 +317,8 @@ sblar_schema = DataFrameSchema(
             title="Field 17: Action taken date",
             checks=[
                 SBLCheck(
-                    date_valid_yyyymmdd,
-                    name="action_taken_date.date_valid_yyyymmdd",
+                    invalid_date_format,
+                    name="action_taken_date.invalid_date_format",
                     description=(
                         "'Action taken date' must be a real calendar"
                         " date using YYYYMMDD format."
@@ -326,11 +326,12 @@ sblar_schema = DataFrameSchema(
                     element_wise=True,
                 ),
                 SBLCheck(
-                    date_in_range,
-                    name="action_taken_date.date_in_range",
+                    invalid_date_value,
+                    name="action_taken_date.invalid_date_value",
                     description=(
-                        "The 'action taken date' indicated must occur"
-                        " within the specified reporting period."
+                        "The date indicated by 'action taken date' must occur"
+                        " within the current reporting period:"
+                        " October 1, 2024 to December 31, 2024."
                     ),
                     element_wise=True,
                     start_date_value="20241001",
