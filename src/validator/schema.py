@@ -16,10 +16,10 @@ from check_functions import (
     multi_value_field_restriction,
 )
 from checks import SBLCheck
-from pandera import Column, DataFrameSchema
+from pandera import Column, DataFrameSchema, Check
 
 sblar_schema = DataFrameSchema(
-    {
+    columns={
         "uid": Column(
             str,
             title="Field 1: Unique identifier",
@@ -172,6 +172,20 @@ sblar_schema = DataFrameSchema(
                         "999",
                     ],
                 ),
+                SBLCheck(
+                    lambda x: x.strip() != "", 
+            
+                    name="ct_loan_term_flag.enum_value_conflict",
+                    description=(
+                        "‘Type of guarantee’ and ‘free-form text field for other "
+                        "guarantee‘ combined should not contain more than five values. "
+                        "Code 977 (other), within 'type of guarantee', does not count "
+                        "toward the maximum number of values for the purpose of this "
+                        "validation check."
+                    ),
+                    groupby="ct_credit_product",
+                ),
+
             ],
         ),
         "ct_loan_term": Column(
@@ -651,5 +665,20 @@ sblar_schema = DataFrameSchema(
             ),
             checks=[],
         ),
-    }
+    },
+    checks=[
+        SBLCheck(lambda df: ~(df['ct_credit_product'].isin([1,2]) 
+                              & df['ct_loan_term_flag'] == '999'), ignore_na=False,
+                 name="ct_loan_term_flag.enum_value_conflict",
+                 decription=("When ‘credit product’ equals 1 (term loan - unsecured) or 2 "
+                             "(term loan - secured), ‘loan term: NA/NP flag’ must not equal 999 "
+                              "(not applicable).")),
+        SBLCheck(lambda df: ~(df['ct_credit_product'] == '988' 
+                              & df['ct_loan_term_flag'] != '999'), ignore_na=False,
+                 name="ct_loan_term_flag.enum_value_conflict",
+                 decription=("When ‘credit product’ equals 988 (not provided by applicant and " 
+                             "otherwise undetermined), ‘loan term: NA/NP flag’ must equal 999.")),
+        
+
+    ]
 )
