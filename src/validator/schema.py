@@ -10,7 +10,8 @@ from check_functions import (conditional_field_conflict, duplicates_in_field,
                              invalid_enum_value, invalid_number_of_values,
                              multi_invalid_number_of_values,
                              multi_value_field_restriction,
-                             invalid_date_format, invalid_date_value)
+                             invalid_date_format, invalid_date_value,
+                             date_value_conflict)
 from checks import SBLCheck
 from pandera import Column, DataFrameSchema
 
@@ -336,6 +337,15 @@ sblar_schema = DataFrameSchema(
                     element_wise=True,
                     start_date_value="20241001",
                     end_date_value="20241231",
+                ),
+                SBLCheck(
+                    date_value_conflict,
+                    name="action_taken_date.date_value_conflict",
+                    description=(
+                        "The date indicated by ‘action taken date’"
+                        " must occur on or after ‘application date’."
+                    ),
+                    groupby="app_date",
                 ),
             ],
         ),

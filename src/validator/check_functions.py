@@ -177,6 +177,16 @@ def invalid_number_of_values(
 def invalid_date_value(
         date_value: str, start_date_value: str, end_date_value: str
 ) -> bool:
+    """ Checks that the date_value is within the range of the start_date_value
+        and the end_date_value
+
+    Args:
+        date_value: Date input ideally within the range of the current reporting period
+        start_date_value: Starting date of reporting period
+        end_date_value: End date of the reporting period
+
+    Returns: Returns True if date_value occurs within the current reporting period
+    """
     try:
         date = datetime.strptime(date_value, "%Y%m%d")
         start_date = datetime.strptime(start_date_value, "%Y%m%d")
@@ -184,3 +194,27 @@ def invalid_date_value(
         return start_date <= date <= end_date
     except ValueError:
         return False
+
+def date_value_conflict(
+        grouped_data: Dict[str, pd.Series],
+) -> pd.Series:
+    """Checks if date in column is after the date value of another column
+
+    Args:
+        grouped_data: Data grouped on before_date column
+
+    Returns: Series with corresponding True/False validation values for the column
+    """
+    # will hold individual boolean series to be concatenated at return
+    validation_holder = []
+    for value, other_series in grouped_data.items():
+        try:
+            before_date = datetime.strptime(value, "%Y%m%d")
+            after_date = datetime.strptime(str(other_series.values[0]), "%Y%m%d")
+            if after_date >= before_date:
+                validation_holder.append(other_series == other_series)
+            else:
+                validation_holder.append(other_series != other_series)
+        except ValueError:
+            validation_holder.append(other_series != other_series)
+    return pd.concat(validation_holder)
