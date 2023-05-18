@@ -171,20 +171,7 @@ sblar_schema = DataFrameSchema(
                         "988",
                         "999",
                     ],
-                ),
-                SBLCheck(
-                    lambda x: x.strip() != "", 
-            
-                    name="ct_loan_term_flag.enum_value_conflict",
-                    description=(
-                        "‘Type of guarantee’ and ‘free-form text field for other "
-                        "guarantee‘ combined should not contain more than five values. "
-                        "Code 977 (other), within 'type of guarantee', does not count "
-                        "toward the maximum number of values for the purpose of this "
-                        "validation check."
-                    ),
-                    groupby="ct_credit_product",
-                ),
+                )
 
             ],
         ),
