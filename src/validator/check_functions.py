@@ -152,14 +152,17 @@ def conditional_field_conflict(
     validation_holder = []
     for value, other_series in grouped_data.items():
         received_values = set(value.split(separator))
-        if not received_values.isdisjoint(condition_values):
-            # free form text should NOT be blank if acceptable values 
-            # existed in received list
-            validation_holder.append(other_series != "")
-        else:
+        if received_values.isdisjoint(condition_values):
+            # disjoint will return TRUE if received values do not contain 
+            #    condition values
             # free form should be blank if acceptable values NOT existed 
             # in received list
             validation_holder.append(other_series == "")
+        else:
+            # free form text should NOT be blank if acceptable values 
+            # existed in received list
+            validation_holder.append(other_series != "")
+            
     return pd.concat(validation_holder)
 
 
