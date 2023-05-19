@@ -129,6 +129,7 @@ def multi_invalid_number_of_values(
 def conditional_field_conflict(
     grouped_data: Dict[str, pd.Series],
     condition_values: set[str] = { "977" },
+    condition_values: set[str] = { "977" },
     separator: str = ";",
 ) -> pd.Series:
     """
