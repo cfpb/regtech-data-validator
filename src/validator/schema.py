@@ -144,11 +144,7 @@ sblar_schema = DataFrameSchema(
                         " for other guarantee’ must not be blank."
                     ),
                     groupby="ct_guarantee",
-<<<<<<< HEAD
                     condition_values={"977"},
-=======
-                    condition_values=["977"],
->>>>>>> 1fdc276 (add amount_approved field)
                 ),
                 SBLCheck(
                     multi_invalid_number_of_values,
@@ -388,11 +384,7 @@ sblar_schema = DataFrameSchema(
                             "not be blank."
                         ),
                         groupby="action_taken",
-<<<<<<< HEAD
                         condition_values={"1", "2"},
-=======
-                        condition_values=["1", "2"],
->>>>>>> 1fdc276 (add amount_approved field)
                     ),
                 ],
         ),
