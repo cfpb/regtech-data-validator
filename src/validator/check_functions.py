@@ -128,7 +128,7 @@ def multi_invalid_number_of_values(
 
 def conditional_field_conflict(
     grouped_data: Dict[str, pd.Series],
-    condition_values: list[str] = ["977"],
+    condition_values: set[str] = { "977" },
     separator: str = ";",
 ) -> pd.Series:
     """
@@ -152,8 +152,7 @@ def conditional_field_conflict(
     validation_holder = []
     for value, other_series in grouped_data.items():
         received_values = set(value.split(separator))
-        accepted_values = set(condition_values)
-        if len(received_values.intersection(accepted_values)) > 0 :
+        if not received_values.isdisjoint(condition_values):
             # free form text should NOT be blank if acceptable values 
             # existed in received list
             validation_holder.append(other_series != "")

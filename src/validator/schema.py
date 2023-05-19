@@ -11,7 +11,6 @@ from check_functions import (conditional_field_conflict, duplicates_in_field,
                              invalid_numeric_format,
                              multi_invalid_number_of_values,
                              multi_value_field_restriction)
-
 from checks import SBLCheck
 from pandera import Column, DataFrameSchema
 
@@ -146,7 +145,7 @@ sblar_schema = DataFrameSchema(
                         " for other guarantee’ must not be blank."
                     ),
                     groupby="ct_guarantee",
-                    condition_values=["977"],
+                    condition_values={"977"},
                 ),
                 SBLCheck(
                     multi_invalid_number_of_values,
@@ -264,7 +263,7 @@ sblar_schema = DataFrameSchema(
                         " must not be blank."
                     ),
                     groupby="credit_purpose",
-                    condition_value="977",
+                    condition_values={"977"},
                 ),
                 SBLCheck(
                     invalid_number_of_values,
@@ -321,7 +320,7 @@ sblar_schema = DataFrameSchema(
                             "not be blank."
                         ),
                         groupby="action_taken",
-                        condition_values=["1", "2"],
+                        condition_values={"1", "2"},
                     ),
                 ],
         ),
