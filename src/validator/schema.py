@@ -13,7 +13,7 @@ from check_functions import (conditional_field_conflict, duplicates_in_field,
                              multi_value_field_restriction)
                              multi_value_field_restriction)
 from checks import SBLCheck
-from pandera import Check, Column, DataFrameSchema
+from pandera import Column, DataFrameSchema
 
 sblar_schema = DataFrameSchema(
     {
