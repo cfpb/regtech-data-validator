@@ -11,9 +11,8 @@ from check_functions import (conditional_field_conflict, duplicates_in_field,
                              invalid_number_of_values, invalid_numeric_format,
                              multi_invalid_number_of_values,
                              multi_value_field_restriction)
-
 from checks import SBLCheck
-from pandera import Check, Column, DataFrameSchema
+from pandera import Column, DataFrameSchema
 
 sblar_schema = DataFrameSchema(
     {
@@ -79,7 +78,8 @@ sblar_schema = DataFrameSchema(
                     warning=True,
                     name="ct_guarantee.duplicates_in_field",
                     description=(
-                        "‘Type of guarantee’ should not contain " "duplicated values."
+                        "‘Type of guarantee’ should not contain " 
+                        "duplicated values."
                     ),
                     element_wise=True,
                 ),
@@ -145,7 +145,7 @@ sblar_schema = DataFrameSchema(
                         " for other guarantee’ must not be blank."
                     ),
                     groupby="ct_guarantee",
-                    condition_value="977",
+                    condition_values={"977"},
                 ),
                 SBLCheck(
                     multi_invalid_number_of_values,
@@ -328,7 +328,7 @@ sblar_schema = DataFrameSchema(
                         " must not be blank."
                     ),
                     groupby="credit_purpose",
-                    condition_value="977",
+                    condition_values={"977"},
                 ),
                 SBLCheck(
                     invalid_number_of_values,
@@ -356,7 +356,38 @@ sblar_schema = DataFrameSchema(
         "amount_approved": Column(
             str,
             title="Field 15: Amount approved or originated",
-            checks=[],
+            checks=[
+                    SBLCheck(
+                        invalid_numeric_format,
+                        name="amount_approved.invalid_numeric_format",
+                        description=(
+                            "When present, ‘amount approved or originated’ "
+                            "must be a numeric value."
+                        ),
+                        element_wise=True,
+                    ),
+                    SBLCheck.greater_than(
+                        min_value="0",
+                        name="amount_approved.invalid_numeric_value",
+                        description=(
+                            "When present, ‘amount approved or originated’ "
+                            "must be greater than 0."
+                        ),
+                    ),
+                    SBLCheck(
+                        conditional_field_conflict,
+                        name="amount_approved.conditional_field_conflict",
+                        description=(
+                            "When ‘action taken’ does not equal 1 (originated) "
+                            "or 2 (approved but not accepted), ‘amount approved "
+                            " or originated’ must be blank. When ‘action taken’ "
+                            "equals 1 or 2, ‘amount approved or originated’ must "
+                            "not be blank."
+                        ),
+                        groupby="action_taken",
+                        condition_values={"1", "2"},
+                    ),
+                ],
         ),
         "action_taken": Column(
             str,
