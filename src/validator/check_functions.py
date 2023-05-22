@@ -196,7 +196,6 @@ def invalid_number_of_values(
     values_count = len(ct_value.split(separator))
     return min_length <= values_count and values_count <= max_length
 
-
 def invalid_numeric_format(ct_value: str) -> bool:
     """
     function to check a string is a number
