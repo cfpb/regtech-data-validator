@@ -6,20 +6,16 @@ https://pandera.readthedocs.io/en/stable/dataframe_schemas.html
 The only major modification from native Pandera is the use of custom
 Check classes to differentiate between warnings and errors. """
 
-from check_functions import (
-    conditional_field_conflict,
-    duplicates_in_field,
-    invalid_enum_value,
-    invalid_number_of_values,
-    invalid_numeric_format,
-    multi_invalid_number_of_values,
-    multi_value_field_restriction,
-)
+from check_functions import (conditional_field_conflict, duplicates_in_field,
+                             enum_value_conflict, invalid_enum_value,
+                             invalid_number_of_values, invalid_numeric_format,
+                             multi_invalid_number_of_values,
+                             multi_value_field_restriction)
 from checks import SBLCheck
-from pandera import Column, DataFrameSchema, Check
+from pandera import Check, Column, DataFrameSchema
 
 sblar_schema = DataFrameSchema(
-    columns={
+    {
         "uid": Column(
             str,
             title="Field 1: Unique identifier",
@@ -171,7 +167,22 @@ sblar_schema = DataFrameSchema(
                         "988",
                         "999",
                     ],
-                )
+                ),
+                SBLCheck(
+                    enum_value_conflict,
+                    name="ct_loan_term_flag.enum_value_conflict",
+                    description=(
+                        "When ‘credit product’ equals 1 (term loan - unsecured) or 2" 
+                        "(term loan - secured), ‘loan term: NA/NP flag’ must not equal 999 "
+                        "(not applicable)."
+                        "When ‘credit product’ equals 988 (not provided by applicant "
+                        "and otherwise undetermined), ‘loan term: NA/NP flag’ must equal 999."
+                    ),
+                    groupby="ct_credit_product",
+                    condition_values1={"1", "2"},
+                    condition_values2={"988"},
+                    condition_value="999"
+                ),
 
             ],
         ),
@@ -652,20 +663,5 @@ sblar_schema = DataFrameSchema(
             ),
             checks=[],
         ),
-    },
-    checks=[
-        SBLCheck(lambda df: ~(df['ct_credit_product'].isin([1,2]) 
-                              & df['ct_loan_term_flag'] == '999'), ignore_na=False,
-                 name="ct_loan_term_flag.enum_value_conflict",
-                 decription=("When ‘credit product’ equals 1 (term loan - unsecured) or 2 "
-                             "(term loan - secured), ‘loan term: NA/NP flag’ must not equal 999 "
-                              "(not applicable).")),
-        SBLCheck(lambda df: ~(df['ct_credit_product'] == '988' 
-                              & df['ct_loan_term_flag'] != '999'), ignore_na=False,
-                 name="ct_loan_term_flag.enum_value_conflict",
-                 decription=("When ‘credit product’ equals 988 (not provided by applicant and " 
-                             "otherwise undetermined), ‘loan term: NA/NP flag’ must equal 999.")),
-        
-
-    ]
+    }
 )
