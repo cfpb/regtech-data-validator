@@ -172,3 +172,23 @@ def invalid_number_of_values(
 ) -> bool:
     values_count = len(ct_value.split(separator))
     return min_length <= values_count and values_count <= max_length
+
+def invalid_numeric_format(ct_value: str) -> bool:
+    return ct_value.isdigit()
+
+def enum_value_conflict(
+    grouped_data: Dict[str, pd.Series],
+    condition_values1: set[str] = { "1", "2" },
+    condition_values2: set[str] = { "988"},
+    separator: str = ";",
+    condition_value = "999"
+) -> pd.Series:
+    validation_holder = []
+    for value, other_series in grouped_data.items():
+        received_values = set(value.split(separator))
+        if received_values.isdisjoint(condition_values1):
+            validation_holder.append(other_series == condition_value)
+        elif received_values.isdisjoint(condition_values2):
+            validation_holder.append(other_series != condition_value)
+            
+    return pd.concat(validation_holder)

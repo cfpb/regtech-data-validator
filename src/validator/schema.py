@@ -7,12 +7,13 @@ The only major modification from native Pandera is the use of custom
 Check classes to differentiate between warnings and errors. """
 
 from check_functions import (conditional_field_conflict, duplicates_in_field,
-                             invalid_enum_value, invalid_number_of_values,
+                             enum_value_conflict, invalid_enum_value,
+                             invalid_number_of_values, invalid_numeric_format,
                              multi_invalid_number_of_values,
                              multi_value_field_restriction)
 
 from checks import SBLCheck
-from pandera import Column, DataFrameSchema
+from pandera import Check, Column, DataFrameSchema
 
 sblar_schema = DataFrameSchema(
     {
@@ -78,8 +79,7 @@ sblar_schema = DataFrameSchema(
                     warning=True,
                     name="ct_guarantee.duplicates_in_field",
                     description=(
-                        "‘Type of guarantee’ should not contain "
-                        "duplicated values."
+                        "‘Type of guarantee’ should not contain " "duplicated values."
                     ),
                     element_wise=True,
                 ),
@@ -160,18 +160,83 @@ sblar_schema = DataFrameSchema(
                     ),
                     groupby="ct_guarantee",
                     max_length=5,
-                ),      
+                ),
             ],
         ),
         "ct_loan_term_flag": Column(
             str,
             title="Field 9: Loan term: NA/NP flag",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    invalid_enum_value,
+                    name="ct_loan_term_flag.invalid_enum_value",
+                    description=(
+                        "Each value in ‘Loan term: NA/NP flag’ (separated by "
+                        " semicolons) must equal 900, 988, or 999."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "900",
+                        "988",
+                        "999",
+                    ],
+                ),
+                SBLCheck(
+                    enum_value_conflict,
+                    name="ct_loan_term_flag.enum_value_conflict",
+                    description=(
+                        "When ‘credit product’ equals 1 (term loan - unsecured) or 2" 
+                        "(term loan - secured), ‘loan term: NA/NP flag’ must not equal 999 "
+                        "(not applicable)."
+                        "When ‘credit product’ equals 988 (not provided by applicant "
+                        "and otherwise undetermined), ‘loan term: NA/NP flag’ must equal 999."
+                    ),
+                    groupby="ct_credit_product",
+                    condition_values1={"1", "2"},
+                    condition_values2={"988"},
+                    condition_value="999"
+                ),
+
+            ],
         ),
         "ct_loan_term": Column(
             str,
             title="Field 10: Loan term",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    conditional_field_conflict,
+                    name="ct_loan_term.conditional_field_conflict",
+                    description=(
+                        "When ‘loan term: NA/NP flag’ does not equal 900 (applicable "
+                        "and reported), ‘loan term’ must be blank. When ‘loan term:"
+                        "NA/NP flag equals 900, ‘loan term’ must not be blank."
+                    ),
+                    groupby="ct_loan_term_flag",
+                    condition_value="900",
+                ),
+                SBLCheck(
+                    invalid_numeric_format,
+                    name="ct_loan_term.invalid_numeric_format",
+                    description="When present, ‘loan term’ must be a whole number.",
+                    element_wise=True,
+                ),
+                SBLCheck.greater_than_or_equal_to(
+                    min_value="1",
+                    name="ct_loan_term.invalid_numeric_value",
+                    description=(
+                        "When present, ‘loan term’ must be greater than or equal"
+                        "to 1."
+                    ),
+                ),
+                SBLCheck.less_than(
+                    max_value="1200",
+                    name="ct_loan_term.unreasonable_numeric_value",
+                    description=(
+                        "When present, ‘loan term’ should be less than 1200"
+                        "(100 years)."
+                    ),
+                ),
+            ],
         ),
         "credit_purpose": Column(
             str,
