@@ -208,3 +208,22 @@ def invalid_numeric_format(ct_value: str) -> bool:
         bool: True if value is number , False if value is not number
     """
     return ct_value.isdigit()
+
+def enum_value_conflict(
+    grouped_data: Dict[str, pd.Series],
+    condition_values1: set[str] = { "1", "2" },
+    condition_values2: set[str] = { "988"},
+    separator: str = ";",
+    condition_value = "999"
+) -> pd.Series:
+    validation_holder = []
+    for value, other_series in grouped_data.items():
+        print("value: " + value);
+        print("other_series: " + other_series);
+        received_values = set(value.split(separator))
+        if received_values.isdisjoint(condition_values1):
+            validation_holder.append(other_series == condition_value)
+        elif received_values.isdisjoint(condition_values2):
+            validation_holder.append(other_series != condition_value)
+            
+    return pd.concat(validation_holder)
