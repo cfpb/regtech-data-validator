@@ -7,8 +7,8 @@ The only major modification from native Pandera is the use of custom
 Check classes to differentiate between warnings and errors. """
 
 from check_functions import (conditional_field_conflict, duplicates_in_field,
-                             invalid_enum_value, invalid_number_of_values,
-                             invalid_numeric_format,
+                             enum_value_conflict, invalid_enum_value,
+                             invalid_number_of_values, invalid_numeric_format,
                              multi_invalid_number_of_values,
                              multi_value_field_restriction)
 from checks import SBLCheck
