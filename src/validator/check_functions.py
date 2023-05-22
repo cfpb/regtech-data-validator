@@ -185,8 +185,6 @@ def enum_value_conflict(
 ) -> pd.Series:
     validation_holder = []
     for value, other_series in grouped_data.items():
-        print("value: " + value);
-        print("other_series: " + other_series);
         received_values = set(value.split(separator))
         if received_values.isdisjoint(condition_values1):
             validation_holder.append(other_series == condition_value)
