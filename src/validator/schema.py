@@ -377,7 +377,7 @@ sblar_schema = DataFrameSchema(
                         "‘amount applied for’ must not be blank."
                     ),
                     groupby="amount_applied_for_flag",
-                    condition_value="900",
+                    condition_values={"900"},
                 ),
                 SBLCheck(
                     invalid_numeric_format,
