@@ -38,7 +38,7 @@ sblar_schema = DataFrameSchema(
                 SBLCheck(
                     invalid_enum_value,
                     name="app_recipient.invalid_enum_value",
-                    description="‘Application recipient’ must equal 1 or 2",
+                    description="'Application recipient' must equal 1 or 2",
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -66,7 +66,7 @@ sblar_schema = DataFrameSchema(
                     invalid_number_of_values,
                     name="ct_guarantee.invalid_number_of_values",
                     description=(
-                        "‘Type of guarantee’ must contain at least one and at"
+                        "'Type of guarantee' must contain at least one and at"
                         " most five values, separated by semicolons."
                     ),
                     element_wise=True,
@@ -78,7 +78,7 @@ sblar_schema = DataFrameSchema(
                     warning=True,
                     name="ct_guarantee.duplicates_in_field",
                     description=(
-                        "‘Type of guarantee’ should not contain " 
+                        "'Type of guarantee' should not contain " 
                         "duplicated values."
                     ),
                     element_wise=True,
@@ -88,8 +88,8 @@ sblar_schema = DataFrameSchema(
                     warning=True,
                     name="ct_guarantee.multi_value_field_restriction",
                     description=(
-                        "When ‘type of guarantee’ contains 999 (no guarantee),"
-                        " ‘type of guarantee’ should not contain more than one"
+                        "When 'type of guarantee' contains 999 (no guarantee),"
+                        " 'type of guarantee' should not contain more than one"
                         " value."
                     ),
                     element_wise=True,
@@ -99,7 +99,7 @@ sblar_schema = DataFrameSchema(
                     invalid_enum_value,
                     name="ct_guarantee.invalid_enum_value",
                     description=(
-                        "Each value in ‘type of guarantee’ (separated by "
+                        "Each value in 'type of guarantee' (separated by "
                         " semicolons) must equal 1, 2, 3, 4, 5, 6, 7, 8,"
                         " 9, 10, 11, 977, or 999."
                     ),
@@ -131,7 +131,7 @@ sblar_schema = DataFrameSchema(
                     300,
                     name="ct_guarantee_ff.invalid_text_length",
                     description=(
-                        "‘Free-form text field for other guarantee’ must not "
+                        "'Free-form text field for other guarantee' must not "
                         "exceed 300 characters in length"
                     ),
                 ),
@@ -139,10 +139,10 @@ sblar_schema = DataFrameSchema(
                     conditional_field_conflict,
                     name="ct_guarantee_ff.conditional_field_conflict",
                     description=(
-                        "When ‘type of guarantee’ does not contain 977 (other), "
-                        "‘free-form text field for other guarantee’ must be blank. "
-                        "When ‘type of guarantee’ contains 977, ‘free-form text field"
-                        " for other guarantee’ must not be blank."
+                        "When 'type of guarantee' does not contain 977 (other), "
+                        "'free-form text field for other guarantee' must be blank. "
+                        "When 'type of guarantee' contains 977, 'free-form text field"
+                        " for other guarantee' must not be blank."
                     ),
                     groupby="ct_guarantee",
                     condition_values={"977"},
@@ -152,8 +152,8 @@ sblar_schema = DataFrameSchema(
                     warning=True,
                     name="ct_guarantee_ff.multi_invalid_number_of_values",
                     description=(
-                        "‘Type of guarantee’ and ‘free-form text field for other "
-                        "guarantee‘ combined should not contain more than five values. "
+                        "'Type of guarantee' and 'free-form text field for other "
+                        "guarantee' combined should not contain more than five values. "
                         "Code 977 (other), within 'type of guarantee', does not count "
                         "toward the maximum number of values for the purpose of this "
                         "validation check."
@@ -171,7 +171,7 @@ sblar_schema = DataFrameSchema(
                     invalid_enum_value,
                     name="ct_loan_term_flag.invalid_enum_value",
                     description=(
-                        "Each value in ‘Loan term: NA/NP flag’ (separated by "
+                        "Each value in 'Loan term: NA/NP flag' (separated by "
                         " semicolons) must equal 900, 988, or 999."
                     ),
                     element_wise=True,
@@ -185,11 +185,11 @@ sblar_schema = DataFrameSchema(
                     enum_value_conflict,
                     name="ct_loan_term_flag.enum_value_conflict",
                     description=(
-                        "When ‘credit product’ equals 1 (term loan - unsecured) or 2" 
-                        "(term loan - secured), ‘loan term: NA/NP flag’ must not equal 999 "
+                        "When 'credit product' equals 1 (term loan - unsecured) or 2" 
+                        "(term loan - secured), 'loan term: NA/NP flag' must not equal 999 "
                         "(not applicable)."
-                        "When ‘credit product’ equals 988 (not provided by applicant "
-                        "and otherwise undetermined), ‘loan term: NA/NP flag’ must equal 999."
+                        "When 'credit product' equals 988 (not provided by applicant "
+                        "and otherwise undetermined), 'loan term: NA/NP flag' must equal 999."
                     ),
                     groupby="ct_credit_product",
                     condition_values1={"1", "2"},
@@ -207,9 +207,9 @@ sblar_schema = DataFrameSchema(
                     conditional_field_conflict,
                     name="ct_loan_term.conditional_field_conflict",
                     description=(
-                        "When ‘loan term: NA/NP flag’ does not equal 900 (applicable "
-                        "and reported), ‘loan term’ must be blank. When ‘loan term:"
-                        "NA/NP flag equals 900, ‘loan term’ must not be blank."
+                        "When 'loan term: NA/NP flag' does not equal 900 (applicable "
+                        "and reported), 'loan term' must be blank. When 'loan term:"
+                        "NA/NP flag' equals 900, 'loan term' must not be blank."
                     ),
                     groupby="ct_loan_term_flag",
                     condition_value="900",
@@ -217,14 +217,14 @@ sblar_schema = DataFrameSchema(
                 SBLCheck(
                     invalid_numeric_format,
                     name="ct_loan_term.invalid_numeric_format",
-                    description="When present, ‘loan term’ must be a whole number.",
+                    description="When present, 'loan term' must be a whole number.",
                     element_wise=True,
                 ),
                 SBLCheck.greater_than_or_equal_to(
                     min_value="1",
                     name="ct_loan_term.invalid_numeric_value",
                     description=(
-                        "When present, ‘loan term’ must be greater than or equal"
+                        "When present, 'loan term' must be greater than or equal"
                         "to 1."
                     ),
                 ),
@@ -232,7 +232,7 @@ sblar_schema = DataFrameSchema(
                     max_value="1200",
                     name="ct_loan_term.unreasonable_numeric_value",
                     description=(
-                        "When present, ‘loan term’ should be less than 1200"
+                        "When present, 'loan term' should be less than 1200"
                         "(100 years)."
                     ),
                 ),
@@ -246,7 +246,7 @@ sblar_schema = DataFrameSchema(
                     invalid_enum_value,
                     name="credit_purpose.invalid_enum_value",
                     description=(
-                        "Each value in ‘credit purpose’ (separated by "
+                        "Each value in 'credit purpose' (separated by "
                         " semicolons) must equal 1, 2, 3, 4, 5, 6, 7, 8,"
                         " 9, 10, 11, 977, 988, or 999."
                     ),
@@ -272,7 +272,7 @@ sblar_schema = DataFrameSchema(
                     invalid_number_of_values,
                     name="credit_purpose.invalid_number_of_values",
                     description=(
-                        "‘Credit purpose’ must contain at least one and at"
+                        "'Credit purpose' must contain at least one and at"
                         " most three values, separated by semicolons."
                     ),
                     element_wise=True,
@@ -284,8 +284,8 @@ sblar_schema = DataFrameSchema(
                     warning=True,
                     name="credit_purpose.multi_value_field_restriction",
                     description=(
-                        "When ‘credit purpose’ contains 988 or 999,"
-                        " ‘credit purpose’ should not contain more than one"
+                        "When 'credit purpose' contains 988 or 999,"
+                        " 'credit purpose' should not contain more than one"
                         " value."
                     ),
                     element_wise=True,
@@ -299,7 +299,7 @@ sblar_schema = DataFrameSchema(
                     warning=True,
                     name="credit_purpose.duplicates_in_field",
                     description=(
-                        "‘Credit purpose’ should not contain "
+                        "'Credit purpose' should not contain "
                         " duplicated values."
                     ),
                     element_wise=True,
@@ -315,7 +315,7 @@ sblar_schema = DataFrameSchema(
                     300,
                     name="credit_purpose_ff.invalid_text_length",
                     description=(
-                        "‘Free-form text field for other credit purpose’ "
+                        "'Free-form text field for other credit purpose' "
                         " must not exceed 300 characters in length"
                     ),
                 ),
@@ -323,8 +323,8 @@ sblar_schema = DataFrameSchema(
                     conditional_field_conflict,
                     name="credit_purpose_ff.conditional_field_conflict",
                     description=(
-                        "When ‘credit purpose’ does not contain 977 (other), ‘free-form text field for other credit purpose’ "
-                        " must be blank. When ‘credit purpose’ contains 977, ‘free-form text field for other credit purpose’ "
+                        "When 'credit purpose' does not contain 977 (other), 'free-form text field for other credit purpose' "
+                        " must be blank. When 'credit purpose' contains 977, 'free-form text field for other credit purpose' "
                         " must not be blank."
                     ),
                     groupby="credit_purpose",
@@ -334,7 +334,7 @@ sblar_schema = DataFrameSchema(
                     invalid_number_of_values,
                     name="credit_purpose_ff.invalid_number_of_values",
                     description=(
-                        "‘Other Credit purpose’ must not contain more "
+                        "'Other Credit purpose' must not contain more "
                         " than one other credit purpose."
                     ),
                     element_wise=True,
@@ -351,7 +351,7 @@ sblar_schema = DataFrameSchema(
                     invalid_enum_value,
                     name="amount_applied_for_flag.invalid_enum_value",
                     description=(
-                        "‘Amount applied For: NA/NP flag’ must equal 900, 988, or 999."
+                        "'Amount applied For: NA/NP flag' must equal 900, 988, or 999."
                     ),
                     element_wise=True,
                     accepted_values=[
@@ -371,10 +371,10 @@ sblar_schema = DataFrameSchema(
                     conditional_field_conflict,
                     name="amount_applied_for.conditional_field_conflict",
                     description=(
-                        "When ‘amount applied for: NA/NP flag’ does not equal 900 "
-                        "(applicable and reported), ‘amount applied for’ must be blank."
-                        "When ‘amount applied for: NA/NP flag’ equals 900, "
-                        "‘amount applied for’ must not be blank."
+                        "When 'amount applied for: NA/NP flag' does not equal 900 "
+                        "(applicable and reported), 'amount applied for' must be blank."
+                        "When 'amount applied for: NA/NP flag' equals 900, "
+                        "'amount applied for' must not be blank."
                     ),
                     groupby="amount_applied_for_flag",
                     condition_values={"900"},
@@ -383,7 +383,7 @@ sblar_schema = DataFrameSchema(
                     invalid_numeric_format,
                     name="amount_applied_for.invalid_numeric_format",
                     description=(
-                        "When present, ‘amount applied for’ must be a numeric"
+                        "When present, 'amount applied for' must be a numeric"
                         "value."
                     ),
                     element_wise=True,
@@ -392,7 +392,7 @@ sblar_schema = DataFrameSchema(
                     min_value="0",
                     name="amount_applied_for.invalid_numeric_value",
                     description=(
-                        "When present, ‘amount applied for’ must be greater than 0."
+                        "When present, 'amount applied for' must be greater than 0."
                     ),
                 ),
 
@@ -406,7 +406,7 @@ sblar_schema = DataFrameSchema(
                         invalid_numeric_format,
                         name="amount_approved.invalid_numeric_format",
                         description=(
-                            "When present, ‘amount approved or originated’ "
+                            "When present, 'amount approved or originated' "
                             "must be a numeric value."
                         ),
                         element_wise=True,
@@ -415,7 +415,7 @@ sblar_schema = DataFrameSchema(
                         min_value="0",
                         name="amount_approved.invalid_numeric_value",
                         description=(
-                            "When present, ‘amount approved or originated’ "
+                            "When present, 'amount approved or originated' "
                             "must be greater than 0."
                         ),
                     ),
@@ -423,10 +423,10 @@ sblar_schema = DataFrameSchema(
                         conditional_field_conflict,
                         name="amount_approved.conditional_field_conflict",
                         description=(
-                            "When ‘action taken’ does not equal 1 (originated) "
-                            "or 2 (approved but not accepted), ‘amount approved "
-                            " or originated’ must be blank. When ‘action taken’ "
-                            "equals 1 or 2, ‘amount approved or originated’ must "
+                            "When 'action taken' does not equal 1 (originated) "
+                            "or 2 (approved but not accepted), 'amount approved "
+                            " or originated' must be blank. When 'action taken' "
+                            "equals 1 or 2, 'amount approved or originated' must "
                             "not be blank."
                         ),
                         groupby="action_taken",
@@ -441,7 +441,7 @@ sblar_schema = DataFrameSchema(
                     SBLCheck(
                         invalid_enum_value,
                         name="action_taken.invalid_enum_value",
-                        description="‘Action taken’ must equal 1, 2, 3, 4, or 5.",
+                        description="'Action taken' must equal 1, 2, 3, 4, or 5.",
                         element_wise=True,
                         accepted_values=[
                             "1",
