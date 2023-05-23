@@ -346,12 +346,57 @@ sblar_schema = DataFrameSchema(
         "amount_applied_for_flag": Column(
             str,
             title="Field 13: Amount applied for: NA/NP flag",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    invalid_enum_value,
+                    name="amount_applied_for_flag.invalid_enum_value",
+                    description=(
+                        "‘Amount applied For: NA/NP flag’ must equal 900, 988, or 999."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "900",
+                        "988",
+                        "999",
+                    ],
+                ),
+
+                ],
         ),
         "amount_applied_for": Column(
             str,
             title="Field 14: Amount applied for",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    conditional_field_conflict,
+                    name="amount_applied_for.conditional_field_conflict",
+                    description=(
+                        "When ‘amount applied for: NA/NP flag’ does not equal 900 "
+                        "(applicable and reported), ‘amount applied for’ must be blank."
+                        "When ‘amount applied for: NA/NP flag’ equals 900, "
+                        "‘amount applied for’ must not be blank."
+                    ),
+                    groupby="amount_applied_for_flag",
+                    condition_values={"900"},
+                ),
+                SBLCheck(
+                    invalid_numeric_format,
+                    name="amount_applied_for.invalid_numeric_format",
+                    description=(
+                        "When present, ‘amount applied for’ must be a numeric"
+                        "value."
+                    ),
+                    element_wise=True,
+                ),
+                SBLCheck.greater_than(
+                    min_value="0",
+                    name="amount_applied_for.invalid_numeric_value",
+                    description=(
+                        "When present, ‘amount applied for’ must be greater than 0."
+                    ),
+                ),
+
+                ],
         ),
         "amount_approved": Column(
             str,
