@@ -128,18 +128,41 @@ def multi_invalid_number_of_values(
 
 def conditional_field_conflict(
     grouped_data: Dict[str, pd.Series],
-    condition_value: str = "977",
+    condition_values: set[str] = { "977" },
     separator: str = ";",
 ) -> pd.Series:
+    """
+    function to get validations that validate a column's content based on other column values
+    - if (at least one) other column values is in condition_values list then create 
+        validation that validate current column value is not empty  
+    - if other column values are NOT part of condition_values list then current column
+        value supposed to be empty
+        
+    Args:
+        grouped_data (Dict[str, pd.Series]): parsed data/series from source file
+        condition_values (list[str], optional): list of acceptable values for other column. 
+                                                Defaults to ["977"].
+        separator (str, optional): character used to separate multiple values. 
+                                                Defaults to ";".
+
+    Returns:
+        pd.Series: series of current column validations
+    """
     # will hold individual boolean series to be concatenated at return
     validation_holder = []
     for value, other_series in grouped_data.items():
-        if condition_value in value.split(separator):
-            # free form text should NOT be blank if condition_value existed in list
-            validation_holder.append(other_series != "")
-        else:
-            # free form should be blank if condition_value NOT existed in list
+        received_values = set(value.split(separator))
+        if received_values.isdisjoint(condition_values):
+            # disjoint will return TRUE if received values do not contain 
+            #    condition values
+            # free form should be blank if acceptable values NOT existed 
+            # in received list
             validation_holder.append(other_series == "")
+        else:
+            # free form text should NOT be blank if acceptable values 
+            # existed in received list
+            validation_holder.append(other_series != "")
+            
     return pd.concat(validation_holder)
 
 
@@ -215,4 +238,34 @@ def date_value_conflict(
             validation_holder.append(other_series.apply(lambda date: date >= before_date))
         except ValueError:
             validation_holder.append(other_series.apply(lambda v: False))
+    return pd.concat(validation_holder)
+
+
+def invalid_numeric_format(ct_value: str) -> bool:
+    """
+    function to check a string is a number
+    return True if value is number , False if value is not number
+    Args:
+        ct_value (str): string value
+
+    Returns:
+        bool: True if value is number , False if value is not number
+    """
+    return ct_value.isdigit()
+
+def enum_value_conflict(
+    grouped_data: Dict[str, pd.Series],
+    condition_values1: set[str] = { "1", "2" },
+    condition_values2: set[str] = { "988"},
+    separator: str = ";",
+    condition_value = "999"
+) -> pd.Series:
+    validation_holder = []
+    for value, other_series in grouped_data.items():
+        received_values = set(value.split(separator))
+        if received_values.isdisjoint(condition_values1):
+            validation_holder.append(other_series == condition_value)
+        elif received_values.isdisjoint(condition_values2):
+            validation_holder.append(other_series != condition_value)
+            
     return pd.concat(validation_holder)
