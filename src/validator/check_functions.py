@@ -210,11 +210,9 @@ def date_value_conflict(
     for value, other_series in grouped_data.items():
         try:
             before_date = datetime.strptime(value, "%Y%m%d")
-            after_date = datetime.strptime(str(other_series.values[0]), "%Y%m%d")
-            if after_date >= before_date:
-                validation_holder.append(other_series == other_series)
-            else:
-                validation_holder.append(other_series != other_series)
+            other_series = pd.to_datetime(other_series)  # Convert other series to Date time object
+
+            validation_holder.append(other_series.apply(lambda date: date >= before_date))
         except ValueError:
-            validation_holder.append(other_series != other_series)
+            validation_holder.append(other_series.apply(lambda v: False))
     return pd.concat(validation_holder)
