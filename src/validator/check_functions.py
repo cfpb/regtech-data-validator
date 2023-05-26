@@ -10,7 +10,7 @@ The names of the check functions should be prefixed with the name of the
 field or fields they validate."""
 
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict
 
 import pandas as pd
@@ -267,5 +267,31 @@ def enum_value_conflict(
             validation_holder.append(other_series == condition_value)
         elif received_values.isdisjoint(condition_values2):
             validation_holder.append(other_series != condition_value)
-            
+
+    return pd.concat(validation_holder)
+
+
+def unreasonable_date_value(
+        grouped_data: Dict[str, pd.Series],
+        days_value: int = 730
+) -> pd.Series:
+    """Checks if the provided date is not beyond
+       the grouped column date plus the days_value parameter
+    Args:
+        grouped_data: Data grouped on the initial date column
+        days_value: This value is added to our grouped data to find our unreasonable_date value
+
+    Returns: Series with corresponding True/False validation values for the column
+    """
+    # will hold individual boolean series to be concatenated at return
+    validation_holder = []
+    for value, other_series in grouped_data.items():
+        try:
+            initial_date = datetime.strptime(value, "%Y%m%d")
+            unreasonable_date = initial_date + timedelta(days=days_value)
+            other_series = pd.to_datetime(other_series)  # Convert other series to Date time object
+
+            validation_holder.append(other_series.apply(lambda date: date < unreasonable_date))
+        except ValueError:
+            validation_holder.append(other_series.apply(lambda v: False))
     return pd.concat(validation_holder)

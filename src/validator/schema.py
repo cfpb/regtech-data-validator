@@ -12,7 +12,7 @@ from check_functions import (conditional_field_conflict, duplicates_in_field,
                              multi_invalid_number_of_values,
                              multi_value_field_restriction,
                              invalid_date_format, invalid_date_value,
-                             date_value_conflict)
+                             date_value_conflict, unreasonable_date_value)
 from checks import SBLCheck
 from pandera import Column, DataFrameSchema
 
@@ -488,6 +488,17 @@ sblar_schema = DataFrameSchema(
                         " must occur on or after ‘application date’."
                     ),
                     groupby="app_date",
+                ),
+                SBLCheck(
+                    unreasonable_date_value,
+                    name="action_taken_date.unreasonable_date_value",
+                    description=(
+                        "The date indicated by ‘application date’ should"
+                        " generally be less than two years (730 days) before"
+                        " ‘action taken date’."
+                    ),
+                    groupby="app_date",
+                    days_value=730,
                 ),
             ],
         ),
