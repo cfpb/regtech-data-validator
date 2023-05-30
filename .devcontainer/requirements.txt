@@ -5,3 +5,4 @@ pandas==1.5.3
 pandera==0.14.5
 ipykernel
 openpyxl
+pytest

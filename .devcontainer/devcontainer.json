@@ -11,7 +11,8 @@
         "njpwerner.autodocstring",
         "yzhang.markdown-all-in-one",
         "carlos-algms.make-task-provider",
-        "DavidAnson.vscode-markdownlint"
+        "DavidAnson.vscode-markdownlint",
+        "littlefoxteam.vscode-python-test-adapter"
       ],
       "settings": {
         "files.exclude": {
@@ -37,7 +38,13 @@
         "python.envFile": "${workspaceFolder}/.env",
         "editor.codeActionsOnSave": {
           "source.organizeImports": true
-        }
+        },
+        "python.testing.pytestEnabled": true,
+        "python.testing.unittestEnabled": false,
+        "python.testing.pytestArgs": [
+          "--rootdir",
+          "${workspaceFolder}/src/tests"
+        ]
       }
     }
   }
