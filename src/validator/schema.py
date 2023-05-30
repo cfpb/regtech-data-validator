@@ -10,7 +10,9 @@ from check_functions import (conditional_field_conflict, duplicates_in_field,
                              enum_value_conflict, invalid_enum_value,
                              invalid_number_of_values, invalid_numeric_format,
                              multi_invalid_number_of_values,
-                             multi_value_field_restriction)
+                             multi_value_field_restriction,
+                             invalid_date_format, invalid_date_value,
+                             date_value_conflict, unreasonable_date_value)
 from checks import SBLCheck
 from pandera import Column, DataFrameSchema
 
@@ -456,7 +458,49 @@ sblar_schema = DataFrameSchema(
         "action_taken_date": Column(
             str,
             title="Field 17: Action taken date",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    invalid_date_format,
+                    name="action_taken_date.invalid_date_format",
+                    description=(
+                        "'Action taken date' must be a real calendar"
+                        " date using YYYYMMDD format."
+                    ),
+                    element_wise=True,
+                ),
+                SBLCheck(
+                    invalid_date_value,
+                    name="action_taken_date.invalid_date_value",
+                    description=(
+                        "The date indicated by 'action taken date' must occur"
+                        " within the current reporting period:"
+                        " October 1, 2024 to December 31, 2024."
+                    ),
+                    element_wise=True,
+                    start_date_value="20241001",
+                    end_date_value="20241231",
+                ),
+                SBLCheck(
+                    date_value_conflict,
+                    name="action_taken_date.date_value_conflict",
+                    description=(
+                        "The date indicated by ‘action taken date’"
+                        " must occur on or after ‘application date’."
+                    ),
+                    groupby="app_date",
+                ),
+                SBLCheck(
+                    unreasonable_date_value,
+                    name="action_taken_date.unreasonable_date_value",
+                    description=(
+                        "The date indicated by ‘application date’ should"
+                        " generally be less than two years (730 days) before"
+                        " ‘action taken date’."
+                    ),
+                    groupby="app_date",
+                    days_value=730,
+                ),
+            ],
         ),
         "denial_reasons": Column(
             str,

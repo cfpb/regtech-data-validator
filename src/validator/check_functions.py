@@ -10,7 +10,7 @@ The names of the check functions should be prefixed with the name of the
 field or fields they validate."""
 
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict
 
 import pandas as pd
@@ -34,7 +34,7 @@ def uli_ensure_each_record_begins_with_the_same_lei(ulis: pd.Series) -> bool:
     return leis.nunique() == 1
 
 
-def app_date_valid_yyyymmdd(date: str) -> bool:
+def invalid_date_format(date: str) -> bool:
     """Attempt datetime conversion.
 
     This checks whether the date string has the format %Y%m%d and
@@ -196,6 +196,51 @@ def invalid_number_of_values(
     values_count = len(ct_value.split(separator))
     return min_length <= values_count and values_count <= max_length
 
+
+def invalid_date_value(
+        date_value: str, start_date_value: str, end_date_value: str
+) -> bool:
+    """ Checks that the date_value is within the range of the start_date_value
+        and the end_date_value
+
+    Args:
+        date_value: Date input ideally within the range of the current reporting period
+        start_date_value: Starting date of reporting period
+        end_date_value: End date of the reporting period
+
+    Returns: Returns True if date_value occurs within the current reporting period
+    """
+    try:
+        date = datetime.strptime(date_value, "%Y%m%d")
+        start_date = datetime.strptime(start_date_value, "%Y%m%d")
+        end_date = datetime.strptime(end_date_value, "%Y%m%d")
+        return start_date <= date <= end_date
+    except ValueError:
+        return False
+
+def date_value_conflict(
+        grouped_data: Dict[str, pd.Series],
+) -> pd.Series:
+    """Checks if date in column is after the date value of another column
+
+    Args:
+        grouped_data: Data grouped on before_date column
+
+    Returns: Series with corresponding True/False validation values for the column
+    """
+    # will hold individual boolean series to be concatenated at return
+    validation_holder = []
+    for value, other_series in grouped_data.items():
+        try:
+            before_date = datetime.strptime(value, "%Y%m%d")
+            other_series = pd.to_datetime(other_series)  # Convert other series to Date time object
+
+            validation_holder.append(other_series.apply(lambda date: date >= before_date))
+        except ValueError:
+            validation_holder.append(other_series.apply(lambda v: False))
+    return pd.concat(validation_holder)
+
+
 def invalid_numeric_format(ct_value: str) -> bool:
     """
     function to check a string is a number
@@ -222,5 +267,31 @@ def enum_value_conflict(
             validation_holder.append(other_series == condition_value)
         elif received_values.isdisjoint(condition_values2):
             validation_holder.append(other_series != condition_value)
-            
+
+    return pd.concat(validation_holder)
+
+
+def unreasonable_date_value(
+        grouped_data: Dict[str, pd.Series],
+        days_value: int = 730
+) -> pd.Series:
+    """Checks if the provided date is not beyond
+       the grouped column date plus the days_value parameter
+    Args:
+        grouped_data: Data grouped on the initial date column
+        days_value: This value is added to our grouped data to find our unreasonable_date value
+
+    Returns: Series with corresponding True/False validation values for the column
+    """
+    # will hold individual boolean series to be concatenated at return
+    validation_holder = []
+    for value, other_series in grouped_data.items():
+        try:
+            initial_date = datetime.strptime(value, "%Y%m%d")
+            unreasonable_date = initial_date + timedelta(days=days_value)
+            other_series = pd.to_datetime(other_series)  # Convert other series to Date time object
+
+            validation_holder.append(other_series.apply(lambda date: date < unreasonable_date))
+        except ValueError:
+            validation_holder.append(other_series.apply(lambda v: False))
     return pd.concat(validation_holder)
