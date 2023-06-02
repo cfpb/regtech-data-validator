@@ -6,13 +6,15 @@ https://pandera.readthedocs.io/en/stable/dataframe_schemas.html
 The only major modification from native Pandera is the use of custom
 Check classes to differentiate between warnings and errors. """
 
-from check_functions import (conditional_field_conflict, duplicates_in_field,
-                             enum_value_conflict, invalid_enum_value,
-                             invalid_number_of_values, invalid_numeric_format,
+from check_functions import (conditional_field_conflict, date_value_conflict,
+                             denial_reasons_conditional_enum_value,
+                             duplicates_in_field, enum_value_conflict,
+                             invalid_date_format, invalid_date_value,
+                             invalid_enum_value, invalid_number_of_values,
+                             invalid_numeric_format,
                              multi_invalid_number_of_values,
                              multi_value_field_restriction,
-                             invalid_date_format, invalid_date_value,
-                             date_value_conflict, unreasonable_date_value)
+                             unreasonable_date_value)
 from checks import SBLCheck
 from pandera import Column, DataFrameSchema
 
@@ -49,7 +51,6 @@ sblar_schema = DataFrameSchema(
                 ),
             ],
         ),
-
         "ct_credit_product": Column(
             str,
             title="Field 5: Credit product",
@@ -294,7 +295,7 @@ sblar_schema = DataFrameSchema(
                     single_values={
                         "988",
                         "999",
-                    }
+                    },
                 ),
                 SBLCheck(
                     duplicates_in_field,
@@ -505,12 +506,99 @@ sblar_schema = DataFrameSchema(
         "denial_reasons": Column(
             str,
             title="Field 18: Denial reason(s)",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    invalid_enum_value,
+                    name="denial_reasons.invalid_enum_value",
+                    description=(
+                        "Each value in 'denial reason(s)' (separated by semicolons)"
+                        "must equal 1, 2, 3, 4, 5, 6, 7, 8, 9, 977, or 999."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8",
+                        "9",
+                        "977",
+                        "999",
+                    ],
+                ),
+                SBLCheck(
+                    invalid_number_of_values,
+                    name="denial_reasons.invalid_number_of_values",
+                    description=(
+                        "'Denial reason(s)' must contain at least one and at most four"
+                        "values, separated by semicolons."
+                    ),
+                    element_wise=True,
+                    min_length=1,
+                    max_length=4,
+                ),
+                SBLCheck(
+                    denial_reasons_conditional_enum_value,
+                    name="denial_reasons.enum_value_conflict",
+                    description=(
+                        "When 'action taken' equals 3, 'denial reason(s)' must not"
+                        "contain 999. When 'action taken' does not equal 3, 'denial"
+                        "reason(s)' must equal 999."
+                    ),
+                    groupby="action_taken",
+                ),
+                SBLCheck(
+                    multi_value_field_restriction,
+                    warning=True,
+                    name="denial_reasons.multi_value_field_restriction",
+                    description=(
+                        "When 'denial reason(s)' contains 999 (not applicable),"
+                        "'denial reason(s)' should not contain more than one value."
+                    ),
+                    element_wise=True,
+                    single_values={"999"},
+                ),
+                SBLCheck(
+                    duplicates_in_field,
+                    warning=True,
+                    name="denial_reasons.duplicates_in_field",
+                    description=(
+                        "'Denial reason(s)' should not contain " 
+                        "duplicated values."
+                    ),
+                    element_wise=True,
+                ),
+            ],
         ),
         "denial_reasons_ff": Column(
             str,
             title="Field 19: Free-form text field for other denial reason(s)",
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    min_value=0,
+                    max_value=300,
+                    name="denial_reasons_ff.invalid_text_length",
+                    description=(
+                        "'Free-form text field for other denial reason(s)'"
+                        "must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    conditional_field_conflict,
+                    name="denial_reasons_ff.conditional_field_conflict",
+                    description=(
+                        "When 'denial reason(s)' does not contain 977 (other), field"
+                        "'free-form text field for other denial reason(s)' must be"
+                        "blank. When 'denial reason(s)' contains 977, 'free-form text"
+                        "field for other denial reason(s)' must not be blank."
+                    ),
+                    groupby="denial_reasons",
+                    condition_values={"977"},
+                ),
+            ],
         ),
         "pricing_interest_rate_type": Column(
             str,

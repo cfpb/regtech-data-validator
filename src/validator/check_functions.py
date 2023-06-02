@@ -92,19 +92,73 @@ def ct_credit_product_ff_blank_validity(
 
     return pd.concat(validation_holder)
 
+# helper function for denial_reasons_conditional_enum_value:
+# check for target_value in existing values
+# process series and return validations
+def _get_not_contains_series_validations(
+    series: pd.Series, target_value: str
+) -> dict:
+    series_validations = {}
+    for index, value in series.items():
+        existing_values = value.split(";")
+        validation = not (target_value in existing_values)
+        series_validations[index] = validation
+    return series_validations
+
+def denial_reasons_conditional_enum_value(
+    grouped_data: Dict[str, pd.Series],
+) -> pd.Series:
+    """
+    custom validation function for denial_reasons.enum_value_conflict
+    "When 'action taken' equals 3, 'denial reason(s)' must not"
+    "contain 999. When 'action taken' does not equal 3, 'denial"
+    "reason(s)' must equal 999."
+
+    Args:
+        grouped_data (Dict[str, pd.Series]): values from source file
+        condition_values (set[str]): list of values that we will use to 
+            compare with values from source
+        separator (str, optional): separator in the values
+
+    Returns:
+        pd.Series: list of series with updated validation
+    """
+    validation_holder = []
+    action_taken_value = "3"
+    denial_reasons_value = "999"
+    for value, other_series in grouped_data.items():
+        if value == action_taken_value:
+            # IF action_taken is equal to 3 THEN
+            #       IF denial_reasons MUST NOT contains 999
+            validation_holder.append(
+                pd.Series(
+                    index=other_series.index,
+                    name=other_series.name,
+                    data=_get_not_contains_series_validations(
+                        other_series, 
+                        denial_reasons_value),
+                )
+            )
+        else:
+            # IF action_taken is not equal to 3 THEN
+            #   IF denial_reasons MUST equal to 999
+            validation_holder.append(other_series == denial_reasons_value)
+            
+    return pd.concat(validation_holder)
+
 
 # helper function for multi_invalid_number_of_values:
 # process series and return validations
-def _get_related_series_validations(value_count: int, 
-                                    series: pd.Series, 
-                                    max_length: int, 
-                                    separator: str = ";") -> dict:
+def _get_related_series_validations(
+    value_count: int, series: pd.Series, max_length: int, separator: str = ";"
+) -> dict:
     series_validations = {}
     for index, value in series.items():
         series_count = len(value.split(separator))
         series_validations[index] = (series_count + value_count) <= max_length
     return series_validations
-    
+
+
 def multi_invalid_number_of_values(
     grouped_data: Dict[str, pd.Series], max_length: int, separator: str = ";"
 ) -> pd.Series:
@@ -117,9 +171,8 @@ def multi_invalid_number_of_values(
                 index=other_series.index,
                 name=other_series.name,
                 data=_get_related_series_validations(
-                    len(value.split(separator)), 
-                    other_series, 
-                    max_length),
+                    len(value.split(separator)), other_series, max_length
+                ),
             )
         )
 
