@@ -253,7 +253,7 @@ class TestEnumValueConflict:
                     name="ct_loan_term",
                     index=[2]
         )
-        condition_values1: None
+        condition_values1 = None
         condition_values2: set[str] = { "988" }
         condition_value = "999"
         ct_credit_product = "988"
@@ -279,7 +279,7 @@ class TestEnumValueConflict:
                     name="ct_loan_term",
                     index=[2]
         )
-        condition_values1: None
+        condition_values1 = None
         condition_values2: set[str] = { "988" }
         condition_value = "999"
         ct_credit_product = "988"
