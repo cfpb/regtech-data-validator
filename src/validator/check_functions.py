@@ -313,6 +313,27 @@ def enum_value_conflict(
     condition_value = "999",
     separator: str = ";",
 ) -> pd.Series:
+    """
+    function to get validations that validate a column's content based on other column values
+    - if the condition_value1 is not null and received values is in condition_values1
+        -other column should not equal condition_value
+    - if the condition_value2 is not null and received values in condition_values2
+        -other column should equal condition_value
+        
+    Args:
+        grouped_data (Dict[str, pd.Series]): parsed data/series from source file
+        condition_values1 (list[str], optional): list of acceptable values for first condition. 
+                                                Defaults to ["1", "2"].
+        condition_values2 (list[str], optional): list of acceptable values for second condition. 
+                                                Defaults to ["988"].     
+        condition_value (str, optional): str values for other column. 
+                                                Defaults to "999".                                   
+        separator (str, optional): character used to separate multiple values. 
+                                                Defaults to ";".
+
+    Returns:
+        pd.Series: series of current column validations
+    """
     # will hold individual boolean series to be concatenated at return
     validation_holder = []
     for value, other_series in grouped_data.items():
