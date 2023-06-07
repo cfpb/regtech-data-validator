@@ -1,9 +1,12 @@
 import pandas as pd
 
-from validator.check_functions import (denial_reasons_conditional_enum_value,
+from validator.check_functions import (conditional_field_conflict,
+                                       denial_reasons_conditional_enum_value,
                                        duplicates_in_field,
-                                       invalid_date_format,
+                                       enum_value_conflict,
+                                       invalid_date_format, invalid_enum_value,
                                        invalid_number_of_values,
+                                       invalid_numeric_format,
                                        multi_invalid_number_of_values,
                                        multi_value_field_restriction)
 
@@ -158,3 +161,128 @@ class TestMultiInvalidNumberOfValues:
     def test_outside_maxlength(self):
         result = multi_invalid_number_of_values({"4": self.series}, 1)
         assert result.values == [False]
+
+class TestInvalidEnumValue:
+    def test_with_valid_enum_values(self):
+        accepted_values = ["1","2"]
+        result = invalid_enum_value("1;2", accepted_values)
+        assert result == True
+        
+    def test_with_invalid_enum_values(self):
+        accepted_values = ["1","2"]
+        result = invalid_enum_value("0;3", accepted_values)
+        assert result == False
+        
+class TestInvalidNumericFormat:
+    def test_numberic_value(self):
+        value = "1"
+        result = invalid_numeric_format(value)
+        assert result == True
+        
+    def test_non_numberic_value(self):
+        value = "a"
+        result = invalid_numeric_format(value)
+        assert result == False
+
+class TestConditionalFieldConflict:
+    
+    def test_conditional_field_conflict_correct(self):
+                         
+        # if ct_loan_term_flag != 900 then ct_loan_term must be blank
+        series =  pd.Series([''],
+                        name="ct_loan_term",
+                        index=[2]
+        )
+        condition_values: set[str] = { "900" }
+        
+        result1 = conditional_field_conflict({"988":series}, condition_values)
+        print(result1)
+        assert result1.values == [True]
+        
+        # if ct_loan_term_flag == 900 then ct_loan_term must not be blank
+        series2 =  pd.Series(['36'],
+                        name="ct_loan_term",
+                        index=[2]
+        )
+        condition_values2: set[str] = { "900" }
+        result2 = conditional_field_conflict({"900":series2}, condition_values2)
+        print(result2)
+        assert result2.values == [True]
+        
+    def test_conditional_field_conflict_incorrect(self):
+                         
+        # if ct_loan_term_flag != 900 then ct_loan_term must be blank
+        # in this test, ct_loan_term_flag is not 900 and ct_loan_term is NOT blank, so must return False
+        series =  pd.Series(['36'],
+                        name="ct_loan_term",
+                        index=[2]
+        )
+        condition_values: set[str] = { "900" }
+        
+        result1 = conditional_field_conflict({"988":series}, condition_values)
+        assert result1.values == [False]
+        
+        # if ct_loan_term_flag == 900 then ct_loan_term must not be blank
+        # in this testm ct_loan_term is blank, so must return False
+        series2 =  pd.Series([''],
+                        name="ct_loan_term",
+                        index=[2]
+        )
+        condition_values2: set[str] = { "900" }
+        result2 = conditional_field_conflict({"900":series2}, condition_values2)
+        assert result2.values == [False]
+        
+class TestEnumValueConflict:
+    
+    def test_enum_value_confict_correct(self):
+        
+        # if ct_credit_product = 1 or 2, if ct_loan_term_flag != 999, then return True
+        series =  pd.Series(["988"],
+                    name="ct_loan_term_flag",
+                    index=[2]
+        )
+        condition_values1: set[str] = { "1", "2" }
+        condition_values2 = None
+        condition_value = "999"
+        ct_credit_product = "1;2"
+        result1 = enum_value_conflict({ct_credit_product:series}, condition_values1, condition_values2, condition_value)
+        assert result1.values == [True]
+        
+        # if ct_credit_product = 988 , if ct_loan_term_flag == 999, then return True
+        series =  pd.Series(["999"],
+                    name="ct_loan_term",
+                    index=[2]
+        )
+        condition_values1: None
+        condition_values2: set[str] = { "988" }
+        condition_value = "999"
+        ct_credit_product = "988"
+        result1 = enum_value_conflict({ct_credit_product:series}, condition_values1, condition_values2, condition_value)
+        assert result1.values == [True]
+    
+    def test_enum_value_confict_incorrect(self):
+        
+        # if ct_credit_product = 1 or 2, if ct_loan_term_flag == 999, then return False
+        series =  pd.Series(["999"],
+                    name="ct_loan_term_flag",
+                    index=[2]
+        )
+        condition_values1: set[str] = { "1", "2" }
+        condition_values2 = None
+        condition_value = "999"
+        ct_credit_product = "1;2"
+        result1 = enum_value_conflict({ct_credit_product:series}, condition_values1, condition_values2, condition_value)
+        assert result1.values == [False]
+        
+        # if ct_credit_product = 988 , if ct_loan_term_flag != 999, then return False
+        series =  pd.Series(["988"],
+                    name="ct_loan_term",
+                    index=[2]
+        )
+        condition_values1: None
+        condition_values2: set[str] = { "988" }
+        condition_value = "999"
+        ct_credit_product = "988"
+        result1 = enum_value_conflict({ct_credit_product:series}, condition_values1, condition_values2, condition_value)
+        assert result1.values == [False]   
+    

@@ -309,19 +309,21 @@ def invalid_numeric_format(ct_value: str) -> bool:
 def enum_value_conflict(
     grouped_data: Dict[str, pd.Series],
     condition_values1: set[str] = { "1", "2" },
-    condition_values2: set[str] = { "988"},
+    condition_values2: set[str] = { "988" },
+    condition_value = "999",
     separator: str = ";",
-    condition_value = "999"
 ) -> pd.Series:
+    # will hold individual boolean series to be concatenated at return
     validation_holder = []
     for value, other_series in grouped_data.items():
         received_values = set(value.split(separator))
-        if received_values.isdisjoint(condition_values1):
-            validation_holder.append(other_series == condition_value)
-        elif received_values.isdisjoint(condition_values2):
+        if condition_values1 is not None and received_values.issubset(condition_values1):
             validation_holder.append(other_series != condition_value)
-
+        elif condition_values2 is not None and received_values.issubset(condition_values2):
+            validation_holder.append(other_series == condition_value)
+            
     return pd.concat(validation_holder)
+
 
 
 def unreasonable_date_value(
