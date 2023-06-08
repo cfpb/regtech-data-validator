@@ -13,3 +13,18 @@ Open this repository within VS Code and press `COMMAND + SHIFT + p` on your keyb
 If using VS Code, setup is completed by simply running the code within a Dev Container. If you're not making use of VS Code, make your life easier and use VS Code :sunglasses:. See the instructions above for setting up the Dev Container.
 
 There are 3 files that will be of interest. `schema.py` defines the Pandera schema used for validating the SBLAR data. A custom Pandera Check class called `NamedCheck` exists within this file as well. `check_functions.py` contains a collection of functions to be run against the data that are a bit too complex to be implemented directly within the schema as Lamba functions. Lastly, the file `main.py` pulls everything together and illustrates how the schema can catch the various validation errors present in our mock, invalid dataset.
+
+## Development / Writing Validations
+
+* Check functions should focus on reuse.
+  * Most of the validations share logic with other validations.
+* Avoid using lambdas for Check functions.
+  * They do not promote reuse.
+  * They are harder to debug.
+  * They are harder to test.
+* Check function signatures should reflect the functionality.
+* Check functions should have corresponding unit tests.
+  * [Unit Test](/tests/test_check_functions.py)
+* Check definitions' name should be set to validation ID.
+  * Example: "denial_reasons. enum_value_conflict"
+  * ![Validation ID](validation_id.png)
