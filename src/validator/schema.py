@@ -603,12 +603,43 @@ sblar_schema = DataFrameSchema(
         "pricing_interest_rate_type": Column(
             str,
             title="Field 20: Interest rate type",
-            checks=[],
+            checks=[
+                ],
         ),
         "pricing_init_rate_period": Column(
             str,
             title="Field 21: Initial rate period",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    conditional_field_conflict,
+                    name="pricing_init_rate_period.conditional_field_conflict",
+                    description=(
+                        "When 'interest rate type' does not equal 3 (initial rate "
+                        "period > 12 months, variable interest), 4 (initial rate "
+                        "period > 12 months, fixed interest), 5 (initial rate period " 
+                        "<= 12 months, variable interest), or 6 (initial rate period "
+                        "<= 12 months, fixed interest), 'initial rate period' must "
+                        "be blank."
+                    ),
+                    groupby="pricing_interest_rate_type",
+                    condition_values={"3", "4", "5", "6"},
+                ),
+                SBLCheck(
+                    invalid_numeric_format,
+                    name="pricing_init_rate_period.invalid_numeric_format",
+                    description=(
+                    "When present, 'initial rate period' must be a whole number.",
+                    ),
+                    element_wise=True,
+                ),
+                SBLCheck.greater_than(
+                    min_value="0",
+                    name="pricing_init_rate_period.invalid_numeric_value",
+                    description=(
+                    "When present, 'initial rate period' must be greater than 0",
+                    )
+                ),  
+            ],
         ),
         "pricing_fixed_rate": Column(
             str,
