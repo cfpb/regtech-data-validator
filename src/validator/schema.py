@@ -613,7 +613,40 @@ sblar_schema = DataFrameSchema(
         "pricing_fixed_rate": Column(
             str,
             title="Field 22: Fixed rate: interest rate",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    invalid_numeric_format,
+                    name="pricing_fixed_rate.invalid_numeric_format",
+                    description=(
+                        "When present, ‘fixed rate: interest rate’"
+                        " must be a numeric value."
+                    ),
+                    element_wise=True,
+                ),
+                SBLCheck(
+                    conditional_field_conflict,
+                    name="pricing_fixed_rate.conditional_field_conflict",
+                    description=(
+                        "When 'interest rate type' does not equal 2"
+                        " (fixed interest rate, no initial rate period),"
+                        " 4 (initial rate period > 12 months, fixed interest"
+                        " rate), or 6 (initial rate period <= 12 months, fixed"
+                        " interest rate), 'fixed rate: interest rate' must be"
+                        " blank. When 'interest rate type' equals 2, 4, or 6,"
+                        " 'fixed rate: interest rate' must not be blank."
+                    ),
+                    groupby="pricing_interest_rate_type",
+                    condition_values={"2", "4", "6"},
+                ),
+                SBLCheck.greater_than(
+                    min_value="0.1",
+                    name="pricing_fixed_rate.unreasonable_numeric_value",
+                    description=(
+                        "When present, ‘fixed rate: interest rate’"
+                        " should generally be greater than 0.1."
+                    ),
+                ),
+            ],
         ),
         "pricing_var_margin": Column(
             str,
