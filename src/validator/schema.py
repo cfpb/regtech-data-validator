@@ -671,7 +671,40 @@ sblar_schema = DataFrameSchema(
         "pricing_var_margin": Column(
             str,
             title="Field 23: Variable rate transaction: margin",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    valid_numeric_format,
+                    name="pricing_var_margin.valid_numeric_format",
+                    description=(
+                        "When present, ‘variable rate transaction:"
+                        " margin’ must be a numeric value."
+                    ),
+                    element_wise=True,
+                ),
+                SBLCheck(
+                    conditional_field_conflict,
+                    name="pricing_var_margin.conditional_field_conflict",
+                    description=(
+                        "When 'interest rate type' does not equal 1"
+                        " (variable interest rate, no initial rate period),"
+                        " 3 (initial rate period > 12 months, variable interest rate),"
+                        " or 5 (initial rate period <= 12 months, variable interest rate),"
+                        " 'variable rate transaction: margin' must be blank."
+                        " When 'interest rate type' equals 1, 3, or 5, 'variable"
+                        " rate transaction: margin' must not be blank."
+                    ),
+                    groupby="pricing_interest_rate_type",
+                    condition_values={"1", "3", "5"},
+                ),
+                SBLCheck.greater_than(
+                    min_value="0.1",
+                    name="pricing_var_margin.unreasonable_numeric_value",
+                    description=(
+                        "When present, ‘variable rate transaction:"
+                        " margin’ should generally be greater than 0.1."
+                    ),
+                ),
+            ],
         ),
         "pricing_var_index_name": Column(
             str,
