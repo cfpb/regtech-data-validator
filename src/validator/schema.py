@@ -669,12 +669,36 @@ sblar_schema = DataFrameSchema(
         "pricing_prepenalty_allowed": Column(
             str,
             title="Field 32: Prepayment penalty could be imposed",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    invalid_enum_value,
+                    name="pricing_prepenalty_allowed.invalid_enum_value",
+                    description="'Prepayment penalty could be imposed' must equal 1, 2, or 999.",
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                        "999",
+                    ],
+                ),
+                ],
         ),
         "pricing_prepenalty_exists": Column(
             str,
             title="Field 33: Prepayment penalty exists",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    invalid_enum_value,
+                    name="pricing_prepenalty_exists.invalid_enum_value",
+                    description="'Prepayment penalty exists' must equal 1, 2, or 999.",
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                        "999",
+                    ],
+                ),
+                ],
         ),
         "census_tract_adr_type": Column(
             str,
