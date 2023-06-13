@@ -603,7 +603,27 @@ sblar_schema = DataFrameSchema(
         "pricing_interest_rate_type": Column(
             str,
             title="Field 20: Interest rate type",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    invalid_enum_value,
+                    name="pricing_interest_rate_type.invalid_enum_value",
+                    description=(
+                        "Each value in 'Interest rate type' (separated by "
+                        " semicolons) Must equal 1, 2, 3, 4, 5, 6, or 999"
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "999",
+                    ],
+                ),
+                
+            ],
         ),
         "pricing_init_rate_period": Column(
             str,
