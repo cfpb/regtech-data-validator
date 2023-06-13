@@ -11,7 +11,7 @@ from check_functions import (conditional_field_conflict, date_value_conflict,
                              duplicates_in_field, enum_value_conflict,
                              invalid_date_format, invalid_date_value,
                              invalid_enum_value, invalid_number_of_values,
-                             invalid_numeric_format,
+                             valid_numeric_format,
                              multi_invalid_number_of_values,
                              multi_value_field_restriction,
                              unreasonable_date_value)
@@ -218,8 +218,8 @@ sblar_schema = DataFrameSchema(
                     condition_value="900",
                 ),
                 SBLCheck(
-                    invalid_numeric_format,
-                    name="ct_loan_term.invalid_numeric_format",
+                    valid_numeric_format,
+                    name="ct_loan_term.valid_numeric_format",
                     description="When present, 'loan term' must be a whole number.",
                     element_wise=True,
                 ),
@@ -383,8 +383,8 @@ sblar_schema = DataFrameSchema(
                     condition_values={"900"},
                 ),
                 SBLCheck(
-                    invalid_numeric_format,
-                    name="amount_applied_for.invalid_numeric_format",
+                    valid_numeric_format,
+                    name="amount_applied_for.valid_numeric_format",
                     description=(
                         "When present, 'amount applied for' must be a numeric"
                         "value."
@@ -406,8 +406,8 @@ sblar_schema = DataFrameSchema(
             title="Field 15: Amount approved or originated",
             checks=[
                     SBLCheck(
-                        invalid_numeric_format,
-                        name="amount_approved.invalid_numeric_format",
+                        valid_numeric_format,
+                        name="amount_approved.valid_numeric_format",
                         description=(
                             "When present, 'amount approved or originated' "
                             "must be a numeric value."
@@ -615,8 +615,8 @@ sblar_schema = DataFrameSchema(
             title="Field 22: Fixed rate: interest rate",
             checks=[
                 SBLCheck(
-                    invalid_numeric_format,
-                    name="pricing_fixed_rate.invalid_numeric_format",
+                    valid_numeric_format,
+                    name="pricing_fixed_rate.valid_numeric_format",
                     description=(
                         "When present, ‘fixed rate: interest rate’"
                         " must be a numeric value."
