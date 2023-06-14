@@ -485,8 +485,8 @@ sblar_schema = DataFrameSchema(
                     date_value_conflict,
                     name="action_taken_date.date_value_conflict",
                     description=(
-                        "The date indicated by ‘action taken date’"
-                        " must occur on or after ‘application date’."
+                        "The date indicated by 'action taken date'"
+                        " must occur on or after 'application date'."
                     ),
                     groupby="app_date",
                 ),
@@ -494,9 +494,9 @@ sblar_schema = DataFrameSchema(
                     unreasonable_date_value,
                     name="action_taken_date.unreasonable_date_value",
                     description=(
-                        "The date indicated by ‘application date’ should"
+                        "The date indicated by 'application date' should"
                         " generally be less than two years (730 days) before"
-                        " ‘action taken date’."
+                        " 'action taken date'."
                     ),
                     groupby="app_date",
                     days_value=730,
@@ -638,7 +638,7 @@ sblar_schema = DataFrameSchema(
                     valid_numeric_format,
                     name="pricing_fixed_rate.valid_numeric_format",
                     description=(
-                        "When present, ‘fixed rate: interest rate’"
+                        "When present, 'fixed rate: interest rate'"
                         " must be a numeric value."
                     ),
                     element_wise=True,
@@ -662,7 +662,7 @@ sblar_schema = DataFrameSchema(
                     min_value="0.1",
                     name="pricing_fixed_rate.unreasonable_numeric_value",
                     description=(
-                        "When present, ‘fixed rate: interest rate’"
+                        "When present, 'fixed rate: interest rate'"
                         " should generally be greater than 0.1."
                     ),
                 ),
@@ -676,8 +676,8 @@ sblar_schema = DataFrameSchema(
                     valid_numeric_format,
                     name="pricing_var_margin.valid_numeric_format",
                     description=(
-                        "When present, ‘variable rate transaction:"
-                        " margin’ must be a numeric value."
+                        "When present, 'variable rate transaction:"
+                        " margin' must be a numeric value."
                     ),
                     element_wise=True,
                 ),
@@ -700,8 +700,8 @@ sblar_schema = DataFrameSchema(
                     min_value="0.1",
                     name="pricing_var_margin.unreasonable_numeric_value",
                     description=(
-                        "When present, ‘variable rate transaction:"
-                        " margin’ should generally be greater than 0.1."
+                        "When present, 'variable rate transaction:"
+                        " margin' should generally be greater than 0.1."
                     ),
                 ),
             ],
