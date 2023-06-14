@@ -219,7 +219,7 @@ sblar_schema = DataFrameSchema(
                 ),
                 SBLCheck(
                     valid_numeric_format,
-                    name="ct_loan_term.valid_numeric_format",
+                    name="ct_loan_term.invalid_numeric_format",
                     description="When present, 'loan term' must be a whole number.",
                     element_wise=True,
                 ),
@@ -384,7 +384,7 @@ sblar_schema = DataFrameSchema(
                 ),
                 SBLCheck(
                     valid_numeric_format,
-                    name="amount_applied_for.valid_numeric_format",
+                    name="amount_applied_for.invalid_numeric_format",
                     description=(
                         "When present, 'amount applied for' must be a numeric"
                         "value."
@@ -407,7 +407,7 @@ sblar_schema = DataFrameSchema(
             checks=[
                     SBLCheck(
                         valid_numeric_format,
-                        name="amount_approved.valid_numeric_format",
+                        name="amount_approved.invalid_numeric_format",
                         description=(
                             "When present, 'amount approved or originated' "
                             "must be a numeric value."
@@ -636,7 +636,7 @@ sblar_schema = DataFrameSchema(
             checks=[
                 SBLCheck(
                     valid_numeric_format,
-                    name="pricing_fixed_rate.valid_numeric_format",
+                    name="pricing_fixed_rate.invalid_numeric_format",
                     description=(
                         "When present, 'fixed rate: interest rate'"
                         " must be a numeric value."
@@ -674,7 +674,7 @@ sblar_schema = DataFrameSchema(
             checks=[
                 SBLCheck(
                     valid_numeric_format,
-                    name="pricing_var_margin.valid_numeric_format",
+                    name="pricing_var_margin.invalid_numeric_format",
                     description=(
                         "When present, 'variable rate transaction:"
                         " margin' must be a numeric value."
