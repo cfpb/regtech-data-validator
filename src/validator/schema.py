@@ -189,10 +189,11 @@ sblar_schema = DataFrameSchema(
                     name="ct_loan_term_flag.enum_value_conflict",
                     description=(
                         "When 'credit product' equals 1 (term loan - unsecured) or 2" 
-                        "(term loan - secured), 'loan term: NA/NP flag' must not equal 999 "
-                        "(not applicable)."
+                        "(term loan - secured), 'loan term: NA/NP flag' must not equal"
+                        "999 (not applicable)."
                         "When 'credit product' equals 988 (not provided by applicant "
-                        "and otherwise undetermined), 'loan term: NA/NP flag' must equal 999."
+                        "and otherwise undetermined), 'loan term: NA/NP flag' must"
+                        "equal 999."
                     ),
                     groupby="ct_credit_product",
                     condition_values1={"1", "2"},
@@ -326,9 +327,10 @@ sblar_schema = DataFrameSchema(
                     conditional_field_conflict,
                     name="credit_purpose_ff.conditional_field_conflict",
                     description=(
-                        "When 'credit purpose' does not contain 977 (other), 'free-form text field for other credit purpose' "
-                        " must be blank. When 'credit purpose' contains 977, 'free-form text field for other credit purpose' "
-                        " must not be blank."
+                        "When 'credit purpose' does not contain 977 (other)," 
+                        "'free-form text field for other credit purpose' must be blank."
+                        "When 'credit purpose' contains 977, 'free-form text field for"
+                        "other credit purpose' must not be blank."
                     ),
                     groupby="credit_purpose",
                     condition_values={"977"},
