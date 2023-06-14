@@ -6,15 +6,21 @@ https://pandera.readthedocs.io/en/stable/dataframe_schemas.html
 The only major modification from native Pandera is the use of custom
 Check classes to differentiate between warnings and errors. """
 
-from check_functions import (conditional_field_conflict, date_value_conflict,
-                             denial_reasons_conditional_enum_value,
-                             duplicates_in_field, enum_value_conflict,
-                             invalid_date_format, invalid_date_value,
-                             invalid_enum_value, invalid_number_of_values,
-                             invalid_numeric_format,
-                             multi_invalid_number_of_values,
-                             multi_value_field_restriction,
-                             unreasonable_date_value)
+from check_functions import (
+    conditional_field_conflict,
+    date_value_conflict,
+    denial_reasons_conditional_enum_value,
+    duplicates_in_field,
+    enum_value_conflict,
+    invalid_date_format,
+    invalid_date_value,
+    invalid_enum_value,
+    invalid_number_of_values,
+    invalid_numeric_format,
+    multi_invalid_number_of_values,
+    multi_value_field_restriction,
+    unreasonable_date_value,
+)
 from checks import SBLCheck
 from pandera import Column, DataFrameSchema
 
@@ -81,8 +87,7 @@ sblar_schema = DataFrameSchema(
                     warning=True,
                     name="ct_guarantee.duplicates_in_field",
                     description=(
-                        "'Type of guarantee' should not contain " 
-                        "duplicated values."
+                        "'Type of guarantee' should not contain " "duplicated values."
                     ),
                     element_wise=True,
                 ),
@@ -188,7 +193,7 @@ sblar_schema = DataFrameSchema(
                     enum_value_conflict,
                     name="ct_loan_term_flag.enum_value_conflict",
                     description=(
-                        "When 'credit product' equals 1 (term loan - unsecured) or 2" 
+                        "When 'credit product' equals 1 (term loan - unsecured) or 2"
                         "(term loan - secured), 'loan term: NA/NP flag' must not equal"
                         "999 (not applicable)."
                         "When 'credit product' equals 988 (not provided by applicant "
@@ -198,9 +203,8 @@ sblar_schema = DataFrameSchema(
                     groupby="ct_credit_product",
                     condition_values1={"1", "2"},
                     condition_values2={"988"},
-                    condition_value="999"
+                    condition_value="999",
                 ),
-
             ],
         ),
         "ct_loan_term": Column(
@@ -303,8 +307,7 @@ sblar_schema = DataFrameSchema(
                     warning=True,
                     name="credit_purpose.duplicates_in_field",
                     description=(
-                        "'Credit purpose' should not contain "
-                        " duplicated values."
+                        "'Credit purpose' should not contain " " duplicated values."
                     ),
                     element_wise=True,
                 ),
@@ -327,7 +330,7 @@ sblar_schema = DataFrameSchema(
                     conditional_field_conflict,
                     name="credit_purpose_ff.conditional_field_conflict",
                     description=(
-                        "When 'credit purpose' does not contain 977 (other)," 
+                        "When 'credit purpose' does not contain 977 (other),"
                         "'free-form text field for other credit purpose' must be blank."
                         "When 'credit purpose' contains 977, 'free-form text field for"
                         "other credit purpose' must not be blank."
@@ -365,8 +368,7 @@ sblar_schema = DataFrameSchema(
                         "999",
                     ],
                 ),
-
-                ],
+            ],
         ),
         "amount_applied_for": Column(
             str,
@@ -388,8 +390,7 @@ sblar_schema = DataFrameSchema(
                     invalid_numeric_format,
                     name="amount_applied_for.invalid_numeric_format",
                     description=(
-                        "When present, 'amount applied for' must be a numeric"
-                        "value."
+                        "When present, 'amount applied for' must be a numeric" "value."
                     ),
                     element_wise=True,
                 ),
@@ -400,63 +401,62 @@ sblar_schema = DataFrameSchema(
                         "When present, 'amount applied for' must be greater than 0."
                     ),
                 ),
-
-                ],
+            ],
         ),
         "amount_approved": Column(
             str,
             title="Field 15: Amount approved or originated",
             checks=[
-                    SBLCheck(
-                        invalid_numeric_format,
-                        name="amount_approved.invalid_numeric_format",
-                        description=(
-                            "When present, 'amount approved or originated' "
-                            "must be a numeric value."
-                        ),
-                        element_wise=True,
+                SBLCheck(
+                    invalid_numeric_format,
+                    name="amount_approved.invalid_numeric_format",
+                    description=(
+                        "When present, 'amount approved or originated' "
+                        "must be a numeric value."
                     ),
-                    SBLCheck.greater_than(
-                        min_value="0",
-                        name="amount_approved.invalid_numeric_value",
-                        description=(
-                            "When present, 'amount approved or originated' "
-                            "must be greater than 0."
-                        ),
+                    element_wise=True,
+                ),
+                SBLCheck.greater_than(
+                    min_value="0",
+                    name="amount_approved.invalid_numeric_value",
+                    description=(
+                        "When present, 'amount approved or originated' "
+                        "must be greater than 0."
                     ),
-                    SBLCheck(
-                        conditional_field_conflict,
-                        name="amount_approved.conditional_field_conflict",
-                        description=(
-                            "When 'action taken' does not equal 1 (originated) "
-                            "or 2 (approved but not accepted), 'amount approved "
-                            " or originated' must be blank. When 'action taken' "
-                            "equals 1 or 2, 'amount approved or originated' must "
-                            "not be blank."
-                        ),
-                        groupby="action_taken",
-                        condition_values={"1", "2"},
+                ),
+                SBLCheck(
+                    conditional_field_conflict,
+                    name="amount_approved.conditional_field_conflict",
+                    description=(
+                        "When 'action taken' does not equal 1 (originated) "
+                        "or 2 (approved but not accepted), 'amount approved "
+                        " or originated' must be blank. When 'action taken' "
+                        "equals 1 or 2, 'amount approved or originated' must "
+                        "not be blank."
                     ),
-                ],
+                    groupby="action_taken",
+                    condition_values={"1", "2"},
+                ),
+            ],
         ),
         "action_taken": Column(
             str,
             title="Field 16: Action taken",
             checks=[
-                    SBLCheck(
-                        invalid_enum_value,
-                        name="action_taken.invalid_enum_value",
-                        description="'Action taken' must equal 1, 2, 3, 4, or 5.",
-                        element_wise=True,
-                        accepted_values=[
-                            "1",
-                            "2",
-                            "3",
-                            "4",
-                            "5",
-                        ],
-                    ),
-                ],
+                SBLCheck(
+                    invalid_enum_value,
+                    name="action_taken.invalid_enum_value",
+                    description="'Action taken' must equal 1, 2, 3, 4, or 5.",
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                    ],
+                ),
+            ],
         ),
         "action_taken_date": Column(
             str,
@@ -568,8 +568,7 @@ sblar_schema = DataFrameSchema(
                     warning=True,
                     name="denial_reasons.duplicates_in_field",
                     description=(
-                        "'Denial reason(s)' should not contain " 
-                        "duplicated values."
+                        "'Denial reason(s)' should not contain " "duplicated values."
                     ),
                     element_wise=True,
                 ),
@@ -624,7 +623,6 @@ sblar_schema = DataFrameSchema(
                         "999",
                     ],
                 ),
-                
             ],
         ),
         "pricing_init_rate_period": Column(
