@@ -6,14 +6,14 @@ https://pandera.readthedocs.io/en/stable/dataframe_schemas.html
 The only major modification from native Pandera is the use of custom
 Check classes to differentiate between warnings and errors. """
 
-from check_functions import (conditional_field_conflict, date_value_conflict,
+from check_functions import (has_no_conditional_field_conflict, is_date_after,
                              denial_reasons_conditional_enum_value,
-                             duplicates_in_field, enum_value_conflict,
-                             invalid_date_format, invalid_date_value,
-                             invalid_enum_value, invalid_number_of_values,
-                             is_number, multi_invalid_number_of_values,
-                             multi_value_field_restriction,
-                             unreasonable_date_value)
+                             is_unique_in_field, has_valid_enum_pair,
+                             is_date, is_date_in_range,
+                             is_valid_enum, has_valid_value_count,
+                             is_number, has_valid_multi_field_value_count,
+                             meets_multi_value_field_restriction,
+                             is_date_before_in_days)
 from checks import SBLCheck
 from pandera import Column, DataFrameSchema
 
@@ -39,7 +39,7 @@ sblar_schema = DataFrameSchema(
             title="Field 4: Application recipient",
             checks=[
                 SBLCheck(
-                    invalid_enum_value,
+                    is_valid_enum,
                     name="app_recipient.invalid_enum_value",
                     description="'Application recipient' must equal 1 or 2",
                     element_wise=True,
@@ -65,7 +65,7 @@ sblar_schema = DataFrameSchema(
             title="Field 7: Type of guarantee",
             checks=[
                 SBLCheck(
-                    invalid_number_of_values,
+                    has_valid_value_count,
                     name="ct_guarantee.invalid_number_of_values",
                     description=(
                         "'Type of guarantee' must contain at least one and at"
@@ -76,7 +76,7 @@ sblar_schema = DataFrameSchema(
                     max_length=5,
                 ),
                 SBLCheck(
-                    duplicates_in_field,
+                    is_unique_in_field,
                     warning=True,
                     name="ct_guarantee.duplicates_in_field",
                     description=(
@@ -86,7 +86,7 @@ sblar_schema = DataFrameSchema(
                     element_wise=True,
                 ),
                 SBLCheck(
-                    multi_value_field_restriction,
+                    meets_multi_value_field_restriction,
                     warning=True,
                     name="ct_guarantee.multi_value_field_restriction",
                     description=(
@@ -98,7 +98,7 @@ sblar_schema = DataFrameSchema(
                     single_values={"999"},
                 ),
                 SBLCheck(
-                    invalid_enum_value,
+                    is_valid_enum,
                     name="ct_guarantee.invalid_enum_value",
                     description=(
                         "Each value in 'type of guarantee' (separated by "
@@ -138,7 +138,7 @@ sblar_schema = DataFrameSchema(
                     ),
                 ),
                 SBLCheck(
-                    conditional_field_conflict,
+                    has_no_conditional_field_conflict,
                     name="ct_guarantee_ff.conditional_field_conflict",
                     description=(
                         "When 'type of guarantee' does not contain 977 (other), "
@@ -150,7 +150,7 @@ sblar_schema = DataFrameSchema(
                     condition_values={"977"},
                 ),
                 SBLCheck(
-                    multi_invalid_number_of_values,
+                    has_valid_multi_field_value_count,
                     warning=True,
                     name="ct_guarantee_ff.multi_invalid_number_of_values",
                     description=(
@@ -170,7 +170,7 @@ sblar_schema = DataFrameSchema(
             title="Field 9: Loan term: NA/NP flag",
             checks=[
                 SBLCheck(
-                    invalid_enum_value,
+                    is_valid_enum,
                     name="ct_loan_term_flag.invalid_enum_value",
                     description=(
                         "Each value in 'Loan term: NA/NP flag' (separated by "
@@ -184,7 +184,7 @@ sblar_schema = DataFrameSchema(
                     ],
                 ),
                 SBLCheck(
-                    enum_value_conflict,
+                    has_valid_enum_pair,
                     name="ct_loan_term_flag.enum_value_conflict",
                     description=(
                         "When 'credit product' equals 1 (term loan - unsecured) or 2" 
@@ -206,7 +206,7 @@ sblar_schema = DataFrameSchema(
             title="Field 10: Loan term",
             checks=[
                 SBLCheck(
-                    conditional_field_conflict,
+                    has_no_conditional_field_conflict,
                     name="ct_loan_term.conditional_field_conflict",
                     description=(
                         "When 'loan term: NA/NP flag' does not equal 900 (applicable "
@@ -245,7 +245,7 @@ sblar_schema = DataFrameSchema(
             title="Field 11: Credit purpose",
             checks=[
                 SBLCheck(
-                    invalid_enum_value,
+                    is_valid_enum,
                     name="credit_purpose.invalid_enum_value",
                     description=(
                         "Each value in 'credit purpose' (separated by "
@@ -271,7 +271,7 @@ sblar_schema = DataFrameSchema(
                     ],
                 ),
                 SBLCheck(
-                    invalid_number_of_values,
+                    has_valid_value_count,
                     name="credit_purpose.invalid_number_of_values",
                     description=(
                         "'Credit purpose' must contain at least one and at"
@@ -282,7 +282,7 @@ sblar_schema = DataFrameSchema(
                     max_length=3,
                 ),
                 SBLCheck(
-                    multi_value_field_restriction,
+                    meets_multi_value_field_restriction,
                     warning=True,
                     name="credit_purpose.multi_value_field_restriction",
                     description=(
@@ -297,7 +297,7 @@ sblar_schema = DataFrameSchema(
                     },
                 ),
                 SBLCheck(
-                    duplicates_in_field,
+                    is_unique_in_field,
                     warning=True,
                     name="credit_purpose.duplicates_in_field",
                     description=(
@@ -322,7 +322,7 @@ sblar_schema = DataFrameSchema(
                     ),
                 ),
                 SBLCheck(
-                    conditional_field_conflict,
+                    has_no_conditional_field_conflict,
                     name="credit_purpose_ff.conditional_field_conflict",
                     description=(
                         "When 'credit purpose' does not contain 977 (other), 'free-form text field for other credit purpose' "
@@ -333,7 +333,7 @@ sblar_schema = DataFrameSchema(
                     condition_values={"977"},
                 ),
                 SBLCheck(
-                    invalid_number_of_values,
+                    has_valid_value_count,
                     name="credit_purpose_ff.invalid_number_of_values",
                     description=(
                         "'Other Credit purpose' must not contain more "
@@ -350,7 +350,7 @@ sblar_schema = DataFrameSchema(
             title="Field 13: Amount applied for: NA/NP flag",
             checks=[
                 SBLCheck(
-                    invalid_enum_value,
+                    is_valid_enum,
                     name="amount_applied_for_flag.invalid_enum_value",
                     description=(
                         "'Amount applied For: NA/NP flag' must equal 900, 988, or 999."
@@ -370,7 +370,7 @@ sblar_schema = DataFrameSchema(
             title="Field 14: Amount applied for",
             checks=[
                 SBLCheck(
-                    conditional_field_conflict,
+                    has_no_conditional_field_conflict,
                     name="amount_applied_for.conditional_field_conflict",
                     description=(
                         "When 'amount applied for: NA/NP flag' does not equal 900 "
@@ -422,7 +422,7 @@ sblar_schema = DataFrameSchema(
                         ),
                     ),
                     SBLCheck(
-                        conditional_field_conflict,
+                        has_no_conditional_field_conflict,
                         name="amount_approved.conditional_field_conflict",
                         description=(
                             "When 'action taken' does not equal 1 (originated) "
@@ -441,7 +441,7 @@ sblar_schema = DataFrameSchema(
             title="Field 16: Action taken",
             checks=[
                     SBLCheck(
-                        invalid_enum_value,
+                        is_valid_enum,
                         name="action_taken.invalid_enum_value",
                         description="'Action taken' must equal 1, 2, 3, 4, or 5.",
                         element_wise=True,
@@ -460,7 +460,7 @@ sblar_schema = DataFrameSchema(
             title="Field 17: Action taken date",
             checks=[
                 SBLCheck(
-                    invalid_date_format,
+                    is_date,
                     name="action_taken_date.invalid_date_format",
                     description=(
                         "'Action taken date' must be a real calendar"
@@ -469,7 +469,7 @@ sblar_schema = DataFrameSchema(
                     element_wise=True,
                 ),
                 SBLCheck(
-                    invalid_date_value,
+                    is_date_in_range,
                     name="action_taken_date.invalid_date_value",
                     description=(
                         "The date indicated by 'action taken date' must occur"
@@ -481,7 +481,7 @@ sblar_schema = DataFrameSchema(
                     end_date_value="20241231",
                 ),
                 SBLCheck(
-                    date_value_conflict,
+                    is_date_after,
                     name="action_taken_date.date_value_conflict",
                     description=(
                         "The date indicated by ‘action taken date’"
@@ -490,7 +490,7 @@ sblar_schema = DataFrameSchema(
                     groupby="app_date",
                 ),
                 SBLCheck(
-                    unreasonable_date_value,
+                    is_date_before_in_days,
                     name="action_taken_date.unreasonable_date_value",
                     description=(
                         "The date indicated by ‘application date’ should"
@@ -507,7 +507,7 @@ sblar_schema = DataFrameSchema(
             title="Field 18: Denial reason(s)",
             checks=[
                 SBLCheck(
-                    invalid_enum_value,
+                    is_valid_enum,
                     name="denial_reasons.invalid_enum_value",
                     description=(
                         "Each value in 'denial reason(s)' (separated by semicolons)"
@@ -529,7 +529,7 @@ sblar_schema = DataFrameSchema(
                     ],
                 ),
                 SBLCheck(
-                    invalid_number_of_values,
+                    has_valid_value_count,
                     name="denial_reasons.invalid_number_of_values",
                     description=(
                         "'Denial reason(s)' must contain at least one and at most four"
@@ -550,7 +550,7 @@ sblar_schema = DataFrameSchema(
                     groupby="action_taken",
                 ),
                 SBLCheck(
-                    multi_value_field_restriction,
+                    meets_multi_value_field_restriction,
                     warning=True,
                     name="denial_reasons.multi_value_field_restriction",
                     description=(
@@ -561,7 +561,7 @@ sblar_schema = DataFrameSchema(
                     single_values={"999"},
                 ),
                 SBLCheck(
-                    duplicates_in_field,
+                    is_unique_in_field,
                     warning=True,
                     name="denial_reasons.duplicates_in_field",
                     description=(
@@ -586,7 +586,7 @@ sblar_schema = DataFrameSchema(
                     ),
                 ),
                 SBLCheck(
-                    conditional_field_conflict,
+                    has_no_conditional_field_conflict,
                     name="denial_reasons_ff.conditional_field_conflict",
                     description=(
                         "When 'denial reason(s)' does not contain 977 (other), field"
@@ -604,7 +604,7 @@ sblar_schema = DataFrameSchema(
             title="Field 20: Interest rate type",
             checks=[
                 SBLCheck(
-                    invalid_enum_value,
+                    is_valid_enum,
                     name="pricing_interest_rate_type.invalid_enum_value",
                     description=(
                         "Each value in 'Interest rate type' (separated by "
@@ -629,7 +629,7 @@ sblar_schema = DataFrameSchema(
             title="Field 21: Initial rate period",
             checks=[
                 SBLCheck(
-                    conditional_field_conflict,
+                    has_no_conditional_field_conflict,
                     name="pricing_init_rate_period.conditional_field_conflict",
                     description=(
                         "When 'interest rate type' does not equal 3 (initial rate "
@@ -741,7 +741,7 @@ sblar_schema = DataFrameSchema(
             title="Field 32: Prepayment penalty could be imposed",
             checks=[
                 SBLCheck(
-                    invalid_enum_value,
+                    is_valid_enum,
                     name="pricing_prepenalty_allowed.invalid_enum_value",
                     description="'Prepayment penalty could be imposed' must equal 1, 2, or 999.",
                     element_wise=True,
@@ -758,7 +758,7 @@ sblar_schema = DataFrameSchema(
             title="Field 33: Prepayment penalty exists",
             checks=[
                 SBLCheck(
-                    invalid_enum_value,
+                    is_valid_enum,
                     name="pricing_prepenalty_exists.invalid_enum_value",
                     description="'Prepayment penalty exists' must equal 1, 2, or 999.",
                     element_wise=True,

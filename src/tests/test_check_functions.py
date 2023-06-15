@@ -1,13 +1,13 @@
 import pandas as pd
 
-from validator.check_functions import (conditional_field_conflict,
+from validator.check_functions import (has_no_conditional_field_conflict,
                                        denial_reasons_conditional_enum_value,
-                                       duplicates_in_field,
-                                       enum_value_conflict,
-                                       invalid_date_format, invalid_enum_value,
-                                       invalid_number_of_values, is_number,
-                                       multi_invalid_number_of_values,
-                                       multi_value_field_restriction)
+                                       is_unique_in_field,
+                                       has_valid_enum_pair,
+                                       is_date, is_valid_enum,
+                                       has_valid_value_count, is_number,
+                                       has_valid_multi_field_value_count,
+                                       meets_multi_value_field_restriction)
 
 
 class TestInvalidDateFormat:
@@ -18,19 +18,19 @@ class TestInvalidDateFormat:
     invalid_date_format_4 = "00001201"
     
     def test_with_valid_date(self):
-        assert invalid_date_format(self.valid_date_format) == True
+        assert is_date(self.valid_date_format) == True
         
     def test_with_invalid_date(self):
-        assert invalid_date_format(self.invalid_date_format_1) == False
+        assert is_date(self.invalid_date_format_1) == False
         
     def test_with_invalid_day(self):
-        assert invalid_date_format(self.invalid_date_format_2) == False
+        assert is_date(self.invalid_date_format_2) == False
         
     def test_with_invalid_month(self):
-        assert invalid_date_format(self.invalid_date_format_3) == False
+        assert is_date(self.invalid_date_format_3) == False
         
     def test_with_invalid_year(self):
-        assert invalid_date_format(self.invalid_date_format_4) == False
+        assert is_date(self.invalid_date_format_4) == False
 
 
 class TestDenialReasonsConditionalEnumValue:
@@ -102,45 +102,45 @@ class TestDenialReasonsConditionalEnumValue:
 class TestDuplicatesInField:
     
     def test_with_blank(self):
-        assert duplicates_in_field("") == True
+        assert is_unique_in_field("") == True
         
     def test_with_no_duplicates(self):
-        assert duplicates_in_field("1") == True
-        assert duplicates_in_field("1;2;3;4") == True
+        assert is_unique_in_field("1") == True
+        assert is_unique_in_field("1;2;3;4") == True
         
     def test_with_duplicates(self):
-        assert duplicates_in_field("1;2;3;3;4") == False
+        assert is_unique_in_field("1;2;3;3;4") == False
         
 
 class TestInvalidNumberOfValues:
     
     def test_with_in_range(self):
-        assert invalid_number_of_values("1;2;", 1, 4) == True
+        assert has_valid_value_count("1;2;", 1, 4) == True
         
     def test_with_lower_range_value(self):
-        assert invalid_number_of_values("1", 1, 4) == True
+        assert has_valid_value_count("1", 1, 4) == True
         
     def test_with_invalid_lower_range_value(self):
-        assert invalid_number_of_values("1", 2, 4) == False
+        assert has_valid_value_count("1", 2, 4) == False
         
     def test_with_upper_range_value(self):
-        assert invalid_number_of_values("1;2", 1, 2) == True
+        assert has_valid_value_count("1;2", 1, 2) == True
         
     def test_with_invalid_upper_range_value(self):
-        assert invalid_number_of_values("1;2;3;4", 2, 3) == False
+        assert has_valid_value_count("1;2;3;4", 2, 3) == False
         
 
 class TestMultiValueFieldRestriction:
     
     def test_with_invalid_values(self):
-        assert multi_value_field_restriction("1;2;3", ["2"] ) == False
+        assert meets_multi_value_field_restriction("1;2;3", ["2"] ) == False
         
     def test_with_valid_length(self):
-        assert multi_value_field_restriction("2", ["2"] ) == True
-        assert multi_value_field_restriction("1", ["2"] ) == True
+        assert meets_multi_value_field_restriction("2", ["2"] ) == True
+        assert meets_multi_value_field_restriction("1", ["2"] ) == True
         
     def test_with_valid_values(self):
-        assert multi_value_field_restriction("1;2;3", ["4"] ) == True
+        assert meets_multi_value_field_restriction("1;2;3", ["4"] ) == True
         
         
 class TestMultiInvalidNumberOfValues:
@@ -150,26 +150,26 @@ class TestMultiInvalidNumberOfValues:
                 )
     
     def test_inside_maxlength(self):
-        result = multi_invalid_number_of_values({"4": self.series}, 5)
+        result = has_valid_multi_field_value_count({"4": self.series}, 5)
         assert result.values == [True]
         
     def test_on_maxlength(self):
-        result = multi_invalid_number_of_values({"4": self.series}, 2)
+        result = has_valid_multi_field_value_count({"4": self.series}, 2)
         assert result.values == [True]
         
     def test_outside_maxlength(self):
-        result = multi_invalid_number_of_values({"4": self.series}, 1)
+        result = has_valid_multi_field_value_count({"4": self.series}, 1)
         assert result.values == [False]
 
 class TestInvalidEnumValue:
     def test_with_valid_enum_values(self):
         accepted_values = ["1","2"]
-        result = invalid_enum_value("1;2", accepted_values)
+        result = is_valid_enum("1;2", accepted_values)
         assert result == True
         
-    def test_with_invalid_enum_values(self):
+    def test_with_is_valid_enums(self):
         accepted_values = ["1","2"]
-        result = invalid_enum_value("0;3", accepted_values)
+        result = is_valid_enum("0;3", accepted_values)
         assert result == False
         
 class TestIsNumber:
@@ -194,7 +194,7 @@ class TestConditionalFieldConflict:
         )
         condition_values: set[str] = { "900" }
         
-        result1 = conditional_field_conflict({"988":series}, condition_values)
+        result1 = has_no_conditional_field_conflict({"988":series}, condition_values)
         print(result1)
         assert result1.values == [True]
         
@@ -204,7 +204,7 @@ class TestConditionalFieldConflict:
                         index=[2]
         )
         condition_values2: set[str] = { "900" }
-        result2 = conditional_field_conflict({"900":series2}, condition_values2)
+        result2 = has_no_conditional_field_conflict({"900":series2}, condition_values2)
         print(result2)
         assert result2.values == [True]
         
@@ -218,7 +218,7 @@ class TestConditionalFieldConflict:
         )
         condition_values: set[str] = { "900" }
         
-        result1 = conditional_field_conflict({"988":series}, condition_values)
+        result1 = has_no_conditional_field_conflict({"988":series}, condition_values)
         assert result1.values == [False]
         
         # if ct_loan_term_flag == 900 then ct_loan_term must not be blank
@@ -228,7 +228,7 @@ class TestConditionalFieldConflict:
                         index=[2]
         )
         condition_values2: set[str] = { "900" }
-        result2 = conditional_field_conflict({"900":series2}, condition_values2)
+        result2 = has_no_conditional_field_conflict({"900":series2}, condition_values2)
         assert result2.values == [False]
         
 class TestEnumValueConflict:
@@ -244,7 +244,7 @@ class TestEnumValueConflict:
         condition_values2 = None
         condition_value = "999"
         ct_credit_product = "1;2"
-        result1 = enum_value_conflict({ct_credit_product:series}, condition_values1, condition_values2, condition_value)
+        result1 = has_valid_enum_pair({ct_credit_product:series}, condition_values1, condition_values2, condition_value)
         assert result1.values == [True]
         
         # if ct_credit_product = 988 , if ct_loan_term_flag == 999, then return True
@@ -256,7 +256,7 @@ class TestEnumValueConflict:
         condition_values2: set[str] = { "988" }
         condition_value = "999"
         ct_credit_product = "988"
-        result1 = enum_value_conflict({ct_credit_product:series}, condition_values1, condition_values2, condition_value)
+        result1 = has_valid_enum_pair({ct_credit_product:series}, condition_values1, condition_values2, condition_value)
         assert result1.values == [True]
     
     def test_enum_value_confict_incorrect(self):
@@ -270,7 +270,7 @@ class TestEnumValueConflict:
         condition_values2 = None
         condition_value = "999"
         ct_credit_product = "1;2"
-        result1 = enum_value_conflict({ct_credit_product:series}, condition_values1, condition_values2, condition_value)
+        result1 = has_valid_enum_pair({ct_credit_product:series}, condition_values1, condition_values2, condition_value)
         assert result1.values == [False]
         
         # if ct_credit_product = 988 , if ct_loan_term_flag != 999, then return False
@@ -282,6 +282,6 @@ class TestEnumValueConflict:
         condition_values2: set[str] = { "988" }
         condition_value = "999"
         ct_credit_product = "988"
-        result1 = enum_value_conflict({ct_credit_product:series}, condition_values1, condition_values2, condition_value)
+        result1 = has_valid_enum_pair({ct_credit_product:series}, condition_values1, condition_values2, condition_value)
         assert result1.values == [False]   
     
