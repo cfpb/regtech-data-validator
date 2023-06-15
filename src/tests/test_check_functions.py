@@ -5,8 +5,7 @@ from validator.check_functions import (conditional_field_conflict,
                                        duplicates_in_field,
                                        enum_value_conflict,
                                        invalid_date_format, invalid_enum_value,
-                                       invalid_number_of_values,
-                                       invalid_numeric_format,
+                                       invalid_number_of_values, is_number,
                                        multi_invalid_number_of_values,
                                        multi_value_field_restriction)
 
@@ -173,15 +172,15 @@ class TestInvalidEnumValue:
         result = invalid_enum_value("0;3", accepted_values)
         assert result == False
         
-class TestInvalidNumericFormat:
-    def test_numberic_value(self):
+class TestIsNumber:
+    def test_number_value(self):
         value = "1"
-        result = invalid_numeric_format(value)
+        result = is_number(value)
         assert result == True
         
-    def test_non_numberic_value(self):
+    def test_non_number_value(self):
         value = "a"
-        result = invalid_numeric_format(value)
+        result = is_number(value)
         assert result == False
 
 class TestConditionalFieldConflict:
