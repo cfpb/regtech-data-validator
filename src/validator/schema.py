@@ -11,8 +11,7 @@ from check_functions import (conditional_field_conflict, date_value_conflict,
                              duplicates_in_field, enum_value_conflict,
                              invalid_date_format, invalid_date_value,
                              invalid_enum_value, invalid_number_of_values,
-                             is_numeric_format,
-                             multi_invalid_number_of_values,
+                             is_number, multi_invalid_number_of_values,
                              multi_value_field_restriction,
                              unreasonable_date_value)
 from checks import SBLCheck
@@ -218,7 +217,7 @@ sblar_schema = DataFrameSchema(
                     condition_value="900",
                 ),
                 SBLCheck(
-                    is_numeric_format,
+                    is_number,
                     name="ct_loan_term.invalid_numeric_format",
                     description="When present, 'loan term' must be a whole number.",
                     element_wise=True,
@@ -383,7 +382,7 @@ sblar_schema = DataFrameSchema(
                     condition_values={"900"},
                 ),
                 SBLCheck(
-                    is_numeric_format,
+                    is_number,
                     name="amount_applied_for.invalid_numeric_format",
                     description=(
                         "When present, 'amount applied for' must be a numeric"
@@ -406,7 +405,7 @@ sblar_schema = DataFrameSchema(
             title="Field 15: Amount approved or originated",
             checks=[
                     SBLCheck(
-                        is_numeric_format,
+                        is_number,
                         name="amount_approved.invalid_numeric_format",
                         description=(
                             "When present, 'amount approved or originated' "
@@ -644,7 +643,7 @@ sblar_schema = DataFrameSchema(
                     condition_values={"3", "4", "5", "6"},
                 ),
                 SBLCheck(
-                    is_numeric_format,
+                    is_number,
                     name="pricing_init_rate_period.invalid_numeric_format",
                     description=(
                     "When present, 'initial rate period' must be a whole number.",

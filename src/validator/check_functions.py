@@ -294,7 +294,7 @@ def date_value_conflict(
     return pd.concat(validation_holder)
 
 
-def is_numeric_format(ct_value: str) -> bool:
+def is_number(ct_value: str) -> bool:
     """
     function to check a string is a number
     return True if value is number , False if value is not number
