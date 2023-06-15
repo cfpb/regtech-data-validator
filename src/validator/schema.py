@@ -664,7 +664,7 @@ sblar_schema = DataFrameSchema(
             title="Field 22: Fixed rate: interest rate",
             checks=[
                 SBLCheck(
-                    valid_numeric_format,
+                    is_number,
                     name="pricing_fixed_rate.invalid_numeric_format",
                     description=(
                         "When present, 'fixed rate: interest rate'"
@@ -702,7 +702,7 @@ sblar_schema = DataFrameSchema(
             title="Field 23: Variable rate transaction: margin",
             checks=[
                 SBLCheck(
-                    valid_numeric_format,
+                    is_number,
                     name="pricing_var_margin.invalid_numeric_format",
                     description=(
                         "When present, 'variable rate transaction:"
