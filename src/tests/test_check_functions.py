@@ -5,8 +5,7 @@ from validator.check_functions import (conditional_field_conflict,
                                        duplicates_in_field,
                                        enum_value_conflict,
                                        invalid_date_format, invalid_enum_value,
-                                       invalid_number_of_values,
-                                       valid_numeric_format,
+                                       invalid_number_of_values, is_number,
                                        multi_invalid_number_of_values,
                                        multi_value_field_restriction)
 
@@ -172,36 +171,36 @@ class TestInvalidEnumValue:
         accepted_values = ["1","2"]
         result = invalid_enum_value("0;3", accepted_values)
         assert result == False
-        
-class TestValidNumericFormat:
-    def test_numberic_value(self):
+
+class TestIsNumber:
+    def test_number_value(self):
         value = "1"
-        result = valid_numeric_format(value)
+        result = is_number(value)
         assert result == True
         
-    def test_non_numberic_value(self):
+    def test_non_number_value(self):
         value = "a"
-        result = valid_numeric_format(value)
+        result = is_number(value)
         assert result == False
 
     def test_decimal_numeric_value(self):
         value = "0.1"
-        result = valid_numeric_format(value)
+        result = is_number(value)
         assert result == True
 
     def test_alphanumeric_value(self):
         value = "abc123"
-        result = valid_numeric_format(value)
+        result = is_number(value)
         assert result == False
 
     def test_negative_numeric_value(self):
         value = "-1"
-        result = valid_numeric_format(value)
+        result = is_number(value)
         assert result == True
 
     def test_negative_decimal_value(self):
         value = "-0.1"
-        result = valid_numeric_format(value)
+        result = is_number(value)
         assert result == True
 
 class TestConditionalFieldConflict:

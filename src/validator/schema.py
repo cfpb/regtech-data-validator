@@ -753,17 +753,38 @@ sblar_schema = DataFrameSchema(
         "pricing_origination_charges": Column(
             str,
             title="Field 27: Total origination charges",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_number,
+                    name="pricing_origination_charges.invalid_numeric_format",
+                    description="When present, 'total origination charges' must be a numeric value.",
+                    element_wise=True,
+                ),
+            ],
         ),
         "pricing_broker_fees": Column(
             str,
             title="Field 28: Amount of total broker fees",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_number,
+                    name="pricing_broker_fees.invalid_numeric_format",
+                    description="When present, 'amount of total broker fees' must be a numeric value.",
+                    element_wise=True,
+                ),
+            ],
         ),
         "pricing_initial_charges": Column(
             str,
             title="Field 29: Initial annual charges",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_number,
+                    name="pricing_initial_charges.invalid_numeric_format",
+                    description="When present, 'initial annual charges' must be a numeric value.",
+                    element_wise=True,
+                ),    
+            ],
         ),
         "pricing_mca_addcost_flag": Column(
             str,
