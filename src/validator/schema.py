@@ -11,7 +11,7 @@ from check_functions import (conditional_field_conflict, date_value_conflict,
                              duplicates_in_field, enum_value_conflict,
                              invalid_date_format, invalid_date_value,
                              invalid_enum_value, invalid_number_of_values,
-                             invalid_numeric_format,
+                             is_numeric_format,
                              multi_invalid_number_of_values,
                              multi_value_field_restriction,
                              unreasonable_date_value)
@@ -218,7 +218,7 @@ sblar_schema = DataFrameSchema(
                     condition_value="900",
                 ),
                 SBLCheck(
-                    invalid_numeric_format,
+                    is_numeric_format,
                     name="ct_loan_term.invalid_numeric_format",
                     description="When present, 'loan term' must be a whole number.",
                     element_wise=True,
@@ -383,7 +383,7 @@ sblar_schema = DataFrameSchema(
                     condition_values={"900"},
                 ),
                 SBLCheck(
-                    invalid_numeric_format,
+                    is_numeric_format,
                     name="amount_applied_for.invalid_numeric_format",
                     description=(
                         "When present, 'amount applied for' must be a numeric"
@@ -406,7 +406,7 @@ sblar_schema = DataFrameSchema(
             title="Field 15: Amount approved or originated",
             checks=[
                     SBLCheck(
-                        invalid_numeric_format,
+                        is_numeric_format,
                         name="amount_approved.invalid_numeric_format",
                         description=(
                             "When present, 'amount approved or originated' "
@@ -628,7 +628,37 @@ sblar_schema = DataFrameSchema(
         "pricing_init_rate_period": Column(
             str,
             title="Field 21: Initial rate period",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    conditional_field_conflict,
+                    name="pricing_init_rate_period.conditional_field_conflict",
+                    description=(
+                        "When 'interest rate type' does not equal 3 (initial rate "
+                        "period > 12 months, variable interest), 4 (initial rate "
+                        "period > 12 months, fixed interest), 5 (initial rate period " 
+                        "<= 12 months, variable interest), or 6 (initial rate period "
+                        "<= 12 months, fixed interest), 'initial rate period' must "
+                        "be blank."
+                    ),
+                    groupby="pricing_interest_rate_type",
+                    condition_values={"3", "4", "5", "6"},
+                ),
+                SBLCheck(
+                    is_numeric_format,
+                    name="pricing_init_rate_period.invalid_numeric_format",
+                    description=(
+                    "When present, 'initial rate period' must be a whole number.",
+                    ),
+                    element_wise=True,
+                ),
+                SBLCheck.greater_than(
+                    min_value="0",
+                    name="pricing_init_rate_period.invalid_numeric_value",
+                    description=(
+                    "When present, 'initial rate period' must be greater than 0",
+                    )
+                ),  
+            ],
         ),
         "pricing_fixed_rate": Column(
             str,
