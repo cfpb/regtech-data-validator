@@ -6,21 +6,15 @@ https://pandera.readthedocs.io/en/stable/dataframe_schemas.html
 The only major modification from native Pandera is the use of custom
 Check classes to differentiate between warnings and errors. """
 
-from check_functions import (
-    conditional_field_conflict,
-    date_value_conflict,
-    denial_reasons_conditional_enum_value,
-    duplicates_in_field,
-    enum_value_conflict,
-    invalid_date_format,
-    invalid_date_value,
-    invalid_enum_value,
-    invalid_number_of_values,
-    invalid_numeric_format,
-    multi_invalid_number_of_values,
-    multi_value_field_restriction,
-    unreasonable_date_value,
-)
+from check_functions import (conditional_field_conflict, date_value_conflict,
+                             denial_reasons_conditional_enum_value,
+                             duplicates_in_field, enum_value_conflict,
+                             invalid_date_format, invalid_date_value,
+                             invalid_enum_value, invalid_number_of_values,
+                             invalid_numeric_format,
+                             multi_invalid_number_of_values,
+                             multi_value_field_restriction,
+                             unreasonable_date_value)
 from checks import SBLCheck
 from pandera import Column, DataFrameSchema
 
@@ -648,7 +642,31 @@ sblar_schema = DataFrameSchema(
         "pricing_var_index_name_ff": Column(
             str,
             title="Field 25: Variable rate transaction: index name: other",
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    min_value=0,
+                    max_value=300,
+                    name="pricing_var_index_name_ff.invalid_text_length",
+                    description=(
+                        "'Variable rate transaction: index name: other' must not exceed"
+                        "300 characters in length."
+                    ),
+                ), 
+                SBLCheck(
+                    conditional_field_conflict,
+                    name="pricing_var_index_name_ff.conditional_field_conflict",
+                    description=(
+                        "When 'variable rate transaction: index name' does not equal"
+                        "977 (other), 'variable rate transaction: index name: other'"
+                        "must be blank."
+                        "When 'variable rate transaction: index name' equals 977,"
+                        "'variable rate transaction: index name: other' must not be"
+                        "blank."
+                    ),
+                    groupby="pricing_var_index_name",
+                    condition_values={"977"},
+                ),   
+            ],
         ),
         "pricing_var_index_value": Column(
             str,
