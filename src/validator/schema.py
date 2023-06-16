@@ -637,7 +637,37 @@ sblar_schema = DataFrameSchema(
         "pricing_var_index_name": Column(
             str,
             title="Field 24: Variable rate transaction: index name",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    invalid_enum_value,
+                    name="pricing_var_index_name.invalid_enum_value",
+                    description=(
+                        "'Variable rate transaction: index name' must equal 1, 2, 3, 4,"
+                        "5, 6, 7, 8, 9, 10, 977, or 999."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                    ],
+                ),
+                SBLCheck(
+                    enum_value_conflict,
+                    name="pricing_var_index_name.enum_value_conflict",
+                    description=(
+                        "When 'interest rate type' does not equal 1 (variable interest"
+                        "rate, no initial rate period), 3 (initial rate period > 12"
+                        "months, variable interest rate), or 5 (initial rate"
+                        "period <= 12 months, variable interest rate), 'variable rate"
+                        "transaction: index name' must equal 999."
+                        "When 'interest rate type' equals 1, 3, or 5, 'variable rate"
+                        "transaction: index name' must not equal 999."
+                    ),
+                    groupby="pricing_interest_rate_type",
+                    condition_values1={"1", "3", "5"},
+                    condition_value="999",
+                ),
+            ],
         ),
         "pricing_var_index_name_ff": Column(
             str,
@@ -651,7 +681,7 @@ sblar_schema = DataFrameSchema(
                         "'Variable rate transaction: index name: other' must not exceed"
                         "300 characters in length."
                     ),
-                ), 
+                ),
                 SBLCheck(
                     conditional_field_conflict,
                     name="pricing_var_index_name_ff.conditional_field_conflict",
@@ -665,7 +695,7 @@ sblar_schema = DataFrameSchema(
                     ),
                     groupby="pricing_var_index_name",
                     condition_values={"977"},
-                ),   
+                ),
             ],
         ),
         "pricing_var_index_value": Column(
