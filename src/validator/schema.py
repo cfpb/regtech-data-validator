@@ -561,7 +561,7 @@ sblar_schema = DataFrameSchema(
                     warning=True,
                     name="denial_reasons.duplicates_in_field",
                     description=(
-                        "'Denial reason(s)' should not contain " "duplicated values."
+                        "'Denial reason(s)' should not contain duplicated values."
                     ),
                     element_wise=True,
                 ),
