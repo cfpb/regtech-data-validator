@@ -431,7 +431,7 @@ sblar_schema = DataFrameSchema(
                             "equals 1 or 2, 'amount approved or originated' must "
                             "not be blank."
                         ),
-                        groupby="action_taken",
+                        groupby="action_taken",                                    
                         condition_values={"1", "2"},
                     ),
                 ],
@@ -783,12 +783,46 @@ sblar_schema = DataFrameSchema(
         "gross_annual_revenue_flag": Column(
             str,
             title="Field 36: Gross annual revenue: NP flag",
-            checks=[],
+            checks=[
+                SBLCheck(
+                        invalid_enum_value,
+                        name="gross_annual_revenue_flag.invalid_enum_value",
+                        description=(
+                            "'Gross annual revenue: NP flag' must equal 900 or 988."
+                        ),
+                        element_wise=True,
+                        accepted_values=[
+                            "900",
+                            "988",
+                        ],
+                    ),
+                ],
         ),
         "gross_annual_revenue": Column(
             str,
             title="Field 37: Gross annual revenue",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_number,
+                    name="gross_annual_revenue.invalid_numeric_format",
+                    description=(
+                        "When present, 'gross annual revenue' must be a numeric value."
+                    ),
+                    element_wise=True,
+                ), 
+                SBLCheck(
+                    conditional_field_conflict,
+                    name="gross_annual_revenue.conditional_field_conflict",
+                    description=(
+                        "When 'gross annual revenue: NP flag' does not equal 900 "
+                        "(reported), 'gross annual revenue' must be blank. When "
+                        "'gross annual revenue: NP flag' equals 900, "
+                        "'gross annual revenue' must not be blank."
+                    ),
+                    groupby="gross_annual_revenue_flag",
+                    condition_values={"900"},
+                ),
+                ],
         ),
         "naics_code_flag": Column(
             str,
