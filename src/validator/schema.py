@@ -808,14 +808,14 @@ sblar_schema = DataFrameSchema(
             title="Field 26: Variable rate transaction: index value",
             checks=[
                 SBLCheck(
-                    invalid_numeric_format,
+                    is_number,
                     name="pricing_var_index_value.invalid_numeric_format",
                     description="When present, 'variable rate transaction:"
                                 " index value' must be a numeric value.",
                     element_wise=True,
                 ),
                 SBLCheck(
-                    conditional_field_conflict,
+                    has_no_conditional_field_conflict,
                     name="pricing_var_index_value.conditional_field_conflict",
                     description=(
                         "When 'interest rate type' does not equal 1 (variable"
