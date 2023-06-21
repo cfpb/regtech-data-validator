@@ -171,7 +171,7 @@ class TestInvalidEnumValue:
         accepted_values = ["1","2"]
         result = is_valid_enum("0;3", accepted_values)
         assert result == False
-        
+
 class TestIsNumber:
     def test_number_value(self):
         value = "1"
@@ -182,6 +182,26 @@ class TestIsNumber:
         value = "a"
         result = is_number(value)
         assert result == False
+
+    def test_decimal_numeric_value(self):
+        value = "0.1"
+        result = is_number(value)
+        assert result == True
+
+    def test_alphanumeric_value(self):
+        value = "abc123"
+        result = is_number(value)
+        assert result == False
+
+    def test_negative_numeric_value(self):
+        value = "-1"
+        result = is_number(value)
+        assert result == True
+
+    def test_negative_decimal_value(self):
+        value = "-0.1"
+        result = is_number(value)
+        assert result == True
 
 class TestConditionalFieldConflict:
     
