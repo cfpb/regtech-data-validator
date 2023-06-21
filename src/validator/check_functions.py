@@ -19,7 +19,7 @@ import re
 import pandas as pd
 
 
-def uli_ensure_each_record_begins_with_the_same_lei(ulis: pd.Series) -> bool:
+def begins_with_same_lei(ulis: pd.Series) -> bool:
     """Verifies that only a single LEI prefixes the list of ULIs.
 
     Args:
@@ -38,7 +38,7 @@ def uli_ensure_each_record_begins_with_the_same_lei(ulis: pd.Series) -> bool:
     return leis.nunique() == 1
 
 
-def invalid_date_format(date: str) -> bool:
+def is_date(date: str) -> bool:
     """Attempt datetime conversion.
 
     This checks whether the date string has the format %Y%m%d and
@@ -151,7 +151,7 @@ def denial_reasons_conditional_enum_value(
     return pd.concat(validation_holder)
 
 
-# helper function for multi_invalid_number_of_values:
+# helper function for has_valid_multi_field_value_count:
 # process series and return validations
 def _get_related_series_validations(
     value_count: int, series: pd.Series, max_length: int, separator: str = ";"
@@ -163,7 +163,7 @@ def _get_related_series_validations(
     return series_validations
 
 
-def multi_invalid_number_of_values(
+def has_valid_multi_field_value_count(
     grouped_data: Dict[str, pd.Series], max_length: int, separator: str = ";"
 ) -> pd.Series:
     validation_holder = []
@@ -183,7 +183,7 @@ def multi_invalid_number_of_values(
     return pd.concat(validation_holder)
 
 
-def conditional_field_conflict(
+def has_no_conditional_field_conflict(
     grouped_data: Dict[str, pd.Series],
     condition_values: set[str] = {"977"},
     separator: str = ";",
@@ -223,12 +223,12 @@ def conditional_field_conflict(
     return pd.concat(validation_holder)
 
 
-def duplicates_in_field(ct_value: str, separator: str = ";") -> bool:
+def is_unique_in_field(ct_value: str, separator: str = ";") -> bool:
     values = ct_value.split(separator)
     return len(set(values)) == len(values)
 
 
-def multi_value_field_restriction(
+def meets_multi_value_field_restriction(
     ct_value: str, single_values: set[str], separator: str = ";"
 ) -> bool:
     ct_values_set = set(ct_value.split(separator))
@@ -240,22 +240,22 @@ def multi_value_field_restriction(
         return False
 
 
-def invalid_enum_value(
+def is_valid_enum(
     ct_value: str, accepted_values: list[str], separator: str = ";"
 ) -> bool:
     ct_values_set = set(ct_value.split(separator))
     return ct_values_set.issubset(accepted_values)
 
 
-def invalid_number_of_values(
+def has_valid_value_count(
     ct_value: str, min_length: int, max_length: int, separator: str = ";"
 ) -> bool:
     values_count = len(ct_value.split(separator))
     return min_length <= values_count and values_count <= max_length
 
 
-def invalid_date_value(
-    date_value: str, start_date_value: str, end_date_value: str
+def is_date_in_range(
+        date_value: str, start_date_value: str, end_date_value: str
 ) -> bool:
     """Checks that the date_value is within the range of the start_date_value
         and the end_date_value
@@ -275,9 +275,8 @@ def invalid_date_value(
     except ValueError:
         return False
 
-
-def date_value_conflict(
-    grouped_data: Dict[str, pd.Series],
+def is_date_after(
+        grouped_data: Dict[str, pd.Series],
 ) -> pd.Series:
     """Checks if date in column is after the date value of another column
 
@@ -317,7 +316,7 @@ def is_number(ct_value: str) -> bool:
     return ct_value.isdigit() or bool(re.match(r'^[-+]?[0-9]*\.?[0-9]+$', ct_value))
 
 
-def enum_value_conflict(
+def has_valid_enum_pair(
     grouped_data: Dict[str, pd.Series],
     condition_values1: set[str] = {"1", "2"},
     condition_values2: set[str] = {"988"},
@@ -361,8 +360,10 @@ def enum_value_conflict(
     return pd.concat(validation_holder)
 
 
-def unreasonable_date_value(
-    grouped_data: Dict[str, pd.Series], days_value: int = 730
+
+def is_date_before_in_days(
+        grouped_data: Dict[str, pd.Series],
+        days_value: int = 730
 ) -> pd.Series:
     """Checks if the provided date is not beyond
        the grouped column date plus the days_value parameter
