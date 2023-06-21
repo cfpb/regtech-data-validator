@@ -15,6 +15,7 @@ in the fig."""
 from datetime import datetime, timedelta
 from typing import Dict
 
+import re
 import pandas as pd
 
 
@@ -306,13 +307,14 @@ def is_number(ct_value: str) -> bool:
     """
     function to check a string is a number
     return True if value is number , False if value is not number
+    This includes float values as some of the checks involve decimal values
     Args:
         ct_value (str): string value
 
     Returns:
         bool: True if value is number , False if value is not number
     """
-    return ct_value.isdigit()
+    return ct_value.isdigit() or bool(re.match(r'^[-+]?[0-9]*\.?[0-9]+$', ct_value))
 
 
 def enum_value_conflict(
