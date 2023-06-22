@@ -1,28 +1,4 @@
-"""Custom subclass for warnings and errors. 
-
-The class SBLCheck is a subclass of the standard Pandera Check class
-that requires the `name` kwarg to be supplied. Errors and warnings are
-distinguised based on the value of the warning attribute. It defaults
-to false but can be set to True during init to indicate the validation
-should be handled as a warning rather than an error. 
-
-Examples:
-
-    warning_check = SBLCheck(
-        lambda: True, 
-        warning=True, 
-        name="Just a Warning"
-    )
-    
-    error_check_implied = SBLCheck(lambda: Truename="Error Check")
-    
-    error_check_explicit = SBLCheck(
-        lambda: True,
-        warning=False, 
-        name="Also an Error"
-    )
-"""
-
+"""Custom check class"""
 
 from typing import Callable
 
@@ -66,10 +42,3 @@ class SBLCheck(Check):
     def get_backend(cls, *args) -> PandasCheckBackend:
         """Assume Pandas DataFrame and return PandasCheckBackend"""
         return PandasCheckBackend
-
-
-if __name__ == "__main__":
-    warning_check = SBLCheck(lambda: True, warning=True, name="Just a Warning")
-
-    error_check_implied = SBLCheck(lambda: True, name="Error Check")
-    error_check_explicit = SBLCheck(lambda: True, warning=False, name="Also an Error")
