@@ -58,11 +58,13 @@ sblar_schema = DataFrameSchema(
         "ct_credit_product_ff": Column(
             str,
             title="Field 6: Free-form text field for other credit products",
+            nullable=True,
             checks=[],
         ),
         "ct_guarantee": Column(
             str,
             title="Field 7: Type of guarantee",
+            nullable=True,
             checks=[
                 SBLCheck(
                     has_valid_value_count,
@@ -126,6 +128,7 @@ sblar_schema = DataFrameSchema(
         "ct_guarantee_ff": Column(
             str,
             title="Field 8: Free-form text field for other guarantee",
+            nullable=True,
             checks=[
                 SBLCheck.str_length(
                     0,
@@ -203,6 +206,7 @@ sblar_schema = DataFrameSchema(
         "ct_loan_term": Column(
             str,
             title="Field 10: Loan term",
+            nullable=True,
             checks=[
                 SBLCheck(
                     has_no_conditional_field_conflict,
@@ -213,7 +217,7 @@ sblar_schema = DataFrameSchema(
                         "NA/NP flag' equals 900, 'loan term' must not be blank."
                     ),
                     groupby="ct_loan_term_flag",
-                    condition_value="900",
+                    condition_values={"900"},
                 ),
                 SBLCheck(
                     is_number,
@@ -309,6 +313,7 @@ sblar_schema = DataFrameSchema(
         "credit_purpose_ff": Column(
             str,
             title="Field 12: Free-form text field for other credit purpose",
+            nullable=True,
             checks=[
                 SBLCheck.str_length(
                     0,
@@ -366,6 +371,7 @@ sblar_schema = DataFrameSchema(
         "amount_applied_for": Column(
             str,
             title="Field 14: Amount applied for",
+            nullable=True,
             checks=[
                 SBLCheck(
                     has_no_conditional_field_conflict,
@@ -399,6 +405,7 @@ sblar_schema = DataFrameSchema(
         "amount_approved": Column(
             str,
             title="Field 15: Amount approved or originated",
+            nullable=True,
             checks=[
                 SBLCheck(
                     is_number,
@@ -436,20 +443,20 @@ sblar_schema = DataFrameSchema(
             str,
             title="Field 16: Action taken",
             checks=[
-                    SBLCheck(
-                        is_valid_enum,
-                        name="action_taken.invalid_enum_value",
-                        description="'Action taken' must equal 1, 2, 3, 4, or 5.",
-                        element_wise=True,
-                        accepted_values=[
-                            "1",
-                            "2",
-                            "3",
-                            "4",
-                            "5",
-                        ],
-                    ),
-                ],
+                SBLCheck(
+                    is_valid_enum,
+                    name="action_taken.invalid_enum_value",
+                    description="'Action taken' must equal 1, 2, 3, 4, or 5.",
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                    ],
+                ),
+            ],
         ),
         "action_taken_date": Column(
             str,
@@ -570,6 +577,7 @@ sblar_schema = DataFrameSchema(
         "denial_reasons_ff": Column(
             str,
             title="Field 19: Free-form text field for other denial reason(s)",
+            nullable=True,
             checks=[
                 SBLCheck.str_length(
                     min_value=0,
@@ -621,6 +629,7 @@ sblar_schema = DataFrameSchema(
         "pricing_init_rate_period": Column(
             str,
             title="Field 21: Initial rate period",
+            nullable=True,
             checks=[
                 SBLCheck(
                     has_no_conditional_field_conflict,
@@ -656,6 +665,7 @@ sblar_schema = DataFrameSchema(
         "pricing_fixed_rate": Column(
             str,
             title="Field 22: Fixed rate: interest rate",
+            nullable=True,
             checks=[
                 SBLCheck(
                     is_number,
@@ -694,6 +704,7 @@ sblar_schema = DataFrameSchema(
         "pricing_var_margin": Column(
             str,
             title="Field 23: Variable rate transaction: margin",
+            nullable=True,
             checks=[
                 SBLCheck(
                     is_number,
@@ -777,6 +788,7 @@ sblar_schema = DataFrameSchema(
         "pricing_var_index_name_ff": Column(
             str,
             title="Field 25: Variable rate transaction: index name: other",
+            nullable=True,
             checks=[
                 SBLCheck.str_length(
                     min_value=0,
@@ -806,11 +818,13 @@ sblar_schema = DataFrameSchema(
         "pricing_var_index_value": Column(
             str,
             title="Field 26: Variable rate transaction: index value",
+            nullable=True,
             checks=[],
         ),
         "pricing_origination_charges": Column(
             str,
             title="Field 27: Total origination charges",
+            nullable=True,
             checks=[
                 SBLCheck(
                     is_number,
@@ -826,6 +840,7 @@ sblar_schema = DataFrameSchema(
         "pricing_broker_fees": Column(
             str,
             title="Field 28: Amount of total broker fees",
+            nullable=True,
             checks=[
                 SBLCheck(
                     is_number,
@@ -841,6 +856,7 @@ sblar_schema = DataFrameSchema(
         "pricing_initial_charges": Column(
             str,
             title="Field 29: Initial annual charges",
+            nullable=True,
             checks=[
                 SBLCheck(
                     is_number,
@@ -864,9 +880,10 @@ sblar_schema = DataFrameSchema(
         "pricing_mca_addcost": Column(
             str,
             title=(
-                "Field 31: MCA/sales-based: additional cost for merchant cash ",
-                "advances or other sales-based financing",
+                "Field 31: MCA/sales-based: additional cost for merchant cash "
+                "advances or other sales-based financing"
             ),
+            nullable=True,
             checks=[],
         ),
         "pricing_prepenalty_allowed": Column(
@@ -913,6 +930,7 @@ sblar_schema = DataFrameSchema(
         "census_tract_number": Column(
             str,
             title="Field 35: Tract number",
+            nullable=True,
             checks=[],
         ),
         "gross_annual_revenue_flag": Column(
@@ -937,6 +955,7 @@ sblar_schema = DataFrameSchema(
         "gross_annual_revenue": Column(
             str,
             title="Field 37: Gross annual revenue",
+            nullable=True,
             checks=[
                 SBLCheck(
                     is_number,
@@ -974,6 +993,7 @@ sblar_schema = DataFrameSchema(
             title=(
                 "Field 39: North American Industry Classification" "System (NAICS) code"
             ),
+            nullable=True,
             checks=[],
         ),
         "number_of_workers": Column(
@@ -1011,6 +1031,7 @@ sblar_schema = DataFrameSchema(
         "time_in_business": Column(
             str,
             title="Field 42: Time in business",
+            nullable=True,
             checks=[],
         ),
         "business_ownership_status": Column(
@@ -1026,11 +1047,13 @@ sblar_schema = DataFrameSchema(
         "num_principal_owners": Column(
             str,
             title="Field 45: Number of principal owners",
+            nullable=True,
             checks=[],
         ),
         "po_1_ethnicity": Column(
             str,
             title="Field 46: Ethnicity of principal owner 1",
+            nullable=True,
             checks=[],
         ),
         "po_1_ethnicity_ff": Column(
@@ -1039,11 +1062,13 @@ sblar_schema = DataFrameSchema(
                 "Field 47: Ethnicity of principal owner 1: free-form text field for"
                 "other Hispanic or Latino ethnicity"
             ),
+            nullable=True,
             checks=[],
         ),
         "po_1_race": Column(
             str,
             title="Field 48: Race of principal owner 1",
+            nullable=True,
             checks=[],
         ),
         "po_1_race_anai_ff": Column(
@@ -1052,6 +1077,7 @@ sblar_schema = DataFrameSchema(
                 "Field 49: Race of principal owner 1: free-form text field for"
                 "American Indian or Alaska Native Enrolled or Principal Tribe"
             ),
+            nullable=True,
             checks=[],
         ),
         "po_1_race_asian_ff": Column(
@@ -1060,6 +1086,7 @@ sblar_schema = DataFrameSchema(
                 "Field 50: Race of principal owner 1: free-form text field for other"
                 "Asian race"
             ),
+            nullable=True,
             checks=[],
         ),
         "po_1_race_baa_ff": Column(
@@ -1068,6 +1095,7 @@ sblar_schema = DataFrameSchema(
                 "Field 51: Race of principal owner 1: free-form text field for other"
                 "Black or African American race"
             ),
+            nullable=True,
             checks=[],
         ),
         "po_1_race_pi_ff": Column(
@@ -1076,11 +1104,13 @@ sblar_schema = DataFrameSchema(
                 "Field 52: Race of principal owner 1: free-form text field for other"
                 "Pacific Islander race"
             ),
+            nullable=True,
             checks=[],
         ),
         "po_1_gender_flag": Column(
             str,
             title="Field 53: Sex/gender of principal owner 1: NP flag",
+            nullable=True,
             checks=[],
         ),
         "po_1_gender_ff": Column(
@@ -1089,11 +1119,13 @@ sblar_schema = DataFrameSchema(
                 "Field 54: Sex/gender of principal owner 1: free-form text field for"
                 "self-identified sex/gender"
             ),
+            nullable=True,
             checks=[],
         ),
         "po_2_ethnicity": Column(
             str,
             title="Field 55: Ethnicity of principal owner 2",
+            nullable=True,
             checks=[],
         ),
         "po_2_ethnicity_ff": Column(
@@ -1102,11 +1134,13 @@ sblar_schema = DataFrameSchema(
                 "Field 56: Ethnicity of principal owner 2: free-form text field for"
                 "other Hispanic or Latino ethnicity"
             ),
+            nullable=True,
             checks=[],
         ),
         "po_2_race": Column(
             str,
             title="Field 57: Race of principal owner 2",
+            nullable=True,
             checks=[],
         ),
         "po_2_race_anai_ff": Column(
@@ -1115,6 +1149,7 @@ sblar_schema = DataFrameSchema(
                 "Field 58: Race of principal owner 2: free-form text field for"
                 "American Indian or Alaska Native Enrolled or Principal Tribe"
             ),
+            nullable=True,
             checks=[],
         ),
         "po_2_race_asian_ff": Column(
@@ -1123,6 +1158,7 @@ sblar_schema = DataFrameSchema(
                 "Field 59: Race of principal owner 2: free-form text field for other"
                 "Asian race"
             ),
+            nullable=True,
             checks=[],
         ),
         "po_2_race_baa_ff": Column(
@@ -1131,6 +1167,7 @@ sblar_schema = DataFrameSchema(
                 "Field 60: Race of principal owner 2: free-form text field for other"
                 "Black or African American race"
             ),
+            nullable=True,
             checks=[],
         ),
         "po_2_race_pi_ff": Column(
@@ -1139,11 +1176,13 @@ sblar_schema = DataFrameSchema(
                 "Field 61: Race of principal owner 2: free-form text field for other"
                 "Pacific Islander race"
             ),
+            nullable=True,
             checks=[],
         ),
         "po_2_gender_flag": Column(
             str,
             title="Field 62: Sex/gender of principal owner 2: NP flag",
+            nullable=True,
             checks=[],
         ),
         "po_2_gender_ff": Column(
@@ -1152,11 +1191,13 @@ sblar_schema = DataFrameSchema(
                 "Field 63: Sex/gender of principal owner 2: free-form text field for"
                 "self-identified sex/gender"
             ),
+            nullable=True,
             checks=[],
         ),
         "po_3_ethnicity": Column(
             str,
             title="Field 64: Ethnicity of principal owner 3",
+            nullable=True,
             checks=[],
         ),
         "po_3_ethnicity_ff": Column(
@@ -1165,11 +1206,13 @@ sblar_schema = DataFrameSchema(
                 "Field 65: Ethnicity of principal owner 3: free-form text field for"
                 "other Hispanic or Latino ethnicity"
             ),
+            nullable=True,
             checks=[],
         ),
         "po_3_race": Column(
             str,
             title="Field 66: Race of principal owner 3",
+            nullable=True,
             checks=[],
         ),
         "po_3_race_anai_ff": Column(
@@ -1178,6 +1221,7 @@ sblar_schema = DataFrameSchema(
                 "Field 67: Race of principal owner 3: free-form text field for"
                 "American Indian or Alaska Native Enrolled or Principal Tribe"
             ),
+            nullable=True,
             checks=[],
         ),
         "po_3_race_asian_ff": Column(
@@ -1186,6 +1230,7 @@ sblar_schema = DataFrameSchema(
                 "Field 68: Race of principal owner 3: free-form text field for other"
                 "Asian race"
             ),
+            nullable=True,
             checks=[],
         ),
         "po_3_race_baa_ff": Column(
@@ -1194,6 +1239,7 @@ sblar_schema = DataFrameSchema(
                 "Field 69: Race of principal owner 3: free-form text field for other"
                 "Black or African American race"
             ),
+            nullable=True,
             checks=[],
         ),
         "po_3_race_pi_ff": Column(
@@ -1202,11 +1248,13 @@ sblar_schema = DataFrameSchema(
                 "Field 70: Race of principal owner 3: free-form text field for other"
                 "Pacific Islander race"
             ),
+            nullable=True,
             checks=[],
         ),
         "po_3_gender_flag": Column(
             str,
             title="Field 71: Sex/gender of principal owner 3: NP flag",
+            nullable=True,
             checks=[],
         ),
         "po_3_gender_ff": Column(
@@ -1215,11 +1263,13 @@ sblar_schema = DataFrameSchema(
                 "Field 72: Sex/gender of principal owner 3: free-form text field for"
                 "self-identified sex/gender"
             ),
+            nullable=True,
             checks=[],
         ),
         "po_4_ethnicity": Column(
             str,
             title="Field 73: Ethnicity of principal owner 4",
+            nullable=True,
             checks=[],
         ),
         "po_4_ethnicity_ff": Column(
@@ -1228,11 +1278,13 @@ sblar_schema = DataFrameSchema(
                 "Field 74: Ethnicity of principal owner 4: free-form text field for"
                 "other Hispanic or Latino ethnicity"
             ),
+            nullable=True,
             checks=[],
         ),
         "po_4_race": Column(
             str,
             title="Field 75: Race of principal owner 4",
+            nullable=True,
             checks=[],
         ),
         "po_4_race_anai_ff": Column(
@@ -1241,6 +1293,7 @@ sblar_schema = DataFrameSchema(
                 "Field 76: Race of principal owner 4: free-form text field for"
                 "American Indian or Alaska Native Enrolled or Principal Tribe"
             ),
+            nullable=True,
             checks=[],
         ),
         "po_4_race_asian_ff": Column(
@@ -1249,6 +1302,7 @@ sblar_schema = DataFrameSchema(
                 "Field 77: Race of principal owner 4: free-form text field for other"
                 "Asian race"
             ),
+            nullable=True,
             checks=[],
         ),
         "po_4_race_baa_ff": Column(
@@ -1257,6 +1311,7 @@ sblar_schema = DataFrameSchema(
                 "Field 78: Race of principal owner 4: free-form text field for other"
                 "Black or African American race"
             ),
+            nullable=True,
             checks=[],
         ),
         "po_4_race_pi_ff": Column(
@@ -1265,11 +1320,13 @@ sblar_schema = DataFrameSchema(
                 "Field 79: Race of principal owner 4: free-form text field for other"
                 "Pacific Islander race"
             ),
+            nullable=True,
             checks=[],
         ),
         "po_4_gender_flag": Column(
             str,
             title="Field 80: Sex/gender of principal owner 4: NP flag",
+            nullable=True,
             checks=[],
         ),
         "po_4_gender_ff": Column(
@@ -1278,7 +1335,8 @@ sblar_schema = DataFrameSchema(
                 "Field 81: Sex/gender of principal owner 4: free-form text field for"
                 "self-identified sex/gender"
             ),
+            nullable=True,
             checks=[],
         ),
-    }
+    },
 )

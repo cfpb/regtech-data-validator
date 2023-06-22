@@ -24,9 +24,10 @@ Examples:
 """
 
 
-from typing import Callable
+from typing import Any, Callable, Type
 
 from pandera import Check
+from pandera.backends.base import BaseCheckBackend
 from pandera.backends.pandas.checks import PandasCheckBackend
 
 
@@ -64,7 +65,7 @@ class SBLCheck(Check):
         super().__init__(check_fn=check_fn, *args, **kwargs)
 
     @classmethod
-    def get_backend(cls, *args) -> PandasCheckBackend:
+    def get_backend(cls, check_obj: Any) -> Type[BaseCheckBackend]:
         """Assume Pandas DataFrame and return PandasCheckBackend"""
         return PandasCheckBackend
 
