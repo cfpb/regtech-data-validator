@@ -818,8 +818,29 @@ sblar_schema = DataFrameSchema(
         "pricing_var_index_value": Column(
             str,
             title="Field 26: Variable rate transaction: index value",
-            nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_number,
+                    name="pricing_var_index_value.invalid_numeric_format",
+                    description="When present, 'variable rate transaction:"
+                                " index value' must be a numeric value.",
+                    element_wise=True,
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="pricing_var_index_value.conditional_field_conflict",
+                    description=(
+                        "When 'interest rate type' does not equal 1 (variable"
+                        " interest rate, no initial rate period),"
+                        " or 3 (initial rate period > 12 months, variable interest"
+                        " rate), 'variable rate transaction: index value' must be blank."
+                        " When 'interest rate type' equals 1 or 3,"
+                        " 'variable rate transaction: index value' must not be blank."
+                    ),
+                    groupby="pricing_interest_rate_type",
+                    condition_values={"1", "3"},
+                ),
+            ],
         ),
         "pricing_origination_charges": Column(
             str,
