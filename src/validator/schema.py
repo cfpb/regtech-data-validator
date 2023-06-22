@@ -6,14 +6,14 @@ https://pandera.readthedocs.io/en/stable/dataframe_schemas.html
 The only major modification from native Pandera is the use of custom
 Check classes to differentiate between warnings and errors. """
 
-from check_functions import (has_no_conditional_field_conflict, is_date_after,
-                             denial_reasons_conditional_enum_value,
-                             is_unique_in_field, has_valid_enum_pair,
-                             is_date, is_date_in_range,
-                             is_valid_enum, has_valid_value_count,
-                             is_number, has_valid_multi_field_value_count,
-                             meets_multi_value_field_restriction,
-                             is_date_before_in_days)
+from check_functions import (denial_reasons_conditional_enum_value,
+                             has_no_conditional_field_conflict,
+                             has_valid_enum_pair,
+                             has_valid_multi_field_value_count,
+                             has_valid_value_count, is_date, is_date_after,
+                             is_date_before_in_days, is_date_in_range,
+                             is_number, is_unique_in_field, is_valid_enum,
+                             meets_multi_value_field_restriction)
 from checks import SBLCheck
 from pandera import Column, DataFrameSchema
 
@@ -965,7 +965,29 @@ sblar_schema = DataFrameSchema(
         "number_of_workers": Column(
             str,
             title="Field 40: Number of workers",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="number_of_workers.invalid_enum_value",
+                    description=(
+                        "'Number of workers' must equal 1, 2, 3, 4, 5, 6, 7, 8, 9,"
+                        " or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5",
+                        "6",
+                        "7",
+                        "8",
+                        "9",
+                        "988",
+                    ],
+                ),
+            ],
         ),
         "time_in_business_type": Column(
             str,
