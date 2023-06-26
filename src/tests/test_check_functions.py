@@ -128,6 +128,12 @@ class TestInvalidNumberOfValues:
         
     def test_with_invalid_upper_range_value(self):
         assert has_valid_value_count("1;2;3;4", 2, 3) == False
+
+    def test_valid_with_no_upper_bound(self):
+        assert has_valid_value_count("1;2;3;4", 1, None) == True
+
+    def test_invalid_with_no_upper_bound(self):
+        assert has_valid_value_count("1", 2, None) == False
         
 
 class TestMultiValueFieldRestriction:

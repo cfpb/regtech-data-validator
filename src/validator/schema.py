@@ -1058,7 +1058,55 @@ sblar_schema = DataFrameSchema(
         "business_ownership_status": Column(
             str,
             title="Field 43: Business ownership status",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="business_ownership_status.invalid_enum_value",
+                    description=(
+                        "Each value in 'business ownership status'"
+                        " (separated by semicolons) must equal 1, 2, 3,"
+                        " 955, 966, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                        "3",
+                        "955",
+                        "966",
+                        "988",
+                    ],
+                ),
+                SBLCheck(
+                    has_valid_value_count,
+                    name="business_ownership_status.invalid_number_of_values",
+                    description="'Business ownership status' must contain at least one value.",
+                    element_wise=True,
+                    min_length=1,
+                    max_length=None,
+                ),
+                SBLCheck(
+                    is_unique_in_field,
+                    warning=True,
+                    name="business_ownership_status.duplicates_in_field",
+                    description="'Business ownership status' should not contain duplicated values.",
+                    element_wise=True,
+                ),
+                SBLCheck(
+                    meets_multi_value_field_restriction,
+                    warning=True,
+                    name="business_ownership_status.multi_value_field_restriction",
+                    description=(
+                        "When 'business ownership status' contains 966"
+                        " (the applicant responded that they did not wish"
+                        " to provide this information) or 988 (not provided"
+                        " by applicant), 'business ownership status' should"
+                        " not contain more than one value."
+                    ),
+                    element_wise=True,
+                    single_values={"966", "988"},
+                ),
+            ],
         ),
         "num_principal_owners_flag": Column(
             str,
