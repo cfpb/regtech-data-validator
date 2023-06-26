@@ -722,8 +722,8 @@ sblar_schema = DataFrameSchema(
                         "When 'interest rate type' does not equal 1"
                         " (variable interest rate, no initial rate period),"
                         " 3 (initial rate period > 12 months, variable interest rate),"
-                        " or 5 (initial rate period <= 12 months, variable interest rate),"
-                        " 'variable rate transaction: margin' must be blank."
+                        " or 5 (initial rate period <= 12 months, variable interest"
+                        " rate), 'variable rate transaction: margin' must be blank."
                         " When 'interest rate type' equals 1, 3, or 5, 'variable"
                         " rate transaction: margin' must not be blank."
                     ),
@@ -833,8 +833,8 @@ sblar_schema = DataFrameSchema(
                         "When 'interest rate type' does not equal 1 (variable"
                         " interest rate, no initial rate period),"
                         " or 3 (initial rate period > 12 months, variable interest"
-                        " rate), 'variable rate transaction: index value' must be blank."
-                        " When 'interest rate type' equals 1 or 3,"
+                        " rate), 'variable rate transaction: index value' must be"
+                        " blank. When 'interest rate type' equals 1 or 3,"
                         " 'variable rate transaction: index value' must not be blank."
                     ),
                     groupby="pricing_interest_rate_type",
@@ -1051,7 +1051,10 @@ sblar_schema = DataFrameSchema(
                 SBLCheck(
                     is_valid_enum,
                     name="time_in_business_type.invalid_enum_value",
-                    description="'Time in business: type of response' must equal 1, 2, 3, or 988.",
+                    description=(
+                        "'Time in business: type of response'"
+                        " must equal 1, 2, 3, or 988."
+                    ),
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -1070,14 +1073,18 @@ sblar_schema = DataFrameSchema(
                 SBLCheck(
                     is_number,
                     name="time_in_business.invalid_numeric_format",
-                    description="When present, 'time in business' must be a whole number.",
+                    description=(
+                        "When present, 'time in business'"
+                        " must be a whole number."
+                    ),
                     element_wise=True,
                 ),
                 SBLCheck.greater_than_or_equal_to(
                     min_value="0",
                     name="time_in_business.invalid_numeric_value",
                     description=(
-                        "When present, 'time in business' must be greater than or equal to 0.",
+                        "When present, 'time in business'"
+                        " must be greater than or equal to 0.",
                     ),
                 ),
                 SBLCheck(
