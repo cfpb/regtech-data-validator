@@ -1080,7 +1080,10 @@ sblar_schema = DataFrameSchema(
                 SBLCheck(
                     has_valid_value_count,
                     name="business_ownership_status.invalid_number_of_values",
-                    description="'Business ownership status' must contain at least one value.",
+                    description=(
+                        "'Business ownership status' must"
+                        " contain at least one value."
+                    ),
                     element_wise=True,
                     min_length=1,
                     max_length=None,
@@ -1089,7 +1092,10 @@ sblar_schema = DataFrameSchema(
                     is_unique_in_field,
                     warning=True,
                     name="business_ownership_status.duplicates_in_field",
-                    description="'Business ownership status' should not contain duplicated values.",
+                    description=(
+                        "'Business ownership status' should"
+                        " not contain duplicated values."
+                    ),
                     element_wise=True,
                 ),
                 SBLCheck(
