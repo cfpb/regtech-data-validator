@@ -12,10 +12,10 @@ the function. This may or may not align with the name of the validation
 in the fig."""
 
 
+import re
 from datetime import datetime, timedelta
 from typing import Dict
 
-import re
 import pandas as pd
 
 
@@ -239,7 +239,6 @@ def meets_multi_value_field_restriction(
     else:
         return False
 
-
 def is_valid_enum(
     ct_value: str, accepted_values: list[str], separator: str = ";"
 ) -> bool:
@@ -390,3 +389,102 @@ def is_date_before_in_days(
         except ValueError:
             validation_holder.append(other_series.apply(lambda v: False))
     return pd.concat(validation_holder)
+
+
+def _is_fieldset_equal_to_helper(
+    current_values: list[str], 
+    series: pd.Series, 
+    condition_values: list[str], 
+    target_values: list[str]
+    ):
+    series_validations = {}
+    for current_index, current_value in series.items():
+            validation = (current_value in condition_values \
+                and list(current_values) == list(target_values)) \
+                    or current_value not in condition_values
+            series_validations[current_index] = validation
+    return series_validations
+            
+def is_fieldset_equal_to(
+    grouped_data: Dict[any, pd.Series],
+    condition_values: list[str], 
+    equal_to_values: list[str]
+) -> pd.Series:
+    """conditional check to verify if groups of fields equal to specific
+        values (equal_to_values) when another field is set/equal to 
+        condition_values.
+        * Note: when we define multiple fields in group_by parameter, 
+                Pandera returns group_by values in the dictionary key 
+                as iterable string 
+                and the column data in the series 
+
+    Args:
+        grouped_data (Dict[list[str], pd.Series]): parsed data provided by pandera
+        condition_values (list[str]): list of value to be compared to main series
+        equal_to_values (list[str]): list of expected values from group_by's fields.
+            This list has to be in same sequence as the group_by list
+
+    Returns:
+        pd.Series: list of series with update validations
+    """
+    validation_holder = []
+    for values, main_series in grouped_data.items():
+        validation_holder.append(
+            pd.Series(
+                index=main_series.index,
+                name=main_series.name,
+                data=_is_fieldset_equal_to_helper(values, main_series,\
+                    condition_values, equal_to_values),
+            )
+        )
+    return pd.concat(validation_holder)
+
+
+def _is_fieldset_not_equal_to_helper(
+    current_values: list[str], 
+    series: pd.Series, 
+    condition_values: list[str], 
+    target_values: list[str]):
+    series_validations = {}
+    for current_index, current_value in series.items():
+            not_contains_map = list(map(lambda a,b: a!=b, current_values,\
+                target_values))
+            validation = (current_value in condition_values and 
+                            all(not_contains_map)) \
+                        or current_value not in condition_values
+            series_validations[current_index] = validation
+    return series_validations
+
+
+def is_fieldset_not_equal_to(
+    grouped_data: Dict[any, pd.Series],
+    condition_values: list[str], 
+    not_equal_to_values: list[str]
+) -> pd.Series:
+    """conditional check to verify if groups of fields NOT equal specific
+        values (not_equal_to_values) when another field is set/equal to 
+        condition_values.
+        * Note: when we define multiple fields in group_by parameter, 
+                Pandera returns group_by values in the dictionary key as 
+                iterable string and the column data in the series 
+    Args:
+        grouped_data (Dict[list[str], pd.Series]): parsed data provided by pandera
+        condition_values (list[str]): list of value to be compared to main series
+        not_equal_to_values (list[str]): list of expected values from group_by's fields.
+            This list has to be in same sequence as the group_by list
+
+    Returns:
+        pd.Series: list of series with update validations
+    """
+    validation_holder = []
+    for values, main_series in grouped_data.items():
+        validation_holder.append(
+            pd.Series(
+                index=main_series.index,
+                name=main_series.name,
+                data=_is_fieldset_not_equal_to_helper(values, main_series,\
+                    condition_values, not_equal_to_values),
+            )
+        )
+    return pd.concat(validation_holder)
+      

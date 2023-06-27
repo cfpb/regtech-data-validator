@@ -12,6 +12,7 @@ from check_functions import (denial_reasons_conditional_enum_value,
                              has_valid_multi_field_value_count,
                              has_valid_value_count, is_date, is_date_after,
                              is_date_before_in_days, is_date_in_range,
+                             is_fieldset_equal_to, is_fieldset_not_equal_to,
                              is_number, is_unique_in_field, is_valid_enum,
                              meets_multi_value_field_restriction)
 from checks import SBLCheck
@@ -455,6 +456,51 @@ sblar_schema = DataFrameSchema(
                         "4",
                         "5",
                     ],
+                ),
+                SBLCheck(
+                    is_fieldset_equal_to,
+                    name="pricing_all.conditional_fieldset_conflict",
+                    description= ("When 'action taken' equals 3 (denied), "
+                                    "4 (withdrawn by applicant), or 5 "
+                                    "(incomplete), the following fields must"
+                                    " all equal 999 (not applicable): "
+                                    "'Interest rate type', 'MCA/sales-based: "
+                                    "additional cost for merchant cash advances"
+                                    " or other sales-based financing: NA flag', "
+                                    "'Prepayment penalty could be imposed', "
+                                    "'Prepayment penalty exists'). And the "
+                                    " following fields must all be blank: "
+                                    "'Total origination charges', 'Amount of "
+                                    "total broker fees', 'Initial annual charges'"),
+                    groupby=["pricing_interest_rate_type", 
+                                "pricing_mca_addcost_flag",
+                                "pricing_prepenalty_allowed",
+                                "pricing_prepenalty_exists", 
+                                "pricing_origination_charges", 
+                                "pricing_broker_fees", 
+                                "pricing_initial_charges"],
+                    equal_to_values=["999","999","999","999","","",""],
+                    condition_values=["3","4","5"],
+                ),
+                SBLCheck(
+                    is_fieldset_not_equal_to,
+                    name="pricing_charges.conditional_fieldset_conflict",
+                    description=("When 'action taken' equals 1 (originated)"
+                                    " or 2 (approved but not accepted), the "
+                                    "following fields all must not be blank: "
+                                    "'Total origination charges', 'Amount of "
+                                    "total broker fees', 'Initial annual "
+                                    "charges'. And the following fields must "
+                                    "not equal 999 (not applicable): 'Prepayment "
+                                    "penalty could be imposed', 'Prepayment "
+                                    "penalty exists'"),
+                    groupby=["pricing_origination_charges", 
+                                "pricing_broker_fees",
+                                "pricing_initial_charges",
+                                "pricing_prepenalty_allowed", 
+                                "pricing_prepenalty_exists"],
+                    not_equal_to_values=["","","","999","999"],
+                    condition_values=["1","2"],
                 ),
             ],
         ),
