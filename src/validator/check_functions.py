@@ -247,7 +247,7 @@ def is_valid_enum(
 
 
 def has_valid_value_count(
-    ct_value: str, min_length: int, max_length: int, separator: str = ";"
+    ct_value: str, min_length: int, max_length: int = None, separator: str = ";"
 ) -> bool:
     values_count = len(ct_value.split(separator))
     if max_length is None:

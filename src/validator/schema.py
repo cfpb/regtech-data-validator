@@ -1180,7 +1180,6 @@ sblar_schema = DataFrameSchema(
                     ),
                     element_wise=True,
                     min_length=1,
-                    max_length=None,
                 ),
                 SBLCheck(
                     is_unique_in_field,
