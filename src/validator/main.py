@@ -7,6 +7,7 @@ Run from the terminal to see the generated output.
 
 import sys
 
+import global_data
 import pandas as pd
 from pandera.errors import SchemaErrors
 from schema import sblar_schema
@@ -58,5 +59,8 @@ if __name__ == "__main__":
     except IndexError:
         raise ValueError("csv_path arg not provided")
 
+    #read naics code 
+    global_data.read_naics_codes()
+    
     df = csv_to_df(csv_path)
     run_validation_on_df(df)

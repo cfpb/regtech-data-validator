@@ -12,10 +12,11 @@ the function. This may or may not align with the name of the validation
 in the fig."""
 
 
+import re
 from datetime import datetime, timedelta
 from typing import Dict
 
-import re
+import global_data
 import pandas as pd
 
 
@@ -302,7 +303,7 @@ def is_date_after(
     return pd.concat(validation_holder)
 
 
-def is_number(ct_value: str) -> bool:
+def is_number(ct_value: str, accept_blank: bool = False) -> bool:
     """
     function to check a string is a number
     return True if value is number , False if value is not number
@@ -313,7 +314,12 @@ def is_number(ct_value: str) -> bool:
     Returns:
         bool: True if value is number , False if value is not number
     """
-    return ct_value.isdigit() or bool(re.match(r'^[-+]?[0-9]*\.?[0-9]+$', ct_value))
+    value_check = ct_value.isdigit() or \
+        bool(re.match(r'^[-+]?[0-9]*\.?[0-9]+$', ct_value))
+    if accept_blank:
+        return value_check or _is_blank(ct_value)
+    else:
+        return value_check
 
 
 def has_valid_enum_pair(
@@ -390,3 +396,52 @@ def is_date_before_in_days(
         except ValueError:
             validation_holder.append(other_series.apply(lambda v: False))
     return pd.concat(validation_holder)
+  
+def _is_blank(ct_value: str) -> bool:
+    """
+    check value is blank
+
+    Args:
+        ct_value (str): string value
+
+    Returns:
+        bool: True if value is blank
+    """
+    return (len(ct_value) == 0)
+
+def has_correct_length(
+    ct_value: str, accepted_length: int, accept_blank: bool = False
+) -> bool:
+    """check text for correct length but allow blank
+    Args:
+        ct_value (str): value from file
+        accepted_length (int): accepted value length
+        accept_blank (bool): bool value to ignore check if value is blank
+
+    Returns:
+        bool: return true if its number and length is equal to accepted length
+                or blank 
+    """
+    value_check = len(ct_value) == accepted_length
+    if accept_blank:
+        return value_check or _is_blank(ct_value)
+    else:
+        return value_check
+
+def is_valid_code(ct_value: str, accept_blank: bool = False,
+                   codes: dict = global_data.naics_codes) -> bool:
+    """
+    check if value existed in codes keys
+
+    Args:
+        ct_value (str): parsed value
+        accept_blank (bool): accept blank value
+        codes (dict): dict of key -> value
+    Returns:
+        bool: true if blank or value is in code key list
+    """
+    key_check = (ct_value in codes)
+    if accept_blank:
+        return  _is_blank(ct_value) or key_check
+    else:
+        return key_check

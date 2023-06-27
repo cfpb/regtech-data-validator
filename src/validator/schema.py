@@ -7,12 +7,14 @@ The only major modification from native Pandera is the use of custom
 Check classes to differentiate between warnings and errors. """
 
 from check_functions import (denial_reasons_conditional_enum_value,
+                             has_correct_length,
                              has_no_conditional_field_conflict,
                              has_valid_enum_pair,
                              has_valid_multi_field_value_count,
                              has_valid_value_count, is_date, is_date_after,
                              is_date_before_in_days, is_date_in_range,
-                             is_number, is_unique_in_field, is_valid_enum,
+                             is_number, is_unique_in_field, is_valid_code,
+                             is_valid_enum,
                              meets_multi_value_field_restriction)
 from checks import SBLCheck
 from pandera import Column, DataFrameSchema
@@ -722,7 +724,8 @@ sblar_schema = DataFrameSchema(
                         "When 'interest rate type' does not equal 1"
                         " (variable interest rate, no initial rate period),"
                         " 3 (initial rate period > 12 months, variable interest rate),"
-                        " or 5 (initial rate period <= 12 months, variable interest rate),"
+                        " or 5 (initial rate period <= 12 months, "
+                        " variable interest rate),"
                         " 'variable rate transaction: margin' must be blank."
                         " When 'interest rate type' equals 1, 3, or 5, 'variable"
                         " rate transaction: margin' must not be blank."
@@ -833,8 +836,8 @@ sblar_schema = DataFrameSchema(
                         "When 'interest rate type' does not equal 1 (variable"
                         " interest rate, no initial rate period),"
                         " or 3 (initial rate period > 12 months, variable interest"
-                        " rate), 'variable rate transaction: index value' must be blank."
-                        " When 'interest rate type' equals 1 or 3,"
+                        " rate), 'variable rate transaction: index value'"
+                        " must be blank. When 'interest rate type' equals 1 or 3,"
                         " 'variable rate transaction: index value' must not be blank."
                     ),
                     groupby="pricing_interest_rate_type",
@@ -1007,7 +1010,21 @@ sblar_schema = DataFrameSchema(
                 "Field 38: North American Industry Classification System (NAICS)"
                 "code: NP flag"
             ),
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="naics_code_flag.invalid_enum_value",
+                    description=(
+                        "'North American Industry Classification System (NAICS) "
+                        "code: NP flag' must equal 900 or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "900",
+                        "988",
+                    ],
+                ),
+            ],
         ),
         "naics_code": Column(
             str,
@@ -1015,7 +1032,50 @@ sblar_schema = DataFrameSchema(
                 "Field 39: North American Industry Classification" "System (NAICS) code"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_number,
+                    name="naics_code.invalid_naics_format",
+                    description=("'North American Industry Classification System "
+                                 "(NAICS) code' may only contain numeric characters."
+                    ),
+                    element_wise=True,
+                    accept_blank=True,
+                ),
+                SBLCheck(
+                    has_correct_length,
+                    name="naics_code.invalid_text_length",
+                    description=(
+                        "When present, 'North American Industry Classification System "
+                        "(NAICS) code' must be three digits in length."
+                    ),
+                    element_wise=True,
+                    accepted_length=3,
+                    accept_blank=True,
+                ),
+                SBLCheck(
+                    is_valid_code,
+                    name="naics_code.invalid_naics_value",
+                    description=(
+                        "When present, 'North American Industry Classification System "
+                        "(NAICS) code' should be a valid NAICS code."
+                    ),
+                    element_wise=True,
+                    accept_blank=True,
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="naics_code.conditional_field_conflict",
+                    description=(
+                        "When 'type of guarantee' does not contain 977 (other), "
+                        "'free-form text field for other guarantee' must be blank. "
+                        "When 'type of guarantee' contains 977, 'free-form text field"
+                        " for other guarantee' must not be blank."
+                    ),
+                    groupby="naics_code_flag",
+                    condition_values={"900"},
+                ),
+            ],
         ),
         "number_of_workers": Column(
             str,
