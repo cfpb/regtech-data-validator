@@ -1169,7 +1169,54 @@ sblar_schema = DataFrameSchema(
             str,
             title="Field 46: Ethnicity of principal owner 1",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="po_1_ethnicity.invalid_enum_value",
+                    description=(
+                        "When present, each value in 'ethnicity"
+                        " of principal owner 1' (separated by"
+                        " semicolons) must equal 1, 11, 12,"
+                        " 13, 14, 2, 966, 977, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "11",
+                        "12",
+                        "13",
+                        "14",
+                        "2",
+                        "966",
+                        "977",
+                        "988",
+                    ],
+                ),
+                SBLCheck(
+                    is_unique_in_field,
+                    warning=True,
+                    name="po_1_ethnicity.duplicates_in_field",
+                    description=(
+                        "'Ethnicity of principal owner 1' should"
+                        " not contain duplicated values."
+                    ),
+                    element_wise=True,
+                ),
+                SBLCheck(
+                    meets_multi_value_field_restriction,
+                    warning=True,
+                    name="po_1_ethnicity.multi_value_field_restriction",
+                    description=(
+                        "When 'ethnicity of principal owner 1' contains"
+                        " 966 (the applicant responded that they did"
+                        " not wish to provide this information) or 988"
+                        " (not provided by applicant), 'ethnicity of"
+                        " principal owner 1' should not contain more than one value."
+                    ),
+                    element_wise=True,
+                    single_values={"966", "988"},
+                ),
+            ],
         ),
         "po_1_ethnicity_ff": Column(
             str,
@@ -1178,7 +1225,34 @@ sblar_schema = DataFrameSchema(
                 "other Hispanic or Latino ethnicity"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_1_ethnicity_ff.invalid_text_length",
+                    description=(
+                        "'Ethnicity of principal owner 1: free-form"
+                        " text field for other Hispanic or Latino'"
+                        " must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_1_ethnicity_ff.conditional_field_conflict",
+                    description=(
+                        "When 'ethnicity of principal owner 1' does not"
+                        " contain 977 (the applicant responded in the"
+                        " free-form text field), 'ethnicity of principal"
+                        " owner 1: free-form text field for other Hispanic"
+                        " or Latino' must be blank. When 'ethnicity of principal"
+                        " owner 1' contains 977, 'ethnicity of principal"
+                        " owner 1: free-form text field for other Hispanic"
+                        " or Latino' must not be blank."
+                    ),
+                    groupby="po_1_ethnicity",
+                    condition_values={"977"},
+                ),
+            ],
         ),
         "po_1_race": Column(
             str,
@@ -1241,7 +1315,54 @@ sblar_schema = DataFrameSchema(
             str,
             title="Field 55: Ethnicity of principal owner 2",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="po_2_ethnicity.invalid_enum_value",
+                    description=(
+                        "When present, each value in 'ethnicity"
+                        " of principal owner 2' (separated by"
+                        " semicolons) must equal 1, 11, 12,"
+                        " 13, 14, 2, 966, 977, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "11",
+                        "12",
+                        "13",
+                        "14",
+                        "2",
+                        "966",
+                        "977",
+                        "988",
+                    ],
+                ),
+                SBLCheck(
+                    is_unique_in_field,
+                    warning=True,
+                    name="po_2_ethnicity.duplicates_in_field",
+                    description=(
+                        "'Ethnicity of principal owner 2' should"
+                        " not contain duplicated values."
+                    ),
+                    element_wise=True,
+                ),
+                SBLCheck(
+                    meets_multi_value_field_restriction,
+                    warning=True,
+                    name="po_2_ethnicity.multi_value_field_restriction",
+                    description=(
+                        "When 'ethnicity of principal owner 2' contains"
+                        " 966 (the applicant responded that they did"
+                        " not wish to provide this information) or 988"
+                        " (not provided by applicant), 'ethnicity of"
+                        " principal owner 2' should not contain more than one value."
+                    ),
+                    element_wise=True,
+                    single_values={"966", "988"},
+                ),
+            ],
         ),
         "po_2_ethnicity_ff": Column(
             str,
@@ -1250,7 +1371,34 @@ sblar_schema = DataFrameSchema(
                 "other Hispanic or Latino ethnicity"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_2_ethnicity_ff.invalid_text_length",
+                    description=(
+                        "'Ethnicity of principal owner 2: free-form"
+                        " text field for other Hispanic or Latino'"
+                        " must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_2_ethnicity_ff.conditional_field_conflict",
+                    description=(
+                        "When 'ethnicity of principal owner 2' does not"
+                        " contain 977 (the applicant responded in the"
+                        " free-form text field), 'ethnicity of principal"
+                        " owner 2: free-form text field for other Hispanic"
+                        " or Latino' must be blank. When 'ethnicity of principal"
+                        " owner 2' contains 977, 'ethnicity of principal"
+                        " owner 2: free-form text field for other Hispanic"
+                        " or Latino' must not be blank."
+                    ),
+                    groupby="po_2_ethnicity",
+                    condition_values={"977"},
+                ),
+            ],
         ),
         "po_2_race": Column(
             str,
@@ -1313,7 +1461,54 @@ sblar_schema = DataFrameSchema(
             str,
             title="Field 64: Ethnicity of principal owner 3",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="po_3_ethnicity.invalid_enum_value",
+                    description=(
+                        "When present, each value in 'ethnicity"
+                        " of principal owner 3' (separated by"
+                        " semicolons) must equal 1, 11, 12,"
+                        " 13, 14, 2, 966, 977, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "11",
+                        "12",
+                        "13",
+                        "14",
+                        "2",
+                        "966",
+                        "977",
+                        "988",
+                    ],
+                ),
+                SBLCheck(
+                    is_unique_in_field,
+                    warning=True,
+                    name="po_3_ethnicity.duplicates_in_field",
+                    description=(
+                        "'Ethnicity of principal owner 3' should"
+                        " not contain duplicated values."
+                    ),
+                    element_wise=True,
+                ),
+                SBLCheck(
+                    meets_multi_value_field_restriction,
+                    warning=True,
+                    name="po_3_ethnicity.multi_value_field_restriction",
+                    description=(
+                        "When 'ethnicity of principal owner 3' contains"
+                        " 966 (the applicant responded that they did"
+                        " not wish to provide this information) or 988"
+                        " (not provided by applicant), 'ethnicity of"
+                        " principal owner 3' should not contain more than one value."
+                    ),
+                    element_wise=True,
+                    single_values={"966", "988"},
+                ),
+            ],
         ),
         "po_3_ethnicity_ff": Column(
             str,
@@ -1322,7 +1517,34 @@ sblar_schema = DataFrameSchema(
                 "other Hispanic or Latino ethnicity"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_3_ethnicity_ff.invalid_text_length",
+                    description=(
+                        "'Ethnicity of principal owner 3: free-form"
+                        " text field for other Hispanic or Latino'"
+                        " must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_3_ethnicity_ff.conditional_field_conflict",
+                    description=(
+                        "When 'ethnicity of principal owner 3' does not"
+                        " contain 977 (the applicant responded in the"
+                        " free-form text field), 'ethnicity of principal"
+                        " owner 3: free-form text field for other Hispanic"
+                        " or Latino' must be blank. When 'ethnicity of principal"
+                        " owner 3' contains 977, 'ethnicity of principal"
+                        " owner 3: free-form text field for other Hispanic"
+                        " or Latino' must not be blank."
+                    ),
+                    groupby="po_3_ethnicity",
+                    condition_values={"977"},
+                ),
+            ],
         ),
         "po_3_race": Column(
             str,
@@ -1385,7 +1607,54 @@ sblar_schema = DataFrameSchema(
             str,
             title="Field 73: Ethnicity of principal owner 4",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="po_4_ethnicity.invalid_enum_value",
+                    description=(
+                        "When present, each value in 'ethnicity"
+                        " of principal owner 4' (separated by"
+                        " semicolons) must equal 1, 11, 12,"
+                        " 13, 14, 2, 966, 977, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "11",
+                        "12",
+                        "13",
+                        "14",
+                        "2",
+                        "966",
+                        "977",
+                        "988",
+                    ],
+                ),
+                SBLCheck(
+                    is_unique_in_field,
+                    warning=True,
+                    name="po_4_ethnicity.duplicates_in_field",
+                    description=(
+                        "'Ethnicity of principal owner 4' should"
+                        " not contain duplicated values."
+                    ),
+                    element_wise=True,
+                ),
+                SBLCheck(
+                    meets_multi_value_field_restriction,
+                    warning=True,
+                    name="po_4_ethnicity.multi_value_field_restriction",
+                    description=(
+                        "When 'ethnicity of principal owner 4' contains"
+                        " 966 (the applicant responded that they did"
+                        " not wish to provide this information) or 988"
+                        " (not provided by applicant), 'ethnicity of"
+                        " principal owner 4' should not contain more than one value."
+                    ),
+                    element_wise=True,
+                    single_values={"966", "988"},
+                ),
+            ],
         ),
         "po_4_ethnicity_ff": Column(
             str,
@@ -1394,7 +1663,34 @@ sblar_schema = DataFrameSchema(
                 "other Hispanic or Latino ethnicity"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_4_ethnicity_ff.invalid_text_length",
+                    description=(
+                        "'Ethnicity of principal owner 4: free-form"
+                        " text field for other Hispanic or Latino'"
+                        " must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_4_ethnicity_ff.conditional_field_conflict",
+                    description=(
+                        "When 'ethnicity of principal owner 4' does not"
+                        " contain 977 (the applicant responded in the"
+                        " free-form text field), 'ethnicity of principal"
+                        " owner 4: free-form text field for other Hispanic"
+                        " or Latino' must be blank. When 'ethnicity of principal"
+                        " owner 4' contains 977, 'ethnicity of principal"
+                        " owner 4: free-form text field for other Hispanic"
+                        " or Latino' must not be blank."
+                    ),
+                    groupby="po_4_ethnicity",
+                    condition_values={"977"},
+                ),
+            ],
         ),
         "po_4_race": Column(
             str,
