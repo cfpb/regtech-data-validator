@@ -261,6 +261,13 @@ class TestConditionalFieldConflict:
         result2 = has_no_conditional_field_conflict({"900":series2}, condition_values2)
         assert result2.values == [False]
         
+        series3 =  pd.Series([' '],
+                        name="ct_loan_term",
+                        index=[2]
+        )
+        result3 = has_no_conditional_field_conflict({"900":series3}, condition_values2)
+        assert result3.values == [False]
+        
 class TestEnumValueConflict:
     
     def test_enum_value_confict_correct(self):
@@ -353,8 +360,12 @@ class TestIsValidCode:
         global_data.read_naics_codes()
         result = is_valid_code("", True, global_data.naics_codes)
         assert result is True
+        result = is_valid_code(" ", True, global_data.naics_codes)
+        assert result is True
         
     def test_with_invalid_blank(self):
         global_data.read_naics_codes()
         result = is_valid_code("", False, global_data.naics_codes)
+        assert result is False
+        result = is_valid_code(" ", False, global_data.naics_codes)
         assert result is False

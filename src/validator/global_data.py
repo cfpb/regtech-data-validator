@@ -19,6 +19,6 @@ def read_naics_codes():
     and populate global value: naics_codes
     """
     naics_codes.clear()
-    df = pd.read_csv(naics_codes_file, dtype=str, na_filter=False, header=None)
+    df = pd.read_csv(naics_codes_file, dtype=str, na_filter=False)
     for _, row in df.iterrows():
         naics_codes.update({row[0]: row[1]})

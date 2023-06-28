@@ -183,6 +183,13 @@ def has_valid_multi_field_value_count(
 
     return pd.concat(validation_holder)
 
+def _get_conditional_field_series_validations(
+    series: pd.Series, conditional_func
+) -> dict:
+    series_validations = {}
+    for index, value in series.items():
+        series_validations[index] = conditional_func(value)
+    return series_validations
 
 def has_no_conditional_field_conflict(
     grouped_data: Dict[str, pd.Series],
@@ -215,11 +222,27 @@ def has_no_conditional_field_conflict(
             #    condition values
             # free form should be blank if acceptable values NOT existed
             # in received list
-            validation_holder.append(other_series == "")
+            validation_holder.append(
+                pd.Series(
+                    index=other_series.index,
+                    name=other_series.name,
+                    data=_get_conditional_field_series_validations(
+                        other_series, lambda v: not v.strip()
+                        ),
+                )
+            )
         else:
             # free form text should NOT be blank if acceptable values
             # existed in received list
-            validation_holder.append(other_series != "")
+            validation_holder.append(
+                pd.Series(
+                    index=other_series.index,
+                    name=other_series.name,
+                    data=_get_conditional_field_series_validations(
+                        other_series, lambda v: v.strip() != ""
+                        ),
+                )
+            )
 
     return pd.concat(validation_holder)
 
@@ -317,7 +340,7 @@ def is_number(ct_value: str, accept_blank: bool = False) -> bool:
     value_check = ct_value.isdigit() or \
         bool(re.match(r'^[-+]?[0-9]*\.?[0-9]+$', ct_value))
     if accept_blank:
-        return value_check or _is_blank(ct_value)
+        return value_check or not ct_value.strip()
     else:
         return value_check
 
@@ -396,18 +419,6 @@ def is_date_before_in_days(
         except ValueError:
             validation_holder.append(other_series.apply(lambda v: False))
     return pd.concat(validation_holder)
-  
-def _is_blank(ct_value: str) -> bool:
-    """
-    check value is blank
-
-    Args:
-        ct_value (str): string value
-
-    Returns:
-        bool: True if value is blank
-    """
-    return (len(ct_value) == 0)
 
 def has_correct_length(
     ct_value: str, accepted_length: int, accept_blank: bool = False
@@ -424,7 +435,7 @@ def has_correct_length(
     """
     value_check = len(ct_value) == accepted_length
     if accept_blank:
-        return value_check or _is_blank(ct_value)
+        return value_check or not ct_value.strip()
     else:
         return value_check
 
@@ -442,6 +453,6 @@ def is_valid_code(ct_value: str, accept_blank: bool = False,
     """
     key_check = (ct_value in codes)
     if accept_blank:
-        return  _is_blank(ct_value) or key_check
+        return  not ct_value.strip() or key_check
     else:
         return key_check

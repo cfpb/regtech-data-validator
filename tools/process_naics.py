@@ -4,10 +4,10 @@ import sys
 
 import pandas as pd
 
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # noqa
-sys.path.append(ROOT_DIR) # noqa
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # noqa: E402
+sys.path.append(ROOT_DIR) # noqa: E402
 
-import config
+import config  # noqa: E402
 
 """
 filter NAICS data with only 3 digit codes
@@ -29,7 +29,10 @@ if __name__ == "__main__":
         raise FileExistsError(error_msg)
     
     df = pd.read_excel(excel_path, dtype=str, na_filter=False)
-    result = []
+    
+    #get header text and add to result
+    header_row = df.head(0)
+    result = [[header_row.columns[1] , header_row.columns[2]]]
     
     #read excel file
     # and create csv data list
