@@ -13,6 +13,7 @@ from check_functions import (denial_reasons_conditional_enum_value,
                              has_valid_multi_field_value_count,
                              has_valid_value_count, is_date, is_date_after,
                              is_date_before_in_days, is_date_in_range,
+                             is_fieldset_equal_to, is_fieldset_not_equal_to,
                              is_number, is_unique_in_field, is_valid_code,
                              is_valid_enum,
                              meets_multi_value_field_restriction)
@@ -458,6 +459,51 @@ sblar_schema = DataFrameSchema(
                         "5",
                     ],
                 ),
+                SBLCheck(
+                    is_fieldset_equal_to,
+                    name="pricing_all.conditional_fieldset_conflict",
+                    description= ("When 'action taken' equals 3 (denied), "
+                                    "4 (withdrawn by applicant), or 5 "
+                                    "(incomplete), the following fields must"
+                                    " all equal 999 (not applicable): "
+                                    "'Interest rate type', 'MCA/sales-based: "
+                                    "additional cost for merchant cash advances"
+                                    " or other sales-based financing: NA flag', "
+                                    "'Prepayment penalty could be imposed', "
+                                    "'Prepayment penalty exists'). And the "
+                                    " following fields must all be blank: "
+                                    "'Total origination charges', 'Amount of "
+                                    "total broker fees', 'Initial annual charges'"),
+                    groupby=["pricing_interest_rate_type", 
+                                "pricing_mca_addcost_flag",
+                                "pricing_prepenalty_allowed",
+                                "pricing_prepenalty_exists", 
+                                "pricing_origination_charges", 
+                                "pricing_broker_fees", 
+                                "pricing_initial_charges"],
+                    equal_to_values=["999","999","999","999","","",""],
+                    condition_values=["3","4","5"],
+                ),
+                SBLCheck(
+                    is_fieldset_not_equal_to,
+                    name="pricing_charges.conditional_fieldset_conflict",
+                    description=("When 'action taken' equals 1 (originated)"
+                                    " or 2 (approved but not accepted), the "
+                                    "following fields all must not be blank: "
+                                    "'Total origination charges', 'Amount of "
+                                    "total broker fees', 'Initial annual "
+                                    "charges'. And the following fields must "
+                                    "not equal 999 (not applicable): 'Prepayment "
+                                    "penalty could be imposed', 'Prepayment "
+                                    "penalty exists'"),
+                    groupby=["pricing_origination_charges", 
+                                "pricing_broker_fees",
+                                "pricing_initial_charges",
+                                "pricing_prepenalty_allowed", 
+                                "pricing_prepenalty_exists"],
+                    not_equal_to_values=["","","","999","999"],
+                    condition_values=["1","2"],
+                ),
             ],
         ),
         "action_taken_date": Column(
@@ -724,9 +770,8 @@ sblar_schema = DataFrameSchema(
                         "When 'interest rate type' does not equal 1"
                         " (variable interest rate, no initial rate period),"
                         " 3 (initial rate period > 12 months, variable interest rate),"
-                        " or 5 (initial rate period <= 12 months, "
-                        " variable interest rate),"
-                        " 'variable rate transaction: margin' must be blank."
+                        " or 5 (initial rate period <= 12 months, variable interest"
+                        " rate), 'variable rate transaction: margin' must be blank."
                         " When 'interest rate type' equals 1, 3, or 5, 'variable"
                         " rate transaction: margin' must not be blank."
                     ),
@@ -836,8 +881,8 @@ sblar_schema = DataFrameSchema(
                         "When 'interest rate type' does not equal 1 (variable"
                         " interest rate, no initial rate period),"
                         " or 3 (initial rate period > 12 months, variable interest"
-                        " rate), 'variable rate transaction: index value'"
-                        " must be blank. When 'interest rate type' equals 1 or 3,"
+                        " rate), 'variable rate transaction: index value' must be"
+                        " blank. When 'interest rate type' equals 1 or 3,"
                         " 'variable rate transaction: index value' must not be blank."
                     ),
                     groupby="pricing_interest_rate_type",
@@ -1107,18 +1152,119 @@ sblar_schema = DataFrameSchema(
         "time_in_business_type": Column(
             str,
             title="Field 41: Type of response",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="time_in_business_type.invalid_enum_value",
+                    description=(
+                        "'Time in business: type of response'"
+                        " must equal 1, 2, 3, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                        "3",
+                        "988",
+                    ],
+                ),
+            ],
         ),
         "time_in_business": Column(
             str,
             title="Field 42: Time in business",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_number,
+                    name="time_in_business.invalid_numeric_format",
+                    description=(
+                        "When present, 'time in business'"
+                        " must be a whole number."
+                    ),
+                    element_wise=True,
+                ),
+                SBLCheck.greater_than_or_equal_to(
+                    min_value="0",
+                    name="time_in_business.invalid_numeric_value",
+                    description=(
+                        "When present, 'time in business'"
+                        " must be greater than or equal to 0.",
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="time_in_business.conditional_field_conflict",
+                    description=(
+                        "When 'time in business: type of response' does not"
+                        " equal 1 (the number of years an applicant has been"
+                        " in business is collected or obtained by the financial"
+                        " institution), 'time in business' must be blank. When"
+                        " 'time in business: type of response' equals 1,"
+                        " 'time in business' must not be blank."
+                    ),
+                    groupby="time_in_business_type",
+                    condition_values={"1"},
+                ),
+            ],
         ),
         "business_ownership_status": Column(
             str,
             title="Field 43: Business ownership status",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="business_ownership_status.invalid_enum_value",
+                    description=(
+                        "Each value in 'business ownership status'"
+                        " (separated by semicolons) must equal 1, 2, 3,"
+                        " 955, 966, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                        "3",
+                        "955",
+                        "966",
+                        "988",
+                    ],
+                ),
+                SBLCheck(
+                    has_valid_value_count,
+                    name="business_ownership_status.invalid_number_of_values",
+                    description=(
+                        "'Business ownership status' must"
+                        " contain at least one value."
+                    ),
+                    element_wise=True,
+                    min_length=1,
+                ),
+                SBLCheck(
+                    is_unique_in_field,
+                    warning=True,
+                    name="business_ownership_status.duplicates_in_field",
+                    description=(
+                        "'Business ownership status' should"
+                        " not contain duplicated values."
+                    ),
+                    element_wise=True,
+                ),
+                SBLCheck(
+                    meets_multi_value_field_restriction,
+                    warning=True,
+                    name="business_ownership_status.multi_value_field_restriction",
+                    description=(
+                        "When 'business ownership status' contains 966"
+                        " (the applicant responded that they did not wish"
+                        " to provide this information) or 988 (not provided"
+                        " by applicant), 'business ownership status' should"
+                        " not contain more than one value."
+                    ),
+                    element_wise=True,
+                    single_values={"966", "988"},
+                ),
+            ],
         ),
         "num_principal_owners_flag": Column(
             str,
