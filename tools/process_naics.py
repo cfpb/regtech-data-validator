@@ -17,33 +17,34 @@ Raises:
     FileExistsError: when output csv file existed
 """
 if __name__ == "__main__":
-    excel_path = config.naics_excel_path
-    csv_path = config.naics_csv_path
+    EXCEL_PATH = config.NAICS_EXCEL_PATH
+    CSV_PATH = config.NAICS_CSV_PATH
+    CODE_COL = config.NAICS_CODE_COL
+    TITLE_COL = config.NAICS_TITLE_COL
     
     #check for paths
-    if not os.path.isfile(excel_path):
+    if not os.path.isfile(EXCEL_PATH):
         error_msg = "Input excel file not existed"
         raise FileNotFoundError(error_msg)
-    if os.path.isfile(csv_path):
+    if os.path.isfile(CSV_PATH):
         error_msg = "Output csv file existed"
         raise FileExistsError(error_msg)
     
-    df = pd.read_excel(excel_path, dtype=str, na_filter=False)
+    df = pd.read_excel(EXCEL_PATH, dtype=str, na_filter=False)
     
-    #get header text and add to result
-    header_row = df.head(0)
-    result = [[header_row.columns[1] , header_row.columns[2]]]
+    #add header
+    result = [["code", "title"]]
     
     #read excel file
     # and create csv data list
     for index, row in df.iterrows():
-        code = str(row[1])
+        code = str(row[CODE_COL])
         if len(code) == 3:
-            a_row = [code , str(row[2])]
+            a_row = [code , str(row[TITLE_COL])]
             result.append(a_row)
     
     #output data to csv file
-    with open(csv_path, 'w') as f:
+    with open(CSV_PATH, 'w') as f:
         writer = csv.writer(f)
         writer.writerows(result)
     
