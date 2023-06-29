@@ -16,7 +16,6 @@ import re
 from datetime import datetime, timedelta
 from typing import Dict
 
-import global_data
 import pandas as pd
 
 
@@ -539,7 +538,7 @@ def has_correct_length(
         return value_check
 
 def is_valid_code(ct_value: str, accept_blank: bool = False,
-                   codes: dict = global_data.naics_codes) -> bool:
+                   codes: dict = {}) -> bool:
     """
     check if value existed in codes keys
 
