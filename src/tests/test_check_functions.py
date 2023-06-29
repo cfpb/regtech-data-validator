@@ -10,7 +10,8 @@ from validator.check_functions import (denial_reasons_conditional_enum_value,
                                        is_fieldset_equal_to,
                                        is_fieldset_not_equal_to,
                                        is_greater_than,
-                                       is_greater_than_or_equal_to, is_number,
+                                       is_greater_than_or_equal_to,
+                                       is_less_than, is_number,
                                        is_unique_in_field, is_valid_code,
                                        is_valid_enum,
                                        meets_multi_value_field_restriction)
@@ -532,3 +533,22 @@ class TestIsGreaterThanOrEqualTo:
     def test_with_invalid_blank_value(self):
         assert is_greater_than_or_equal_to("", "2") is False
         assert is_greater_than_or_equal_to(" ", "2") is False
+        
+        
+class TestIsLessThan:
+    def test_with_greater_max_value(self):
+        assert is_less_than("1", "2") is True
+        
+    def test_with_less_max_value(self):
+        assert is_less_than("1", "0") is False
+        
+    def test_with_equal_max_value(self):
+        assert is_less_than("1", "1") is False
+        
+    def test_with_valid_blank_space(self):
+        assert is_less_than("", "1", True) is True
+        assert is_less_than(" ", "1", True) is True
+        
+    def test_with_invalid_blank_space(self):
+        assert is_less_than("", "1") is False
+        assert is_less_than(" ", "1") is False

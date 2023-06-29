@@ -20,7 +20,9 @@ import pandas as pd
 
 
 def _check_blank_(value: str, check_result: bool, accept_blank: bool = False) -> bool:
-    """helper function to handle conditional logic when blank is acceptable.
+    """helper function to validate value for blank space.  if accept_blank is true
+    then empty space is allowed.  If accept_blank is false then return false if
+    valus is blank or return non-blank logic result
 
     Args:
         value (str): value from parsed data
@@ -30,8 +32,10 @@ def _check_blank_(value: str, check_result: bool, accept_blank: bool = False) ->
     Returns:
         bool: true if all checks passed
     """
-    if accept_blank:
-        return  not value.strip() or check_result
+    is_blank =  not value.strip()
+    
+    if is_blank:
+        return accept_blank
     else:
         return check_result
     
@@ -575,7 +579,7 @@ def is_greater_than_or_equal_to(value: str,
         min_value(str): minimum value
         accept_blank (bool): accept blank value
     Returns:
-        bool: true if blank or value is in code key list
+        bool: true if blank or value is greater than or equal to min value
     """
     check_result = value >= min_value
     return _check_blank_(value, check_result, accept_blank)
@@ -591,7 +595,22 @@ def is_greater_than(value: str, min_value: str, accept_blank: bool = False) -> b
         min_value(str): minimum value
         accept_blank (bool): accept blank value
     Returns:
-        bool: true if blank or value is in code key list
+        bool: true if blank or value is greater than min value
     """
     check_result = value > min_value
+    return _check_blank_(value, check_result, accept_blank)
+
+def is_less_than(value: str, max_value: str, accept_blank: bool = False) -> bool:
+    """
+    check if value is less than max_value or blank
+    If blank value check is not needed, use built-in 'less_than'
+
+    Args:
+        value (str): parsed value
+        max_value(str): maximum value
+        accept_blank (bool): accept blank value
+    Returns:
+        bool: true if blank or value is less than max
+    """
+    check_result = value < max_value
     return _check_blank_(value, check_result, accept_blank)
