@@ -24,11 +24,11 @@ def _check_blank_(value: str, check_result: bool, accept_blank: bool = False) ->
 
     Args:
         value (str): value from parsed data
-        check_result (bool): 
-        accept_blank (bool, optional): . Defaults to False.
+        check_result (bool): bool value from non-blank value check
+        accept_blank (bool, optional): flag to check blank. Defaults to False.
 
     Returns:
-        bool: 
+        bool: true if all checks passed
     """
     if accept_blank:
         return  not value.strip() or check_result
