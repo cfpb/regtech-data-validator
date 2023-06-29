@@ -1,13 +1,16 @@
 import pandas as pd
 
+from validator import global_data
 from validator.check_functions import (denial_reasons_conditional_enum_value,
+                                       has_correct_length,
                                        has_no_conditional_field_conflict,
                                        has_valid_enum_pair,
                                        has_valid_multi_field_value_count,
                                        has_valid_value_count, is_date,
                                        is_fieldset_equal_to,
                                        is_fieldset_not_equal_to, is_number,
-                                       is_unique_in_field, is_valid_enum,
+                                       is_unique_in_field, is_valid_code,
+                                       is_valid_enum,
                                        meets_multi_value_field_restriction)
 
 
@@ -209,6 +212,16 @@ class TestIsNumber:
         value = "-0.1"
         result = is_number(value)
         assert result == True
+        
+    def test_valid_blank(self):
+        value = ""
+        result = is_number(value, True)
+        assert result is True
+        
+    def test_invalid_blank(self):
+        value = ""
+        result = is_number(value, False)
+        assert result is False
 
 class TestConditionalFieldConflict:
     
@@ -222,7 +235,6 @@ class TestConditionalFieldConflict:
         condition_values: set[str] = { "900" }
         
         result1 = has_no_conditional_field_conflict({"988":series}, condition_values)
-        print(result1)
         assert result1.values == [True]
         
         # if ct_loan_term_flag == 900 then ct_loan_term must not be blank
@@ -232,7 +244,6 @@ class TestConditionalFieldConflict:
         )
         condition_values2: set[str] = { "900" }
         result2 = has_no_conditional_field_conflict({"900":series2}, condition_values2)
-        print(result2)
         assert result2.values == [True]
         
     def test_conditional_field_conflict_incorrect(self):
@@ -257,6 +268,13 @@ class TestConditionalFieldConflict:
         condition_values2: set[str] = { "900" }
         result2 = has_no_conditional_field_conflict({"900":series2}, condition_values2)
         assert result2.values == [False]
+        
+        series3 =  pd.Series([' '],
+                        name="ct_loan_term",
+                        index=[2]
+        )
+        result3 = has_no_conditional_field_conflict({"900":series3}, condition_values2)
+        assert result3.values == [False]
         
 class TestEnumValueConflict:
     
@@ -310,8 +328,26 @@ class TestEnumValueConflict:
         condition_value = "999"
         ct_credit_product = "988"
         result1 = has_valid_enum_pair({ct_credit_product:series}, condition_values1, condition_values2, condition_value)
-        assert result1.values == [False]   
-    
+        assert result1.values == [False]
+
+
+class TestHasCorrectLength:
+    def test_with_accept_blank_value(self):
+        result = has_correct_length("", 3, True)
+        assert result is True
+        
+    def test_with_invalid_blank_value(self):
+        result = has_correct_length("", 3, False)
+        assert result is False
+        
+    def test_with_correct_length(self):
+        result = has_correct_length("abc", 3, True)
+        assert result is True
+        
+    def test_with_incorrect_length(self):
+        result = has_correct_length("1", 3, True)
+        assert result is False
+
 class TestIsFieldsetEqualTo:
     
     def test_with_correct_values(self):
@@ -420,3 +456,34 @@ class TestIsFieldsetNotEqualTo:
                                            target_values)
         assert result1.values == [True]
         
+        
+class TestIsValidCode:
+    
+    def test_with_valid_code(self):
+        global_data.read_naics_codes()
+        result = is_valid_code("111", False, global_data.naics_codes)
+        assert result is True
+        result = is_valid_code("111", True, global_data.naics_codes)
+        assert result is True
+        
+    def test_with_invalid_code(self):
+        global_data.read_naics_codes()
+        result = is_valid_code("101", False, global_data.naics_codes)
+        assert result is False
+        result = is_valid_code("101", True, global_data.naics_codes)
+        assert result is False
+        
+    def test_with_accepted_blank(self):
+        global_data.read_naics_codes()
+        result = is_valid_code("", True, global_data.naics_codes)
+        assert result is True
+        result = is_valid_code(" ", True, global_data.naics_codes)
+        assert result is True
+        
+    def test_with_invalid_blank(self):
+        global_data.read_naics_codes()
+        result = is_valid_code("", False, global_data.naics_codes)
+        assert result is False
+        result = is_valid_code(" ", False, global_data.naics_codes)
+        assert result is False
+
