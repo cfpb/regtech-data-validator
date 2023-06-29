@@ -231,6 +231,7 @@ sblar_schema = DataFrameSchema(
                     name="ct_loan_term.invalid_numeric_format",
                     description="When present, 'loan term' must be a whole number.",
                     element_wise=True,
+                    accept_blank=True,
                 ),
                 SBLCheck.greater_than_or_equal_to(
                     min_value="1",
@@ -399,6 +400,7 @@ sblar_schema = DataFrameSchema(
                         "When present, 'amount applied for' must be a numeric" "value."
                     ),
                     element_wise=True,
+                    accept_blank=True,
                 ),
                 SBLCheck.greater_than(
                     min_value="0",
@@ -422,6 +424,7 @@ sblar_schema = DataFrameSchema(
                         "must be a numeric value."
                     ),
                     element_wise=True,
+                    accept_blank=True,
                 ),
                 SBLCheck.greater_than(
                     min_value="0",
@@ -704,6 +707,7 @@ sblar_schema = DataFrameSchema(
                         "When present, 'initial rate period' must be a whole number.",
                     ),
                     element_wise=True,
+                    accept_blank=True,
                 ),
                 SBLCheck.greater_than(
                     min_value="0",
@@ -727,6 +731,7 @@ sblar_schema = DataFrameSchema(
                         " must be a numeric value."
                     ),
                     element_wise=True,
+                    accept_blank=True,
                 ),
                 SBLCheck(
                     has_no_conditional_field_conflict,
@@ -766,6 +771,7 @@ sblar_schema = DataFrameSchema(
                         " margin' must be a numeric value."
                     ),
                     element_wise=True,
+                    accept_blank=True,
                 ),
                 SBLCheck(
                     has_no_conditional_field_conflict,
@@ -877,6 +883,7 @@ sblar_schema = DataFrameSchema(
                     description="When present, 'variable rate transaction:"
                                 " index value' must be a numeric value.",
                     element_wise=True,
+                    accept_blank=True,
                 ),
                 SBLCheck(
                     has_no_conditional_field_conflict,
@@ -907,6 +914,7 @@ sblar_schema = DataFrameSchema(
                         "value.",
                     ),
                     element_wise=True,
+                    accept_blank=True,
                 ),
             ],
         ),
@@ -923,6 +931,7 @@ sblar_schema = DataFrameSchema(
                         "numeric value.",
                     ),
                     element_wise=True,
+                    accept_blank=True,
                 ),
             ],
         ),
@@ -939,6 +948,7 @@ sblar_schema = DataFrameSchema(
                         "numeric value."
                     ),
                     element_wise=True,
+                    accept_blank=True,
                 ),
             ],
         ),
@@ -1037,6 +1047,7 @@ sblar_schema = DataFrameSchema(
                         "When present, 'gross annual revenue' must be a numeric value."
                     ),
                     element_wise=True,
+                    accept_blank=True,
                 ), 
                 SBLCheck(
                     has_no_conditional_field_conflict,
@@ -1188,6 +1199,7 @@ sblar_schema = DataFrameSchema(
                         " must be a whole number."
                     ),
                     element_wise=True,
+                    accept_blank=True,
                 ),
                 SBLCheck.greater_than_or_equal_to(
                     min_value="0",

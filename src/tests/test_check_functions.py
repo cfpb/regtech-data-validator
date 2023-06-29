@@ -186,7 +186,11 @@ class TestIsNumber:
     def test_number_value(self):
         value = "1"
         result = is_number(value)
-        assert result == True
+        assert result is True
+        
+        value = "1"
+        result = is_number(value, True)
+        assert result is True
         
     def test_non_number_value(self):
         value = "a"
@@ -196,22 +200,26 @@ class TestIsNumber:
     def test_decimal_numeric_value(self):
         value = "0.1"
         result = is_number(value)
-        assert result == True
+        assert result is True
+        
+        value = "0.1"
+        result = is_number(value, True)
+        assert result is True
 
     def test_alphanumeric_value(self):
         value = "abc123"
         result = is_number(value)
-        assert result == False
+        assert result is False
 
     def test_negative_numeric_value(self):
         value = "-1"
         result = is_number(value)
-        assert result == True
+        assert result is True
 
     def test_negative_decimal_value(self):
         value = "-0.1"
         result = is_number(value)
-        assert result == True
+        assert result is True
         
     def test_valid_blank(self):
         value = ""
