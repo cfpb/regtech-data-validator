@@ -1258,7 +1258,77 @@ sblar_schema = DataFrameSchema(
             str,
             title="Field 48: Race of principal owner 1",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="po_1_race.invalid_enum_value",
+                    description=(
+                        "When present, each value in 'race"
+                        " of principal owner 1' (separated by"
+                        " semicolons) must equal 1, 2, 21, 22,"
+                        " 23, 24, 25, 26, 27, 3, 31, 32, 33,"
+                        " 34, 35, 36, 37, 4, 41, 42, 43, 44,"
+                        " 5, 966, 971, 972, 973, 974, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                        "21",
+                        "22",
+                        "23",
+                        "24",
+                        "25",
+                        "26",
+                        "27",
+                        "3",
+                        "31",
+                        "32",
+                        "33",
+                        "34",
+                        "35",
+                        "36",
+                        "37",
+                        "4",
+                        "41",
+                        "42",
+                        "43",
+                        "44",
+                        "5",
+                        "966",
+                        "971",
+                        "972",
+                        "973",
+                        "974",
+                        "988",
+                    ],
+                ),
+                SBLCheck(
+                    is_unique_in_field,
+                    warning=True,
+                    name="po_1_race.duplicates_in_field",
+                    description=(
+                        "'Race of principal owner 1' should"
+                        " not contain duplicated values."
+                    ),
+                    element_wise=True,
+                ),
+                SBLCheck(
+                    meets_multi_value_field_restriction,
+                    warning=True,
+                    name="po_1_race.multi_value_field_restriction",
+                    description=(
+                        "When 'race of principal owner 1' contains"
+                        " 966 (the applicant responded that they"
+                        " did not wish to provide this information)"
+                        " or 988 (not provided by applicant),"
+                        " 'race of principal owner 1' should not"
+                        " contain more than one value."
+                    ),
+                    element_wise=True,
+                    single_values={"966", "988"},
+                ),
+            ],
         ),
         "po_1_race_anai_ff": Column(
             str,
@@ -1404,7 +1474,77 @@ sblar_schema = DataFrameSchema(
             str,
             title="Field 57: Race of principal owner 2",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="po_2_race.invalid_enum_value",
+                    description=(
+                        "When present, each value in 'race"
+                        " of principal owner 2' (separated by"
+                        " semicolons) must equal 1, 2, 21, 22,"
+                        " 23, 24, 25, 26, 27, 3, 31, 32, 33,"
+                        " 34, 35, 36, 37, 4, 41, 42, 43, 44,"
+                        " 5, 966, 971, 972, 973, 974, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                        "21",
+                        "22",
+                        "23",
+                        "24",
+                        "25",
+                        "26",
+                        "27",
+                        "3",
+                        "31",
+                        "32",
+                        "33",
+                        "34",
+                        "35",
+                        "36",
+                        "37",
+                        "4",
+                        "41",
+                        "42",
+                        "43",
+                        "44",
+                        "5",
+                        "966",
+                        "971",
+                        "972",
+                        "973",
+                        "974",
+                        "988",
+                    ],
+                ),
+                SBLCheck(
+                    is_unique_in_field,
+                    warning=True,
+                    name="po_2_race.duplicates_in_field",
+                    description=(
+                        "'Race of principal owner 2' should"
+                        " not contain duplicated values."
+                    ),
+                    element_wise=True,
+                ),
+                SBLCheck(
+                    meets_multi_value_field_restriction,
+                    warning=True,
+                    name="po_2_race.multi_value_field_restriction",
+                    description=(
+                        "When 'race of principal owner 2' contains"
+                        " 966 (the applicant responded that they"
+                        " did not wish to provide this information)"
+                        " or 988 (not provided by applicant),"
+                        " 'race of principal owner 2' should not"
+                        " contain more than one value."
+                    ),
+                    element_wise=True,
+                    single_values={"966", "988"},
+                ),
+            ],
         ),
         "po_2_race_anai_ff": Column(
             str,
@@ -1550,7 +1690,77 @@ sblar_schema = DataFrameSchema(
             str,
             title="Field 66: Race of principal owner 3",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="po_3_race.invalid_enum_value",
+                    description=(
+                        "When present, each value in 'race"
+                        " of principal owner 3' (separated by"
+                        " semicolons) must equal 1, 2, 21, 22,"
+                        " 23, 24, 25, 26, 27, 3, 31, 32, 33,"
+                        " 34, 35, 36, 37, 4, 41, 42, 43, 44,"
+                        " 5, 966, 971, 972, 973, 974, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                        "21",
+                        "22",
+                        "23",
+                        "24",
+                        "25",
+                        "26",
+                        "27",
+                        "3",
+                        "31",
+                        "32",
+                        "33",
+                        "34",
+                        "35",
+                        "36",
+                        "37",
+                        "4",
+                        "41",
+                        "42",
+                        "43",
+                        "44",
+                        "5",
+                        "966",
+                        "971",
+                        "972",
+                        "973",
+                        "974",
+                        "988",
+                    ],
+                ),
+                SBLCheck(
+                    is_unique_in_field,
+                    warning=True,
+                    name="po_3_race.duplicates_in_field",
+                    description=(
+                        "'Race of principal owner 3' should"
+                        " not contain duplicated values."
+                    ),
+                    element_wise=True,
+                ),
+                SBLCheck(
+                    meets_multi_value_field_restriction,
+                    warning=True,
+                    name="po_3_race.multi_value_field_restriction",
+                    description=(
+                        "When 'race of principal owner 3' contains"
+                        " 966 (the applicant responded that they"
+                        " did not wish to provide this information)"
+                        " or 988 (not provided by applicant),"
+                        " 'race of principal owner 3' should not"
+                        " contain more than one value."
+                    ),
+                    element_wise=True,
+                    single_values={"966", "988"},
+                ),
+            ],
         ),
         "po_3_race_anai_ff": Column(
             str,
@@ -1696,7 +1906,77 @@ sblar_schema = DataFrameSchema(
             str,
             title="Field 75: Race of principal owner 4",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="po_4_race.invalid_enum_value",
+                    description=(
+                        "When present, each value in 'race"
+                        " of principal owner 4' (separated by"
+                        " semicolons) must equal 1, 2, 21, 22,"
+                        " 23, 24, 25, 26, 27, 3, 31, 32, 33,"
+                        " 34, 35, 36, 37, 4, 41, 42, 43, 44,"
+                        " 5, 966, 971, 972, 973, 974, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                        "21",
+                        "22",
+                        "23",
+                        "24",
+                        "25",
+                        "26",
+                        "27",
+                        "3",
+                        "31",
+                        "32",
+                        "33",
+                        "34",
+                        "35",
+                        "36",
+                        "37",
+                        "4",
+                        "41",
+                        "42",
+                        "43",
+                        "44",
+                        "5",
+                        "966",
+                        "971",
+                        "972",
+                        "973",
+                        "974",
+                        "988",
+                    ],
+                ),
+                SBLCheck(
+                    is_unique_in_field,
+                    warning=True,
+                    name="po_4_race.duplicates_in_field",
+                    description=(
+                        "'Race of principal owner 4' should"
+                        " not contain duplicated values."
+                    ),
+                    element_wise=True,
+                ),
+                SBLCheck(
+                    meets_multi_value_field_restriction,
+                    warning=True,
+                    name="po_4_race.multi_value_field_restriction",
+                    description=(
+                        "When 'race of principal owner 4' contains"
+                        " 966 (the applicant responded that they"
+                        " did not wish to provide this information)"
+                        " or 988 (not provided by applicant),"
+                        " 'race of principal owner 4' should not"
+                        " contain more than one value."
+                    ),
+                    element_wise=True,
+                    single_values={"966", "988"},
+                ),
+            ],
         ),
         "po_4_race_anai_ff": Column(
             str,
