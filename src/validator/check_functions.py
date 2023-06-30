@@ -182,6 +182,13 @@ def has_valid_multi_field_value_count(
 
     return pd.concat(validation_holder)
 
+def _get_conditional_field_series_validations(
+    series: pd.Series, conditional_func
+) -> dict:
+    series_validations = {}
+    for index, value in series.items():
+        series_validations[index] = conditional_func(value)
+    return series_validations
 
 def has_no_conditional_field_conflict(
     grouped_data: Dict[str, pd.Series],
@@ -214,11 +221,27 @@ def has_no_conditional_field_conflict(
             #    condition values
             # free form should be blank if acceptable values NOT existed
             # in received list
-            validation_holder.append(other_series == "")
+            validation_holder.append(
+                pd.Series(
+                    index=other_series.index,
+                    name=other_series.name,
+                    data=_get_conditional_field_series_validations(
+                        other_series, lambda v: not v.strip()
+                        ),
+                )
+            )
         else:
             # free form text should NOT be blank if acceptable values
             # existed in received list
-            validation_holder.append(other_series != "")
+            validation_holder.append(
+                pd.Series(
+                    index=other_series.index,
+                    name=other_series.name,
+                    data=_get_conditional_field_series_validations(
+                        other_series, lambda v: v.strip() != ""
+                        ),
+                )
+            )
 
     return pd.concat(validation_holder)
 
@@ -247,10 +270,13 @@ def is_valid_enum(
 
 
 def has_valid_value_count(
-    ct_value: str, min_length: int, max_length: int, separator: str = ";"
+    ct_value: str, min_length: int, max_length: int = None, separator: str = ";"
 ) -> bool:
     values_count = len(ct_value.split(separator))
-    return min_length <= values_count and values_count <= max_length
+    if max_length is None:
+        return min_length <= values_count
+    else:
+        return min_length <= values_count and values_count <= max_length
 
 
 def is_date_in_range(
@@ -301,7 +327,7 @@ def is_date_after(
     return pd.concat(validation_holder)
 
 
-def is_number(ct_value: str) -> bool:
+def is_number(ct_value: str, accept_blank: bool = False) -> bool:
     """
     function to check a string is a number
     return True if value is number , False if value is not number
@@ -312,7 +338,12 @@ def is_number(ct_value: str) -> bool:
     Returns:
         bool: True if value is number , False if value is not number
     """
-    return ct_value.isdigit() or bool(re.match(r'^[-+]?[0-9]*\.?[0-9]+$', ct_value))
+    value_check = ct_value.isdigit() or \
+        bool(re.match(r'^[-+]?[0-9]*\.?[0-9]+$', ct_value))
+    if accept_blank:
+        return value_check or not ct_value.strip()
+    else:
+        return value_check
 
 
 def has_valid_enum_pair(
@@ -389,7 +420,6 @@ def is_date_before_in_days(
         except ValueError:
             validation_holder.append(other_series.apply(lambda v: False))
     return pd.concat(validation_holder)
-
 
 def _is_fieldset_equal_to_helper(
     current_values: list[str], 
@@ -488,3 +518,39 @@ def is_fieldset_not_equal_to(
         )
     return pd.concat(validation_holder)
       
+def has_correct_length(
+    ct_value: str, accepted_length: int, accept_blank: bool = False
+) -> bool:
+    """check text for correct length but allow blank
+    Args:
+        ct_value (str): value from file
+        accepted_length (int): accepted value length
+        accept_blank (bool): bool value to ignore check if value is blank
+
+    Returns:
+        bool: return true if its number and length is equal to accepted length
+                or blank 
+    """
+    value_check = len(ct_value) == accepted_length
+    if accept_blank:
+        return value_check or not ct_value.strip()
+    else:
+        return value_check
+
+def is_valid_code(ct_value: str, accept_blank: bool = False,
+                   codes: dict = {}) -> bool:
+    """
+    check if value existed in codes keys
+
+    Args:
+        ct_value (str): parsed value
+        accept_blank (bool): accept blank value
+        codes (dict): dict of key -> value
+    Returns:
+        bool: true if blank or value is in code key list
+    """
+    key_check = (ct_value in codes)
+    if accept_blank:
+        return  not ct_value.strip() or key_check
+    else:
+        return key_check
