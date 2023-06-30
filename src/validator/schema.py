@@ -170,6 +170,7 @@ sblar_schema = DataFrameSchema(
                         "validation check."
                     ),
                     groupby="ct_guarantee",
+                    ignored_values={"977"},
                     max_length=5,
                 ),
             ],

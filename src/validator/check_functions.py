@@ -158,24 +158,30 @@ def _get_related_series_validations(
 ) -> dict:
     series_validations = {}
     for index, value in series.items():
-        series_count = len(value.split(separator))
+        processed_value = set(filter(lambda v: v.strip() != "", value.split(separator)))
+        series_count = len(processed_value)
         series_validations[index] = (series_count + value_count) <= max_length
     return series_validations
 
 
 def has_valid_multi_field_value_count(
-    grouped_data: Dict[str, pd.Series], max_length: int, separator: str = ";"
+    grouped_data: Dict[str, pd.Series], 
+    max_length: int, ignored_values: set[str] = set(),
+    separator: str = ";"
 ) -> pd.Series:
     validation_holder = []
     items = grouped_data.items()
 
     for value, other_series in items:
+        processed_value = set(filter(lambda v: v.strip() != "", value.split(separator)))
         validation_holder.append(
             pd.Series(
                 index=other_series.index,
                 name=other_series.name,
                 data=_get_related_series_validations(
-                    len(value.split(separator)), other_series, max_length
+                    len(processed_value - ignored_values), 
+                    other_series,
+                    max_length,
                 ),
             )
         )
