@@ -1576,13 +1576,54 @@ sblar_schema = DataFrameSchema(
                 "Pacific Islander race"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_1_race_pi_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 1: free-form text"
+                        " field for other Pacific Islander race' must"
+                        " not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_1_race_pi_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 1' does not contain 974"
+                        " (the applicant responded in the free-form text field"
+                        " for other Pacific Islander race), 'race of principal"
+                        " owner 1: free-form text field for other Pacific Islander"
+                        " race' must be blank. When 'race of principal owner 1'"
+                        " contains 974, 'race of principal owner 1: free-form text"
+                        " field for other Pacific Islander race' must not be blank."
+                    ),
+                    groupby="po_1_race",
+                    condition_values={"974"},
+                ),
+            ],
         ),
         "po_1_gender_flag": Column(
             str,
             title="Field 53: Sex/gender of principal owner 1: NP flag",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="po_1_gender_flag.invalid_enum_value",
+                    description=(
+                        "When present, 'sex/gender of principal"
+                        " owner 1: NP flag' must equal 1, 966, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "966",
+                        "988",
+                    ],
+                ),
+            ],
         ),
         "po_1_gender_ff": Column(
             str,
@@ -1591,7 +1632,34 @@ sblar_schema = DataFrameSchema(
                 "self-identified sex/gender"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_1_gender_ff.invalid_text_length",
+                    description=(
+                        "'Sex/gender of principal owner 1: free-form"
+                        " text field for self-identified sex/gender'"
+                        " must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_1_gender_ff.conditional_field_conflict",
+                    description=(
+                        "When 'sex/gender of principal owner 1: NP flag'"
+                        " does not equal 1 (the applicant responded in the"
+                        " free-form text field), 'sex/gender of principal"
+                        " owner 1: free-form text field for self-identified"
+                        " sex/gender' must be blank. When 'sex/gender of"
+                        " principal owner 1: NP flag' equals 1, 'sex/gender"
+                        " of principal owner 1: free-form text field for"
+                        " self-identified sex/gender' must not be blank."
+                    ),
+                    groupby="po_1_gender_flag",
+                    condition_values={"1"},
+                ),
+            ],
         ),
         "po_2_ethnicity": Column(
             str,
@@ -1875,13 +1943,54 @@ sblar_schema = DataFrameSchema(
                 "Pacific Islander race"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_2_race_pi_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 2: free-form text"
+                        " field for other Pacific Islander race' must"
+                        " not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_2_race_pi_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 2' does not contain 974"
+                        " (the applicant responded in the free-form text field"
+                        " for other Pacific Islander race), 'race of principal"
+                        " owner 2: free-form text field for other Pacific Islander"
+                        " race' must be blank. When 'race of principal owner 2'"
+                        " contains 974, 'race of principal owner 2: free-form text"
+                        " field for other Pacific Islander race' must not be blank."
+                    ),
+                    groupby="po_2_race",
+                    condition_values={"974"},
+                ),
+            ],
         ),
         "po_2_gender_flag": Column(
             str,
             title="Field 62: Sex/gender of principal owner 2: NP flag",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="po_2_gender_flag.invalid_enum_value",
+                    description=(
+                        "When present, 'sex/gender of principal"
+                        " owner 2: NP flag' must equal 1, 966, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "966",
+                        "988",
+                    ],
+                ),
+            ],
         ),
         "po_2_gender_ff": Column(
             str,
@@ -1890,7 +1999,34 @@ sblar_schema = DataFrameSchema(
                 "self-identified sex/gender"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_2_gender_ff.invalid_text_length",
+                    description=(
+                        "'Sex/gender of principal owner 2: free-form"
+                        " text field for self-identified sex/gender'"
+                        " must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_2_gender_ff.conditional_field_conflict",
+                    description=(
+                        "When 'sex/gender of principal owner 2: NP flag'"
+                        " does not equal 1 (the applicant responded in the"
+                        " free-form text field), 'sex/gender of principal"
+                        " owner 2: free-form text field for self-identified"
+                        " sex/gender' must be blank. When 'sex/gender of"
+                        " principal owner 2: NP flag' equals 1, 'sex/gender"
+                        " of principal owner 2: free-form text field for"
+                        " self-identified sex/gender' must not be blank."
+                    ),
+                    groupby="po_2_gender_flag",
+                    condition_values={"1"},
+                ),
+            ],
         ),
         "po_3_ethnicity": Column(
             str,
@@ -2174,13 +2310,54 @@ sblar_schema = DataFrameSchema(
                 "Pacific Islander race"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_3_race_pi_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 3: free-form text"
+                        " field for other Pacific Islander race' must"
+                        " not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_3_race_pi_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 3' does not contain 974"
+                        " (the applicant responded in the free-form text field"
+                        " for other Pacific Islander race), 'race of principal"
+                        " owner 3: free-form text field for other Pacific Islander"
+                        " race' must be blank. When 'race of principal owner 3'"
+                        " contains 974, 'race of principal owner 3: free-form text"
+                        " field for other Pacific Islander race' must not be blank."
+                    ),
+                    groupby="po_3_race",
+                    condition_values={"974"},
+                ),
+            ],
         ),
         "po_3_gender_flag": Column(
             str,
             title="Field 71: Sex/gender of principal owner 3: NP flag",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="po_3_gender_flag.invalid_enum_value",
+                    description=(
+                        "When present, 'sex/gender of principal"
+                        " owner 3: NP flag' must equal 1, 966, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "966",
+                        "988",
+                    ],
+                ),
+            ],
         ),
         "po_3_gender_ff": Column(
             str,
@@ -2189,7 +2366,34 @@ sblar_schema = DataFrameSchema(
                 "self-identified sex/gender"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_3_gender_ff.invalid_text_length",
+                    description=(
+                        "'Sex/gender of principal owner 3: free-form"
+                        " text field for self-identified sex/gender'"
+                        " must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_3_gender_ff.conditional_field_conflict",
+                    description=(
+                        "When 'sex/gender of principal owner 3: NP flag'"
+                        " does not equal 1 (the applicant responded in the"
+                        " free-form text field), 'sex/gender of principal"
+                        " owner 3: free-form text field for self-identified"
+                        " sex/gender' must be blank. When 'sex/gender of"
+                        " principal owner 3: NP flag' equals 1, 'sex/gender"
+                        " of principal owner 3: free-form text field for"
+                        " self-identified sex/gender' must not be blank."
+                    ),
+                    groupby="po_3_gender_flag",
+                    condition_values={"1"},
+                ),
+            ],
         ),
         "po_4_ethnicity": Column(
             str,
@@ -2473,13 +2677,54 @@ sblar_schema = DataFrameSchema(
                 "Pacific Islander race"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_4_race_pi_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 4: free-form text"
+                        " field for other Pacific Islander race' must"
+                        " not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_4_race_pi_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 4' does not contain 974"
+                        " (the applicant responded in the free-form text field"
+                        " for other Pacific Islander race), 'race of principal"
+                        " owner 4: free-form text field for other Pacific Islander"
+                        " race' must be blank. When 'race of principal owner 4'"
+                        " contains 974, 'race of principal owner 4: free-form text"
+                        " field for other Pacific Islander race' must not be blank."
+                    ),
+                    groupby="po_4_race",
+                    condition_values={"974"},
+                ),
+            ],
         ),
         "po_4_gender_flag": Column(
             str,
             title="Field 80: Sex/gender of principal owner 4: NP flag",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="po_4_gender_flag.invalid_enum_value",
+                    description=(
+                        "When present, 'sex/gender of principal"
+                        " owner 4: NP flag' must equal 1, 966, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "966",
+                        "988",
+                    ],
+                ),
+            ],
         ),
         "po_4_gender_ff": Column(
             str,
@@ -2488,7 +2733,34 @@ sblar_schema = DataFrameSchema(
                 "self-identified sex/gender"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_4_gender_ff.invalid_text_length",
+                    description=(
+                        "'Sex/gender of principal owner 4: free-form"
+                        " text field for self-identified sex/gender'"
+                        " must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_4_gender_ff.conditional_field_conflict",
+                    description=(
+                        "When 'sex/gender of principal owner 4: NP flag'"
+                        " does not equal 1 (the applicant responded in the"
+                        " free-form text field), 'sex/gender of principal"
+                        " owner 4: free-form text field for self-identified"
+                        " sex/gender' must be blank. When 'sex/gender of"
+                        " principal owner 4: NP flag' equals 1, 'sex/gender"
+                        " of principal owner 4: free-form text field for"
+                        " self-identified sex/gender' must not be blank."
+                    ),
+                    groupby="po_4_gender_flag",
+                    condition_values={"1"},
+                ),
+            ],
         ),
     },
 )
