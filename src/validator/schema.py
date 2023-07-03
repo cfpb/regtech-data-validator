@@ -1466,7 +1466,38 @@ sblar_schema = DataFrameSchema(
                 "American Indian or Alaska Native Enrolled or Principal Tribe"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_1_race_anai_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 1: free-form"
+                        " text field for American Indian or Alaska"
+                        " Native Enrolled or Principal Tribe' must"
+                        " not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_1_race_anai_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 1' does not"
+                        " contain 971 (the applicant responded in"
+                        " the free-form text field for American Indian"
+                        " or Alaska Native Enrolled or Principal Tribe),"
+                        " 'race of principal owner 1: free-form text"
+                        " field for American Indian or Alaska Native"
+                        " Enrolled or Principal Tribe' must be blank."
+                        " When 'race of principal owner 1' contains 971,"
+                        " 'race of principal owner 1: free-form text field"
+                        " for American Indian or Alaska Native Enrolled or"
+                        " Principal Tribe' must not be blank."
+                    ),
+                    groupby="po_1_race",
+                    condition_values={"971"},
+                ),
+            ],
         ),
         "po_1_race_asian_ff": Column(
             str,
@@ -1475,7 +1506,33 @@ sblar_schema = DataFrameSchema(
                 "Asian race"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_1_race_asian_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 1: free-form text"
+                        " field for other Asian' must not exceed 300"
+                        " characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_1_race_asian_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 1' does not contain"
+                        " 972 (the applicant responded in the free-form text"
+                        " field for other Asian race), 'race of principal"
+                        " owner 1: free-form text field for other Asian' must"
+                        " be blank. When 'race of principal owner 1' contains"
+                        " 972, 'race of principal owner 1: free-form text field"
+                        " for other Asian' must not be blank."
+                    ),
+                    groupby="po_1_race",
+                    condition_values={"972"},
+                ),
+            ],
         ),
         "po_1_race_baa_ff": Column(
             str,
@@ -1484,7 +1541,33 @@ sblar_schema = DataFrameSchema(
                 "Black or African American race"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_1_race_baa_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 1: free-form text"
+                        " field for other Black or African American'"
+                        " must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_1_race_baa_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 1' does not contain 973"
+                        " (the applicant responded in the free-form text field"
+                        " for other Black or African race), 'race of principal"
+                        " owner 1: free-form text field for other Black or African"
+                        " American' must be blank. When 'race of principal owner 1'"
+                        " contains 973, 'race of principal owner 1: free-form text"
+                        " field for other Black or African American' must not be blank."
+                    ),
+                    groupby="po_1_race",
+                    condition_values={"973"},
+                ),
+            ],
         ),
         "po_1_race_pi_ff": Column(
             str,
@@ -1682,7 +1765,38 @@ sblar_schema = DataFrameSchema(
                 "American Indian or Alaska Native Enrolled or Principal Tribe"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_2_race_anai_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 2: free-form"
+                        " text field for American Indian or Alaska"
+                        " Native Enrolled or Principal Tribe' must"
+                        " not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_2_race_anai_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 2' does not"
+                        " contain 971 (the applicant responded in"
+                        " the free-form text field for American Indian"
+                        " or Alaska Native Enrolled or Principal Tribe),"
+                        " 'race of principal owner 2: free-form text"
+                        " field for American Indian or Alaska Native"
+                        " Enrolled or Principal Tribe' must be blank."
+                        " When 'race of principal owner 2' contains 971,"
+                        " 'race of principal owner 2: free-form text field"
+                        " for American Indian or Alaska Native Enrolled or"
+                        " Principal Tribe' must not be blank."
+                    ),
+                    groupby="po_2_race",
+                    condition_values={"971"},
+                ),
+            ],
         ),
         "po_2_race_asian_ff": Column(
             str,
@@ -1691,7 +1805,33 @@ sblar_schema = DataFrameSchema(
                 "Asian race"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_2_race_asian_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 2: free-form text"
+                        " field for other Asian' must not exceed 300"
+                        " characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_2_race_asian_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 2' does not contain"
+                        " 972 (the applicant responded in the free-form text"
+                        " field for other Asian race), 'race of principal"
+                        " owner 2: free-form text field for other Asian' must"
+                        " be blank. When 'race of principal owner 2' contains"
+                        " 972, 'race of principal owner 2: free-form text field"
+                        " for other Asian' must not be blank."
+                    ),
+                    groupby="po_2_race",
+                    condition_values={"972"},
+                ),
+            ],
         ),
         "po_2_race_baa_ff": Column(
             str,
@@ -1700,7 +1840,33 @@ sblar_schema = DataFrameSchema(
                 "Black or African American race"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_2_race_baa_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 2: free-form text"
+                        " field for other Black or African American'"
+                        " must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_2_race_baa_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 2' does not contain 973"
+                        " (the applicant responded in the free-form text field"
+                        " for other Black or African race), 'race of principal"
+                        " owner 2: free-form text field for other Black or African"
+                        " American' must be blank. When 'race of principal owner 2'"
+                        " contains 973, 'race of principal owner 2: free-form text"
+                        " field for other Black or African American' must not be blank."
+                    ),
+                    groupby="po_2_race",
+                    condition_values={"973"},
+                ),
+            ],
         ),
         "po_2_race_pi_ff": Column(
             str,
@@ -1898,7 +2064,38 @@ sblar_schema = DataFrameSchema(
                 "American Indian or Alaska Native Enrolled or Principal Tribe"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_3_race_anai_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 3: free-form"
+                        " text field for American Indian or Alaska"
+                        " Native Enrolled or Principal Tribe' must"
+                        " not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_3_race_anai_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 3' does not"
+                        " contain 971 (the applicant responded in"
+                        " the free-form text field for American Indian"
+                        " or Alaska Native Enrolled or Principal Tribe),"
+                        " 'race of principal owner 3: free-form text"
+                        " field for American Indian or Alaska Native"
+                        " Enrolled or Principal Tribe' must be blank."
+                        " When 'race of principal owner 3' contains 971,"
+                        " 'race of principal owner 3: free-form text field"
+                        " for American Indian or Alaska Native Enrolled or"
+                        " Principal Tribe' must not be blank."
+                    ),
+                    groupby="po_3_race",
+                    condition_values={"971"},
+                ),
+            ],
         ),
         "po_3_race_asian_ff": Column(
             str,
@@ -1907,7 +2104,33 @@ sblar_schema = DataFrameSchema(
                 "Asian race"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_3_race_asian_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 3: free-form text"
+                        " field for other Asian' must not exceed 300"
+                        " characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_3_race_asian_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 3' does not contain"
+                        " 972 (the applicant responded in the free-form text"
+                        " field for other Asian race), 'race of principal"
+                        " owner 3: free-form text field for other Asian' must"
+                        " be blank. When 'race of principal owner 3' contains"
+                        " 972, 'race of principal owner 3: free-form text field"
+                        " for other Asian' must not be blank."
+                    ),
+                    groupby="po_3_race",
+                    condition_values={"972"},
+                ),
+            ],
         ),
         "po_3_race_baa_ff": Column(
             str,
@@ -1916,7 +2139,33 @@ sblar_schema = DataFrameSchema(
                 "Black or African American race"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_3_race_baa_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 3: free-form text"
+                        " field for other Black or African American'"
+                        " must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_3_race_baa_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 3' does not contain 973"
+                        " (the applicant responded in the free-form text field"
+                        " for other Black or African race), 'race of principal"
+                        " owner 3: free-form text field for other Black or African"
+                        " American' must be blank. When 'race of principal owner 3'"
+                        " contains 973, 'race of principal owner 3: free-form text"
+                        " field for other Black or African American' must not be blank."
+                    ),
+                    groupby="po_3_race",
+                    condition_values={"973"},
+                ),
+            ],
         ),
         "po_3_race_pi_ff": Column(
             str,
@@ -2114,7 +2363,38 @@ sblar_schema = DataFrameSchema(
                 "American Indian or Alaska Native Enrolled or Principal Tribe"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_4_race_anai_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 4: free-form"
+                        " text field for American Indian or Alaska"
+                        " Native Enrolled or Principal Tribe' must"
+                        " not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_4_race_anai_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 4' does not"
+                        " contain 971 (the applicant responded in"
+                        " the free-form text field for American Indian"
+                        " or Alaska Native Enrolled or Principal Tribe),"
+                        " 'race of principal owner 4: free-form text"
+                        " field for American Indian or Alaska Native"
+                        " Enrolled or Principal Tribe' must be blank."
+                        " When 'race of principal owner 4' contains 971,"
+                        " 'race of principal owner 4: free-form text field"
+                        " for American Indian or Alaska Native Enrolled or"
+                        " Principal Tribe' must not be blank."
+                    ),
+                    groupby="po_4_race",
+                    condition_values={"971"},
+                ),
+            ],
         ),
         "po_4_race_asian_ff": Column(
             str,
@@ -2123,7 +2403,33 @@ sblar_schema = DataFrameSchema(
                 "Asian race"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_4_race_asian_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 4: free-form text"
+                        " field for other Asian' must not exceed 300"
+                        " characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_4_race_asian_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 4' does not contain"
+                        " 972 (the applicant responded in the free-form text"
+                        " field for other Asian race), 'race of principal"
+                        " owner 4: free-form text field for other Asian' must"
+                        " be blank. When 'race of principal owner 4' contains"
+                        " 972, 'race of principal owner 4: free-form text field"
+                        " for other Asian' must not be blank."
+                    ),
+                    groupby="po_4_race",
+                    condition_values={"972"},
+                ),
+            ],
         ),
         "po_4_race_baa_ff": Column(
             str,
@@ -2132,7 +2438,33 @@ sblar_schema = DataFrameSchema(
                 "Black or African American race"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_4_race_baa_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 4: free-form text"
+                        " field for other Black or African American'"
+                        " must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_4_race_baa_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 4' does not contain 973"
+                        " (the applicant responded in the free-form text field"
+                        " for other Black or African race), 'race of principal"
+                        " owner 4: free-form text field for other Black or African"
+                        " American' must be blank. When 'race of principal owner 4'"
+                        " contains 973, 'race of principal owner 4: free-form text"
+                        " field for other Black or African American' must not be blank."
+                    ),
+                    groupby="po_4_race",
+                    condition_values={"973"},
+                ),
+            ],
         ),
         "po_4_race_pi_ff": Column(
             str,
