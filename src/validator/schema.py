@@ -1320,6 +1320,7 @@ sblar_schema = DataFrameSchema(
                         "977",
                         "988",
                     ],
+                    accept_blank=True,
                 ),
                 SBLCheck(
                     is_unique_in_field,
@@ -1431,6 +1432,7 @@ sblar_schema = DataFrameSchema(
                         "974",
                         "988",
                     ],
+                    accept_blank=True,
                 ),
                 SBLCheck(
                     is_unique_in_field,
@@ -1622,6 +1624,7 @@ sblar_schema = DataFrameSchema(
                         "966",
                         "988",
                     ],
+                    accept_blank=True,
                 ),
             ],
         ),
@@ -1687,6 +1690,7 @@ sblar_schema = DataFrameSchema(
                         "977",
                         "988",
                     ],
+                    accept_blank=True,
                 ),
                 SBLCheck(
                     is_unique_in_field,
@@ -1798,6 +1802,7 @@ sblar_schema = DataFrameSchema(
                         "974",
                         "988",
                     ],
+                    accept_blank=True,
                 ),
                 SBLCheck(
                     is_unique_in_field,
@@ -1989,6 +1994,7 @@ sblar_schema = DataFrameSchema(
                         "966",
                         "988",
                     ],
+                    accept_blank=True,
                 ),
             ],
         ),
@@ -2054,6 +2060,7 @@ sblar_schema = DataFrameSchema(
                         "977",
                         "988",
                     ],
+                    accept_blank=True,
                 ),
                 SBLCheck(
                     is_unique_in_field,
@@ -2165,6 +2172,7 @@ sblar_schema = DataFrameSchema(
                         "974",
                         "988",
                     ],
+                    accept_blank=True,
                 ),
                 SBLCheck(
                     is_unique_in_field,
@@ -2356,6 +2364,7 @@ sblar_schema = DataFrameSchema(
                         "966",
                         "988",
                     ],
+                    accept_blank=True,
                 ),
             ],
         ),
@@ -2421,6 +2430,7 @@ sblar_schema = DataFrameSchema(
                         "977",
                         "988",
                     ],
+                    accept_blank=True,
                 ),
                 SBLCheck(
                     is_unique_in_field,
@@ -2532,6 +2542,7 @@ sblar_schema = DataFrameSchema(
                         "974",
                         "988",
                     ],
+                    accept_blank=True,
                 ),
                 SBLCheck(
                     is_unique_in_field,
@@ -2723,6 +2734,7 @@ sblar_schema = DataFrameSchema(
                         "966",
                         "988",
                     ],
+                    accept_blank=True,
                 ),
             ],
         ),
