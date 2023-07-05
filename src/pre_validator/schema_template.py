@@ -1,4 +1,8 @@
-""""""
+"""This is a 'blank' Pandera template for SBLAR. All columns in the fig are present,
+but the checks need to be populated."""
+
+from copy import deepcopy
+from typing import Dict
 
 from pandera import Column
 
@@ -113,24 +117,24 @@ schema_template = {
         title="Field 22: Fixed rate: interest rate",
         checks=[],
     ),
-    "pricing_var_margin": Column(
+    "pricing_adj_margin": Column(
         str,
-        title="Field 23: Variable rate transaction: margin",
+        title="Field 23: Adjustable rate transaction: margin",
         checks=[],
     ),
-    "pricing_var_index_name": Column(
+    "pricing_adj_index_name": Column(
         str,
-        title="Field 24: Variable rate transaction: index name",
+        title="Field 24: Adjustable rate transaction: index name",
         checks=[],
     ),
-    "pricing_var_index_name_ff": Column(
+    "pricing_adj_index_name_ff": Column(
         str,
-        title="Field 25: Variable rate transaction: index name: other",
+        title="Field 25: Adjustable rate transaction: index name: other",
         checks=[],
     ),
-    "pricing_var_index_value": Column(
+    "pricing_adj_index_value": Column(
         str,
-        title="Field 26: Variable rate transaction: index value",
+        title="Field 26: Adjustable rate transaction: index value",
         checks=[],
     ),
     "pricing_origination_charges": Column(
@@ -493,10 +497,15 @@ schema_template = {
     ),
 }
 
-
-def set_checks_for_column(column, checks):
-    schema_template[column].checks = checks
+def get_template() -> Dict:
+    """Returns a deep copy of the above schema_template object. 
     
+    This is done because this dictionary template is going to be
+    modified both by the phase 1 imputer and phase 2 imputer. This can
+    cause absolute havoc in a program and it's proactically impossible
+    to debug. 
     
-if __name__ == "__main__":
-    pass
+    See https://docs.python.org/3/library/copy.html#copy.deepcopy"""
+    
+    return deepcopy(schema_template)
+    

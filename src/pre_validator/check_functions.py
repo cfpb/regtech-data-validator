@@ -16,7 +16,9 @@ def is_text(raw_input: str, nullable=True) -> bool:
     """If nullable==True, this method just returns True. There is no
     validation that occurs on raw input text at phase 1. If nullable
     is False and the raw string input is blank, the entry is invalid and
-    False is returned. Otherwise True is returned.
+    False is returned. Otherwise True is returned. 
+    
+    The only non-nullable text field is uli. 
 
     Args:
         raw_input (str): Input text from Text field. 
@@ -80,14 +82,18 @@ def is_multiple_response(raw_input: str) -> bool:
         return False
     
 
-def is_numeric(raw_input: str, int_only=True) -> bool:
+def is_numeric(raw_input: str, int_only=False) -> bool:
     """Verifies raw_input can be cast to an integer if int_only==True,
     or a float when int_only==False.
+    
+    For fields where the validations specify "must be a whole number",
+    the `int_only` flag should be set to True. Otherwise the default
+    value of False can be retained. 
 
     Args:
         raw_input (str): Input text from Numeric field. 
         int_only (bool, optional): Indicates whether the value can
-            contain decimals. Defaults to True.
+            contain decimals. Defaults to False.
 
     Returns:
         bool: Indicates whether the text input is valid for phase 1.
