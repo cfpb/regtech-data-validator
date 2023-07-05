@@ -263,10 +263,14 @@ def meets_multi_value_field_restriction(
         return False
 
 def is_valid_enum(
-    ct_value: str, accepted_values: list[str], separator: str = ";"
-) -> bool:
+    ct_value: str, accepted_values: list[str], accept_blank: bool = False,
+        separator: str = ";") -> bool:
     ct_values_set = set(ct_value.split(separator))
-    return ct_values_set.issubset(accepted_values)
+    enum_check = ct_values_set.issubset(accepted_values)
+    if accept_blank:
+        return enum_check or not ct_value.strip()
+    else:
+        return enum_check
 
 
 def has_valid_value_count(
@@ -551,6 +555,6 @@ def is_valid_code(ct_value: str, accept_blank: bool = False,
     """
     key_check = (ct_value in codes)
     if accept_blank:
-        return  not ct_value.strip() or key_check
+        return not ct_value.strip() or key_check
     else:
         return key_check
