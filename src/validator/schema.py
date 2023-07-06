@@ -1210,7 +1210,7 @@ sblar_schema = DataFrameSchema(
                     is_number,
                     name="time_in_business.invalid_numeric_format",
                     description=(
-                        "When present, 'time in business'" " must be a whole number."
+                        "When present, 'time in business' must be a whole number."
                     ),
                     element_wise=True,
                     accept_blank=True,
