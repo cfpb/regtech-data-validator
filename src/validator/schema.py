@@ -7,23 +7,31 @@ The only major modification from native Pandera is the use of custom
 Check classes to differentiate between warnings and errors. """
 
 import global_data
-from check_functions import (denial_reasons_conditional_enum_value,
-                             has_correct_length,
-                             has_no_conditional_field_conflict,
-                             has_valid_enum_pair,
-                             has_valid_multi_field_value_count,
-                             has_valid_value_count, is_date, is_date_after,
-                             is_date_before_in_days, is_date_in_range,
-                             is_fieldset_equal_to, is_fieldset_not_equal_to,
-                             is_number, is_unique_in_field, is_valid_code,
-                             is_valid_enum,
-                             meets_multi_value_field_restriction)
+from check_functions import (
+    denial_reasons_conditional_enum_value,
+    has_correct_length,
+    has_no_conditional_field_conflict,
+    has_valid_enum_pair,
+    has_valid_multi_field_value_count,
+    has_valid_value_count,
+    is_date,
+    is_date_after,
+    is_date_before_in_days,
+    is_date_in_range,
+    is_fieldset_equal_to,
+    is_fieldset_not_equal_to,
+    is_number,
+    is_unique_in_field,
+    is_valid_code,
+    is_valid_enum,
+    meets_multi_value_field_restriction,
+)
 from checks import SBLCheck
 from pandera import Column, DataFrameSchema
 
-#read and populate global naics code (this should be called only once)
+# read and populate global naics code (this should be called only once)
 global_data.read_naics_codes()
-    
+
 sblar_schema = DataFrameSchema(
     {
         "uid": Column(
@@ -469,47 +477,55 @@ sblar_schema = DataFrameSchema(
                 SBLCheck(
                     is_fieldset_equal_to,
                     name="pricing_all.conditional_fieldset_conflict",
-                    description= ("When 'action taken' equals 3 (denied), "
-                                    "4 (withdrawn by applicant), or 5 "
-                                    "(incomplete), the following fields must"
-                                    " all equal 999 (not applicable): "
-                                    "'Interest rate type', 'MCA/sales-based: "
-                                    "additional cost for merchant cash advances"
-                                    " or other sales-based financing: NA flag', "
-                                    "'Prepayment penalty could be imposed', "
-                                    "'Prepayment penalty exists'). And the "
-                                    " following fields must all be blank: "
-                                    "'Total origination charges', 'Amount of "
-                                    "total broker fees', 'Initial annual charges'"),
-                    groupby=["pricing_interest_rate_type", 
-                                "pricing_mca_addcost_flag",
-                                "pricing_prepenalty_allowed",
-                                "pricing_prepenalty_exists", 
-                                "pricing_origination_charges", 
-                                "pricing_broker_fees", 
-                                "pricing_initial_charges"],
-                    equal_to_values=["999","999","999","999","","",""],
-                    condition_values=["3","4","5"],
+                    description=(
+                        "When 'action taken' equals 3 (denied), "
+                        "4 (withdrawn by applicant), or 5 "
+                        "(incomplete), the following fields must"
+                        " all equal 999 (not applicable): "
+                        "'Interest rate type', 'MCA/sales-based: "
+                        "additional cost for merchant cash advances"
+                        " or other sales-based financing: NA flag', "
+                        "'Prepayment penalty could be imposed', "
+                        "'Prepayment penalty exists'). And the "
+                        " following fields must all be blank: "
+                        "'Total origination charges', 'Amount of "
+                        "total broker fees', 'Initial annual charges'"
+                    ),
+                    groupby=[
+                        "pricing_interest_rate_type",
+                        "pricing_mca_addcost_flag",
+                        "pricing_prepenalty_allowed",
+                        "pricing_prepenalty_exists",
+                        "pricing_origination_charges",
+                        "pricing_broker_fees",
+                        "pricing_initial_charges",
+                    ],
+                    equal_to_values=["999", "999", "999", "999", "", "", ""],
+                    condition_values=["3", "4", "5"],
                 ),
                 SBLCheck(
                     is_fieldset_not_equal_to,
                     name="pricing_charges.conditional_fieldset_conflict",
-                    description=("When 'action taken' equals 1 (originated)"
-                                    " or 2 (approved but not accepted), the "
-                                    "following fields all must not be blank: "
-                                    "'Total origination charges', 'Amount of "
-                                    "total broker fees', 'Initial annual "
-                                    "charges'. And the following fields must "
-                                    "not equal 999 (not applicable): 'Prepayment "
-                                    "penalty could be imposed', 'Prepayment "
-                                    "penalty exists'"),
-                    groupby=["pricing_origination_charges", 
-                                "pricing_broker_fees",
-                                "pricing_initial_charges",
-                                "pricing_prepenalty_allowed", 
-                                "pricing_prepenalty_exists"],
-                    not_equal_to_values=["","","","999","999"],
-                    condition_values=["1","2"],
+                    description=(
+                        "When 'action taken' equals 1 (originated)"
+                        " or 2 (approved but not accepted), the "
+                        "following fields all must not be blank: "
+                        "'Total origination charges', 'Amount of "
+                        "total broker fees', 'Initial annual "
+                        "charges'. And the following fields must "
+                        "not equal 999 (not applicable): 'Prepayment "
+                        "penalty could be imposed', 'Prepayment "
+                        "penalty exists'"
+                    ),
+                    groupby=[
+                        "pricing_origination_charges",
+                        "pricing_broker_fees",
+                        "pricing_initial_charges",
+                        "pricing_prepenalty_allowed",
+                        "pricing_prepenalty_exists",
+                    ],
+                    not_equal_to_values=["", "", "", "999", "999"],
+                    condition_values=["1", "2"],
                 ),
             ],
         ),
@@ -881,7 +897,7 @@ sblar_schema = DataFrameSchema(
                     is_number,
                     name="pricing_var_index_value.invalid_numeric_format",
                     description="When present, 'variable rate transaction:"
-                                " index value' must be a numeric value.",
+                    " index value' must be a numeric value.",
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -1021,19 +1037,18 @@ sblar_schema = DataFrameSchema(
             title="Field 36: Gross annual revenue: NP flag",
             checks=[
                 SBLCheck(
-                        is_valid_enum,
-                        name="gross_annual_revenue_flag.invalid_enum_value",
-                        description=(
-                            "'Gross annual revenue: NP flag' must equal 900 or 988."
-                        ),
-                        element_wise=True,
-                        accepted_values=[
-                            "900",
-                            "988",
-                        ],
+                    is_valid_enum,
+                    name="gross_annual_revenue_flag.invalid_enum_value",
+                    description=(
+                        "'Gross annual revenue: NP flag' must equal 900 or 988."
                     ),
-
-                ],
+                    element_wise=True,
+                    accepted_values=[
+                        "900",
+                        "988",
+                    ],
+                ),
+            ],
         ),
         "gross_annual_revenue": Column(
             str,
@@ -1048,7 +1063,7 @@ sblar_schema = DataFrameSchema(
                     ),
                     element_wise=True,
                     accept_blank=True,
-                ), 
+                ),
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     name="gross_annual_revenue.conditional_field_conflict",
@@ -1061,8 +1076,7 @@ sblar_schema = DataFrameSchema(
                     groupby="gross_annual_revenue_flag",
                     condition_values={"900"},
                 ),
-
-                ],
+            ],
         ),
         "naics_code_flag": Column(
             str,
@@ -1096,8 +1110,9 @@ sblar_schema = DataFrameSchema(
                 SBLCheck(
                     is_number,
                     name="naics_code.invalid_naics_format",
-                    description=("'North American Industry Classification System "
-                                 "(NAICS) code' may only contain numeric characters."
+                    description=(
+                        "'North American Industry Classification System "
+                        "(NAICS) code' may only contain numeric characters."
                     ),
                     element_wise=True,
                     accept_blank=True,
@@ -1195,8 +1210,7 @@ sblar_schema = DataFrameSchema(
                     is_number,
                     name="time_in_business.invalid_numeric_format",
                     description=(
-                        "When present, 'time in business'"
-                        " must be a whole number."
+                        "When present, 'time in business'" " must be a whole number."
                     ),
                     element_wise=True,
                     accept_blank=True,
@@ -1286,13 +1300,50 @@ sblar_schema = DataFrameSchema(
         "num_principal_owners_flag": Column(
             str,
             title="Field 44: Number of principal owners: NP flag",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="num_principal_owners_flag.invalid_enum_value",
+                    description=(
+                        "'Number of principal owners: NP flag' must equal 900 or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "900",
+                        "988",
+                    ],
+                ),
+            ],
         ),
         "num_principal_owners": Column(
             str,
             title="Field 45: Number of principal owners",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="num_principal_owners.invalid_enum_value",
+                    description=(
+                        "When present, 'number of principal owners' must equal "
+                        "0, 1, 2, 3, or 4."
+                    ),
+                    element_wise=True,
+                    accepted_values=["0", "1", "2", "3", "4"],
+                    accept_blank=True,
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="num_principal_owners.conditional_field_conflict",
+                    description=(
+                        "When 'number of principal owners: NP flag' does not equal 900 "
+                        "(reported), 'number of principal owners' must be blank."
+                        "When 'number of principal owners: NP flag' equals 900, "
+                        "'number of principal owners' must not be blank."
+                    ),
+                    groupby="num_principal_owners_flag",
+                    condition_values={"900"},
+                ),
+            ],
         ),
         "po_1_ethnicity": Column(
             str,
