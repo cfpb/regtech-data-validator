@@ -711,7 +711,8 @@ sblar_schema = DataFrameSchema(
                         "period > 12 months, fixed interest), 5 (initial rate period "
                         "<= 12 months, variable interest), or 6 (initial rate period "
                         "<= 12 months, fixed interest), 'initial rate period' must "
-                        "be blank."
+                        "be blank. When 'interest rate type' equals 3, 4, 5, or 6, "
+                        "'initial rate period' must not be blank"
                     ),
                     groupby="pricing_interest_rate_type",
                     condition_values={"3", "4", "5", "6"},
