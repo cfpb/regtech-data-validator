@@ -185,6 +185,16 @@ class TestInvalidEnumValue:
         result = is_valid_enum("0;3", accepted_values)
         assert result == False
 
+    def test_with_valid_blank(self):
+        accepted_values = ["1", "2"]
+        result = is_valid_enum("", accepted_values, True)
+        assert result == True
+
+    def test_with_invalid_blank(self):
+        accepted_values = ["1", "2"]
+        result = is_valid_enum("", accepted_values)
+        assert result == False
+
 class TestIsNumber:
     def test_number_value(self):
         value = "1"

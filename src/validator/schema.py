@@ -22,9 +22,9 @@ from check_functions import (denial_reasons_conditional_enum_value,
 from checks import SBLCheck
 from pandera import Column, DataFrameSchema
 
-#read and populate global naics code (this should be called only once)
+# read and populate global naics code (this should be called only once)
 global_data.read_naics_codes()
-    
+
 sblar_schema = DataFrameSchema(
     {
         "uid": Column(
@@ -482,47 +482,55 @@ sblar_schema = DataFrameSchema(
                 SBLCheck(
                     is_fieldset_equal_to,
                     name="pricing_all.conditional_fieldset_conflict",
-                    description= ("When 'action taken' equals 3 (denied), "
-                                    "4 (withdrawn by applicant), or 5 "
-                                    "(incomplete), the following fields must"
-                                    " all equal 999 (not applicable): "
-                                    "'Interest rate type', 'MCA/sales-based: "
-                                    "additional cost for merchant cash advances"
-                                    " or other sales-based financing: NA flag', "
-                                    "'Prepayment penalty could be imposed', "
-                                    "'Prepayment penalty exists'). And the "
-                                    " following fields must all be blank: "
-                                    "'Total origination charges', 'Amount of "
-                                    "total broker fees', 'Initial annual charges'"),
-                    groupby=["pricing_interest_rate_type", 
-                                "pricing_mca_addcost_flag",
-                                "pricing_prepenalty_allowed",
-                                "pricing_prepenalty_exists", 
-                                "pricing_origination_charges", 
-                                "pricing_broker_fees", 
-                                "pricing_initial_charges"],
-                    equal_to_values=["999","999","999","999","","",""],
-                    condition_values=["3","4","5"],
+                    description=(
+                        "When 'action taken' equals 3 (denied), "
+                        "4 (withdrawn by applicant), or 5 "
+                        "(incomplete), the following fields must"
+                        " all equal 999 (not applicable): "
+                        "'Interest rate type', 'MCA/sales-based: "
+                        "additional cost for merchant cash advances"
+                        " or other sales-based financing: NA flag', "
+                        "'Prepayment penalty could be imposed', "
+                        "'Prepayment penalty exists'). And the "
+                        " following fields must all be blank: "
+                        "'Total origination charges', 'Amount of "
+                        "total broker fees', 'Initial annual charges'"
+                    ),
+                    groupby=[
+                        "pricing_interest_rate_type",
+                        "pricing_mca_addcost_flag",
+                        "pricing_prepenalty_allowed",
+                        "pricing_prepenalty_exists",
+                        "pricing_origination_charges",
+                        "pricing_broker_fees",
+                        "pricing_initial_charges",
+                    ],
+                    equal_to_values=["999", "999", "999", "999", "", "", ""],
+                    condition_values=["3", "4", "5"],
                 ),
                 SBLCheck(
                     is_fieldset_not_equal_to,
                     name="pricing_charges.conditional_fieldset_conflict",
-                    description=("When 'action taken' equals 1 (originated)"
-                                    " or 2 (approved but not accepted), the "
-                                    "following fields all must not be blank: "
-                                    "'Total origination charges', 'Amount of "
-                                    "total broker fees', 'Initial annual "
-                                    "charges'. And the following fields must "
-                                    "not equal 999 (not applicable): 'Prepayment "
-                                    "penalty could be imposed', 'Prepayment "
-                                    "penalty exists'"),
-                    groupby=["pricing_origination_charges", 
-                                "pricing_broker_fees",
-                                "pricing_initial_charges",
-                                "pricing_prepenalty_allowed", 
-                                "pricing_prepenalty_exists"],
-                    not_equal_to_values=["","","","999","999"],
-                    condition_values=["1","2"],
+                    description=(
+                        "When 'action taken' equals 1 (originated)"
+                        " or 2 (approved but not accepted), the "
+                        "following fields all must not be blank: "
+                        "'Total origination charges', 'Amount of "
+                        "total broker fees', 'Initial annual "
+                        "charges'. And the following fields must "
+                        "not equal 999 (not applicable): 'Prepayment "
+                        "penalty could be imposed', 'Prepayment "
+                        "penalty exists'"
+                    ),
+                    groupby=[
+                        "pricing_origination_charges",
+                        "pricing_broker_fees",
+                        "pricing_initial_charges",
+                        "pricing_prepenalty_allowed",
+                        "pricing_prepenalty_exists",
+                    ],
+                    not_equal_to_values=["", "", "", "999", "999"],
+                    condition_values=["1", "2"],
                 ),
             ],
         ),
@@ -708,7 +716,8 @@ sblar_schema = DataFrameSchema(
                         "period > 12 months, fixed interest), 5 (initial rate period "
                         "<= 12 months, variable interest), or 6 (initial rate period "
                         "<= 12 months, fixed interest), 'initial rate period' must "
-                        "be blank."
+                        "be blank. When 'interest rate type' equals 3, 4, 5, or 6, "
+                        "'initial rate period' must not be blank"
                     ),
                     groupby="pricing_interest_rate_type",
                     condition_values={"3", "4", "5", "6"},
@@ -903,7 +912,7 @@ sblar_schema = DataFrameSchema(
                     is_number,
                     name="pricing_var_index_value.invalid_numeric_format",
                     description="When present, 'variable rate transaction:"
-                                " index value' must be a numeric value.",
+                    " index value' must be a numeric value.",
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -1043,19 +1052,18 @@ sblar_schema = DataFrameSchema(
             title="Field 36: Gross annual revenue: NP flag",
             checks=[
                 SBLCheck(
-                        is_valid_enum,
-                        name="gross_annual_revenue_flag.invalid_enum_value",
-                        description=(
-                            "'Gross annual revenue: NP flag' must equal 900 or 988."
-                        ),
-                        element_wise=True,
-                        accepted_values=[
-                            "900",
-                            "988",
-                        ],
+                    is_valid_enum,
+                    name="gross_annual_revenue_flag.invalid_enum_value",
+                    description=(
+                        "'Gross annual revenue: NP flag' must equal 900 or 988."
                     ),
-
-                ],
+                    element_wise=True,
+                    accepted_values=[
+                        "900",
+                        "988",
+                    ],
+                ),
+            ],
         ),
         "gross_annual_revenue": Column(
             str,
@@ -1070,7 +1078,7 @@ sblar_schema = DataFrameSchema(
                     ),
                     element_wise=True,
                     accept_blank=True,
-                ), 
+                ),
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     name="gross_annual_revenue.conditional_field_conflict",
@@ -1083,8 +1091,7 @@ sblar_schema = DataFrameSchema(
                     groupby="gross_annual_revenue_flag",
                     condition_values={"900"},
                 ),
-
-                ],
+            ],
         ),
         "naics_code_flag": Column(
             str,
@@ -1118,8 +1125,9 @@ sblar_schema = DataFrameSchema(
                 SBLCheck(
                     is_number,
                     name="naics_code.invalid_naics_format",
-                    description=("'North American Industry Classification System "
-                                 "(NAICS) code' may only contain numeric characters."
+                    description=(
+                        "'North American Industry Classification System "
+                        "(NAICS) code' may only contain numeric characters."
                     ),
                     element_wise=True,
                     accept_blank=True,
@@ -1217,8 +1225,7 @@ sblar_schema = DataFrameSchema(
                     is_number,
                     name="time_in_business.invalid_numeric_format",
                     description=(
-                        "When present, 'time in business'"
-                        " must be a whole number."
+                        "When present, 'time in business' must be a whole number."
                     ),
                     element_wise=True,
                     accept_blank=True,
@@ -1311,19 +1318,104 @@ sblar_schema = DataFrameSchema(
         "num_principal_owners_flag": Column(
             str,
             title="Field 44: Number of principal owners: NP flag",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="num_principal_owners_flag.invalid_enum_value",
+                    description=(
+                        "'Number of principal owners: NP flag' must equal 900 or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "900",
+                        "988",
+                    ],
+                ),
+            ],
         ),
         "num_principal_owners": Column(
             str,
             title="Field 45: Number of principal owners",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="num_principal_owners.invalid_enum_value",
+                    description=(
+                        "When present, 'number of principal owners' must equal "
+                        "0, 1, 2, 3, or 4."
+                    ),
+                    element_wise=True,
+                    accepted_values=["0", "1", "2", "3", "4"],
+                    accept_blank=True,
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="num_principal_owners.conditional_field_conflict",
+                    description=(
+                        "When 'number of principal owners: NP flag' does not equal 900 "
+                        "(reported), 'number of principal owners' must be blank."
+                        "When 'number of principal owners: NP flag' equals 900, "
+                        "'number of principal owners' must not be blank."
+                    ),
+                    groupby="num_principal_owners_flag",
+                    condition_values={"900"},
+                ),
+            ],
         ),
         "po_1_ethnicity": Column(
             str,
             title="Field 46: Ethnicity of principal owner 1",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="po_1_ethnicity.invalid_enum_value",
+                    description=(
+                        "When present, each value in 'ethnicity"
+                        " of principal owner 1' (separated by"
+                        " semicolons) must equal 1, 11, 12,"
+                        " 13, 14, 2, 966, 977, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "11",
+                        "12",
+                        "13",
+                        "14",
+                        "2",
+                        "966",
+                        "977",
+                        "988",
+                    ],
+                    accept_blank=True,
+                ),
+                SBLCheck(
+                    is_unique_in_field,
+                    warning=True,
+                    name="po_1_ethnicity.duplicates_in_field",
+                    description=(
+                        "'Ethnicity of principal owner 1' should"
+                        " not contain duplicated values."
+                    ),
+                    element_wise=True,
+                ),
+                SBLCheck(
+                    meets_multi_value_field_restriction,
+                    warning=True,
+                    name="po_1_ethnicity.multi_value_field_restriction",
+                    description=(
+                        "When 'ethnicity of principal owner 1' contains"
+                        " 966 (the applicant responded that they did"
+                        " not wish to provide this information) or 988"
+                        " (not provided by applicant), 'ethnicity of"
+                        " principal owner 1' should not contain more than one value."
+                    ),
+                    element_wise=True,
+                    single_values={"966", "988"},
+                ),
+            ],
         ),
         "po_1_ethnicity_ff": Column(
             str,
@@ -1332,13 +1424,111 @@ sblar_schema = DataFrameSchema(
                 "other Hispanic or Latino ethnicity"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_1_ethnicity_ff.invalid_text_length",
+                    description=(
+                        "'Ethnicity of principal owner 1: free-form"
+                        " text field for other Hispanic or Latino'"
+                        " must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_1_ethnicity_ff.conditional_field_conflict",
+                    description=(
+                        "When 'ethnicity of principal owner 1' does not"
+                        " contain 977 (the applicant responded in the"
+                        " free-form text field), 'ethnicity of principal"
+                        " owner 1: free-form text field for other Hispanic"
+                        " or Latino' must be blank. When 'ethnicity of principal"
+                        " owner 1' contains 977, 'ethnicity of principal"
+                        " owner 1: free-form text field for other Hispanic"
+                        " or Latino' must not be blank."
+                    ),
+                    groupby="po_1_ethnicity",
+                    condition_values={"977"},
+                ),
+            ],
         ),
         "po_1_race": Column(
             str,
             title="Field 48: Race of principal owner 1",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="po_1_race.invalid_enum_value",
+                    description=(
+                        "When present, each value in 'race"
+                        " of principal owner 1' (separated by"
+                        " semicolons) must equal 1, 2, 21, 22,"
+                        " 23, 24, 25, 26, 27, 3, 31, 32, 33,"
+                        " 34, 35, 36, 37, 4, 41, 42, 43, 44,"
+                        " 5, 966, 971, 972, 973, 974, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                        "21",
+                        "22",
+                        "23",
+                        "24",
+                        "25",
+                        "26",
+                        "27",
+                        "3",
+                        "31",
+                        "32",
+                        "33",
+                        "34",
+                        "35",
+                        "36",
+                        "37",
+                        "4",
+                        "41",
+                        "42",
+                        "43",
+                        "44",
+                        "5",
+                        "966",
+                        "971",
+                        "972",
+                        "973",
+                        "974",
+                        "988",
+                    ],
+                    accept_blank=True,
+                ),
+                SBLCheck(
+                    is_unique_in_field,
+                    warning=True,
+                    name="po_1_race.duplicates_in_field",
+                    description=(
+                        "'Race of principal owner 1' should"
+                        " not contain duplicated values."
+                    ),
+                    element_wise=True,
+                ),
+                SBLCheck(
+                    meets_multi_value_field_restriction,
+                    warning=True,
+                    name="po_1_race.multi_value_field_restriction",
+                    description=(
+                        "When 'race of principal owner 1' contains"
+                        " 966 (the applicant responded that they"
+                        " did not wish to provide this information)"
+                        " or 988 (not provided by applicant),"
+                        " 'race of principal owner 1' should not"
+                        " contain more than one value."
+                    ),
+                    element_wise=True,
+                    single_values={"966", "988"},
+                ),
+            ],
         ),
         "po_1_race_anai_ff": Column(
             str,
@@ -1347,7 +1537,38 @@ sblar_schema = DataFrameSchema(
                 "American Indian or Alaska Native Enrolled or Principal Tribe"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_1_race_anai_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 1: free-form"
+                        " text field for American Indian or Alaska"
+                        " Native Enrolled or Principal Tribe' must"
+                        " not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_1_race_anai_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 1' does not"
+                        " contain 971 (the applicant responded in"
+                        " the free-form text field for American Indian"
+                        " or Alaska Native Enrolled or Principal Tribe),"
+                        " 'race of principal owner 1: free-form text"
+                        " field for American Indian or Alaska Native"
+                        " Enrolled or Principal Tribe' must be blank."
+                        " When 'race of principal owner 1' contains 971,"
+                        " 'race of principal owner 1: free-form text field"
+                        " for American Indian or Alaska Native Enrolled or"
+                        " Principal Tribe' must not be blank."
+                    ),
+                    groupby="po_1_race",
+                    condition_values={"971"},
+                ),
+            ],
         ),
         "po_1_race_asian_ff": Column(
             str,
@@ -1356,7 +1577,33 @@ sblar_schema = DataFrameSchema(
                 "Asian race"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_1_race_asian_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 1: free-form text"
+                        " field for other Asian' must not exceed 300"
+                        " characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_1_race_asian_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 1' does not contain"
+                        " 972 (the applicant responded in the free-form text"
+                        " field for other Asian race), 'race of principal"
+                        " owner 1: free-form text field for other Asian' must"
+                        " be blank. When 'race of principal owner 1' contains"
+                        " 972, 'race of principal owner 1: free-form text field"
+                        " for other Asian' must not be blank."
+                    ),
+                    groupby="po_1_race",
+                    condition_values={"972"},
+                ),
+            ],
         ),
         "po_1_race_baa_ff": Column(
             str,
@@ -1365,7 +1612,33 @@ sblar_schema = DataFrameSchema(
                 "Black or African American race"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_1_race_baa_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 1: free-form text"
+                        " field for other Black or African American'"
+                        " must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_1_race_baa_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 1' does not contain 973"
+                        " (the applicant responded in the free-form text field"
+                        " for other Black or African race), 'race of principal"
+                        " owner 1: free-form text field for other Black or African"
+                        " American' must be blank. When 'race of principal owner 1'"
+                        " contains 973, 'race of principal owner 1: free-form text"
+                        " field for other Black or African American' must not be blank."
+                    ),
+                    groupby="po_1_race",
+                    condition_values={"973"},
+                ),
+            ],
         ),
         "po_1_race_pi_ff": Column(
             str,
@@ -1374,13 +1647,55 @@ sblar_schema = DataFrameSchema(
                 "Pacific Islander race"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_1_race_pi_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 1: free-form text"
+                        " field for other Pacific Islander race' must"
+                        " not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_1_race_pi_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 1' does not contain 974"
+                        " (the applicant responded in the free-form text field"
+                        " for other Pacific Islander race), 'race of principal"
+                        " owner 1: free-form text field for other Pacific Islander"
+                        " race' must be blank. When 'race of principal owner 1'"
+                        " contains 974, 'race of principal owner 1: free-form text"
+                        " field for other Pacific Islander race' must not be blank."
+                    ),
+                    groupby="po_1_race",
+                    condition_values={"974"},
+                ),
+            ],
         ),
         "po_1_gender_flag": Column(
             str,
             title="Field 53: Sex/gender of principal owner 1: NP flag",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="po_1_gender_flag.invalid_enum_value",
+                    description=(
+                        "When present, 'sex/gender of principal"
+                        " owner 1: NP flag' must equal 1, 966, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "966",
+                        "988",
+                    ],
+                    accept_blank=True,
+                ),
+            ],
         ),
         "po_1_gender_ff": Column(
             str,
@@ -1389,13 +1704,88 @@ sblar_schema = DataFrameSchema(
                 "self-identified sex/gender"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_1_gender_ff.invalid_text_length",
+                    description=(
+                        "'Sex/gender of principal owner 1: free-form"
+                        " text field for self-identified sex/gender'"
+                        " must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_1_gender_ff.conditional_field_conflict",
+                    description=(
+                        "When 'sex/gender of principal owner 1: NP flag'"
+                        " does not equal 1 (the applicant responded in the"
+                        " free-form text field), 'sex/gender of principal"
+                        " owner 1: free-form text field for self-identified"
+                        " sex/gender' must be blank. When 'sex/gender of"
+                        " principal owner 1: NP flag' equals 1, 'sex/gender"
+                        " of principal owner 1: free-form text field for"
+                        " self-identified sex/gender' must not be blank."
+                    ),
+                    groupby="po_1_gender_flag",
+                    condition_values={"1"},
+                ),
+            ],
         ),
         "po_2_ethnicity": Column(
             str,
             title="Field 55: Ethnicity of principal owner 2",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="po_2_ethnicity.invalid_enum_value",
+                    description=(
+                        "When present, each value in 'ethnicity"
+                        " of principal owner 2' (separated by"
+                        " semicolons) must equal 1, 11, 12,"
+                        " 13, 14, 2, 966, 977, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "11",
+                        "12",
+                        "13",
+                        "14",
+                        "2",
+                        "966",
+                        "977",
+                        "988",
+                    ],
+                    accept_blank=True,
+                ),
+                SBLCheck(
+                    is_unique_in_field,
+                    warning=True,
+                    name="po_2_ethnicity.duplicates_in_field",
+                    description=(
+                        "'Ethnicity of principal owner 2' should"
+                        " not contain duplicated values."
+                    ),
+                    element_wise=True,
+                ),
+                SBLCheck(
+                    meets_multi_value_field_restriction,
+                    warning=True,
+                    name="po_2_ethnicity.multi_value_field_restriction",
+                    description=(
+                        "When 'ethnicity of principal owner 2' contains"
+                        " 966 (the applicant responded that they did"
+                        " not wish to provide this information) or 988"
+                        " (not provided by applicant), 'ethnicity of"
+                        " principal owner 2' should not contain more than one value."
+                    ),
+                    element_wise=True,
+                    single_values={"966", "988"},
+                ),
+            ],
         ),
         "po_2_ethnicity_ff": Column(
             str,
@@ -1404,13 +1794,111 @@ sblar_schema = DataFrameSchema(
                 "other Hispanic or Latino ethnicity"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_2_ethnicity_ff.invalid_text_length",
+                    description=(
+                        "'Ethnicity of principal owner 2: free-form"
+                        " text field for other Hispanic or Latino'"
+                        " must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_2_ethnicity_ff.conditional_field_conflict",
+                    description=(
+                        "When 'ethnicity of principal owner 2' does not"
+                        " contain 977 (the applicant responded in the"
+                        " free-form text field), 'ethnicity of principal"
+                        " owner 2: free-form text field for other Hispanic"
+                        " or Latino' must be blank. When 'ethnicity of principal"
+                        " owner 2' contains 977, 'ethnicity of principal"
+                        " owner 2: free-form text field for other Hispanic"
+                        " or Latino' must not be blank."
+                    ),
+                    groupby="po_2_ethnicity",
+                    condition_values={"977"},
+                ),
+            ],
         ),
         "po_2_race": Column(
             str,
             title="Field 57: Race of principal owner 2",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="po_2_race.invalid_enum_value",
+                    description=(
+                        "When present, each value in 'race"
+                        " of principal owner 2' (separated by"
+                        " semicolons) must equal 1, 2, 21, 22,"
+                        " 23, 24, 25, 26, 27, 3, 31, 32, 33,"
+                        " 34, 35, 36, 37, 4, 41, 42, 43, 44,"
+                        " 5, 966, 971, 972, 973, 974, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                        "21",
+                        "22",
+                        "23",
+                        "24",
+                        "25",
+                        "26",
+                        "27",
+                        "3",
+                        "31",
+                        "32",
+                        "33",
+                        "34",
+                        "35",
+                        "36",
+                        "37",
+                        "4",
+                        "41",
+                        "42",
+                        "43",
+                        "44",
+                        "5",
+                        "966",
+                        "971",
+                        "972",
+                        "973",
+                        "974",
+                        "988",
+                    ],
+                    accept_blank=True,
+                ),
+                SBLCheck(
+                    is_unique_in_field,
+                    warning=True,
+                    name="po_2_race.duplicates_in_field",
+                    description=(
+                        "'Race of principal owner 2' should"
+                        " not contain duplicated values."
+                    ),
+                    element_wise=True,
+                ),
+                SBLCheck(
+                    meets_multi_value_field_restriction,
+                    warning=True,
+                    name="po_2_race.multi_value_field_restriction",
+                    description=(
+                        "When 'race of principal owner 2' contains"
+                        " 966 (the applicant responded that they"
+                        " did not wish to provide this information)"
+                        " or 988 (not provided by applicant),"
+                        " 'race of principal owner 2' should not"
+                        " contain more than one value."
+                    ),
+                    element_wise=True,
+                    single_values={"966", "988"},
+                ),
+            ],
         ),
         "po_2_race_anai_ff": Column(
             str,
@@ -1419,7 +1907,38 @@ sblar_schema = DataFrameSchema(
                 "American Indian or Alaska Native Enrolled or Principal Tribe"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_2_race_anai_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 2: free-form"
+                        " text field for American Indian or Alaska"
+                        " Native Enrolled or Principal Tribe' must"
+                        " not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_2_race_anai_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 2' does not"
+                        " contain 971 (the applicant responded in"
+                        " the free-form text field for American Indian"
+                        " or Alaska Native Enrolled or Principal Tribe),"
+                        " 'race of principal owner 2: free-form text"
+                        " field for American Indian or Alaska Native"
+                        " Enrolled or Principal Tribe' must be blank."
+                        " When 'race of principal owner 2' contains 971,"
+                        " 'race of principal owner 2: free-form text field"
+                        " for American Indian or Alaska Native Enrolled or"
+                        " Principal Tribe' must not be blank."
+                    ),
+                    groupby="po_2_race",
+                    condition_values={"971"},
+                ),
+            ],
         ),
         "po_2_race_asian_ff": Column(
             str,
@@ -1428,7 +1947,33 @@ sblar_schema = DataFrameSchema(
                 "Asian race"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_2_race_asian_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 2: free-form text"
+                        " field for other Asian' must not exceed 300"
+                        " characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_2_race_asian_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 2' does not contain"
+                        " 972 (the applicant responded in the free-form text"
+                        " field for other Asian race), 'race of principal"
+                        " owner 2: free-form text field for other Asian' must"
+                        " be blank. When 'race of principal owner 2' contains"
+                        " 972, 'race of principal owner 2: free-form text field"
+                        " for other Asian' must not be blank."
+                    ),
+                    groupby="po_2_race",
+                    condition_values={"972"},
+                ),
+            ],
         ),
         "po_2_race_baa_ff": Column(
             str,
@@ -1437,7 +1982,33 @@ sblar_schema = DataFrameSchema(
                 "Black or African American race"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_2_race_baa_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 2: free-form text"
+                        " field for other Black or African American'"
+                        " must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_2_race_baa_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 2' does not contain 973"
+                        " (the applicant responded in the free-form text field"
+                        " for other Black or African race), 'race of principal"
+                        " owner 2: free-form text field for other Black or African"
+                        " American' must be blank. When 'race of principal owner 2'"
+                        " contains 973, 'race of principal owner 2: free-form text"
+                        " field for other Black or African American' must not be blank."
+                    ),
+                    groupby="po_2_race",
+                    condition_values={"973"},
+                ),
+            ],
         ),
         "po_2_race_pi_ff": Column(
             str,
@@ -1446,13 +2017,55 @@ sblar_schema = DataFrameSchema(
                 "Pacific Islander race"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_2_race_pi_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 2: free-form text"
+                        " field for other Pacific Islander race' must"
+                        " not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_2_race_pi_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 2' does not contain 974"
+                        " (the applicant responded in the free-form text field"
+                        " for other Pacific Islander race), 'race of principal"
+                        " owner 2: free-form text field for other Pacific Islander"
+                        " race' must be blank. When 'race of principal owner 2'"
+                        " contains 974, 'race of principal owner 2: free-form text"
+                        " field for other Pacific Islander race' must not be blank."
+                    ),
+                    groupby="po_2_race",
+                    condition_values={"974"},
+                ),
+            ],
         ),
         "po_2_gender_flag": Column(
             str,
             title="Field 62: Sex/gender of principal owner 2: NP flag",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="po_2_gender_flag.invalid_enum_value",
+                    description=(
+                        "When present, 'sex/gender of principal"
+                        " owner 2: NP flag' must equal 1, 966, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "966",
+                        "988",
+                    ],
+                    accept_blank=True,
+                ),
+            ],
         ),
         "po_2_gender_ff": Column(
             str,
@@ -1461,13 +2074,88 @@ sblar_schema = DataFrameSchema(
                 "self-identified sex/gender"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_2_gender_ff.invalid_text_length",
+                    description=(
+                        "'Sex/gender of principal owner 2: free-form"
+                        " text field for self-identified sex/gender'"
+                        " must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_2_gender_ff.conditional_field_conflict",
+                    description=(
+                        "When 'sex/gender of principal owner 2: NP flag'"
+                        " does not equal 1 (the applicant responded in the"
+                        " free-form text field), 'sex/gender of principal"
+                        " owner 2: free-form text field for self-identified"
+                        " sex/gender' must be blank. When 'sex/gender of"
+                        " principal owner 2: NP flag' equals 1, 'sex/gender"
+                        " of principal owner 2: free-form text field for"
+                        " self-identified sex/gender' must not be blank."
+                    ),
+                    groupby="po_2_gender_flag",
+                    condition_values={"1"},
+                ),
+            ],
         ),
         "po_3_ethnicity": Column(
             str,
             title="Field 64: Ethnicity of principal owner 3",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="po_3_ethnicity.invalid_enum_value",
+                    description=(
+                        "When present, each value in 'ethnicity"
+                        " of principal owner 3' (separated by"
+                        " semicolons) must equal 1, 11, 12,"
+                        " 13, 14, 2, 966, 977, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "11",
+                        "12",
+                        "13",
+                        "14",
+                        "2",
+                        "966",
+                        "977",
+                        "988",
+                    ],
+                    accept_blank=True,
+                ),
+                SBLCheck(
+                    is_unique_in_field,
+                    warning=True,
+                    name="po_3_ethnicity.duplicates_in_field",
+                    description=(
+                        "'Ethnicity of principal owner 3' should"
+                        " not contain duplicated values."
+                    ),
+                    element_wise=True,
+                ),
+                SBLCheck(
+                    meets_multi_value_field_restriction,
+                    warning=True,
+                    name="po_3_ethnicity.multi_value_field_restriction",
+                    description=(
+                        "When 'ethnicity of principal owner 3' contains"
+                        " 966 (the applicant responded that they did"
+                        " not wish to provide this information) or 988"
+                        " (not provided by applicant), 'ethnicity of"
+                        " principal owner 3' should not contain more than one value."
+                    ),
+                    element_wise=True,
+                    single_values={"966", "988"},
+                ),
+            ],
         ),
         "po_3_ethnicity_ff": Column(
             str,
@@ -1476,13 +2164,111 @@ sblar_schema = DataFrameSchema(
                 "other Hispanic or Latino ethnicity"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_3_ethnicity_ff.invalid_text_length",
+                    description=(
+                        "'Ethnicity of principal owner 3: free-form"
+                        " text field for other Hispanic or Latino'"
+                        " must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_3_ethnicity_ff.conditional_field_conflict",
+                    description=(
+                        "When 'ethnicity of principal owner 3' does not"
+                        " contain 977 (the applicant responded in the"
+                        " free-form text field), 'ethnicity of principal"
+                        " owner 3: free-form text field for other Hispanic"
+                        " or Latino' must be blank. When 'ethnicity of principal"
+                        " owner 3' contains 977, 'ethnicity of principal"
+                        " owner 3: free-form text field for other Hispanic"
+                        " or Latino' must not be blank."
+                    ),
+                    groupby="po_3_ethnicity",
+                    condition_values={"977"},
+                ),
+            ],
         ),
         "po_3_race": Column(
             str,
             title="Field 66: Race of principal owner 3",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="po_3_race.invalid_enum_value",
+                    description=(
+                        "When present, each value in 'race"
+                        " of principal owner 3' (separated by"
+                        " semicolons) must equal 1, 2, 21, 22,"
+                        " 23, 24, 25, 26, 27, 3, 31, 32, 33,"
+                        " 34, 35, 36, 37, 4, 41, 42, 43, 44,"
+                        " 5, 966, 971, 972, 973, 974, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                        "21",
+                        "22",
+                        "23",
+                        "24",
+                        "25",
+                        "26",
+                        "27",
+                        "3",
+                        "31",
+                        "32",
+                        "33",
+                        "34",
+                        "35",
+                        "36",
+                        "37",
+                        "4",
+                        "41",
+                        "42",
+                        "43",
+                        "44",
+                        "5",
+                        "966",
+                        "971",
+                        "972",
+                        "973",
+                        "974",
+                        "988",
+                    ],
+                    accept_blank=True,
+                ),
+                SBLCheck(
+                    is_unique_in_field,
+                    warning=True,
+                    name="po_3_race.duplicates_in_field",
+                    description=(
+                        "'Race of principal owner 3' should"
+                        " not contain duplicated values."
+                    ),
+                    element_wise=True,
+                ),
+                SBLCheck(
+                    meets_multi_value_field_restriction,
+                    warning=True,
+                    name="po_3_race.multi_value_field_restriction",
+                    description=(
+                        "When 'race of principal owner 3' contains"
+                        " 966 (the applicant responded that they"
+                        " did not wish to provide this information)"
+                        " or 988 (not provided by applicant),"
+                        " 'race of principal owner 3' should not"
+                        " contain more than one value."
+                    ),
+                    element_wise=True,
+                    single_values={"966", "988"},
+                ),
+            ],
         ),
         "po_3_race_anai_ff": Column(
             str,
@@ -1491,7 +2277,38 @@ sblar_schema = DataFrameSchema(
                 "American Indian or Alaska Native Enrolled or Principal Tribe"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_3_race_anai_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 3: free-form"
+                        " text field for American Indian or Alaska"
+                        " Native Enrolled or Principal Tribe' must"
+                        " not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_3_race_anai_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 3' does not"
+                        " contain 971 (the applicant responded in"
+                        " the free-form text field for American Indian"
+                        " or Alaska Native Enrolled or Principal Tribe),"
+                        " 'race of principal owner 3: free-form text"
+                        " field for American Indian or Alaska Native"
+                        " Enrolled or Principal Tribe' must be blank."
+                        " When 'race of principal owner 3' contains 971,"
+                        " 'race of principal owner 3: free-form text field"
+                        " for American Indian or Alaska Native Enrolled or"
+                        " Principal Tribe' must not be blank."
+                    ),
+                    groupby="po_3_race",
+                    condition_values={"971"},
+                ),
+            ],
         ),
         "po_3_race_asian_ff": Column(
             str,
@@ -1500,7 +2317,33 @@ sblar_schema = DataFrameSchema(
                 "Asian race"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_3_race_asian_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 3: free-form text"
+                        " field for other Asian' must not exceed 300"
+                        " characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_3_race_asian_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 3' does not contain"
+                        " 972 (the applicant responded in the free-form text"
+                        " field for other Asian race), 'race of principal"
+                        " owner 3: free-form text field for other Asian' must"
+                        " be blank. When 'race of principal owner 3' contains"
+                        " 972, 'race of principal owner 3: free-form text field"
+                        " for other Asian' must not be blank."
+                    ),
+                    groupby="po_3_race",
+                    condition_values={"972"},
+                ),
+            ],
         ),
         "po_3_race_baa_ff": Column(
             str,
@@ -1509,7 +2352,33 @@ sblar_schema = DataFrameSchema(
                 "Black or African American race"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_3_race_baa_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 3: free-form text"
+                        " field for other Black or African American'"
+                        " must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_3_race_baa_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 3' does not contain 973"
+                        " (the applicant responded in the free-form text field"
+                        " for other Black or African race), 'race of principal"
+                        " owner 3: free-form text field for other Black or African"
+                        " American' must be blank. When 'race of principal owner 3'"
+                        " contains 973, 'race of principal owner 3: free-form text"
+                        " field for other Black or African American' must not be blank."
+                    ),
+                    groupby="po_3_race",
+                    condition_values={"973"},
+                ),
+            ],
         ),
         "po_3_race_pi_ff": Column(
             str,
@@ -1518,13 +2387,55 @@ sblar_schema = DataFrameSchema(
                 "Pacific Islander race"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_3_race_pi_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 3: free-form text"
+                        " field for other Pacific Islander race' must"
+                        " not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_3_race_pi_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 3' does not contain 974"
+                        " (the applicant responded in the free-form text field"
+                        " for other Pacific Islander race), 'race of principal"
+                        " owner 3: free-form text field for other Pacific Islander"
+                        " race' must be blank. When 'race of principal owner 3'"
+                        " contains 974, 'race of principal owner 3: free-form text"
+                        " field for other Pacific Islander race' must not be blank."
+                    ),
+                    groupby="po_3_race",
+                    condition_values={"974"},
+                ),
+            ],
         ),
         "po_3_gender_flag": Column(
             str,
             title="Field 71: Sex/gender of principal owner 3: NP flag",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="po_3_gender_flag.invalid_enum_value",
+                    description=(
+                        "When present, 'sex/gender of principal"
+                        " owner 3: NP flag' must equal 1, 966, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "966",
+                        "988",
+                    ],
+                    accept_blank=True,
+                ),
+            ],
         ),
         "po_3_gender_ff": Column(
             str,
@@ -1533,13 +2444,88 @@ sblar_schema = DataFrameSchema(
                 "self-identified sex/gender"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_3_gender_ff.invalid_text_length",
+                    description=(
+                        "'Sex/gender of principal owner 3: free-form"
+                        " text field for self-identified sex/gender'"
+                        " must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_3_gender_ff.conditional_field_conflict",
+                    description=(
+                        "When 'sex/gender of principal owner 3: NP flag'"
+                        " does not equal 1 (the applicant responded in the"
+                        " free-form text field), 'sex/gender of principal"
+                        " owner 3: free-form text field for self-identified"
+                        " sex/gender' must be blank. When 'sex/gender of"
+                        " principal owner 3: NP flag' equals 1, 'sex/gender"
+                        " of principal owner 3: free-form text field for"
+                        " self-identified sex/gender' must not be blank."
+                    ),
+                    groupby="po_3_gender_flag",
+                    condition_values={"1"},
+                ),
+            ],
         ),
         "po_4_ethnicity": Column(
             str,
             title="Field 73: Ethnicity of principal owner 4",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="po_4_ethnicity.invalid_enum_value",
+                    description=(
+                        "When present, each value in 'ethnicity"
+                        " of principal owner 4' (separated by"
+                        " semicolons) must equal 1, 11, 12,"
+                        " 13, 14, 2, 966, 977, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "11",
+                        "12",
+                        "13",
+                        "14",
+                        "2",
+                        "966",
+                        "977",
+                        "988",
+                    ],
+                    accept_blank=True,
+                ),
+                SBLCheck(
+                    is_unique_in_field,
+                    warning=True,
+                    name="po_4_ethnicity.duplicates_in_field",
+                    description=(
+                        "'Ethnicity of principal owner 4' should"
+                        " not contain duplicated values."
+                    ),
+                    element_wise=True,
+                ),
+                SBLCheck(
+                    meets_multi_value_field_restriction,
+                    warning=True,
+                    name="po_4_ethnicity.multi_value_field_restriction",
+                    description=(
+                        "When 'ethnicity of principal owner 4' contains"
+                        " 966 (the applicant responded that they did"
+                        " not wish to provide this information) or 988"
+                        " (not provided by applicant), 'ethnicity of"
+                        " principal owner 4' should not contain more than one value."
+                    ),
+                    element_wise=True,
+                    single_values={"966", "988"},
+                ),
+            ],
         ),
         "po_4_ethnicity_ff": Column(
             str,
@@ -1548,13 +2534,111 @@ sblar_schema = DataFrameSchema(
                 "other Hispanic or Latino ethnicity"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_4_ethnicity_ff.invalid_text_length",
+                    description=(
+                        "'Ethnicity of principal owner 4: free-form"
+                        " text field for other Hispanic or Latino'"
+                        " must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_4_ethnicity_ff.conditional_field_conflict",
+                    description=(
+                        "When 'ethnicity of principal owner 4' does not"
+                        " contain 977 (the applicant responded in the"
+                        " free-form text field), 'ethnicity of principal"
+                        " owner 4: free-form text field for other Hispanic"
+                        " or Latino' must be blank. When 'ethnicity of principal"
+                        " owner 4' contains 977, 'ethnicity of principal"
+                        " owner 4: free-form text field for other Hispanic"
+                        " or Latino' must not be blank."
+                    ),
+                    groupby="po_4_ethnicity",
+                    condition_values={"977"},
+                ),
+            ],
         ),
         "po_4_race": Column(
             str,
             title="Field 75: Race of principal owner 4",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="po_4_race.invalid_enum_value",
+                    description=(
+                        "When present, each value in 'race"
+                        " of principal owner 4' (separated by"
+                        " semicolons) must equal 1, 2, 21, 22,"
+                        " 23, 24, 25, 26, 27, 3, 31, 32, 33,"
+                        " 34, 35, 36, 37, 4, 41, 42, 43, 44,"
+                        " 5, 966, 971, 972, 973, 974, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                        "21",
+                        "22",
+                        "23",
+                        "24",
+                        "25",
+                        "26",
+                        "27",
+                        "3",
+                        "31",
+                        "32",
+                        "33",
+                        "34",
+                        "35",
+                        "36",
+                        "37",
+                        "4",
+                        "41",
+                        "42",
+                        "43",
+                        "44",
+                        "5",
+                        "966",
+                        "971",
+                        "972",
+                        "973",
+                        "974",
+                        "988",
+                    ],
+                    accept_blank=True,
+                ),
+                SBLCheck(
+                    is_unique_in_field,
+                    warning=True,
+                    name="po_4_race.duplicates_in_field",
+                    description=(
+                        "'Race of principal owner 4' should"
+                        " not contain duplicated values."
+                    ),
+                    element_wise=True,
+                ),
+                SBLCheck(
+                    meets_multi_value_field_restriction,
+                    warning=True,
+                    name="po_4_race.multi_value_field_restriction",
+                    description=(
+                        "When 'race of principal owner 4' contains"
+                        " 966 (the applicant responded that they"
+                        " did not wish to provide this information)"
+                        " or 988 (not provided by applicant),"
+                        " 'race of principal owner 4' should not"
+                        " contain more than one value."
+                    ),
+                    element_wise=True,
+                    single_values={"966", "988"},
+                ),
+            ],
         ),
         "po_4_race_anai_ff": Column(
             str,
@@ -1563,7 +2647,38 @@ sblar_schema = DataFrameSchema(
                 "American Indian or Alaska Native Enrolled or Principal Tribe"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_4_race_anai_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 4: free-form"
+                        " text field for American Indian or Alaska"
+                        " Native Enrolled or Principal Tribe' must"
+                        " not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_4_race_anai_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 4' does not"
+                        " contain 971 (the applicant responded in"
+                        " the free-form text field for American Indian"
+                        " or Alaska Native Enrolled or Principal Tribe),"
+                        " 'race of principal owner 4: free-form text"
+                        " field for American Indian or Alaska Native"
+                        " Enrolled or Principal Tribe' must be blank."
+                        " When 'race of principal owner 4' contains 971,"
+                        " 'race of principal owner 4: free-form text field"
+                        " for American Indian or Alaska Native Enrolled or"
+                        " Principal Tribe' must not be blank."
+                    ),
+                    groupby="po_4_race",
+                    condition_values={"971"},
+                ),
+            ],
         ),
         "po_4_race_asian_ff": Column(
             str,
@@ -1572,7 +2687,33 @@ sblar_schema = DataFrameSchema(
                 "Asian race"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_4_race_asian_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 4: free-form text"
+                        " field for other Asian' must not exceed 300"
+                        " characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_4_race_asian_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 4' does not contain"
+                        " 972 (the applicant responded in the free-form text"
+                        " field for other Asian race), 'race of principal"
+                        " owner 4: free-form text field for other Asian' must"
+                        " be blank. When 'race of principal owner 4' contains"
+                        " 972, 'race of principal owner 4: free-form text field"
+                        " for other Asian' must not be blank."
+                    ),
+                    groupby="po_4_race",
+                    condition_values={"972"},
+                ),
+            ],
         ),
         "po_4_race_baa_ff": Column(
             str,
@@ -1581,7 +2722,33 @@ sblar_schema = DataFrameSchema(
                 "Black or African American race"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_4_race_baa_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 4: free-form text"
+                        " field for other Black or African American'"
+                        " must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_4_race_baa_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 4' does not contain 973"
+                        " (the applicant responded in the free-form text field"
+                        " for other Black or African race), 'race of principal"
+                        " owner 4: free-form text field for other Black or African"
+                        " American' must be blank. When 'race of principal owner 4'"
+                        " contains 973, 'race of principal owner 4: free-form text"
+                        " field for other Black or African American' must not be blank."
+                    ),
+                    groupby="po_4_race",
+                    condition_values={"973"},
+                ),
+            ],
         ),
         "po_4_race_pi_ff": Column(
             str,
@@ -1590,13 +2757,55 @@ sblar_schema = DataFrameSchema(
                 "Pacific Islander race"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_4_race_pi_ff.invalid_text_length",
+                    description=(
+                        "'Race of principal owner 4: free-form text"
+                        " field for other Pacific Islander race' must"
+                        " not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_4_race_pi_ff.conditional_field_conflict",
+                    description=(
+                        "When 'race of principal owner 4' does not contain 974"
+                        " (the applicant responded in the free-form text field"
+                        " for other Pacific Islander race), 'race of principal"
+                        " owner 4: free-form text field for other Pacific Islander"
+                        " race' must be blank. When 'race of principal owner 4'"
+                        " contains 974, 'race of principal owner 4: free-form text"
+                        " field for other Pacific Islander race' must not be blank."
+                    ),
+                    groupby="po_4_race",
+                    condition_values={"974"},
+                ),
+            ],
         ),
         "po_4_gender_flag": Column(
             str,
             title="Field 80: Sex/gender of principal owner 4: NP flag",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="po_4_gender_flag.invalid_enum_value",
+                    description=(
+                        "When present, 'sex/gender of principal"
+                        " owner 4: NP flag' must equal 1, 966, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "966",
+                        "988",
+                    ],
+                    accept_blank=True,
+                ),
+            ],
         ),
         "po_4_gender_ff": Column(
             str,
@@ -1605,7 +2814,34 @@ sblar_schema = DataFrameSchema(
                 "self-identified sex/gender"
             ),
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck.str_length(
+                    0,
+                    300,
+                    name="po_4_gender_ff.invalid_text_length",
+                    description=(
+                        "'Sex/gender of principal owner 4: free-form"
+                        " text field for self-identified sex/gender'"
+                        " must not exceed 300 characters in length."
+                    ),
+                ),
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="po_4_gender_ff.conditional_field_conflict",
+                    description=(
+                        "When 'sex/gender of principal owner 4: NP flag'"
+                        " does not equal 1 (the applicant responded in the"
+                        " free-form text field), 'sex/gender of principal"
+                        " owner 4: free-form text field for self-identified"
+                        " sex/gender' must be blank. When 'sex/gender of"
+                        " principal owner 4: NP flag' equals 1, 'sex/gender"
+                        " of principal owner 4: free-form text field for"
+                        " self-identified sex/gender' must not be blank."
+                    ),
+                    groupby="po_4_gender_flag",
+                    condition_values={"1"},
+                ),
+            ],
         ),
     },
 )
