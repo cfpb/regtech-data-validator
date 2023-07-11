@@ -1025,13 +1025,59 @@ sblar_schema = DataFrameSchema(
         "census_tract_adr_type": Column(
             str,
             title="Field 34: Type of address",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="census_tract_adr_type.invalid_enum_value",
+                    description=(
+                        "'Census tract: type of address' must equal 1, 2, 3, or 988."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                        "3",
+                        "988",
+                    ],
+                ),
+            ],
         ),
         "census_tract_number": Column(
             str,
             title="Field 35: Tract number",
             nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    has_correct_length,
+                    name="census_tract_number.invalid_text_length",
+                    description=(
+                        "When present, 'census tract: tract number' must "
+                        "be a GEOID with exactly 11 digits."
+                    ),
+                    element_wise=True,
+                    accepted_length=11,
+                    accept_blank=True,
+                ),
+                SBLCheck(
+                    has_valid_enum_pair,
+                    name="census_tract_number.conditional_field_conflict",
+                    description=(
+                        "When 'census tract: type of address' equals 988 (not "
+                        "provided by applicant and otherwise undetermined), "
+                        "'census tract: tract number' must be blank."
+                        "When 'census tract: type of address' equals 1 (address"
+                        " or location where the loan proceeds will principally "
+                        "be applied), 2 (address or location of borrower's main "
+                        "office or headquarters), or 3 (another address or "
+                        "location associated with the applicant), 'census tract:"
+                        " tract number' must not be blank."
+                    ),
+                    groupby="census_tract_adr_type",
+                    condition_values1={"1", "2", "3"},
+                    condition_values2={"988"},
+                    condition_value="",
+                ),
+            ],
         ),
         "gross_annual_revenue_flag": Column(
             str,
