@@ -1,6 +1,6 @@
-# An Alternative SBLAR Parser POC
+# RegTech Data Validator
 
-This is a POC for a SBLAR file parser and validator which makes use of Pandera. You can read about Pandera schemas [here](https://pandera.readthedocs.io/en/stable/dataframe_schemas.html).
+This is a RegTech submission data parser and validator which makes use of Pandera. You can read about Pandera schemas [here](https://pandera.readthedocs.io/en/stable/dataframe_schemas.html).
 
 ## Dev Container Setup
 
@@ -23,10 +23,6 @@ failed validation.
 - [`SBL_Validations_SampleData_GoodFile_03312023.csv`](SBL_Validations_SampleData_GoodFile_03312023.csv)
 - [`SBL_Validations_SampleData_BadFile_03312023.csv`](SBL_Validations_SampleData_BadFile_03312023.csv)
 
-For more details on these test files, see:
-
-- https://github.cfpb.gov/reg-tech/sbl-data-collection/issues/330
-
 ### Usage
 
 ```sh
@@ -37,8 +33,19 @@ python src/validator/main.py SBL_Validations_SampleData_GoodFile_03312023.csv
 python src/validator/main.py SBL_Validations_SampleData_BadFile_03312023.csv
 ```
 
-## Development / Writing Validations
+## Development
 
+Development Process
+Below are the steps the development team follows to fix issues, develop new features, etc.
+
+1. Work in a branch
+2. Create a PR to merge into main
+3. The PR is automatically built, tested, and linted using: Travis, Snyk, and CodeCov
+4. Manual review is performed in addition to ensuring the above automatic scans are positive
+5. The PR is deployed to development servers to be checked
+6. The PR is merged only by a separate member in the dev team
+
+Development standard practice
 * Check functions should focus on reuse.
   * Most of the validations share logic with other validations.
 * Avoid using lambdas for Check functions.
@@ -47,7 +54,14 @@ python src/validator/main.py SBL_Validations_SampleData_BadFile_03312023.csv
   * They are harder to test.
 * Check function signatures should reflect the functionality.
 * Check functions should have corresponding unit tests.
-  * [Unit Test](/tests/test_check_functions.py)
+  * [Unit Test](./src/tests/test_check_functions.py)
 * Check definitions' name should be set to validation ID.
   * Example: "denial_reasons. enum_value_conflict"
-  * ![Validation ID](validation_id.png)
+    ![Validation ID](validation_id.png)
+## Contributing
+[CFPB](https://www.consumerfinance.gov/) is developing the `RegTech Data Validator` in the open to maximize transparency and encourage third party contributions. If you want to contribute, please read and abide by the terms of the [License](./LICENSE) for this project. Pull Requests are always welcome.
+
+## Open source licensing info
+1. [TERMS](./TERMS.md)
+1. [LICENSE](./LICENSE)
+1. [CFPB Source Code Policy](https://github.com/cfpb/source-code-policy/)
