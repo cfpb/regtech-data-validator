@@ -170,6 +170,10 @@ def denial_reasons_conditional_enum_value(
 
     return pd.concat(validation_holder)
 
+# helper function to get non blank values
+def _get_non_blank_values(values: list[str]):
+    return filter(lambda v: v.strip() != "", values)
+
 # helper function for has_valid_multi_field_value_count:
 # process series and return validations
 def _get_related_series_validations(
@@ -177,8 +181,7 @@ def _get_related_series_validations(
 ) -> dict:
     series_validations = {}
     for index, value in series.items():
-        non_blank_values = filter(lambda v: v.strip() != "", value.split(separator))
-        series_count = len(set(non_blank_values))
+        series_count = len(set(_get_non_blank_values(value.split(separator))))
         series_validations[index] = (series_count + value_count) <= max_length
     return series_validations
 
@@ -192,7 +195,7 @@ def has_valid_multi_field_value_count(
     items = grouped_data.items()
 
     for value, other_series in items:
-        processed_value = set(filter(lambda v: v.strip() != "", value.split(separator)))
+        processed_value = set(_get_non_blank_values(value.split(separator)))
         validation_holder.append(
             pd.Series(
                 index=other_series.index,
