@@ -157,10 +157,30 @@ class TestMultiValueFieldRestriction:
         
         
 class TestMultiInvalidNumberOfValues:
-    series =  pd.Series(['999'],
+    series = pd.Series(['999'],
                     name="test_name",
                     index=[2]
                 )
+    
+    blank_series = pd.Series([''],
+                    name="test_name",
+                    index=[2]
+                )
+    
+    multiple_values_series = pd.Series(['1;2;3'],
+                name="test_name",
+                index=[2]
+            )
+    
+    multiple_values_series_with_977 = pd.Series(['1;2;3;977'],
+                name="test_name",
+                index=[2]
+            )
+    
+    multiple_values_series_with_blanks = pd.Series(['1;2;; ;3'],
+                name="test_name",
+                index=[2]
+            )
     
     def test_inside_maxlength(self):
         result = has_valid_multi_field_value_count({"4": self.series}, 5)
@@ -170,9 +190,92 @@ class TestMultiInvalidNumberOfValues:
         result = has_valid_multi_field_value_count({"4": self.series}, 2)
         assert result.values == [True]
         
+    def test_with_blank(self):
+        result = has_valid_multi_field_value_count({"4;1": self.blank_series}, 2)
+        assert result.values == [True]
+    
+    def test_invalid_length_with_blank(self):
+        result = has_valid_multi_field_value_count({"4;1": self.blank_series}, 1)
+        assert result.values == [False]
+        
+    def test_invalid_length_with_blank_and_ignored_values(self):
+        result = has_valid_multi_field_value_count({"4;1;977": self.blank_series}, 
+                                                   1, 
+                                                   ignored_values = {"977"})
+        assert result.values == [False]
+        
+    def test_valid_length_with_blank_and_ignored_values(self):
+        result = has_valid_multi_field_value_count({"4;1;977": self.blank_series}, 
+                                                   2, 
+                                                   ignored_values = {"977"})
+        assert result.values == [True]
+        
     def test_outside_maxlength(self):
         result = has_valid_multi_field_value_count({"4": self.series}, 1)
         assert result.values == [False]
+        
+    def test_inside_maxlength(self):
+        result = has_valid_multi_field_value_count({"4": self.series}, 5)
+        assert result.values == [True]
+        
+    def test_valid_length_with_non_blank(self):
+        result = has_valid_multi_field_value_count({"4;1": self.multiple_values_series}, 
+                                                   5)
+        assert result.values == [True]
+        
+    def test_invalid_length_with_non_blank(self):
+        result = has_valid_multi_field_value_count({"4;1": self.multiple_values_series}, 
+                                                   4)
+        assert result.values == [False]
+        
+    def test_valid_length_with_ignored_values(self):
+        result = has_valid_multi_field_value_count(
+            {"4;1": self.multiple_values_series_with_977}, 
+                                                   6,
+                                                   ignored_values={"977"})
+        assert result.values == [True]
+        
+        result = has_valid_multi_field_value_count(
+            {"4;1;977": self.multiple_values_series_with_977}, 
+                                                   6,
+                                                   ignored_values={"977"})
+        assert result.values == [True]
+        
+    def test_invalid_length_with_ignored_values(self):
+        result = has_valid_multi_field_value_count(
+            {"4;1": self.multiple_values_series_with_977}, 
+                                                   5,
+                                                   ignored_values={"977"})
+        assert result.values == [False]
+        
+        result = has_valid_multi_field_value_count(
+            {"4;1;977": self.multiple_values_series_with_977}, 
+                                                   5,
+                                                   ignored_values={"977"})
+        assert result.values == [False]
+        
+    def test_valid_length_with_blank_values(self):
+        result = has_valid_multi_field_value_count(
+            {"4;1;977": self.multiple_values_series_with_blanks}, 
+                                                   5,
+                                                   ignored_values={"977"})
+        assert result.values == [True]
+        
+        result = has_valid_multi_field_value_count(
+            {"4;1;977": self.multiple_values_series_with_blanks}, 6)
+        assert result.values == [True]
+        
+    def test_invalid_length_with_blank_values(self):
+        result = has_valid_multi_field_value_count(
+            {"4;1;977": self.multiple_values_series_with_blanks}, 
+                                                   4,
+                                                   ignored_values={"977"})
+        assert result.values == [False]
+        
+        result = has_valid_multi_field_value_count(
+            {"4;1;977": self.multiple_values_series_with_blanks}, 5)
+        assert result.values == [False]
+        
 
 class TestInvalidEnumValue:
     def test_with_valid_enum_values(self):
