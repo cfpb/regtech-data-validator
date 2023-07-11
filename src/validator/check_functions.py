@@ -19,6 +19,26 @@ from typing import Dict
 import pandas as pd
 
 
+def _check_blank_(value: str, check_result: bool, accept_blank: bool = False) -> bool:
+    """helper function to validate value for blank space.  if accept_blank is true
+    then empty space is allowed.  If accept_blank is false then return false if
+    valus is blank or return non-blank logic result
+
+    Args:
+        value (str): value from parsed data
+        check_result (bool): bool value from non-blank value check
+        accept_blank (bool, optional): flag to check blank. Defaults to False.
+
+    Returns:
+        bool: true if all checks passed
+    """
+    is_blank =  not value.strip()
+    
+    if is_blank:
+        return accept_blank
+    else:
+        return check_result
+    
 def begins_with_same_lei(ulis: pd.Series) -> bool:
     """Verifies that only a single LEI prefixes the list of ULIs.
 
@@ -344,10 +364,8 @@ def is_number(ct_value: str, accept_blank: bool = False) -> bool:
     """
     value_check = ct_value.isdigit() or \
         bool(re.match(r'^[-+]?[0-9]*\.?[0-9]+$', ct_value))
-    if accept_blank:
-        return value_check or not ct_value.strip()
-    else:
-        return value_check
+        
+    return _check_blank_(ct_value, value_check, accept_blank)
 
 
 def has_valid_enum_pair(
@@ -536,10 +554,7 @@ def has_correct_length(
                 or blank 
     """
     value_check = len(ct_value) == accepted_length
-    if accept_blank:
-        return value_check or not ct_value.strip()
-    else:
-        return value_check
+    return _check_blank_(ct_value, value_check, accept_blank)
 
 def is_valid_code(ct_value: str, accept_blank: bool = False,
                    codes: dict = {}) -> bool:
@@ -554,7 +569,52 @@ def is_valid_code(ct_value: str, accept_blank: bool = False,
         bool: true if blank or value is in code key list
     """
     key_check = (ct_value in codes)
-    if accept_blank:
-        return not ct_value.strip() or key_check
-    else:
-        return key_check
+    return _check_blank_(ct_value, key_check, accept_blank)
+    
+def is_greater_than_or_equal_to(value: str, 
+                                min_value: str,
+                                accept_blank: bool = False) -> bool:
+    """
+    check if value is greater or equal to min_value or blank
+    If blank value check is not needed, use built-in 'greater_than_or_equal_to'
+
+    Args:
+        value (str): parsed value
+        min_value(str): minimum value
+        accept_blank (bool): accept blank value
+    Returns:
+        bool: true if blank or value is greater than or equal to min value
+    """
+    check_result = value >= min_value
+    return _check_blank_(value, check_result, accept_blank)
+
+
+def is_greater_than(value: str, min_value: str, accept_blank: bool = False) -> bool:
+    """
+    check if value is greater than min_value or blank
+    If blank value check is not needed, use built-in 'greater_than'
+
+    Args:
+        value (str): parsed value
+        min_value(str): minimum value
+        accept_blank (bool): accept blank value
+    Returns:
+        bool: true if blank or value is greater than min value
+    """
+    check_result = value > min_value
+    return _check_blank_(value, check_result, accept_blank)
+
+def is_less_than(value: str, max_value: str, accept_blank: bool = False) -> bool:
+    """
+    check if value is less than max_value or blank
+    If blank value check is not needed, use built-in 'less_than'
+
+    Args:
+        value (str): parsed value
+        max_value(str): maximum value
+        accept_blank (bool): accept blank value
+    Returns:
+        bool: true if blank or value is less than max
+    """
+    check_result = value < max_value
+    return _check_blank_(value, check_result, accept_blank)
