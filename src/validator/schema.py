@@ -7,25 +7,18 @@ The only major modification from native Pandera is the use of custom
 Check classes to differentiate between warnings and errors. """
 
 import global_data
-from check_functions import (
-    denial_reasons_conditional_enum_value,
-    has_correct_length,
-    has_no_conditional_field_conflict,
-    has_valid_enum_pair,
-    has_valid_multi_field_value_count,
-    has_valid_value_count,
-    is_date,
-    is_date_after,
-    is_date_before_in_days,
-    is_date_in_range,
-    is_fieldset_equal_to,
-    is_fieldset_not_equal_to,
-    is_number,
-    is_unique_in_field,
-    is_valid_code,
-    is_valid_enum,
-    meets_multi_value_field_restriction,
-)
+from check_functions import (denial_reasons_conditional_enum_value,
+                             has_correct_length,
+                             has_no_conditional_field_conflict,
+                             has_valid_enum_pair,
+                             has_valid_multi_field_value_count,
+                             has_valid_value_count, is_date, is_date_after,
+                             is_date_before_in_days, is_date_in_range,
+                             is_fieldset_equal_to, is_fieldset_not_equal_to,
+                             is_greater_than, is_greater_than_or_equal_to,
+                             is_less_than, is_number, is_unique_in_field,
+                             is_valid_code, is_valid_enum,
+                             meets_multi_value_field_restriction)
 from checks import SBLCheck
 from pandera import Column, DataFrameSchema
 
@@ -178,6 +171,7 @@ sblar_schema = DataFrameSchema(
                         "validation check."
                     ),
                     groupby="ct_guarantee",
+                    ignored_values={"977"},
                     max_length=5,
                 ),
             ],
@@ -241,21 +235,27 @@ sblar_schema = DataFrameSchema(
                     element_wise=True,
                     accept_blank=True,
                 ),
-                SBLCheck.greater_than_or_equal_to(
-                    min_value="1",
+                SBLCheck(
+                    is_greater_than_or_equal_to,
                     name="ct_loan_term.invalid_numeric_value",
                     description=(
                         "When present, 'loan term' must be greater than or equal"
                         "to 1."
                     ),
+                    element_wise=True,
+                    min_value="1",
+                    accept_blank=True,
                 ),
-                SBLCheck.less_than(
-                    max_value="1200",
+                SBLCheck(
+                    is_less_than,
                     name="ct_loan_term.unreasonable_numeric_value",
                     description=(
                         "When present, 'loan term' should be less than 1200"
                         "(100 years)."
                     ),
+                    element_wise=True,
+                    max_value="1200",
+                    accept_blank=True,
                 ),
             ],
         ),
@@ -410,12 +410,15 @@ sblar_schema = DataFrameSchema(
                     element_wise=True,
                     accept_blank=True,
                 ),
-                SBLCheck.greater_than(
-                    min_value="0",
+                SBLCheck(
+                    is_greater_than,
                     name="amount_applied_for.invalid_numeric_value",
                     description=(
                         "When present, 'amount applied for' must be greater than 0."
                     ),
+                    element_wise=True,
+                    min_value="0",
+                    accept_blank=True,
                 ),
             ],
         ),
@@ -434,13 +437,16 @@ sblar_schema = DataFrameSchema(
                     element_wise=True,
                     accept_blank=True,
                 ),
-                SBLCheck.greater_than(
-                    min_value="0",
+                SBLCheck(
+                    is_greater_than,
                     name="amount_approved.invalid_numeric_value",
                     description=(
                         "When present, 'amount approved or originated' "
                         "must be greater than 0."
                     ),
+                    element_wise=True,
+                    min_value="0",
+                    accept_blank=True,
                 ),
                 SBLCheck(
                     has_no_conditional_field_conflict,
@@ -726,12 +732,15 @@ sblar_schema = DataFrameSchema(
                     element_wise=True,
                     accept_blank=True,
                 ),
-                SBLCheck.greater_than(
-                    min_value="0",
+                SBLCheck(
+                    is_greater_than,
                     name="pricing_init_rate_period.invalid_numeric_value",
                     description=(
                         "When present, 'initial rate period' must be greater than 0",
                     ),
+                    element_wise=True,
+                    min_value="0",
+                    accept_blank=True,
                 ),
             ],
         ),
@@ -765,13 +774,16 @@ sblar_schema = DataFrameSchema(
                     groupby="pricing_interest_rate_type",
                     condition_values={"2", "4", "6"},
                 ),
-                SBLCheck.greater_than(
-                    min_value="0.1",
+                SBLCheck(
+                    is_greater_than,
                     name="pricing_fixed_rate.unreasonable_numeric_value",
                     description=(
                         "When present, 'fixed rate: interest rate'"
                         " should generally be greater than 0.1."
                     ),
+                    element_wise=True,
+                    min_value="0.1",
+                    accept_blank=True,
                 ),
             ],
         ),
@@ -805,13 +817,16 @@ sblar_schema = DataFrameSchema(
                     groupby="pricing_interest_rate_type",
                     condition_values={"1", "3", "5"},
                 ),
-                SBLCheck.greater_than(
-                    min_value="0.1",
+                SBLCheck(
+                    is_greater_than,
                     name="pricing_var_margin.unreasonable_numeric_value",
                     description=(
                         "When present, 'variable rate transaction:"
                         " margin' should generally be greater than 0.1."
                     ),
+                    element_wise=True,
+                    min_value="0.1",
+                    accept_blank=True,
                 ),
             ],
         ),
@@ -1216,13 +1231,16 @@ sblar_schema = DataFrameSchema(
                     element_wise=True,
                     accept_blank=True,
                 ),
-                SBLCheck.greater_than_or_equal_to(
-                    min_value="0",
+                SBLCheck(
+                    is_greater_than_or_equal_to,
                     name="time_in_business.invalid_numeric_value",
                     description=(
                         "When present, 'time in business'"
                         " must be greater than or equal to 0.",
                     ),
+                    element_wise=True,
+                    min_value="0",
+                    accept_blank=True,
                 ),
                 SBLCheck(
                     has_no_conditional_field_conflict,
