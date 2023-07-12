@@ -1,12 +1,20 @@
 """This is a 'blank' Pandera template for SBLAR. All columns in the fig are present,
-but the checks need to be populated."""
+but the checks need to be populated.
+
+Do not import _schema_template from this module directly. Instead, make use of the
+factory method `get_template` which returns a copy of the template. A deep copy is used
+to ensure that phase 1 and phase 2 templates are entirely separate from a memory pointer
+standpoint. Without this deep copy functionality, we'd run the risk of the phase 1 and
+phase 2 schemas conflicting with one another / overwriting each other.
+
+See See https://docs.python.org/3/library/copy.html#copy.deepcopy for details."""
 
 from copy import deepcopy
 from typing import Dict
 
 from pandera import Column
 
-schema_template = {
+_schema_template = {
     "uid": Column(
         str,
         title="Field 1: Unique identifier",
@@ -503,9 +511,7 @@ def get_template() -> Dict:
     This is done because this dictionary template is going to be
     modified both by the phase 1 imputer and phase 2 imputer. This can
     cause absolute havoc in a program and it's proactically impossible
-    to debug. 
+    to debug."""
     
-    See https://docs.python.org/3/library/copy.html#copy.deepcopy"""
-    
-    return deepcopy(schema_template)
+    return deepcopy(_schema_template)
     
