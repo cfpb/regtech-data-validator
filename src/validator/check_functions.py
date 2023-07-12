@@ -12,13 +12,33 @@ the function. This may or may not align with the name of the validation
 in the fig."""
 
 
+import re
 from datetime import datetime, timedelta
 from typing import Dict
 
-import re
 import pandas as pd
 
 
+def _check_blank_(value: str, check_result: bool, accept_blank: bool = False) -> bool:
+    """helper function to validate value for blank space.  if accept_blank is true
+    then empty space is allowed.  If accept_blank is false then return false if
+    valus is blank or return non-blank logic result
+
+    Args:
+        value (str): value from parsed data
+        check_result (bool): bool value from non-blank value check
+        accept_blank (bool, optional): flag to check blank. Defaults to False.
+
+    Returns:
+        bool: true if all checks passed
+    """
+    is_blank =  not value.strip()
+    
+    if is_blank:
+        return accept_blank
+    else:
+        return check_result
+    
 def begins_with_same_lei(ulis: pd.Series) -> bool:
     """Verifies that only a single LEI prefixes the list of ULIs.
 
@@ -150,6 +170,9 @@ def denial_reasons_conditional_enum_value(
 
     return pd.concat(validation_holder)
 
+# helper function to get non blank values
+def _get_non_blank_values(values: list[str]):
+    return filter(lambda v: v.strip() != "", values)
 
 # helper function for has_valid_multi_field_value_count:
 # process series and return validations
@@ -158,30 +181,42 @@ def _get_related_series_validations(
 ) -> dict:
     series_validations = {}
     for index, value in series.items():
-        series_count = len(value.split(separator))
+        series_count = len(set(_get_non_blank_values(value.split(separator))))
         series_validations[index] = (series_count + value_count) <= max_length
     return series_validations
 
 
 def has_valid_multi_field_value_count(
-    grouped_data: Dict[str, pd.Series], max_length: int, separator: str = ";"
+    grouped_data: Dict[str, pd.Series], 
+    max_length: int, ignored_values: set[str] = set(),
+    separator: str = ";"
 ) -> pd.Series:
     validation_holder = []
     items = grouped_data.items()
 
     for value, other_series in items:
+        processed_value = set(_get_non_blank_values(value.split(separator)))
         validation_holder.append(
             pd.Series(
                 index=other_series.index,
                 name=other_series.name,
                 data=_get_related_series_validations(
-                    len(value.split(separator)), other_series, max_length
+                    len(processed_value - ignored_values), 
+                    other_series,
+                    max_length,
                 ),
             )
         )
 
     return pd.concat(validation_holder)
 
+def _get_conditional_field_series_validations(
+    series: pd.Series, conditional_func
+) -> dict:
+    series_validations = {}
+    for index, value in series.items():
+        series_validations[index] = conditional_func(value)
+    return series_validations
 
 def has_no_conditional_field_conflict(
     grouped_data: Dict[str, pd.Series],
@@ -214,11 +249,27 @@ def has_no_conditional_field_conflict(
             #    condition values
             # free form should be blank if acceptable values NOT existed
             # in received list
-            validation_holder.append(other_series == "")
+            validation_holder.append(
+                pd.Series(
+                    index=other_series.index,
+                    name=other_series.name,
+                    data=_get_conditional_field_series_validations(
+                        other_series, lambda v: not v.strip()
+                        ),
+                )
+            )
         else:
             # free form text should NOT be blank if acceptable values
             # existed in received list
-            validation_holder.append(other_series != "")
+            validation_holder.append(
+                pd.Series(
+                    index=other_series.index,
+                    name=other_series.name,
+                    data=_get_conditional_field_series_validations(
+                        other_series, lambda v: v.strip() != ""
+                        ),
+                )
+            )
 
     return pd.concat(validation_holder)
 
@@ -239,19 +290,25 @@ def meets_multi_value_field_restriction(
     else:
         return False
 
-
 def is_valid_enum(
-    ct_value: str, accepted_values: list[str], separator: str = ";"
-) -> bool:
+    ct_value: str, accepted_values: list[str], accept_blank: bool = False,
+        separator: str = ";") -> bool:
     ct_values_set = set(ct_value.split(separator))
-    return ct_values_set.issubset(accepted_values)
+    enum_check = ct_values_set.issubset(accepted_values)
+    if accept_blank:
+        return enum_check or not ct_value.strip()
+    else:
+        return enum_check
 
 
 def has_valid_value_count(
-    ct_value: str, min_length: int, max_length: int, separator: str = ";"
+    ct_value: str, min_length: int, max_length: int = None, separator: str = ";"
 ) -> bool:
     values_count = len(ct_value.split(separator))
-    return min_length <= values_count and values_count <= max_length
+    if max_length is None:
+        return min_length <= values_count
+    else:
+        return min_length <= values_count and values_count <= max_length
 
 
 def is_date_in_range(
@@ -302,7 +359,7 @@ def is_date_after(
     return pd.concat(validation_holder)
 
 
-def is_number(ct_value: str) -> bool:
+def is_number(ct_value: str, accept_blank: bool = False) -> bool:
     """
     function to check a string is a number
     return True if value is number , False if value is not number
@@ -313,7 +370,10 @@ def is_number(ct_value: str) -> bool:
     Returns:
         bool: True if value is number , False if value is not number
     """
-    return ct_value.isdigit() or bool(re.match(r'^[-+]?[0-9]*\.?[0-9]+$', ct_value))
+    value_check = ct_value.isdigit() or \
+        bool(re.match(r'^[-+]?[0-9]*\.?[0-9]+$', ct_value))
+        
+    return _check_blank_(ct_value, value_check, accept_blank)
 
 
 def has_valid_enum_pair(
@@ -390,3 +450,179 @@ def is_date_before_in_days(
         except ValueError:
             validation_holder.append(other_series.apply(lambda v: False))
     return pd.concat(validation_holder)
+
+def _is_fieldset_equal_to_helper(
+    current_values: list[str], 
+    series: pd.Series, 
+    condition_values: list[str], 
+    target_values: list[str]
+    ):
+    series_validations = {}
+    for current_index, current_value in series.items():
+            validation = (current_value in condition_values \
+                and list(current_values) == list(target_values)) \
+                    or current_value not in condition_values
+            series_validations[current_index] = validation
+    return series_validations
+            
+def is_fieldset_equal_to(
+    grouped_data: Dict[any, pd.Series],
+    condition_values: list[str], 
+    equal_to_values: list[str]
+) -> pd.Series:
+    """conditional check to verify if groups of fields equal to specific
+        values (equal_to_values) when another field is set/equal to 
+        condition_values.
+        * Note: when we define multiple fields in group_by parameter, 
+                Pandera returns group_by values in the dictionary key 
+                as iterable string 
+                and the column data in the series 
+
+    Args:
+        grouped_data (Dict[list[str], pd.Series]): parsed data provided by pandera
+        condition_values (list[str]): list of value to be compared to main series
+        equal_to_values (list[str]): list of expected values from group_by's fields.
+            This list has to be in same sequence as the group_by list
+
+    Returns:
+        pd.Series: list of series with update validations
+    """
+    validation_holder = []
+    for values, main_series in grouped_data.items():
+        validation_holder.append(
+            pd.Series(
+                index=main_series.index,
+                name=main_series.name,
+                data=_is_fieldset_equal_to_helper(values, main_series,\
+                    condition_values, equal_to_values),
+            )
+        )
+    return pd.concat(validation_holder)
+
+
+def _is_fieldset_not_equal_to_helper(
+    current_values: list[str], 
+    series: pd.Series, 
+    condition_values: list[str], 
+    target_values: list[str]):
+    series_validations = {}
+    for current_index, current_value in series.items():
+            not_contains_map = list(map(lambda a,b: a!=b, current_values,\
+                target_values))
+            validation = (current_value in condition_values and 
+                            all(not_contains_map)) \
+                        or current_value not in condition_values
+            series_validations[current_index] = validation
+    return series_validations
+
+
+def is_fieldset_not_equal_to(
+    grouped_data: Dict[any, pd.Series],
+    condition_values: list[str], 
+    not_equal_to_values: list[str]
+) -> pd.Series:
+    """conditional check to verify if groups of fields NOT equal specific
+        values (not_equal_to_values) when another field is set/equal to 
+        condition_values.
+        * Note: when we define multiple fields in group_by parameter, 
+                Pandera returns group_by values in the dictionary key as 
+                iterable string and the column data in the series 
+    Args:
+        grouped_data (Dict[list[str], pd.Series]): parsed data provided by pandera
+        condition_values (list[str]): list of value to be compared to main series
+        not_equal_to_values (list[str]): list of expected values from group_by's fields.
+            This list has to be in same sequence as the group_by list
+
+    Returns:
+        pd.Series: list of series with update validations
+    """
+    validation_holder = []
+    for values, main_series in grouped_data.items():
+        validation_holder.append(
+            pd.Series(
+                index=main_series.index,
+                name=main_series.name,
+                data=_is_fieldset_not_equal_to_helper(values, main_series,\
+                    condition_values, not_equal_to_values),
+            )
+        )
+    return pd.concat(validation_holder)
+      
+def has_correct_length(
+    ct_value: str, accepted_length: int, accept_blank: bool = False
+) -> bool:
+    """check text for correct length but allow blank
+    Args:
+        ct_value (str): value from file
+        accepted_length (int): accepted value length
+        accept_blank (bool): bool value to ignore check if value is blank
+
+    Returns:
+        bool: return true if its number and length is equal to accepted length
+                or blank 
+    """
+    value_check = len(ct_value) == accepted_length
+    return _check_blank_(ct_value, value_check, accept_blank)
+
+def is_valid_code(ct_value: str, accept_blank: bool = False,
+                   codes: dict = {}) -> bool:
+    """
+    check if value existed in codes keys
+
+    Args:
+        ct_value (str): parsed value
+        accept_blank (bool): accept blank value
+        codes (dict): dict of key -> value
+    Returns:
+        bool: true if blank or value is in code key list
+    """
+    key_check = (ct_value in codes)
+    return _check_blank_(ct_value, key_check, accept_blank)
+    
+def is_greater_than_or_equal_to(value: str, 
+                                min_value: str,
+                                accept_blank: bool = False) -> bool:
+    """
+    check if value is greater or equal to min_value or blank
+    If blank value check is not needed, use built-in 'greater_than_or_equal_to'
+
+    Args:
+        value (str): parsed value
+        min_value(str): minimum value
+        accept_blank (bool): accept blank value
+    Returns:
+        bool: true if blank or value is greater than or equal to min value
+    """
+    check_result = value >= min_value
+    return _check_blank_(value, check_result, accept_blank)
+
+
+def is_greater_than(value: str, min_value: str, accept_blank: bool = False) -> bool:
+    """
+    check if value is greater than min_value or blank
+    If blank value check is not needed, use built-in 'greater_than'
+
+    Args:
+        value (str): parsed value
+        min_value(str): minimum value
+        accept_blank (bool): accept blank value
+    Returns:
+        bool: true if blank or value is greater than min value
+    """
+    check_result = value > min_value
+    return _check_blank_(value, check_result, accept_blank)
+
+def is_less_than(value: str, max_value: str, accept_blank: bool = False) -> bool:
+    """
+    check if value is less than max_value or blank
+    If blank value check is not needed, use built-in 'less_than'
+
+    Args:
+        value (str): parsed value
+        max_value(str): maximum value
+        accept_blank (bool): accept blank value
+    Returns:
+        bool: true if blank or value is less than max
+    """
+    check_result = value < max_value
+    return _check_blank_(value, check_result, accept_blank)

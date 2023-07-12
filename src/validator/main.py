@@ -1,34 +1,26 @@
-"""This script runs a Pandera schema object over two Pandas Dataframes. 
-One contains valid SBLAR data and the other contains invalid records. 
-Run from the terminal to see the generated output."""
+"""
+This script loads a given CSV into a Pandas DataFrame, and then validates it against
+the SBL Pandera schema.
+
+Run from the terminal to see the generated output.
+"""
+
+import sys
 
 import pandas as pd
-import pandera as pa
+from pandera.errors import SchemaErrors
 from schema import sblar_schema
 
-# here is a dataframe containing valid data
-valid_sblar_df = pd.read_excel(
-    "example_sblar.xlsx",
-    engine="openpyxl",
-    sheet_name="valid",
-    dtype=str,
-    na_filter=False,
-)
 
-
-# here is a dataframe containing bad data
-invalid_sblar_df = pd.read_excel(
-    "example_sblar.xlsx",
-    engine="openpyxl",
-    sheet_name="invalid",
-    dtype=str,
-    na_filter=False,
-)
+def csv_to_df(path: str) -> pd.DataFrame:
+    return pd.read_csv(path, dtype=str, na_filter=False)
 
 
 def run_validation_on_df(df: pd.DataFrame) -> None:
-    """Run validaition on the supplied dataframe and print a report to
-    the terminal."""
+    """
+    Run validaition on the supplied dataframe and print a report to
+    the terminal.
+    """
 
     print("--------------------------------------------------------------------------")
     print("Performing validation on the following DataFrame.")
@@ -38,7 +30,7 @@ def run_validation_on_df(df: pd.DataFrame) -> None:
 
     try:
         sblar_schema(df, lazy=True)
-    except pa.errors.SchemaErrors as errors:
+    except SchemaErrors as errors:
         for error in errors.schema_errors:
             # Name of the column in the dataframe being checked
             column_name = error["error"].schema.name
@@ -60,5 +52,11 @@ def run_validation_on_df(df: pd.DataFrame) -> None:
 
 
 if __name__ == "__main__":
-    # run_validation_on_df(valid_sblar_df)
-    run_validation_on_df(invalid_sblar_df)
+    csv_path = None
+    try:
+        csv_path = sys.argv[1]
+    except IndexError:
+        raise ValueError("csv_path arg not provided")
+    
+    df = csv_to_df(csv_path)
+    run_validation_on_df(df)
