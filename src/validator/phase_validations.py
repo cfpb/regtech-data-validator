@@ -4,7 +4,8 @@ This mapping is used to populate the schema template object and create
 an instance of a PanderaSchema object for phase 1 and phase 2."""
 
 #! NOTE: "pricing_adj_margin", "pricing_adj_index_name": "pricing_adj_index_name_ff",
-# and "pricing_adj_index_value" have been updated from pricing_VAR_xxxxxx
+#        and "pricing_adj_index_value" have been renamed. They used to be called
+#        pricing_var_xyz but are now called pricing_adj_xyz
 
 
 import global_data
