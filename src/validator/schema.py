@@ -7,28 +7,17 @@ The only major modification from native Pandera is the use of custom
 Check classes to differentiate between warnings and errors. """
 
 import global_data
-from check_functions import (
-    denial_reasons_conditional_enum_value,
-    has_correct_length,
-    has_no_conditional_field_conflict,
-    has_valid_enum_pair,
-    has_valid_multi_field_value_count,
-    has_valid_value_count,
-    is_date,
-    is_date_after,
-    is_date_before_in_days,
-    is_date_in_range,
-    is_fieldset_equal_to,
-    is_fieldset_not_equal_to,
-    is_greater_than,
-    is_greater_than_or_equal_to,
-    is_less_than,
-    is_number,
-    is_unique_in_field,
-    is_valid_code,
-    is_valid_enum,
-    meets_multi_value_field_restriction,
-)
+from check_functions import (has_correct_length,
+                             has_no_conditional_field_conflict,
+                             has_valid_enum_pair,
+                             has_valid_multi_field_value_count,
+                             has_valid_value_count, is_date, is_date_after,
+                             is_date_before_in_days, is_date_in_range,
+                             is_fieldset_equal_to, is_fieldset_not_equal_to,
+                             is_greater_than, is_greater_than_or_equal_to,
+                             is_less_than, is_number, is_unique_in_field,
+                             is_valid_code, is_valid_enum,
+                             meets_multi_value_field_restriction)
 from checks import SBLCheck
 from pandera import Column, DataFrameSchema
 
@@ -217,8 +206,18 @@ sblar_schema = DataFrameSchema(
                     ),
                     groupby="ct_credit_product",
                     conditions=[
-                        [{"1", "2"}, True, "999", True],
-                        [{"988"}, True, "999", False],
+                        {
+                            "condition_values": {"1", "2"},
+                            "is_equal_condition": True,
+                            "target_value": "999",
+                            "is_equal_target": True,
+                        },
+                        {
+                            "condition_values": {"988"},
+                            "is_equal_condition": True,
+                            "target_value": "999",
+                            "is_equal_target": False,
+                        },
                     ],
                 ),
             ],
@@ -631,7 +630,7 @@ sblar_schema = DataFrameSchema(
                     max_length=4,
                 ),
                 SBLCheck(
-                    denial_reasons_conditional_enum_value,
+                    has_valid_enum_pair,
                     name="denial_reasons.enum_value_conflict",
                     description=(
                         "When 'action taken' equals 3, 'denial reason(s)' must not"
@@ -639,6 +638,20 @@ sblar_schema = DataFrameSchema(
                         "reason(s)' must equal 999."
                     ),
                     groupby="action_taken",
+                    conditions=[
+                        {
+                            "condition_values": {"3"},
+                            "is_equal_condition": True,
+                            "target_value": "999",
+                            "is_equal_target": True,
+                        },
+                        {
+                            "condition_values": {"3"},
+                            "is_equal_condition": False,
+                            "target_value": "999",
+                            "is_equal_target": False,
+                        },
+                    ],
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
@@ -882,8 +895,18 @@ sblar_schema = DataFrameSchema(
                     ),
                     groupby="pricing_interest_rate_type",
                     conditions=[
-                        [{"1", "3", "5"}, False, "999", False],
-                        [{"1", "3", "5"}, True, "999", True],
+                        {
+                            "condition_values": {"1", "3", "5"},
+                            "is_equal_condition": False,
+                            "target_value": "999",
+                            "is_equal_target": False,
+                        },
+                        {
+                            "condition_values": {"1", "3", "5"},
+                            "is_equal_condition": True,
+                            "target_value": "999",
+                            "is_equal_target": True,
+                        },
                     ],
                 ),
             ],
@@ -1030,7 +1053,12 @@ sblar_schema = DataFrameSchema(
                     ),
                     groupby="ct_credit_product",
                     conditions=[
-                        [{"7", "8", "977"}, False, "999", False],
+                        {
+                            "condition_values": {"7", "8", "977"},
+                            "is_equal_condition": False,
+                            "target_value": "999",
+                            "is_equal_target": False,
+                        }
                     ],
                 ),
             ],

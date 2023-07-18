@@ -393,11 +393,12 @@ def _has_valid_enum_pair_validation_helper(
     series: pd.Series = None,
     condition_value=None,
 ) -> pd.Series:
-    if condition:
-        return series != condition_value
+    result = None
+    if condition:  
+        result = series != condition_value
     else:
-        return series == condition_value
-
+        result = series == condition_value
+    return result
 
 def _has_valid_enum_pair_helper(
     conditions: list[list] = None,
@@ -406,36 +407,29 @@ def _has_valid_enum_pair_helper(
 ) -> pd.Series:
     true_condition_met = False
     final_result = None
-        
+         
     for condition in conditions:
-        
-        """
-        When I set condition items to variables, Python coverts it to tuple 
-        and gives the wrong output, so i tried using indexes directly below.
-        condition_values = condition[0],
-        is_equal_condition = condition[1],
-        target_value = condition[2],
-        is_equal_target = condition[3],"""
         if not true_condition_met:
             if (
-                condition[0] is not None
-                and condition[1]
-                and received_values.issubset(condition[0])
-            ):
-                final_result = _has_valid_enum_pair_validation_helper(
-                    condition[3], other_series, condition[2]
-                )
-            elif (
-                condition[0] is not None
-                and not condition[1]
-                and received_values.isdisjoint(condition[0])
+                condition["condition_values"] is not None
+                and condition["is_equal_condition"]
+                and received_values.issubset(condition["condition_values"])
             ):
                 true_condition_met = True
                 final_result = _has_valid_enum_pair_validation_helper(
-                    condition[3], other_series, condition[2]
+                    condition["is_equal_target"], other_series, condition["target_value"]
+                )
+            elif (
+                condition["condition_values"] is not None
+                and not condition["is_equal_condition"]
+                and received_values.isdisjoint(condition["condition_values"])
+            ):
+                true_condition_met = True
+                final_result = _has_valid_enum_pair_validation_helper(
+                    condition["is_equal_target"], other_series, condition["target_value"]
                 )
             else:
-                final_result = pd.Series(index=other_series.index, name=other_series.name, data=True)
+                final_result = pd.Series(index=other_series.index, name=other_series.name, data=True)        
         else:
             break
     return final_result
@@ -445,8 +439,33 @@ def has_valid_enum_pair(
     conditions: list[list] = None,
     separator: str = ";",
 ) -> pd.Series:
-    # will hold individual boolean series to be concatenated at return
-    
+    """Validates a column's enum value based on another column's enum values.
+    Args:
+        grouped_data (Dict[str, pd.Series]): parsed data/series from source file
+        conditions: list of list of key-value pairs
+        conditions should be passed in the following format:
+            Example:
+                conditions=[
+                    {
+                        "condition_values": {"1", "2"},
+                        "is_equal_condition": True,
+                        "target_value": "999",
+                        "is_equal_target": True,
+                    },
+                    {
+                        "condition_values": {"988"},
+                        "is_equal_condition": True,
+                        "target_value": "999",
+                        "is_equal_target": False,
+                    },
+                ],
+        separator (str, optional): character used to separate multiple values.
+            Defaults to ";".
+        
+
+    Returns: Series with corresponding True/False validation values for the column
+    """
+    # will hold individual boolean series to be concatenated at return   
     validation_holder = []
     for value, other_series in grouped_data.items():
         received_values = set(value.split(separator))
