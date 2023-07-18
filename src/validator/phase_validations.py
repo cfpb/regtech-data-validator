@@ -33,6 +33,9 @@ from check_functions import (
 )
 from checks import SBLCheck
 
+# read and populate global naics code (this should be called only once)
+global_data.read_naics_codes()
+
 phase_1_and_2_validations = {
     "uid": {"phase_1": [], "phase_2": []},
     "app_date": {"phase_1": [], "phase_2": []},
