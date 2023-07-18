@@ -405,8 +405,6 @@ def _has_valid_enum_pair_helper(
     received_values: set[str] = None,
     other_series: pd.Series = None,
 ) -> pd.Series:
-    
-    default_result = pd.Series(index=other_series.index, name=other_series.name, data=True) 
          
     for condition in conditions:
         if (
@@ -425,7 +423,7 @@ def _has_valid_enum_pair_helper(
                condition["is_equal_target"], other_series, condition["target_value"]
             )
  
-    return default_result
+    return pd.Series(index=other_series.index, name=other_series.name, data=True) 
 
 def has_valid_enum_pair(
     grouped_data: Dict[str, pd.Series],
