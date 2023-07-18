@@ -405,34 +405,27 @@ def _has_valid_enum_pair_helper(
     received_values: set[str] = None,
     other_series: pd.Series = None,
 ) -> pd.Series:
-    true_condition_met = False
-    final_result = None
+    
+    default_result = pd.Series(index=other_series.index, name=other_series.name, data=True) 
          
     for condition in conditions:
-        if not true_condition_met:
-            if (
-                condition["condition_values"] is not None
-                and condition["is_equal_condition"]
-                and received_values.issubset(condition["condition_values"])
-            ):
-                true_condition_met = True
-                final_result = _has_valid_enum_pair_validation_helper(
-                    condition["is_equal_target"], other_series, condition["target_value"]
-                )
-            elif (
-                condition["condition_values"] is not None
-                and not condition["is_equal_condition"]
-                and received_values.isdisjoint(condition["condition_values"])
-            ):
-                true_condition_met = True
-                final_result = _has_valid_enum_pair_validation_helper(
-                    condition["is_equal_target"], other_series, condition["target_value"]
-                )
-            else:
-                final_result = pd.Series(index=other_series.index, name=other_series.name, data=True)        
-        else:
-            break
-    return final_result
+        if (
+            condition["condition_values"] is not None
+            and condition["is_equal_condition"]
+            and received_values.issubset(condition["condition_values"])
+        ):
+            return _has_valid_enum_pair_validation_helper(
+                condition["is_equal_target"], other_series, condition["target_value"])
+        elif (
+            condition["condition_values"] is not None
+            and not condition["is_equal_condition"]
+            and received_values.isdisjoint(condition["condition_values"])
+        ):
+            return _has_valid_enum_pair_validation_helper(
+               condition["is_equal_target"], other_series, condition["target_value"]
+            )
+ 
+    return default_result
 
 def has_valid_enum_pair(
     grouped_data: Dict[str, pd.Series],
