@@ -7,17 +7,27 @@ The only major modification from native Pandera is the use of custom
 Check classes to differentiate between warnings and errors. """
 
 import global_data
-from check_functions import (has_correct_length,
-                             has_no_conditional_field_conflict,
-                             has_valid_enum_pair,
-                             has_valid_multi_field_value_count,
-                             has_valid_value_count, is_date, is_date_after,
-                             is_date_before_in_days, is_date_in_range,
-                             is_fieldset_equal_to, is_fieldset_not_equal_to,
-                             is_greater_than, is_greater_than_or_equal_to,
-                             is_less_than, is_number, is_unique_in_field,
-                             is_valid_code, is_valid_enum,
-                             meets_multi_value_field_restriction)
+from check_functions import (
+    has_correct_length,
+    has_no_conditional_field_conflict,
+    has_valid_enum_pair,
+    has_valid_multi_field_value_count,
+    has_valid_value_count,
+    is_date,
+    is_date_after,
+    is_date_before_in_days,
+    is_date_in_range,
+    is_fieldset_equal_to,
+    is_fieldset_not_equal_to,
+    is_greater_than,
+    is_greater_than_or_equal_to,
+    is_less_than,
+    is_number,
+    is_unique_in_field,
+    is_valid_code,
+    is_valid_enum,
+    meets_multi_value_field_restriction,
+)
 from checks import SBLCheck
 from pandera import Column, DataFrameSchema
 
@@ -1096,6 +1106,7 @@ sblar_schema = DataFrameSchema(
                         "must be a numeric value"
                     ),
                     element_wise=True,
+                    accept_blank=True,
                 ),
             ],
         ),
@@ -1303,10 +1314,12 @@ sblar_schema = DataFrameSchema(
                     has_no_conditional_field_conflict,
                     name="naics_code.conditional_field_conflict",
                     description=(
-                        "When 'type of guarantee' does not contain 977 (other), "
-                        "'free-form text field for other guarantee' must be blank. "
-                        "When 'type of guarantee' contains 977, 'free-form text field"
-                        " for other guarantee' must not be blank."
+                        "When 'North American Industry Classification System (NAICS) "
+                        " code: NP flag' does not equal 900 (reported), 'North American"
+                        " Industry Classification System (NAICS) code' must be blank."
+                        "When 'North American Industry Classification System (NAICS) "
+                        "code: NP flag' equals 900, 'North American Industry "
+                        "Classification System (NAICS) code' must not be blank."
                     ),
                     groupby="naics_code_flag",
                     condition_values={"900"},
