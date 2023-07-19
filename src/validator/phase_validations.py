@@ -55,8 +55,59 @@ phase_1_and_2_validations = {
         ],
         "phase_2": [],
     },
-    "ct_credit_product": {"phase_1": [], "phase_2": []},
-    "ct_credit_product_ff": {"phase_1": [], "phase_2": []},
+    "ct_credit_product": {
+        "phase_1": [
+            SBLCheck(
+                is_valid_enum,
+                name="ct_credit_product.invalid_enum_value",
+                description=(
+                    "'Credit product' must equal 1, 2, 3, 4, 5, 6, 7, 8, "
+                    "977, or 988."
+                ),
+                element_wise=True,
+                accepted_values=[
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                    "6",
+                    "7",
+                    "8",
+                    "977",
+                    "988",
+                ],
+            ),
+        ],
+        "phase_2": [],
+    },
+    "ct_credit_product_ff": {
+        "phase_1": [
+            SBLCheck.str_length(
+                0,
+                300,
+                name="ct_credit_product_ff.invalid_text_length",
+                description=(
+                    "'Free-form text field for other credit products' "
+                    "must not exceed 300 characters in length."
+                ),
+            )
+        ],
+        "phase_2": [
+            SBLCheck(
+                has_no_conditional_field_conflict,
+                name="ct_credit_product_ff.conditional_field_conflict",
+                description=(
+                    "When 'credit product' does not equal 977 (other), 'free-form"
+                    " text field for other credit products' must be blank."
+                    "When 'credit product' equals 977, 'free-form text field "
+                    "for other credit products' must not be blank."
+                ),
+                groupby="ct_credit_product",
+                condition_values={"977"},
+            ),
+        ],
+    },
     "ct_guarantee": {
         "phase_1": [
             SBLCheck(
