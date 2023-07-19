@@ -216,9 +216,20 @@ sblar_schema = DataFrameSchema(
                         "equal 999."
                     ),
                     groupby="ct_credit_product",
-                    condition_values1={"1", "2"},
-                    condition_values2={"988"},
-                    condition_value="999",
+                    conditions=[
+                        {
+                            "condition_values": {"1", "2"},
+                            "is_equal_condition": True,
+                            "target_value": "999",
+                            "is_equal_target": True,
+                        },
+                        {
+                            "condition_values": {"988"},
+                            "is_equal_condition": True,
+                            "target_value": "999",
+                            "is_equal_target": False,
+                        },
+                    ],
                 ),
             ],
         ),
@@ -630,7 +641,7 @@ sblar_schema = DataFrameSchema(
                     max_length=4,
                 ),
                 SBLCheck(
-                    denial_reasons_conditional_enum_value,
+                    has_valid_enum_pair,
                     name="denial_reasons.enum_value_conflict",
                     description=(
                         "When 'action taken' equals 3, 'denial reason(s)' must not"
@@ -638,6 +649,20 @@ sblar_schema = DataFrameSchema(
                         "reason(s)' must equal 999."
                     ),
                     groupby="action_taken",
+                    conditions=[
+                        {
+                            "condition_values": {"3"},
+                            "is_equal_condition": True,
+                            "target_value": "999",
+                            "is_equal_target": True,
+                        },
+                        {
+                            "condition_values": {"3"},
+                            "is_equal_condition": False,
+                            "target_value": "999",
+                            "is_equal_target": False,
+                        },
+                    ],
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
@@ -880,8 +905,20 @@ sblar_schema = DataFrameSchema(
                         "transaction: index name' must not equal 999."
                     ),
                     groupby="pricing_interest_rate_type",
-                    condition_values1={"1", "3", "5"},
-                    condition_value="999",
+                    conditions=[
+                        {
+                            "condition_values": {"1", "3", "5"},
+                            "is_equal_condition": False,
+                            "target_value": "999",
+                            "is_equal_target": False,
+                        },
+                        {
+                            "condition_values": {"1", "3", "5"},
+                            "is_equal_condition": True,
+                            "target_value": "999",
+                            "is_equal_target": True,
+                        },
+                    ],
                 ),
             ],
         ),
@@ -1000,16 +1037,78 @@ sblar_schema = DataFrameSchema(
                 "Field 30: MCA/sales-based: additional cost for merchant cash "
                 "advances or other sales-based financing: NA flag"
             ),
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_valid_enum,
+                    name="pricing_mca_addcost_flag.invalid_enum_value",
+                    description=(
+                        "'MCA/sales-based: additional cost for merchant cash "
+                        "advances or other sales-based financing: NA flag' "
+                        "must equal 900 or 999."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "900",
+                        "999",
+                    ],
+                ),
+                SBLCheck(
+                    has_valid_enum_pair,
+                    name="pricing_mca_addcost_flag.enum_value_conflict",
+                    description=(
+                        "When 'credit product' does not equal 7 (merchant cash "
+                        "advance), 8 (other sales-based financing transaction) "
+                        "or 977 (other), 'MCA/sales-based: additional cost for "
+                        "merchant cash advances or other sales-based financing: "
+                        "NA flag' must be 999 (not applicable)."
+                    ),
+                    groupby="ct_credit_product",
+                    conditions=[
+                        {
+                            "condition_values": {"7", "8", "977"},
+                            "is_equal_condition": False,
+                            "target_value": "999",
+                            "is_equal_target": False,
+                        }
+                    ],
+                ),
+            ],
         ),
         "pricing_mca_addcost": Column(
             str,
             title=(
-                "Field 31: MCA/sales-based: additional cost for merchant cash "
-                "advances or other sales-based financing"
+                "Field 31: MCA/sales-based: additional cost for merchant cash ",
+                "advances or other sales-based financing",
             ),
-            nullable=True,
-            checks=[],
+            checks=[
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="pricing_mca_addcost.conditional_field_conflict",
+                    description=(
+                        "When 'MCA/sales-based: additional cost for merchant "
+                        "cash advances or other sales-based financing: NA flag' "
+                        "does not equal 900 (applicable), 'MCA/sales-based: "
+                        "additional cost for merchant cash advances or other "
+                        "sales-based financing' must be blank. When 'MCA/sales-based: "
+                        "additional cost for merchant cash advances or other "
+                        "sales-based financing: NA flag' equals 900, MCA/sales-based: "
+                        "additional cost for merchant cash advances or other "
+                        "sales-based financing’ must not be blank."
+                    ),
+                    groupby="pricing_mca_addcost_flag",
+                    condition_values={"900"},
+                ),
+                SBLCheck(
+                    is_number,
+                    name="pricing_mca_addcost.invalid_numeric_format",
+                    description=(
+                        "When present, 'MCA/sales-based: additional cost for "
+                        "merchant cash advances or other sales-based financing' "
+                        "must be a numeric value"
+                    ),
+                    element_wise=True,
+                ),
+            ],
         ),
         "pricing_prepenalty_allowed": Column(
             str,

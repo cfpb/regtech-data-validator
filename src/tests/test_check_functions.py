@@ -404,55 +404,171 @@ class TestEnumValueConflict:
     
     def test_enum_value_confict_correct(self):
         
-        # if ct_credit_product = 1 or 2, if ct_loan_term_flag != 999, then return True
-        series =  pd.Series(["988"],
-                    name="ct_loan_term_flag",
-                    index=[2]
-        )
-        condition_values1: set[str] = { "1", "2" }
-        condition_values2 = None
-        condition_value = "999"
-        ct_credit_product = "1;2"
-        result1 = has_valid_enum_pair({ct_credit_product:series}, condition_values1, condition_values2, condition_value)
-        assert result1.values == [True]
+        # If there is only one condition:
+        """
+            IF ct_credit_product is not equal to 7, 8, OR 977 THEN
+                IF pricing_mca_addcost_flag is not equal to 999 THEN
+                    Error
+                ENDIF
+            ENDIF
+        """
         
-        # if ct_credit_product = 988 , if ct_loan_term_flag == 999, then return True
-        series =  pd.Series(["999"],
-                    name="ct_loan_term",
+        pricing_mca_addcost_flag_conditions=[
+            {
+                "condition_values": {"7", "8", "977"},
+                "is_equal_condition": False,
+                "target_value": "999",
+                "is_equal_target": False,
+            }
+        ]
+        
+        # If ct_credit_product != 7, 8, or 977 and pricing_mca_addcost_flag = 999, return True
+        pricing_mca_addcost_flag_series_1 =  pd.Series(["999"],
+                    name="pricing_mca_addcost_flag",
                     index=[2]
         )
-        condition_values1 = None
-        condition_values2: set[str] = { "988" }
-        condition_value = "999"
-        ct_credit_product = "988"
-        result1 = has_valid_enum_pair({ct_credit_product:series}, condition_values1, condition_values2, condition_value)
-        assert result1.values == [True]
+        
+        ct_credit_product_1 = "5"
+        
+        pricing_mca_addcost_flag_result_1 = has_valid_enum_pair({ct_credit_product_1:pricing_mca_addcost_flag_series_1}, pricing_mca_addcost_flag_conditions)
+        assert pricing_mca_addcost_flag_result_1.values == [True]
+        
+        # If ct_credit_product == 7, 8, or 977 then return True regardless of whether pricing_mca_addcost_flag = 999 or Not
+        ct_credit_product_2 = "7;8;977"
+        # Case when pricing_mca_addcost_flag = 999
+        pricing_mca_addcost_flag_series_2 =  pd.Series(["999"],
+                    name="pricing_mca_addcost_flag",
+                    index=[2]
+        )
+        pricing_mca_addcost_flag_result_2 = has_valid_enum_pair({ct_credit_product_2:pricing_mca_addcost_flag_series_2}, pricing_mca_addcost_flag_conditions)
+        assert pricing_mca_addcost_flag_result_2.values == [True]
+        
+        # Case when pricing_mca_addcost_flag != 999
+        pricing_mca_addcost_flag_series_3 =  pd.Series(["988"],
+                    name="pricing_mca_addcost_flag",
+                    index=[2]
+        )
+        pricing_mca_addcost_flag_result_3 = has_valid_enum_pair({ct_credit_product_2:pricing_mca_addcost_flag_series_3}, pricing_mca_addcost_flag_conditions)
+        assert pricing_mca_addcost_flag_result_3.values == [True]
+         
+        # If there is more than one condition:
+        """ If action_taken is equal to 3 THEN
+                IF denial_reasons contains 999 THEN
+                    Error
+                ENDIF
+            ELSEIF action_taken is not equal to 3 THEN
+                IF denial_reasons is not equal to 999 THEN
+                    Error
+                ENDIF
+            ENDIF
+        """
+        denial_reasons_conditions=[
+            {
+                "condition_values": {"3"},
+                "is_equal_condition": True,
+                "target_value": "999",
+                "is_equal_target": True,
+            },
+            {
+                "condition_values": {"3"},
+                "is_equal_condition": False,
+                "target_value": "999",
+                "is_equal_target": False,
+            },
+        ]
+        # If action_taken is 3, and denial_reasons != 999, must return True
+        denial_reasons_1 =  pd.Series(["988"],
+                    name="denial_reasons",
+                    index=[2]
+        )
+        action_taken_1 = "3"
+        
+        denial_reason_result_1 = has_valid_enum_pair({action_taken_1:denial_reasons_1}, denial_reasons_conditions)
+        assert denial_reason_result_1.values == [True]
+        
+        # If action_taken is NOT 3, and denial_reasons == 999, must return True
+        denial_reasons_2 =  pd.Series(["999"],
+                    name="denial_reasons",
+                    index=[2]
+        )
+        action_taken_2 = "1"
+        denial_reason_result_2 = has_valid_enum_pair({action_taken_2:denial_reasons_2}, denial_reasons_conditions)
+        assert denial_reason_result_2.values == [True]
     
     def test_enum_value_confict_incorrect(self):
         
-        # if ct_credit_product = 1 or 2, if ct_loan_term_flag == 999, then return False
-        series =  pd.Series(["999"],
-                    name="ct_loan_term_flag",
-                    index=[2]
-        )
-        condition_values1: set[str] = { "1", "2" }
-        condition_values2 = None
-        condition_value = "999"
-        ct_credit_product = "1;2"
-        result1 = has_valid_enum_pair({ct_credit_product:series}, condition_values1, condition_values2, condition_value)
-        assert result1.values == [False]
+        # If there is only one condition:
+        """
+            IF ct_credit_product is not equal to 7, 8, OR 977 THEN
+                IF pricing_mca_addcost_flag is not equal to 999 THEN
+                    Error
+                ENDIF
+            ENDIF
+        """
         
-        # if ct_credit_product = 988 , if ct_loan_term_flag != 999, then return False
-        series =  pd.Series(["988"],
-                    name="ct_loan_term",
+        pricing_mca_addcost_flag_conditions=[
+            {
+                "condition_values": {"7", "8", "977"},
+                "is_equal_condition": False,
+                "target_value": "999",
+                "is_equal_target": False,
+            }
+        ]
+        
+        # If ct_credit_product != 7, 8, or 977 and pricing_mca_addcost_flag != 999, return False
+        pricing_mca_addcost_flag_series_1 =  pd.Series(["988"],
+                    name="pricing_mca_addcost_flag",
                     index=[2]
         )
-        condition_values1 = None
-        condition_values2: set[str] = { "988" }
-        condition_value = "999"
-        ct_credit_product = "988"
-        result1 = has_valid_enum_pair({ct_credit_product:series}, condition_values1, condition_values2, condition_value)
-        assert result1.values == [False]
+        ct_credit_product_1 = "5"
+        
+        pricing_mca_addcost_flag_result_1 = has_valid_enum_pair({ct_credit_product_1:pricing_mca_addcost_flag_series_1}, pricing_mca_addcost_flag_conditions)
+        assert pricing_mca_addcost_flag_result_1.values == [False]
+         
+        # If there is more than one condition:
+        """ If action_taken is equal to 3 THEN
+                IF denial_reasons contains 999 THEN
+                    Error
+                ENDIF
+            ELSEIF action_taken is not equal to 3 THEN
+                IF denial_reasons is not equal to 999 THEN
+                    Error
+                ENDIF
+            ENDIF
+        """
+        denial_reasons_conditions=[
+            {
+                "condition_values": {"3"},
+                "is_equal_condition": True,
+                "target_value": "999",
+                "is_equal_target": True,
+            },
+            {
+                "condition_values": {"3"},
+                "is_equal_condition": False,
+                "target_value": "999",
+                "is_equal_target": False,
+            },
+        ]
+        # If action_taken is 3, and denial_reasons == 999, must return False
+        denial_reasons_1 =  pd.Series(["999"],
+                    name="denial_reasons",
+                    index=[2]
+        )
+        action_taken_1 = "3"
+        
+        denial_reason_result_1 = has_valid_enum_pair({action_taken_1:denial_reasons_1}, denial_reasons_conditions)
+        print(denial_reason_result_1.values)
+        assert denial_reason_result_1.values == [False]
+        
+        # If action_taken is NOT 3, and denial_reasons != 999, must return False
+        denial_reasons_2 =  pd.Series(["988"],
+                    name="denial_reasons",
+                    index=[2]
+        )
+        action_taken_2 = "1"
+        denial_reason_result_2 = has_valid_enum_pair({action_taken_2:denial_reasons_2}, denial_reasons_conditions)
+        assert denial_reason_result_2.values == [False]
 
 
 class TestHasCorrectLength:
