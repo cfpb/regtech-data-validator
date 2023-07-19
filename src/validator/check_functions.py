@@ -388,47 +388,81 @@ def is_number(ct_value: str, accept_blank: bool = False) -> bool:
     return _check_blank_(ct_value, value_check, accept_blank)
 
 
+def _has_valid_enum_pair_validation_helper(
+    condition=True,
+    series: pd.Series = None,
+    condition_value=None,
+) -> pd.Series:
+    result = None
+    if condition:  
+        result = series != condition_value
+    else:
+        result = series == condition_value
+    return result
+
+def _has_valid_enum_pair_helper(
+    conditions: list[list] = None,
+    received_values: set[str] = None,
+    other_series: pd.Series = None,
+) -> pd.Series:
+         
+    for condition in conditions:
+        if (
+            condition["condition_values"] is not None
+            and condition["is_equal_condition"]
+            and received_values.issubset(condition["condition_values"])
+        ):
+            return _has_valid_enum_pair_validation_helper(
+                condition["is_equal_target"], other_series, condition["target_value"])
+        elif (
+            condition["condition_values"] is not None
+            and not condition["is_equal_condition"]
+            and received_values.isdisjoint(condition["condition_values"])
+        ):
+            return _has_valid_enum_pair_validation_helper(
+               condition["is_equal_target"], other_series, condition["target_value"]
+            )
+ 
+    return pd.Series(index=other_series.index, name=other_series.name, data=True) 
+
 def has_valid_enum_pair(
     grouped_data: Dict[str, pd.Series],
-    condition_values1: set[str] = {"1", "2"},
-    condition_values2: set[str] = {"988"},
-    condition_value="999",
+    conditions: list[list] = None,
     separator: str = ";",
 ) -> pd.Series:
-    """
-    function to get validations that validate a column's content based on other column
-    values
-    - if the condition_value1 is not null and received values is in condition_values1
-        -other column should not equal condition_value
-    - if the condition_value2 is not null and received values in condition_values2
-        -other column should equal condition_value
-
+    """Validates a column's enum value based on another column's enum values.
     Args:
         grouped_data (Dict[str, pd.Series]): parsed data/series from source file
-        condition_values1 (list[str], optional): list of acceptable values for first
-            condition. Defaults to ["1", "2"].
-        condition_values2 (list[str], optional): list of acceptable values for second
-            condition. Defaults to ["988"].
-        condition_value (str, optional): str values for other column. Defaults to "999".
+        conditions: list of list of key-value pairs
+        conditions should be passed in the following format:
+            Example:
+                conditions=[
+                    {
+                        "condition_values": {"1", "2"},
+                        "is_equal_condition": True,
+                        "target_value": "999",
+                        "is_equal_target": True,
+                    },
+                    {
+                        "condition_values": {"988"},
+                        "is_equal_condition": True,
+                        "target_value": "999",
+                        "is_equal_target": False,
+                    },
+                ],
         separator (str, optional): character used to separate multiple values.
             Defaults to ";".
+        
 
-    Returns:
-        pd.Series: series of current column validations
+    Returns: Series with corresponding True/False validation values for the column
     """
-    # will hold individual boolean series to be concatenated at return
+    # will hold individual boolean series to be concatenated at return   
     validation_holder = []
     for value, other_series in grouped_data.items():
         received_values = set(value.split(separator))
-        if condition_values1 is not None and received_values.issubset(
-            condition_values1
-        ):
-            validation_holder.append(other_series != condition_value)
-        elif condition_values2 is not None and received_values.issubset(
-            condition_values2
-        ):
-            validation_holder.append(other_series == condition_value)
-
+        validation_holder.append(
+            _has_valid_enum_pair_helper(conditions, received_values, other_series)
+        )
     return pd.concat(validation_holder)
 
 
