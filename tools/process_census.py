@@ -21,13 +21,14 @@ def _is_number(s):
         return False
 
 
+"""
 def _download_census_file():
     BASE_URL = config.FFIEC_CENSUS_BASE_URL
     CSV_PATH = config.CENSUS_CSV_PATH
     SRC_ZIP_FILENAME = "{}{}.zip".format(config.FFIEC_FILENAME, config.CENSUS_YEAR)
     INPUT_ZIP = "{}/{}".format(BASE_URL, SRC_ZIP_FILENAME)
     OUTPUT_ZIP = "{}/{}".format(config.CENSUS_SOURCE_PATH, SRC_ZIP_FILENAME)
-    """
+
     # read zip file from FFIEC Url
     print("getting data from {}".format(INPUT_ZIP))
     census_resp = requests.get(
@@ -40,7 +41,6 @@ def _download_census_file():
     # save zip to local file
     with open(OUTPUT_ZIP, "wb") as infile:
         infile.write(census_resp.content)
-    """
 
     # unzip and extract csv files
     with zipfile.ZipFile(OUTPUT_ZIP, "r") as zip_ref:
@@ -53,6 +53,7 @@ def _download_census_file():
                     outfile.write(zip_ref.read(file))
                 # it should only have one csv file
                 return output_csv
+"""
 
 
 def _extract_census_zip_file():
