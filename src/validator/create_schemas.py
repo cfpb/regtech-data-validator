@@ -12,6 +12,6 @@ phase_2_template = get_template()
 for column, validations in phase_1_and_2_validations:
     phase_1_template[column].checks = validations["phase_1"]
     phase_2_template[column].checks = validations["phase_2"]
-    
+
 phase_1_schema = DataFrameSchema(phase_1_template)
 phase_2_schema = DataFrameSchema(phase_2_template)
