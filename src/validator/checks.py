@@ -33,14 +33,13 @@ from pandera.backends.pandas.checks import PandasCheckBackend
 
 class SBLCheck(Check):
     """A custom Pandera.Check subclasss that requires a `name` be
-    specificed. Additionally, an attribute named `warning` is added to
+    specified. Additionally, an attribute named `warning` is added to
     the class to enable distinction between warnings and errors. The
     default value of warning is `False` which corresponds to an error.
 
     Don't use this class directly. Make use of the SBLErrorCheck and
     SBLWarningCheck subclasses below."""
 
-    # TODO: ADD CORRECT TYPE HINT FOR check_fn
     def __init__(self, check_fn: Callable, warning=False, *args, **kwargs):
         """Custom init method that verifies the presence of `name` in
         kwargs creates a custom class attribute called `warning`. All
