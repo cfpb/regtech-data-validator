@@ -9,8 +9,6 @@ NAICS_TITLE_COL = "2022 NAICS US Title"
 
 # path to original/raw NAICS zip file
 CENSUS_RAW_ZIP_PATH = "./data/census/raw/CensusFlatFile2022.zip"
-# path to original/raw NAICS temp csv file
-CENSUS_TMP_CSV_PATH = "./data/census/raw/CensusFlatFile2022.csv"
 # path to parsed/filtered naics codes file
 CENSUS_PROCESSED_CSV_PATH = "./data/census/processed/Census2022.processed.csv"
 # census file col indexes

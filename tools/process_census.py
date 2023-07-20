@@ -4,7 +4,6 @@ import sys
 import zipfile
 
 import pandas as pd
-import requests
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # noqa: E402
 sys.path.append(ROOT_DIR)  # noqa: E402
@@ -21,53 +20,21 @@ def _is_number(s):
         return False
 
 
-"""
-def _download_census_file():
-    BASE_URL = config.FFIEC_CENSUS_BASE_URL
-    CSV_PATH = config.CENSUS_CSV_PATH
-    SRC_ZIP_FILENAME = "{}{}.zip".format(config.FFIEC_FILENAME, config.CENSUS_YEAR)
-    INPUT_ZIP = "{}/{}".format(BASE_URL, SRC_ZIP_FILENAME)
-    OUTPUT_ZIP = "{}/{}".format(config.CENSUS_SOURCE_PATH, SRC_ZIP_FILENAME)
-
-    # read zip file from FFIEC Url
-    print("getting data from {}".format(INPUT_ZIP))
-    census_resp = requests.get(
-        "https://www.ffiec.gov/Census/Census_Flat_Files/Census2020.zip",
-        headers={"User-Agent": "Mozilla/5.0"},
-        allow_redirects=True,
-    )
-    print("saving {} data to {}".format(config.CENSUS_YEAR, OUTPUT_ZIP))
-    print("saving {}".format(census_resp.content))
-    # save zip to local file
-    with open(OUTPUT_ZIP, "wb") as infile:
-        infile.write(census_resp.content)
-
-    # unzip and extract csv files
-    with zipfile.ZipFile(OUTPUT_ZIP, "r") as zip_ref:
-        for file in zip_ref.namelist():  # iterate over files in archive
-            if file[-4:] == ".csv":
-                new_name = "{}.{}".format(config.CENSUS_YEAR, config.CENSUS_FILENAME)
-                output_csv = "{}/{}".format(config.CENSUS_SOURCE_PATH, new_name)
-                print("Extracting CSV file to {}".format(output_csv))
-                with open(output_csv, "wb") as outfile:
-                    outfile.write(zip_ref.read(file))
-                # it should only have one csv file
-                return output_csv
-"""
-
-
+# helper function to unzip census file and extract CSV file
 def _extract_census_zip_file():
+    CENSUS_TMP_CSV_PATH = config.CENSUS_RAW_ZIP_PATH + ".tmp.csv"
     # unzip and extract csv files
     with zipfile.ZipFile(config.CENSUS_RAW_ZIP_PATH, "r") as zip_ref:
         for file in zip_ref.namelist():  # iterate over files in archive
             if file[-4:] == ".csv":
-                print("Extracting CSV to {}".format(config.CENSUS_TMP_CSV_PATH))
-                with open(config.CENSUS_TMP_CSV_PATH, "wb") as outfile:
+                print("Extracting CSV to {}".format(CENSUS_TMP_CSV_PATH))
+                with open(CENSUS_TMP_CSV_PATH, "wb") as outfile:
                     outfile.write(zip_ref.read(file))
                 # it should only have one csv file
-                return config.CENSUS_TMP_CSV_PATH
+                return CENSUS_TMP_CSV_PATH
 
 
+# helper function to read extracted csv file and filter only geo-tract-id
 def _read_census_csv(src_path: str, csv_path: str):
     STATE_COL = config.CENSUS_STATE_COL_INDEX
     COUNTY_COL = config.CENSUS_COUNTY_COL_INDEX
@@ -124,7 +91,7 @@ if __name__ == "__main__":
         raise FileExistsError(error_msg)
 
     tmp_census_csv_file = _extract_census_zip_file()
-    print("Reading extracted CSV File")
+    print("Reading extracted CSV File . {}".format(tmp_census_csv_file))
     _read_census_csv(tmp_census_csv_file, CSV_PATH)
     print("Removing extracted CSV File")
     os.remove(tmp_census_csv_file)
