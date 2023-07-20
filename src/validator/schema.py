@@ -8,7 +8,6 @@ Check classes to differentiate between warnings and errors. """
 
 import global_data
 from check_functions import (
-    denial_reasons_conditional_enum_value,
     has_correct_length,
     has_no_conditional_field_conflict,
     has_valid_enum_pair,
@@ -45,7 +44,17 @@ sblar_schema = DataFrameSchema(
         "app_date": Column(
             str,
             title="Field 2: Application date",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_date,
+                    name="app_date.invalid_date_format",
+                    description=(
+                        "'Application date' must be a real calendar "
+                        "date using YYYYMMDD format."
+                    ),
+                    element_wise=True,
+                ),
+            ],
         ),
         "app_method": Column(
             str,
