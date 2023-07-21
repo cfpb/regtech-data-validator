@@ -7,18 +7,27 @@ The only major modification from native Pandera is the use of custom
 Check classes to differentiate between warnings and errors. """
 
 import global_data
-from check_functions import (denial_reasons_conditional_enum_value,
-                             has_correct_length,
-                             has_no_conditional_field_conflict,
-                             has_valid_enum_pair,
-                             has_valid_multi_field_value_count,
-                             has_valid_value_count, is_date, is_date_after,
-                             is_date_before_in_days, is_date_in_range,
-                             is_fieldset_equal_to, is_fieldset_not_equal_to,
-                             is_greater_than, is_greater_than_or_equal_to,
-                             is_less_than, is_number, is_unique_in_field,
-                             is_valid_code, is_valid_enum,
-                             meets_multi_value_field_restriction)
+from check_functions import (
+    has_correct_length,
+    has_no_conditional_field_conflict,
+    has_valid_enum_pair,
+    has_valid_multi_field_value_count,
+    has_valid_value_count,
+    is_date,
+    is_date_after,
+    is_date_before_in_days,
+    is_date_in_range,
+    is_fieldset_equal_to,
+    is_fieldset_not_equal_to,
+    is_greater_than,
+    is_greater_than_or_equal_to,
+    is_less_than,
+    is_number,
+    is_unique_in_field,
+    is_valid_code,
+    is_valid_enum,
+    meets_multi_value_field_restriction,
+)
 from checks import SBLCheck
 from pandera import Column, DataFrameSchema
 
@@ -35,7 +44,17 @@ sblar_schema = DataFrameSchema(
         "app_date": Column(
             str,
             title="Field 2: Application date",
-            checks=[],
+            checks=[
+                SBLCheck(
+                    is_date,
+                    name="app_date.invalid_date_format",
+                    description=(
+                        "'Application date' must be a real calendar "
+                        "date using YYYYMMDD format."
+                    ),
+                    element_wise=True,
+                ),
+            ],
         ),
         "app_method": Column(
             str,

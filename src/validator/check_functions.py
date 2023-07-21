@@ -76,8 +76,13 @@ def is_date(date: str) -> bool:
     """
 
     try:
-        datetime.strptime(date, "%Y%m%d")
-        return True
+        # check for number type and length must be 8 to match YYYYMMDD
+        if date.isdigit() and len(date) == 8:
+            # if format and type is correct, verify datetime content
+            datetime.strptime(date, "%Y%m%d")
+            return True
+        else:
+            return False
     except ValueError:
         return False
 
@@ -394,18 +399,18 @@ def _has_valid_enum_pair_validation_helper(
     condition_value=None,
 ) -> pd.Series:
     result = None
-    if condition:  
+    if condition:
         result = series != condition_value
     else:
         result = series == condition_value
     return result
+
 
 def _has_valid_enum_pair_helper(
     conditions: list[list] = None,
     received_values: set[str] = None,
     other_series: pd.Series = None,
 ) -> pd.Series:
-         
     for condition in conditions:
         if (
             condition["condition_values"] is not None
@@ -413,17 +418,19 @@ def _has_valid_enum_pair_helper(
             and received_values.issubset(condition["condition_values"])
         ):
             return _has_valid_enum_pair_validation_helper(
-                condition["is_equal_target"], other_series, condition["target_value"])
+                condition["is_equal_target"], other_series, condition["target_value"]
+            )
         elif (
             condition["condition_values"] is not None
             and not condition["is_equal_condition"]
             and received_values.isdisjoint(condition["condition_values"])
         ):
             return _has_valid_enum_pair_validation_helper(
-               condition["is_equal_target"], other_series, condition["target_value"]
+                condition["is_equal_target"], other_series, condition["target_value"]
             )
- 
-    return pd.Series(index=other_series.index, name=other_series.name, data=True) 
+
+    return pd.Series(index=other_series.index, name=other_series.name, data=True)
+
 
 def has_valid_enum_pair(
     grouped_data: Dict[str, pd.Series],
@@ -452,11 +459,11 @@ def has_valid_enum_pair(
                 ],
         separator (str, optional): character used to separate multiple values.
             Defaults to ";".
-        
+
 
     Returns: Series with corresponding True/False validation values for the column
     """
-    # will hold individual boolean series to be concatenated at return   
+    # will hold individual boolean series to be concatenated at return
     validation_holder = []
     for value, other_series in grouped_data.items():
         received_values = set(value.split(separator))

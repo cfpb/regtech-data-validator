@@ -38,7 +38,20 @@ global_data.read_naics_codes()
 
 phase_1_and_2_validations = {
     "uid": {"phase_1": [], "phase_2": []},
-    "app_date": {"phase_1": [], "phase_2": []},
+    "app_date": {
+        "phase_1": [
+            SBLCheck(
+                is_date,
+                name="app_date.invalid_date_format",
+                description=(
+                    "'Application date' must be a real calendar "
+                    "date using YYYYMMDD format."
+                ),
+                element_wise=True,
+            ),
+        ],
+        "phase_2": [],
+    },
     "app_method": {
         "phase_1": [
             SBLCheck(
