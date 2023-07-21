@@ -39,7 +39,23 @@ global_data.read_naics_codes()
 phase_1_and_2_validations = {
     "uid": {"phase_1": [], "phase_2": []},
     "app_date": {"phase_1": [], "phase_2": []},
-    "app_method": {"phase_1": [], "phase_2": []},
+    "app_method": {
+        "phase_1": [
+            SBLCheck(
+                is_valid_enum,
+                name="app_method.invalid_enum_value",
+                description="'Application method' must equal 1, 2, 3, or 4.",
+                element_wise=True,
+                accepted_values=[
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                ],
+            ),
+        ],
+        "phase_2": [],
+    },
     "app_recipient": {
         "phase_1": [
             SBLCheck(
