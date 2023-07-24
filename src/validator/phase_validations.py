@@ -14,6 +14,7 @@ from check_functions import (
     has_correct_length,
     has_no_conditional_field_conflict,
     has_valid_enum_pair,
+    has_valid_format,
     has_valid_multi_field_value_count,
     has_valid_value_count,
     is_date,
@@ -37,7 +38,31 @@ from checks import SBLCheck
 global_data.read_naics_codes()
 
 phase_1_and_2_validations = {
-    "uid": {"phase_1": [], "phase_2": []},
+    "uid": {
+        "phase_1": [
+            SBLCheck.str_length(
+                21,
+                45,
+                name="uid.invalid_text_length",
+                description=(
+                    "'Unique identifier' must be at least 21 characters "
+                    "in length and at most 45 characters in length."
+                ),
+            ),
+            SBLCheck(
+                has_valid_format,
+                name="uid.invalid_text_pattern",
+                description=(
+                    "'Unique identifier' may contain any combination of "
+                    "numbers and/or uppercase letters (i.e., 0-9 and A-Z), "
+                    "and must not contain any other characters."
+                ),
+                element_wise=True,
+                regex="^[A-Z0-9]+$",
+            ),
+        ],
+        "phase_2": [],
+    },
     "app_date": {
         "phase_1": [
             SBLCheck(
