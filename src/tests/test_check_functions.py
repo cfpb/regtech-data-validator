@@ -6,6 +6,7 @@ from validator.check_functions import (
     has_correct_length,
     has_no_conditional_field_conflict,
     has_valid_enum_pair,
+    has_valid_format,
     has_valid_multi_field_value_count,
     has_valid_value_count,
     is_date,
@@ -731,3 +732,50 @@ class TestIsLessThan:
     def test_with_invalid_blank_space(self):
         assert is_less_than("", "1") is False
         assert is_less_than(" ", "1") is False
+
+
+class TestHasValidFormat:
+    def test_with_valid_data_alphanumeric(self):
+        assert has_valid_format("1", "^[0-9A-Z]$") is True
+        assert has_valid_format("A", "^[0-9A-Z]$") is True
+        assert has_valid_format("1ABC", "^[0-9A-Z]+$") is True
+
+    def test_with_invalid_data_alphanumeric(self):
+        assert has_valid_format("a", "^[0-9A-Z]$") is False
+        assert has_valid_format("aaaa", "^[0-9A-Z]+$") is False
+        assert has_valid_format("!", "^[0-9A-Z]$") is False
+
+    def test_with_accepting_blank(self):
+        assert has_valid_format("", "^[0-9A-Z]+$", True) is True
+
+    def test_with_not_accepting_blank(self):
+        assert has_valid_format("", "^[0-9A-Z]+$") is False
+
+    # tests with different regex
+    def test_with_valid_data_ip(self):
+        assert (
+            has_valid_format(
+                "192.168.0.1", "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"
+            )
+            is True
+        )
+        assert (
+            has_valid_format(
+                "192.168.120.100", "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"
+            )
+            is True
+        )
+
+    def test_with_invalid_data_ip(self):
+        assert (
+            has_valid_format(
+                "192.168.0.1000", "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"
+            )
+            is False
+        )
+        assert (
+            has_valid_format(
+                "192.168.0", "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"
+            )
+            is False
+        )

@@ -685,3 +685,7 @@ def is_less_than(value: str, max_value: str, accept_blank: bool = False) -> bool
     """
     check_result = value < max_value
     return _check_blank_(value, check_result, accept_blank)
+
+
+def has_valid_format(value: str, regex: str, accept_blank: bool = False) -> bool:
+    return _check_blank_(value, bool(re.match(regex, value)), accept_blank)
