@@ -1173,6 +1173,7 @@ sblar_schema = DataFrameSchema(
                         "must be a numeric value"
                     ),
                     element_wise=True,
+                    accept_blank=True,
                 ),
             ],
         ),
@@ -1380,10 +1381,12 @@ sblar_schema = DataFrameSchema(
                     has_no_conditional_field_conflict,
                     name="naics_code.conditional_field_conflict",
                     description=(
-                        "When 'type of guarantee' does not contain 977 (other), "
-                        "'free-form text field for other guarantee' must be blank. "
-                        "When 'type of guarantee' contains 977, 'free-form text field"
-                        " for other guarantee' must not be blank."
+                        "When 'North American Industry Classification System (NAICS) "
+                        " code: NP flag' does not equal 900 (reported), 'North American"
+                        " Industry Classification System (NAICS) code' must be blank."
+                        "When 'North American Industry Classification System (NAICS) "
+                        "code: NP flag' equals 900, 'North American Industry "
+                        "Classification System (NAICS) code' must not be blank."
                     ),
                     groupby="naics_code_flag",
                     condition_values={"900"},
