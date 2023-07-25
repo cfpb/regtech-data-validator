@@ -846,9 +846,9 @@ phase_1_and_2_validations = {
         "phase_1": [
             SBLCheck(
                 is_number,
-                name="pricing_var_margin.invalid_numeric_format",
+                name="pricing_adj_margin.invalid_numeric_format",
                 description=(
-                    "When present, 'variable rate transaction:"
+                    "When present, 'adjustable rate transaction:"
                     " margin' must be a numeric value."
                 ),
                 element_wise=True,
@@ -858,13 +858,13 @@ phase_1_and_2_validations = {
         "phase_2": [
             SBLCheck(
                 has_no_conditional_field_conflict,
-                name="pricing_var_margin.conditional_field_conflict",
+                name="pricing_adj_margin.conditional_field_conflict",
                 description=(
                     "When 'interest rate type' does not equal 1"
-                    " (variable interest rate, no initial rate period),"
-                    " 3 (initial rate period > 12 months, variable interest rate),"
+                    " (adjustable interest rate, no initial rate period),"
+                    " 3 (initial rate period > 12 months, adjustable interest rate),"
                     " or 5 (initial rate period <= 12 months, variable interest"
-                    " rate), 'variable rate transaction: margin' must be blank."
+                    " rate), 'adjustable rate transaction: margin' must be blank."
                     " When 'interest rate type' equals 1, 3, or 5, 'variable"
                     " rate transaction: margin' must not be blank."
                 ),
@@ -873,9 +873,9 @@ phase_1_and_2_validations = {
             ),
             SBLCheck(
                 is_greater_than,
-                name="pricing_var_margin.unreasonable_numeric_value",
+                name="pricing_adj_margin.unreasonable_numeric_value",
                 description=(
-                    "When present, 'variable rate transaction:"
+                    "When present, 'adjustable rate transaction:"
                     " margin' should generally be greater than 0.1."
                 ),
                 element_wise=True,
@@ -888,9 +888,9 @@ phase_1_and_2_validations = {
         "phase_1": [
             SBLCheck(
                 is_valid_enum,
-                name="pricing_var_index_name.invalid_enum_value",
+                name="pricing_adj_index_name.invalid_enum_value",
                 description=(
-                    "'Variable rate transaction: index name' must equal 1, 2, 3, 4,"
+                    "'Adjustable rate transaction: index name' must equal 1, 2, 3, 4,"
                     "5, 6, 7, 8, 9, 10, 977, or 999."
                 ),
                 element_wise=True,
@@ -913,14 +913,14 @@ phase_1_and_2_validations = {
         "phase_2": [
             SBLCheck(
                 has_valid_enum_pair,
-                name="pricing_var_index_name.enum_value_conflict",
+                name="pricing_adj_index_name.enum_value_conflict",
                 description=(
                     "When 'interest rate type' does not equal 1 (variable interest"
                     "rate, no initial rate period), 3 (initial rate period > 12"
-                    "months, variable interest rate), or 5 (initial rate"
-                    "period <= 12 months, variable interest rate), 'variable rate"
+                    "months, adjustable interest rate), or 5 (initial rate"
+                    "period <= 12 months, adjustable interest rate), 'adjustable rate"
                     "transaction: index name' must equal 999."
-                    "When 'interest rate type' equals 1, 3, or 5, 'variable rate"
+                    "When 'interest rate type' equals 1, 3, or 5, 'adjustable rate"
                     "transaction: index name' must not equal 999."
                 ),
                 groupby="pricing_interest_rate_type",
@@ -934,9 +934,9 @@ phase_1_and_2_validations = {
             SBLCheck.str_length(
                 min_value=0,
                 max_value=300,
-                name="pricing_var_index_name_ff.invalid_text_length",
+                name="pricing_adj_index_name_ff.invalid_text_length",
                 description=(
-                    "'Variable rate transaction: index name: other' must not exceed"
+                    "'Adjustable rate transaction: index name: other' must not exceed"
                     "300 characters in length."
                 ),
             ),
@@ -944,16 +944,16 @@ phase_1_and_2_validations = {
         "phase_2": [
             SBLCheck(
                 has_no_conditional_field_conflict,
-                name="pricing_var_index_name_ff.conditional_field_conflict",
+                name="pricing_adj_index_name_ff.conditional_field_conflict",
                 description=(
-                    "When 'variable rate transaction: index name' does not equal"
-                    "977 (other), 'variable rate transaction: index name: other'"
+                    "When 'adjustable rate transaction: index name' does not equal"
+                    "977 (other), 'adjustable rate transaction: index name: other'"
                     "must be blank."
-                    "When 'variable rate transaction: index name' equals 977,"
-                    "'variable rate transaction: index name: other' must not be"
+                    "When 'adjustable rate transaction: index name' equals 977,"
+                    "'adjustable rate transaction: index name: other' must not be"
                     "blank."
                 ),
-                groupby="pricing_var_index_name",
+                groupby="pricing_adj_index_name",
                 condition_values={"977"},
             ),
         ],
@@ -962,8 +962,8 @@ phase_1_and_2_validations = {
         "phase_1": [
             SBLCheck(
                 is_number,
-                name="pricing_var_index_value.invalid_numeric_format",
-                description="When present, 'variable rate transaction:"
+                name="pricing_adj_index_value.invalid_numeric_format",
+                description="When present, 'adjustable rate transaction:"
                 " index value' must be a numeric value.",
                 element_wise=True,
                 accept_blank=True,
@@ -972,14 +972,14 @@ phase_1_and_2_validations = {
         "phase_2": [
             SBLCheck(
                 has_no_conditional_field_conflict,
-                name="pricing_var_index_value.conditional_field_conflict",
+                name="pricing_adj_index_value.conditional_field_conflict",
                 description=(
                     "When 'interest rate type' does not equal 1 (variable"
                     " interest rate, no initial rate period),"
                     " or 3 (initial rate period > 12 months, variable interest"
-                    " rate), 'variable rate transaction: index value' must be"
+                    " rate), 'adjustable rate transaction: index value' must be"
                     " blank. When 'interest rate type' equals 1 or 3,"
-                    " 'variable rate transaction: index value' must not be blank."
+                    " 'adjustable rate transaction: index value' must not be blank."
                 ),
                 groupby="pricing_interest_rate_type",
                 condition_values={"1", "3"},
