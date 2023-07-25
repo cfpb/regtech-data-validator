@@ -466,6 +466,11 @@ def has_valid_enum_pair(
     # will hold individual boolean series to be concatenated at return
     validation_holder = []
     for value, other_series in grouped_data.items():
+        """print("has_valid_enum_pair debug: ") 
+        print("value")
+        print(value)
+        print("other_series")
+        print(other_series)"""
         received_values = set(value.split(separator))
         validation_holder.append(
             _has_valid_enum_pair_helper(conditions, received_values, other_series)
@@ -564,12 +569,12 @@ def _is_fieldset_not_equal_to_helper(
     series_validations = {}
     for current_index, current_value in series.items():
         not_contains_map = list(map(lambda a, b: a != b, current_values, target_values))
+        validation = False
         validation = (
             current_value in condition_values and all(not_contains_map)
         ) or current_value not in condition_values
         series_validations[current_index] = validation
     return series_validations
-
 
 def is_fieldset_not_equal_to(
     grouped_data: Dict[any, pd.Series],
@@ -685,3 +690,85 @@ def is_less_than(value: str, max_value: str, accept_blank: bool = False) -> bool
     """
     check_result = value < max_value
     return _check_blank_(value, check_result, accept_blank)
+
+def _is_fieldset_equal_to_helper_new(
+    current_values: list[str],
+    sub_conditions:any = None,
+) -> bool:
+    is_equal_to_current_values = []
+    for is_eq_index in sub_conditions['is_equal_to_index_in_groupby']:
+        is_equal_to_current_values.append(current_values[is_eq_index])
+    is_equal_to_target_values = sub_conditions['is_equal_to_values']
+        
+    for index, current_value in enumerate(is_equal_to_current_values):
+        if (current_value == is_equal_to_target_values[index]):
+            return False
+    return True
+        
+def _is_fieldset_not_equal_to_helper_new(
+    current_values: list[str],
+    sub_conditions:any = None,
+) -> bool:
+    is_not_equal_to_current_values = []
+    for is_not_eq_index in sub_conditions['is_not_equal_to_index_in_groupby']:
+        is_not_equal_to_current_values.append(current_values[is_not_eq_index])
+    is_not_equal_to_target_values = sub_conditions['is_not_equal_to_values']
+        
+    for index, current_value in enumerate(is_not_equal_to_current_values):
+        if (current_value != is_not_equal_to_target_values[index]):
+            return False
+    return True
+
+def has_valid_fieldset_pair_helper(
+    current_values: list[str],
+    series: pd.Series,
+    condition_values: list[str],
+    sub_conditions:any = None,
+):
+    series_validations = {}
+    for current_index, current_value in series.items(): 
+        is_equal_to_validation = _is_fieldset_equal_to_helper_new(current_values, sub_conditions)
+        is_not_equal_to_validation = _is_fieldset_not_equal_to_helper_new(current_values, sub_conditions)
+        validation = (
+            current_value in condition_values
+            and (is_equal_to_validation or is_not_equal_to_validation)
+        ) or current_value not in condition_values
+        series_validations[current_index] = validation
+    return series_validations
+
+def has_valid_fieldset_pair(
+    grouped_data: Dict[any, pd.Series],
+    condition_values: list[str],
+    sub_conditions:any = None
+) -> pd.Series:
+    """conditional check to verify if groups of fields equal to specific
+        values (equal_to_values) when another field is set/equal to
+        condition_values.
+        * Note: when we define multiple fields in group_by parameter,
+                Pandera returns group_by values in the dictionary key
+                as iterable string
+                and the column data in the series
+
+    Args:
+        grouped_data (Dict[list[str], pd.Series]): parsed data provided by pandera
+        condition_values (list[str]): list of value to be compared to main series
+        sub_conditions (dict): key-value pairs where the key is string and values is list
+        sub_conditions example:
+        sub_conditions = {"is_equal_to_values" :[],
+                          "is_equal_to_index_in_groupby" : [],
+                          "is_not_equal_to_values" :['', '', '','', '', '', '', '', '', '', '', ''],
+                          "is_not_equal_to_index_in_groupby" : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]},
+
+    Returns:
+        pd.Series: list of series with update validations
+    """
+    validation_holder = []
+    for values, main_series in grouped_data.items():
+        validation_holder.append(
+            pd.Series(
+                index=main_series.index,
+                name=main_series.name,
+                data= (has_valid_fieldset_pair_helper(values, main_series, condition_values, sub_conditions))
+            )
+        )
+    return pd.concat(validation_holder)
