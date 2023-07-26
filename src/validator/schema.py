@@ -1594,9 +1594,7 @@ sblar_schema = DataFrameSchema(
                              "po_4_race",
                              "po_4_gender_flag"],
                     condition_values=["0", ""],
-                    sub_conditions = {"is_equal_to_values" :[],
-                                    "is_equal_to_index_in_groupby" : [],
-                                    "is_not_equal_to_values" :['', '', '','', '', '', '', '', '', '', '', ''],
+                    sub_conditions = {"is_not_equal_to_values" :['', '', '','', '', '', '', '', '', '', '', ''],
                                     "is_not_equal_to_index_in_groupby" : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]},
 
                 ),
@@ -1706,9 +1704,7 @@ sblar_schema = DataFrameSchema(
                              "po_4_gender_flag"],
                     condition_values=["4"],
                     sub_conditions = {"is_equal_to_values" :['', '', '', '', '', '', '', '', '', '', '', ''],
-                                    "is_equal_to_index_in_groupby" : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-                                    "is_not_equal_to_values" :[],
-                                    "is_not_equal_to_index_in_groupby" : []},
+                                    "is_equal_to_index_in_groupby" : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],},
 
                 ),
                 
