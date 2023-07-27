@@ -16,6 +16,7 @@ from validator.check_functions import (
     is_greater_than_or_equal_to,
     is_less_than,
     is_number,
+    is_unique_column,
     is_unique_in_field,
     is_valid_code,
     is_valid_enum,
@@ -779,3 +780,22 @@ class TestHasValidFormat:
             )
             is False
         )
+
+
+class TestIsUniqueColumn:
+    single_data_series = pd.Series(["ABC123"], name="id", index=[1])
+    series = pd.Series(["ABC123", "DEF456"], name="id", index=[1, 2])
+    invalid_series = pd.Series(["ABC123", "ABC123"], name="id", index=[1, 2])
+    empty_series = pd.Series([], name="id", index=[])
+
+    def test_with_valid_series(self):
+        assert is_unique_column(self.series) is True
+
+    def test_with_invalid_series(self):
+        assert is_unique_column(self.invalid_series) is False
+
+    def test_with_empty_series(self):
+        assert is_unique_column(self.empty_series) is True
+
+    def test_with_single_data_series(self):
+        assert is_unique_column(self.single_data_series) is True
