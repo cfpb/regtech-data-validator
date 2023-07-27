@@ -685,7 +685,7 @@ def is_less_than(value: str, max_value: str, accept_blank: bool = False) -> bool
     check_result = value < max_value
     return _check_blank_(value, check_result, accept_blank)
 
-def _is_fieldset_equal_to_helper_new(
+def _has_valid_fieldset_pair_equal_to_helper_new(
     current_values: list[str],
     sub_conditions:any = None,
 ) -> bool:
@@ -701,7 +701,7 @@ def _is_fieldset_equal_to_helper_new(
                 return False
     return True
         
-def _is_fieldset_not_equal_to_helper_new(
+def _has_valid_fieldset_pair_not_equal_to_helper_new(
     current_values: list[str],
     sub_conditions:any = None,
 ) -> bool: 
@@ -725,13 +725,14 @@ def has_valid_fieldset_pair_helper(
 ):
     series_validations = {}
     for current_index, current_value in series.items(): 
-        is_equal_to_validation = _is_fieldset_equal_to_helper_new(current_values, sub_conditions)
-        is_not_equal_to_validation = _is_fieldset_not_equal_to_helper_new(current_values, sub_conditions)
+        is_equal_to_validation = _has_valid_fieldset_pair_equal_to_helper_new(current_values, sub_conditions)
+        is_not_equal_to_validation = _has_valid_fieldset_pair_not_equal_to_helper_new(current_values, sub_conditions)
         validation = (
             current_value in condition_values
             and (is_equal_to_validation and is_not_equal_to_validation)
         ) or current_value not in condition_values
-        series_validations[current_index] = validation
+        if (validation is False):
+            series_validations[current_index] = validation
     return series_validations
 
 def has_valid_fieldset_pair(
@@ -805,7 +806,8 @@ def has_valid_fieldset_pair(
             pd.Series(
                 index=main_series.index,
                 name=main_series.name,
-                data= (has_valid_fieldset_pair_helper(values, main_series, condition_values, sub_conditions))
+                data= (has_valid_fieldset_pair_helper(values, main_series, condition_values, sub_conditions)),
+                dtype=bool
             )
         )
     return pd.concat(validation_holder)

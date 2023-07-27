@@ -13,7 +13,6 @@ from check_functions import (has_correct_length,
                              has_valid_multi_field_value_count,
                              has_valid_value_count, is_date, is_date_after,
                              is_date_before_in_days, is_date_in_range,
-                             is_fieldset_equal_to, is_fieldset_not_equal_to,
                              is_greater_than, is_greater_than_or_equal_to,
                              is_less_than, is_number, is_unique_in_field,
                              is_valid_code, is_valid_enum,
@@ -558,7 +557,7 @@ sblar_schema = DataFrameSchema(
                     ],
                 ),
                 SBLCheck(
-                    is_fieldset_equal_to,
+                    has_valid_fieldset_pair,
                     name="pricing_all.conditional_fieldset_conflict",
                     description=(
                         "When 'action taken' equals 3 (denied), "
@@ -581,13 +580,13 @@ sblar_schema = DataFrameSchema(
                          "pricing_origination_charges",
                          "pricing_broker_fees",
                          "pricing_initial_charges"],
-                        
-
-                    equal_to_values=["999", "999", "999", "999", "", "", ""],
                     condition_values=["3", "4", "5"],
+                    sub_conditions = 
+                    {"is_not_equal_to_values" :["999", "999", "999", "999", "", "", ""],
+                    "is_not_equal_to_index_in_groupby" : [0, 1, 2, 3, 4, 5, 6]},
                 ),
                 SBLCheck(
-                    is_fieldset_not_equal_to,
+                    has_valid_fieldset_pair,
                     name="pricing_charges.conditional_fieldset_conflict",
                     description=(
                         "When 'action taken' equals 1 (originated)"
@@ -607,8 +606,9 @@ sblar_schema = DataFrameSchema(
                         "pricing_prepenalty_allowed",
                         "pricing_prepenalty_exists",
                     ],
-                    not_equal_to_values=["", "", "", "999", "999"],
                     condition_values=["1", "2"],
+                    sub_conditions = {"is_equal_to_values" :["", "", "", "999", "999"],
+                                    "is_equal_to_index_in_groupby" : [0, 1, 2, 3, 4]},
                 ),
             ],
         ),
@@ -1593,10 +1593,9 @@ sblar_schema = DataFrameSchema(
                              "po_4_ethnicity", 
                              "po_4_race",
                              "po_4_gender_flag"],
-                    condition_values=["0", ""],
+                    condition_values=["0", ''],
                     sub_conditions = {"is_not_equal_to_values" :['', '', '','', '', '', '', '', '', '', '', ''],
                                     "is_not_equal_to_index_in_groupby" : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]},
-
                 ),
                 SBLCheck(
                     has_valid_fieldset_pair,
@@ -1624,7 +1623,6 @@ sblar_schema = DataFrameSchema(
                                     "is_equal_to_index_in_groupby" : [0, 1, 2],
                                     "is_not_equal_to_values" :['', '', '', '', '', '', '' ,'', ''],
                                     "is_not_equal_to_index_in_groupby" : [3, 4, 5, 6, 7, 8, 9, 10, 11]},
-
                 ),
                 SBLCheck(
                     has_valid_fieldset_pair,
