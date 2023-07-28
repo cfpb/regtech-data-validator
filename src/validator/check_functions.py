@@ -689,3 +689,49 @@ def is_less_than(value: str, max_value: str, accept_blank: bool = False) -> bool
 
 def has_valid_format(value: str, regex: str, accept_blank: bool = False) -> bool:
     return _check_blank_(value, bool(re.match(regex, value)), accept_blank)
+
+
+def is_unique_column(grouped_data: Dict[any, pd.Series]) -> (bool, Dict[str, bool]):
+    """
+    check if a series values does not have duplicates.
+    return overall status check, and detailed dictionary of index and uniqueness
+    example:
+        if return value is (False, {1:True, 2:False, 3:False})
+        then:
+            overall validation is FAILED or False
+            index 1 value is unique, and index 2 and 3 values are NOT unique
+
+    Args:
+        grouped_data (Dict[any, pd.Series]): Parsed series
+
+    Returns:
+        (bool, Dict[str, bool]): validation result tuple(index, uniqueness)
+    """
+    # reversed dictionary to find non-unique LEI/UID
+    reversed = {}
+    for index, value in grouped_data.items():
+        reversed.setdefault(value, set()).add(index)
+
+    # filter reversed to get entry's index with duplicate UID
+    non_unique_indexes = sum(
+        [list(indexes) for _, indexes in reversed.items() if len(indexes) > 1], []
+    )
+
+    # overall validation result
+    validation_result = len(non_unique_indexes) == 0
+
+    # default result
+    result = {}
+
+    # if validation is failed then we should return index list with
+    # its uniqueness value/status
+    if validation_result == False:
+        # create default result dict (index -> bool)
+        result = dict.fromkeys(grouped_data.keys(), True)
+
+        # update default result's indexes to false if the index is not -unique
+        for non_unique_index in non_unique_indexes:
+            result.update({non_unique_index: False})
+
+    # return overall validation result and list of each index validation result
+    return (len(non_unique_indexes) == 0, result)

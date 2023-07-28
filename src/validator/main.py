@@ -8,6 +8,7 @@ Run from the terminal to see the generated output.
 import sys
 
 import pandas as pd
+from check_functions import is_unique_column
 from pandera.errors import SchemaErrors
 from schema import sblar_schema
 
@@ -29,6 +30,11 @@ def run_validation_on_df(df: pd.DataFrame) -> None:
     print("")
 
     try:
+        uid_uniqueness_check = is_unique_column(df.uid)
+        if uid_uniqueness_check[0] == False:
+            print(f"Validation uid.duplicates_in_dataset failed")
+            print(uid_uniqueness_check[1])
+            print("")
         sblar_schema(df, lazy=True)
     except SchemaErrors as errors:
         for error in errors.schema_errors:
@@ -57,6 +63,6 @@ if __name__ == "__main__":
         csv_path = sys.argv[1]
     except IndexError:
         raise ValueError("csv_path arg not provided")
-    
+
     df = csv_to_df(csv_path)
     run_validation_on_df(df)
