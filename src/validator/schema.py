@@ -43,6 +43,7 @@ sblar_schema = DataFrameSchema(
         "uid": Column(
             str,
             title="Field 1: Unique identifier",
+            unique=True,
             checks=[
                 SBLCheck.str_length(
                     21,

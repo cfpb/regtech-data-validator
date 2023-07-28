@@ -11,6 +11,9 @@ sys.path.append(ROOT_DIR)  # noqa: E402
 
 from config import CENSUS_PROCESSED_CSV_PATH, NAICS_CSV_PATH  # noqa: E402
 
+FIELD_UNIQUENESS = {"uid": "uid.duplicates_in_dataset"}
+FIELD_UNIQUENESS_KEYWORD = "field_uniqueness"
+
 naics_codes = {}
 
 # global variable for geoids

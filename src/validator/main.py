@@ -8,6 +8,7 @@ Run from the terminal to see the generated output.
 import sys
 
 import pandas as pd
+from global_data import FIELD_UNIQUENESS, FIELD_UNIQUENESS_KEYWORD
 from pandera.errors import SchemaErrors
 from schema import sblar_schema
 
@@ -46,7 +47,13 @@ def run_validation_on_df(df: pd.DataFrame) -> None:
                 # this is just a string that we'd need to parse manually
                 check_output = error["error"].args[0]
 
-            print(f"Validation `{check_name}` failed for column `{column_name}`")
+            if (
+                check_name == FIELD_UNIQUENESS_KEYWORD
+                and FIELD_UNIQUENESS.get(column_name) is not None
+            ):
+                check_name = FIELD_UNIQUENESS.get(column_name)
+
+            print(f"Validation `{check_name}` failed 2 for column `{column_name}`")
             print(check_output)
             print("")
 
@@ -57,6 +64,6 @@ if __name__ == "__main__":
         csv_path = sys.argv[1]
     except IndexError:
         raise ValueError("csv_path arg not provided")
-    
+
     df = csv_to_df(csv_path)
     run_validation_on_df(df)
