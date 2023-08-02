@@ -48,6 +48,7 @@ phase_1_and_2_validations = {
                     "Any 'unique identifier' may not be used in more than one "
                     "record within a small business lending application register."
                 ),
+                groupby="uid",
             ),
             SBLCheck.str_length(
                 21,
