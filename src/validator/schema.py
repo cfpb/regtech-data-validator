@@ -19,8 +19,6 @@ from check_functions import (
     is_date_after,
     is_date_before_in_days,
     is_date_in_range,
-    is_fieldset_equal_to,
-    is_fieldset_not_equal_to,
     is_greater_than,
     is_greater_than_or_equal_to,
     is_less_than,
@@ -948,8 +946,8 @@ sblar_schema = DataFrameSchema(
                     name="pricing_adj_margin.conditional_field_conflict",
                     description=(
                         "When 'interest rate type' does not equal 1"
-                        " (adjustable interest rate, no initial rate period),"
-                        " 3 (initial rate period > 12 months, adjustable interest rate),"
+                        " (adjustable interest rate, no initial rate period), 3 "
+                        "(initial rate period > 12 months, adjustable interest rate),"
                         " or 5 (initial rate period <= 12 months, variable interest"
                         " rate), 'adjustable rate transaction: margin' must be blank."
                         " When 'interest rate type' equals 1, 3, or 5, 'variable"
@@ -979,8 +977,8 @@ sblar_schema = DataFrameSchema(
                     is_valid_enum,
                     name="pricing_adj_index_name.invalid_enum_value",
                     description=(
-                        "'Adjustable rate transaction: index name' must equal 1, 2, 3, 4,"
-                        "5, 6, 7, 8, 9, 10, 977, or 999."
+                        "'Adjustable rate transaction: index name' must equal 1, 2, 3,"
+                        " 4,5, 6, 7, 8, 9, 10, 977, or 999."
                     ),
                     element_wise=True,
                     accepted_values=[
@@ -1005,8 +1003,8 @@ sblar_schema = DataFrameSchema(
                         "When 'interest rate type' does not equal 1 (variable interest"
                         "rate, no initial rate period), 3 (initial rate period > 12"
                         "months, adjustable interest rate), or 5 (initial rate"
-                        "period <= 12 months, adjustable interest rate), 'adjustable rate"
-                        "transaction: index name' must equal 999."
+                        "period <= 12 months, adjustable interest rate), 'adjustable"
+                        " rate transaction: index name' must equal 999."
                         "When 'interest rate type' equals 1, 3, or 5, 'adjustable rate"
                         "transaction: index name' must not equal 999."
                     ),
@@ -1038,8 +1036,8 @@ sblar_schema = DataFrameSchema(
                     max_value=300,
                     name="pricing_adj_index_name_ff.invalid_text_length",
                     description=(
-                        "'Adjustable rate transaction: index name: other' must not exceed"
-                        "300 characters in length."
+                        "'Adjustable rate transaction: index name: other' must "
+                        "not exceed 300 characters in length."
                     ),
                 ),
                 SBLCheck(
@@ -1692,9 +1690,10 @@ sblar_schema = DataFrameSchema(
                     name="po_demographics_1.conditional_fieldset_conflict",
                     description=(
                         "When 'number of principal owners' equals 1, "
-                        "'ethnicity of principal owner 1', 'race of principal owner 1', "
-                        "and 'sex/gender of principal owner 1: NP flag' should not be blank."
-                        "Demographic fields for principal owners 2, 3, and 4 should be blank."
+                        "'ethnicity of principal owner 1', 'race of principal owner 1',"
+                        " and 'sex/gender of principal owner 1: NP flag' should not be"
+                        " blank. Demographic fields for principal owners 2, 3, and 4 "
+                        "should be blank."
                     ),
                     groupby=[
                         "po_1_ethnicity",
@@ -1731,8 +1730,9 @@ sblar_schema = DataFrameSchema(
                     name="po_demographics_2.conditional_fieldset_conflict",
                     description=(
                         "When 'number of principal owners' equals 2, "
-                        "'ethnicity of principal owner 1 and 2', 'race of principal owner 1 and 2', "
-                        "and 'sex/gender of principal owner 1 and 2: NP flag' should not be blank."
+                        "'ethnicity of principal owner 1 and 2', 'race of principal "
+                        "owner 1 and 2', and 'sex/gender of principal owner 1 and 2: "
+                        "NP flag' should not be blank."
                     ),
                     groupby=[
                         "po_1_ethnicity",
@@ -1769,9 +1769,10 @@ sblar_schema = DataFrameSchema(
                     name="po_demographics_3.conditional_fieldset_conflict",
                     description=(
                         "When 'number of principal owners' equals 3, "
-                        "'ethnicity of principal owner 1, 2, and 3', 'race of principal owner 1, 2, and 3', "
-                        "and 'sex/gender of principal owner 1, 2, and 3: NP flag' should not be blank."
-                        "Demographic fields for principal owner 4 should be blank."
+                        "'ethnicity of principal owner 1, 2, and 3', 'race of principal"
+                        " owner 1, 2, and 3', and 'sex/gender of principal owner 1, 2, "
+                        "and 3: NP flag' should not be blank. Demographic fields for "
+                        "principal owner 4 should be blank."
                     ),
                     groupby=[
                         "po_1_ethnicity",
@@ -1810,7 +1811,8 @@ sblar_schema = DataFrameSchema(
                         "When 'number of principal owners' equals 4, "
                         "'ethnicity of principal owner 1, 2, 3, and 4', "
                         "'race of principal owner 1, 2, 3, and 4', "
-                        "and 'sex/gender of principal owner 1, 2, 3, and 4: NP flag' should not be blank."
+                        "and 'sex/gender of principal owner 1, 2, 3, and 4: NP flag'"
+                        " should not be blank."
                     ),
                     groupby=[
                         "po_1_ethnicity",

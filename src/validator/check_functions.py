@@ -756,9 +756,9 @@ def has_valid_fieldset_pair(
     Args:
         grouped_data (Dict[list[str], pd.Series]): parsed data provided by pandera
         condition_values (list[str]): list of value to be compared to main series
-        is_eq_and_not_eq_values list[(bool, str)]: list of tuple, where the first value in
-        the tuple should be either "True" or "False", the second value should be the target
-        value for the fields passed in the groupby function.
+        is_eq_and_not_eq_values list[(bool, str)]: list of tuple, where the first
+        value in he tuple should be either "True" or "False", the second value
+        should be the target value for the fields passed in the groupby function.
         The number of tuples in the list should match the number of fields passed in the
         groupby function.
         For example:
