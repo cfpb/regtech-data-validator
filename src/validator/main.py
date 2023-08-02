@@ -57,6 +57,6 @@ if __name__ == "__main__":
         csv_path = sys.argv[1]
     except IndexError:
         raise ValueError("csv_path arg not provided")
-    
+
     df = csv_to_df(csv_path)
     run_validation_on_df(df)

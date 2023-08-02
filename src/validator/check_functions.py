@@ -570,6 +570,7 @@ def _is_fieldset_not_equal_to_helper(
         series_validations[current_index] = validation
     return series_validations
 
+
 def is_fieldset_not_equal_to(
     grouped_data: Dict[any, pd.Series],
     condition_values: list[str],
@@ -685,60 +686,60 @@ def is_less_than(value: str, max_value: str, accept_blank: bool = False) -> bool
     check_result = value < max_value
     return _check_blank_(value, check_result, accept_blank)
 
-def _has_valid_fieldset_pair_equal_to_helper_new(
+
+def _get_has_valid_fieldset_pair_eq_neq_validation_value(
     current_values: list[str],
-    sub_conditions:any = None,
+    is_eq_and_not_eq_values: list[(str, str)] = None,
 ) -> bool:
-    if 'is_equal_to_values' in sub_conditions:
-        is_equal_to_target_values = sub_conditions['is_equal_to_values']
-        is_equal_to_index_in_groupby = sub_conditions['is_equal_to_index_in_groupby']
-        is_equal_to_current_values = []
-        for is_eq_index in is_equal_to_index_in_groupby:
-            is_equal_to_current_values.append(current_values[is_eq_index])
-    
-        for index, current_value in enumerate(is_equal_to_current_values):
-            if (current_value == is_equal_to_target_values[index]):
+    for index, condition in enumerate(is_eq_and_not_eq_values):
+        if condition[0] == "eq":
+            # if received value equals target value, then returns False (Warning)
+            if current_values[index] == condition[1]:
                 return False
-    return True
-        
-def _has_valid_fieldset_pair_not_equal_to_helper_new(
-    current_values: list[str],
-    sub_conditions:any = None,
-) -> bool: 
-    if 'is_not_equal_to_values' in sub_conditions:
-        is_not_equal_to_target_values = sub_conditions['is_not_equal_to_values']
-        is_not_equal_to_index_in_groupby = sub_conditions['is_not_equal_to_index_in_groupby']
-        is_not_equal_to_current_values = []
-        for is_not_eq_index in is_not_equal_to_index_in_groupby:
-            is_not_equal_to_current_values.append(current_values[is_not_eq_index])
-        
-        for index, current_value in enumerate(is_not_equal_to_current_values):
-            if (current_value != is_not_equal_to_target_values[index]): 
+        else:
+            # if received value does not equal target value, then returns False (Warning)
+            if current_values[index] != condition[1]:
                 return False
+    # By default returns True (No Warning and fieldset pair is VALID)
     return True
 
-def has_valid_fieldset_pair_helper(
+
+def _has_valid_fieldset_pair_helper(
     current_values: list[str],
     series: pd.Series,
     condition_values: list[str],
-    sub_conditions:any = None
+    is_eq_and_not_eq_values: list[(str, str)] = None,
 ):
     series_validations = {}
-    for current_index, current_value in series.items(): 
-        is_equal_to_validation = _has_valid_fieldset_pair_equal_to_helper_new(current_values, sub_conditions)
-        is_not_equal_to_validation = _has_valid_fieldset_pair_not_equal_to_helper_new(current_values, sub_conditions)
+    for current_index, current_value in series.items():
+        """Getting the validation result for comparing current_values to the
+        is_eq_and_not_eq_values (target values)"""
+        has_valid_fieldset_pair_eq_neq_validation_value = (
+            _get_has_valid_fieldset_pair_eq_neq_validation_value(
+                current_values, is_eq_and_not_eq_values
+            )
+        )
+        """
+        If current_value is in condition_values AND
+        has_valid_fieldset_pair_eq_neq_validation_value is True, 
+        then fieldset pair is valid (True). 
+
+        If current_value is in condition_values AND
+        has_valid_fieldset_pair_eq_neq_validation_value is False, 
+        then fieldset pair is NOT valid (False). 
+        """
         validation = (
             current_value in condition_values
-            and (is_equal_to_validation and is_not_equal_to_validation)
+            and has_valid_fieldset_pair_eq_neq_validation_value
         ) or current_value not in condition_values
-        if (validation is False):
-            series_validations[current_index] = validation
+        series_validations[current_index] = validation
     return series_validations
+
 
 def has_valid_fieldset_pair(
     grouped_data: Dict[any, pd.Series],
     condition_values: list[str],
-    sub_conditions:any = None
+    is_eq_and_not_eq_values: list[(str, str)] = None,
 ) -> pd.Series:
     """conditional check to verify if groups of fields equal to specific
         values (equal_to_values) when another field is set/equal to
@@ -751,52 +752,52 @@ def has_valid_fieldset_pair(
     Args:
         grouped_data (Dict[list[str], pd.Series]): parsed data provided by pandera
         condition_values (list[str]): list of value to be compared to main series
-        sub_conditions (dict): key-value pairs where the key is string and values is list
-        sub_conditions example:
-        Pandas groupby only returns the value of each field passed to the groupby.
-        If we have more than one field passed to the groupby, then with only values, 
-        we can't tell which field each value belongs to, therefore we need to pass the
-        indexes to know which field the value belongs to so we can apply the conditions to.
-        For example, for this validation:
-        IF num_principal_owners is equal to 1 THEN 
-            IF (po_1_ethnicity, po_1_race, OR po_1_gender_flag) is blank THEN 
-                Warning 
-            ENDIF 
-            IF (po_2_ethnicity, po_2_race, po_2_gender_flag, 
-                po_3_ethnicity, po_3_race, po_3_gender_flag, 
-                po_4_ethnicity, po_4_race, OR po_4_gender_flag) is not blank THEN 
-                Warning 
-            ENDIF 
-        ENDIF 
-        The groupby function returns the values for the follwing fields:
+        is_eq_and_not_eq_values list[(str, str)]: list of tuple, where the first value in
+        the tuple should be either "eq" or "neq", the second value should be the target
+        value for the fields passed in the groupby function.
+        The number of tuples in the list should match the number of fields passed in the
+        groupby function.
+        For example:
+        If the groupby function returns the values for the follwing fields:
         po_1_ethnicity, po_1_race, OR po_1_gender_flag,
-        po_2_ethnicity, po_2_race, po_2_gender_flag, 
-        po_3_ethnicity, po_3_race, po_3_gender_flag, 
+        po_2_ethnicity, po_2_race, po_2_gender_flag,
+        po_3_ethnicity, po_3_race, po_3_gender_flag,
         po_4_ethnicity, po_4_race, OR po_4_gender_flag
-        The sub_conditions will determine which values the first condition 
-        will be applied to and which values the second condition will be applied to. 
-        In this case:
-        sub_conditions = 
-            {"is_equal_to_values" :['', '', ''],
-            "is_equal_to_index_in_groupby" : [0, 1, 2],
-            "is_not_equal_to_values" :['', '', '', '', '', '', '', '', ''],
-            "is_not_equal_to_index_in_groupby" : [3, 4, 5, 6, 7, 8, 9, 10, 11]}
-        The first conditon is checking for "is blank", therefore "is_equal_to_values" 
-        should be set to ['', '', ''], and "is_equal_to_index_in_groupby" should list 
-        the indexes of the fields passed in the groupby function.
-        The second condition is checking for "is not blank", therefore the values
-        for "is_not_equal_to_values" and "is_not_equal_to_index_in_groupby" should be set.
-        In case, there in only one condition, then only one condition set can be added.
-        For exmaple in this case:
-        IF num_principal_owners is equal to 0 OR is blank THEN 
-            IF (po_1_ethnicity, po_1_race, po_1_gender_flag) is not blank THEN 
-                    Warning 
-            ENDIF 
-        ENDIF 
-        The sub_conditions would be:
-        sub_conditions = 
-            {"is_not_equal_to_values" :['', '', ''],
-            "is_not_equal_to_index_in_groupby" : [0, 1, 2]}
+
+        Then the is_eq_and_not_eq_values should include the condition (eq or neq)
+        and the target value for each of the field passed in the groupby function.
+        Each tuple represents each field in the groupby function. Their indexes should
+        be the same.
+
+        If the condition is:
+
+        IF num_principal_owners is equal to 1 THEN
+            IF (po_1_ethnicity, po_1_race, OR po_1_gender_flag) is blank THEN
+                    Warning
+            ENDIF
+            IF (po_2_ethnicity, po_2_race, po_2_gender_flag,
+                po_3_ethnicity, po_3_race, po_3_gender_flag,
+                po_4_ethnicity, po_4_race, OR po_4_gender_flag) is not blank THEN
+                    Warning
+            ENDIF
+        ENDIF
+
+        Then the is_eq_and_not_eq_values would be:
+
+        is_eq_and_not_eq_values=[
+                        ("eq", ""),
+                        ("eq", ""),
+                        ("eq", ""),
+                        ("neq", ""),
+                        ("neq", ""),
+                        ("neq", ""),
+                        ("neq", ""),
+                        ("neq", ""),
+                        ("neq", ""),
+                        ("neq", ""),
+                        ("neq", ""),
+                        ("neq", ""),
+                    ],
     Returns:
         pd.Series: list of series with update validations
     """
@@ -806,8 +807,12 @@ def has_valid_fieldset_pair(
             pd.Series(
                 index=main_series.index,
                 name=main_series.name,
-                data= (has_valid_fieldset_pair_helper(values, main_series, condition_values, sub_conditions)),
-                dtype=bool
+                data=(
+                    _has_valid_fieldset_pair_helper(
+                        values, main_series, condition_values, is_eq_and_not_eq_values
+                    )
+                ),
+                dtype=bool,
             )
         )
     return pd.concat(validation_holder)
