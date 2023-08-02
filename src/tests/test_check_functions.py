@@ -1,21 +1,26 @@
 import pandas as pd
 
 from validator import global_data
-from validator.check_functions import (denial_reasons_conditional_enum_value,
-                                       has_correct_length,
-                                       has_no_conditional_field_conflict,
-                                       has_valid_enum_pair,
-                                       has_valid_fieldset_pair,
-                                       has_valid_multi_field_value_count,
-                                       has_valid_value_count, is_date,
-                                       is_fieldset_equal_to,
-                                       is_fieldset_not_equal_to,
-                                       is_greater_than,
-                                       is_greater_than_or_equal_to,
-                                       is_less_than, is_number,
-                                       is_unique_in_field, is_valid_code,
-                                       is_valid_enum,
-                                       meets_multi_value_field_restriction)
+from validator.check_functions import (
+    denial_reasons_conditional_enum_value,
+    has_correct_length,
+    has_no_conditional_field_conflict,
+    has_valid_enum_pair,
+    has_valid_fieldset_pair,
+    has_valid_multi_field_value_count,
+    has_valid_value_count,
+    is_date,
+    is_fieldset_equal_to,
+    is_fieldset_not_equal_to,
+    is_greater_than,
+    is_greater_than_or_equal_to,
+    is_less_than,
+    is_number,
+    is_unique_in_field,
+    is_valid_code,
+    is_valid_enum,
+    meets_multi_value_field_restriction,
+)
 
 
 class TestInvalidDateFormat:
@@ -727,124 +732,129 @@ class TestIsLessThan:
     def test_with_invalid_blank_space(self):
         assert is_less_than("", "1") is False
         assert is_less_than(" ", "1") is False
-        
+
+
 class TestHasValidFieldsetPair:
-    
     def test_with_correct_is_not_equal_condition(self):
-        
         condition_values = ["0", ""]
-        sub_conditions = {
-            "is_not_equal_to_values" :["", "", ""],
-            "is_not_equal_to_index_in_groupby" : [0, 1, 2]
-            }
+        is_eq_and_not_eq_values = [
+            ("neq", ""),
+            ("neq", ""),
+            ("neq", ""),
+        ]
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["", "", ""])
-        #since is_not_equal_to_values is set, if any of the grouped_by value is NOT blank,
-        #should return False. Here we are passing blanks in groupby_values,
-        # therefore, it must return True.  
+        # since is_not_equal_to_values is set, if any of the grouped_by value is NOT blank,
+        # should return False. Here we are passing blanks in groupby_values,
+        # therefore, it must return True.
         result1 = has_valid_fieldset_pair(
-            {groupby_values: series}, condition_values, sub_conditions
+            {groupby_values: series}, condition_values, is_eq_and_not_eq_values
         )
         assert result1.values == [True]
 
     def test_with_correct_is_equal_condition(self):
         condition_values = ["0", ""]
-        sub_conditions = {
-            "is_equal_to_values" :["", "", ""],
-            "is_equal_to_index_in_groupby" : [0, 1, 2]
-            }
+        is_eq_and_not_eq_values = [
+            ("eq", ""),
+            ("eq", ""),
+            ("eq", ""),
+        ]
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["999", "999", "0"])
-        #since is_equal_to_values is set, if any of the grouped_by value is blank,
-        #should return False. Here we are passing non-blanks in groupby_values,
-        # therefore, it must return Ture.  
+        # since is_equal_to_values is set, if any of the grouped_by value is blank,
+        # should return False. Here we are passing non-blanks in groupby_values,
+        # therefore, it must return Ture.
         result1 = has_valid_fieldset_pair(
-            {groupby_values: series}, condition_values, sub_conditions
+            {groupby_values: series}, condition_values, is_eq_and_not_eq_values
         )
         assert result1.values == [True]
-        
+
     def test_with_correct_is_equal_and_not_equal_conditions(self):
         condition_values = ["0", ""]
-        sub_conditions = {
-            "is_equal_to_values" :["", ""],
-            "is_equal_to_index_in_groupby" : [3, 4],
-            "is_not_equal_to_values" :["999", "999", "0"],
-            "is_not_equal_to_index_in_groupby" : [0, 1, 2]
-            }
+        is_eq_and_not_eq_values = [
+            ("neq", "999"),
+            ("neq", "999"),
+            ("neq", "0"),
+            ("eq", ""),
+            ("eq", ""),
+        ]
+
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["999", "999", "0", "1", "2"])
-        #In this case, if the groupby_values in indexes 3 and 4 are NOT blank 
+        # In this case, if the groupby_values in indexes 3 and 4 are NOT blank
         # and values in indexes 0, 1, 2 ARE EQUAL to 999, 999, or 0, then should retrun TRUE.
         result1 = has_valid_fieldset_pair(
-            {groupby_values: series}, condition_values, sub_conditions
+            {groupby_values: series}, condition_values, is_eq_and_not_eq_values
         )
         assert result1.values == [True]
 
     def test_with_value_not_in_condition_values(self):
         condition_values = ["0", ""]
-        sub_conditions = {
-            "is_equal_to_values" :["", ""],
-            "is_equal_to_index_in_groupby" : [3, 4],
-            "is_not_equal_to_values" :["999", "999", "0"],
-            "is_not_equal_to_index_in_groupby" : [0, 1, 2]
-            }
-        series = pd.Series(["0"], name="num_principal_owners", index=[1])
+        is_eq_and_not_eq_values = [
+            ("neq", "999"),
+            ("neq", "999"),
+            ("neq", "0"),
+            ("eq", "1"),
+            ("eq", "2"),
+        ]
+
+        series = pd.Series(["2"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["999", "999", "0", "1", "2"])
-        #If a value is NOT in condition_values, then just return True
+        # If a value is NOT in condition_values, then just return True
         result1 = has_valid_fieldset_pair(
-            {groupby_values: series}, condition_values, sub_conditions
+            {groupby_values: series}, condition_values, is_eq_and_not_eq_values
         )
         assert result1.values == [True]
-            
+
     def test_with_incorrect_is_not_equal_condition(self):
-            
-            condition_values = ["0", ""]
-            sub_conditions = {
-                "is_not_equal_to_values" :['', '', ''],
-                "is_not_equal_to_index_in_groupby" : [0, 1, 2]
-                }
-            series = pd.Series(["0"], name="num_principal_owners", index=[1])
-            groupby_values = tuple(["999", "999", "999"])
-            #since is_not_equal_to_values is set, if any of the grouped_by value is NOT blank,
-            #should return False. 
-            result1 = has_valid_fieldset_pair(
-                {groupby_values: series}, condition_values, sub_conditions
-            )
-            assert result1.values == [False]
+        condition_values = ["0", ""]
+        is_eq_and_not_eq_values = [
+            ("neq", ""),
+            ("neq", ""),
+            ("neq", ""),
+        ]
+
+        series = pd.Series(["0"], name="num_principal_owners", index=[1])
+        groupby_values = tuple(["999", "999", "999"])
+        # since is_not_equal_to_values is set, if any of the grouped_by value is NOT blank,
+        # should return False.
+        result1 = has_valid_fieldset_pair(
+            {groupby_values: series}, condition_values, is_eq_and_not_eq_values
+        )
+        assert result1.values == [False]
 
     def test_with_incorrect_is_equal_condition(self):
         condition_values = ["0", ""]
-        sub_conditions = {
-            "is_equal_to_values" :["", "", ""],
-            "is_equal_to_index_in_groupby" : [0, 1, 2]
-            }
+        is_eq_and_not_eq_values = [
+            ("eq", ""),
+            ("eq", ""),
+            ("eq", ""),
+        ]
+
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["", "", ""])
-        #since is_equal_to_values is set, if any of the grouped_by value is blank,
-        #should return False.  
+        # since is_equal_to_values is set, if any of the grouped_by value is blank,
+        # should return False.
         result1 = has_valid_fieldset_pair(
-            {groupby_values: series}, condition_values, sub_conditions
+            {groupby_values: series}, condition_values, is_eq_and_not_eq_values
         )
         assert result1.values == [False]
-            
+
     def test_with_incorrect_is_equal_and_not_equal_conditions(self):
         condition_values = ["0", ""]
-        sub_conditions = {
-            "is_equal_to_values" :["", ""],
-            "is_equal_to_index_in_groupby" : [3, 4],
-            "is_not_equal_to_values" :["999", "999", "0"],
-            "is_not_equal_to_index_in_groupby" : [0, 1, 2]
-            }
+        is_eq_and_not_eq_values = [
+            ("neq", "999"),
+            ("neq", "999"),
+            ("neq", "0"),
+            ("eq", ""),
+            ("eq", ""),
+        ]
+
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["", "", "3", "4", "5"])
-        #In this case, if the groupby_values in indexes 3 and 4 are blank 
+        # In this case, if the groupby_values in indexes 3 and 4 are blank
         # and values in indexes 0, 1, 2 ARE NOT EQUAL to 999, 999, or 0, then should retrun False.
         result1 = has_valid_fieldset_pair(
-            {groupby_values: series}, condition_values, sub_conditions
+            {groupby_values: series}, condition_values, is_eq_and_not_eq_values
         )
         assert result1.values == [False]
-    
-        
-
-
-    
