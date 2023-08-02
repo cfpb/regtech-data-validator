@@ -53,7 +53,7 @@ def run_validation_on_df(df: pd.DataFrame) -> None:
             ):
                 check_name = FIELD_UNIQUENESS.get(column_name)
 
-            print(f"Validation `{check_name}` failed 2 for column `{column_name}`")
+            print(f"Validation `{check_name}` failed for column `{column_name}`")
             print(check_output)
             print("")
 
