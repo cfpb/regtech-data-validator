@@ -695,14 +695,14 @@ def _get_has_valid_fieldset_pair_eq_neq_validation_value(
     current_values: list[str],
     is_eq_and_not_eq_values: list[(str, str)] = None,
 ) -> bool:
-    for index, condition in enumerate(is_eq_and_not_eq_values):
-        if condition[0] == "eq":
+    for index, (equal_to, target_value) in enumerate(is_eq_and_not_eq_values):
+        if equal_to is True:
             # if received value equals target value, then returns False (Warning)
-            if current_values[index] == condition[1]:
+            if current_values[index] != target_value:
                 return False
         else:
             # if received value does not equal target value, then returns False (Warning)
-            if current_values[index] != condition[1]:
+            if current_values[index] == target_value:
                 return False
     # By default returns True (No Warning and fieldset pair is VALID)
     return True
@@ -712,7 +712,7 @@ def _has_valid_fieldset_pair_helper(
     current_values: list[str],
     series: pd.Series,
     condition_values: list[str],
-    is_eq_and_not_eq_values: list[(str, str)] = None,
+    is_eq_and_not_eq_values: list[(bool, str)] = None,
 ):
     series_validations = {}
     for current_index, current_value in series.items():
@@ -743,7 +743,7 @@ def _has_valid_fieldset_pair_helper(
 def has_valid_fieldset_pair(
     grouped_data: Dict[any, pd.Series],
     condition_values: list[str],
-    is_eq_and_not_eq_values: list[(str, str)] = None,
+    is_eq_and_not_eq_values: list[(bool, str)] = None,
 ) -> pd.Series:
     """conditional check to verify if groups of fields equal to specific
         values (equal_to_values) when another field is set/equal to

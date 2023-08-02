@@ -555,72 +555,72 @@ phase_1_and_2_validations = {
         ],
         "phase_2": [
             SBLCheck(
-                    has_valid_fieldset_pair,
-                    name="pricing_all.conditional_fieldset_conflict",
-                    description=(
-                        "When 'action taken' equals 3 (denied), "
-                        "4 (withdrawn by applicant), or 5 "
-                        "(incomplete), the following fields must"
-                        " all equal 999 (not applicable): "
-                        "'Interest rate type', 'MCA/sales-based: "
-                        "additional cost for merchant cash advances"
-                        " or other sales-based financing: NA flag', "
-                        "'Prepayment penalty could be imposed', "
-                        "'Prepayment penalty exists'). And the "
-                        " following fields must all be blank: "
-                        "'Total origination charges', 'Amount of "
-                        "total broker fees', 'Initial annual charges'"
-                    ),
-                    groupby=[
-                        "pricing_interest_rate_type",
-                        "pricing_mca_addcost_flag",
-                        "pricing_prepenalty_allowed",
-                        "pricing_prepenalty_exists",
-                        "pricing_origination_charges",
-                        "pricing_broker_fees",
-                        "pricing_initial_charges",
-                    ],
-                    condition_values=["3", "4", "5"],
-                    is_eq_and_not_eq_values=[
-                        ("neq", "999"),
-                        ("neq", "999"),
-                        ("neq", "999"),
-                        ("neq", "999"),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                    ],
+                has_valid_fieldset_pair,
+                name="pricing_all.conditional_fieldset_conflict",
+                description=(
+                    "When 'action taken' equals 3 (denied), "
+                    "4 (withdrawn by applicant), or 5 "
+                    "(incomplete), the following fields must"
+                    " all equal 999 (not applicable): "
+                    "'Interest rate type', 'MCA/sales-based: "
+                    "additional cost for merchant cash advances"
+                    " or other sales-based financing: NA flag', "
+                    "'Prepayment penalty could be imposed', "
+                    "'Prepayment penalty exists'). And the "
+                    " following fields must all be blank: "
+                    "'Total origination charges', 'Amount of "
+                    "total broker fees', 'Initial annual charges'"
                 ),
-                SBLCheck(
-                    has_valid_fieldset_pair,
-                    name="pricing_charges.conditional_fieldset_conflict",
-                    description=(
-                        "When 'action taken' equals 1 (originated)"
-                        " or 2 (approved but not accepted), the "
-                        "following fields all must not be blank: "
-                        "'Total origination charges', 'Amount of "
-                        "total broker fees', 'Initial annual "
-                        "charges'. And the following fields must "
-                        "not equal 999 (not applicable): 'Prepayment "
-                        "penalty could be imposed', 'Prepayment "
-                        "penalty exists'"
-                    ),
-                    groupby=[
-                        "pricing_origination_charges",
-                        "pricing_broker_fees",
-                        "pricing_initial_charges",
-                        "pricing_prepenalty_allowed",
-                        "pricing_prepenalty_exists",
-                    ],
-                    condition_values=["1", "2"],
-                    is_eq_and_not_eq_values=[
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", "999"),
-                        ("eq", "999"),
-                    ],
+                groupby=[
+                    "pricing_interest_rate_type",
+                    "pricing_mca_addcost_flag",
+                    "pricing_prepenalty_allowed",
+                    "pricing_prepenalty_exists",
+                    "pricing_origination_charges",
+                    "pricing_broker_fees",
+                    "pricing_initial_charges",
+                ],
+                condition_values=["3", "4", "5"],
+                is_eq_and_not_eq_values=[
+                    (True, "999"),
+                    (True, "999"),
+                    (True, "999"),
+                    (True, "999"),
+                    (True, ""),
+                    (True, ""),
+                    (True, ""),
+                ],
+            ),
+            SBLCheck(
+                has_valid_fieldset_pair,
+                name="pricing_charges.conditional_fieldset_conflict",
+                description=(
+                    "When 'action taken' equals 1 (originated)"
+                    " or 2 (approved but not accepted), the "
+                    "following fields all must not be blank: "
+                    "'Total origination charges', 'Amount of "
+                    "total broker fees', 'Initial annual "
+                    "charges'. And the following fields must "
+                    "not equal 999 (not applicable): 'Prepayment "
+                    "penalty could be imposed', 'Prepayment "
+                    "penalty exists'"
                 ),
+                groupby=[
+                    "pricing_origination_charges",
+                    "pricing_broker_fees",
+                    "pricing_initial_charges",
+                    "pricing_prepenalty_allowed",
+                    "pricing_prepenalty_exists",
+                ],
+                condition_values=["1", "2"],
+                is_eq_and_not_eq_values=[
+                    (False, ""),
+                    (False, ""),
+                    (False, ""),
+                    (False, "999"),
+                    (False, "999"),
+                ],
+            ),
         ],
     },
     "action_taken_date": {
@@ -1443,18 +1443,18 @@ phase_1_and_2_validations = {
                     ],
                     condition_values=["0", ""],
                     is_eq_and_not_eq_values=[
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
                     ],
                 ),
                 SBLCheck(
@@ -1482,18 +1482,18 @@ phase_1_and_2_validations = {
                     ],
                     condition_values=["1"],
                     is_eq_and_not_eq_values=[
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
+                        (False, ""),
+                        (False, ""),
+                        (False, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
                     ],
                 ),
                 SBLCheck(
@@ -1520,18 +1520,18 @@ phase_1_and_2_validations = {
                     ],
                     condition_values=["2"],
                     is_eq_and_not_eq_values=[
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
+                        (False, ""),
+                        (False, ""),
+                        (False, ""),
+                        (False, ""),
+                        (False, ""),
+                        (False, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
                     ],
                 ),
                 SBLCheck(
@@ -1559,18 +1559,18 @@ phase_1_and_2_validations = {
                     ],
                     condition_values=["3"],
                     is_eq_and_not_eq_values=[
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
+                        (False, ""),
+                        (False, ""),
+                        (False, ""),
+                        (False, ""),
+                        (False, ""),
+                        (False, ""),
+                        (False, ""),
+                        (False, ""),
+                        (False, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
                     ],
                 ),
                 SBLCheck(
@@ -1598,18 +1598,18 @@ phase_1_and_2_validations = {
                     ],
                     condition_values=["4"],
                     is_eq_and_not_eq_values=[
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", ""),
+                        (False, ""),
+                        (False, ""),
+                        (False, ""),
+                        (False, ""),
+                        (False, ""),
+                        (False, ""),
+                        (False, ""),
+                        (False, ""),
+                        (False, ""),
+                        (False, ""),
+                        (False, ""),
+                        (False, ""),
                     ],
                 ),
         ],

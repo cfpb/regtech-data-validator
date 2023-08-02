@@ -786,9 +786,9 @@ class TestHasValidFieldsetPair:
     def test_with_correct_is_not_equal_condition(self):
         condition_values = ["0", ""]
         is_eq_and_not_eq_values = [
-            ("neq", ""),
-            ("neq", ""),
-            ("neq", ""),
+            (True, ""),
+            (True, ""),
+            (True, ""),
         ]
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["", "", ""])
@@ -803,9 +803,9 @@ class TestHasValidFieldsetPair:
     def test_with_correct_is_equal_condition(self):
         condition_values = ["0", ""]
         is_eq_and_not_eq_values = [
-            ("eq", ""),
-            ("eq", ""),
-            ("eq", ""),
+            (False, ""),
+            (False, ""),
+            (False, ""),
         ]
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["999", "999", "0"])
@@ -820,11 +820,11 @@ class TestHasValidFieldsetPair:
     def test_with_correct_is_equal_and_not_equal_conditions(self):
         condition_values = ["0", ""]
         is_eq_and_not_eq_values = [
-            ("neq", "999"),
-            ("neq", "999"),
-            ("neq", "0"),
-            ("eq", ""),
-            ("eq", ""),
+            (True, "999"),
+            (True, "999"),
+            (True, "0"),
+            (False, ""),
+            (False, ""),
         ]
 
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
@@ -839,11 +839,11 @@ class TestHasValidFieldsetPair:
     def test_with_value_not_in_condition_values(self):
         condition_values = ["0", ""]
         is_eq_and_not_eq_values = [
-            ("neq", "999"),
-            ("neq", "999"),
-            ("neq", "0"),
-            ("eq", "1"),
-            ("eq", "2"),
+            (True, "999"),
+            (True, "999"),
+            (True, "0"),
+            (False, "1"),
+            (False, "2"),
         ]
 
         series = pd.Series(["2"], name="num_principal_owners", index=[1])
@@ -857,9 +857,9 @@ class TestHasValidFieldsetPair:
     def test_with_incorrect_is_not_equal_condition(self):
         condition_values = ["0", ""]
         is_eq_and_not_eq_values = [
-            ("neq", ""),
-            ("neq", ""),
-            ("neq", ""),
+            (True, ""),
+            (True, ""),
+            (True, ""),
         ]
 
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
@@ -874,9 +874,9 @@ class TestHasValidFieldsetPair:
     def test_with_incorrect_is_equal_condition(self):
         condition_values = ["0", ""]
         is_eq_and_not_eq_values = [
-            ("eq", ""),
-            ("eq", ""),
-            ("eq", ""),
+            (False, ""),
+            (False, ""),
+            (False, ""),
         ]
 
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
@@ -891,11 +891,11 @@ class TestHasValidFieldsetPair:
     def test_with_incorrect_is_equal_and_not_equal_conditions(self):
         condition_values = ["0", ""]
         is_eq_and_not_eq_values = [
-            ("neq", "999"),
-            ("neq", "999"),
-            ("neq", "0"),
-            ("eq", ""),
-            ("eq", ""),
+            (True, "999"),
+            (True, "999"),
+            (True, "0"),
+            (False, ""),
+            (False, ""),
         ]
 
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
