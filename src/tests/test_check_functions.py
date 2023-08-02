@@ -792,9 +792,6 @@ class TestHasValidFieldsetPair:
         ]
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["", "", ""])
-        # since is_not_equal_to_values is set, if any of the grouped_by value is NOT blank,
-        # should return False. Here we are passing blanks in groupby_values,
-        # therefore, it must return True.
         result1 = has_valid_fieldset_pair(
             {groupby_values: series}, condition_values, is_eq_and_not_eq_values
         )
@@ -809,9 +806,6 @@ class TestHasValidFieldsetPair:
         ]
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["999", "999", "0"])
-        # since is_equal_to_values is set, if any of the grouped_by value is blank,
-        # should return False. Here we are passing non-blanks in groupby_values,
-        # therefore, it must return Ture.
         result1 = has_valid_fieldset_pair(
             {groupby_values: series}, condition_values, is_eq_and_not_eq_values
         )
@@ -829,8 +823,6 @@ class TestHasValidFieldsetPair:
 
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["999", "999", "0", "1", "2"])
-        # In this case, if the groupby_values in indexes 3 and 4 are NOT blank
-        # and values in indexes 0, 1, 2 ARE EQUAL to 999, 999, or 0, then should retrun TRUE.
         result1 = has_valid_fieldset_pair(
             {groupby_values: series}, condition_values, is_eq_and_not_eq_values
         )
@@ -848,7 +840,6 @@ class TestHasValidFieldsetPair:
 
         series = pd.Series(["2"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["999", "999", "0", "1", "2"])
-        # If a value is NOT in condition_values, then just return True
         result1 = has_valid_fieldset_pair(
             {groupby_values: series}, condition_values, is_eq_and_not_eq_values
         )
@@ -864,8 +855,6 @@ class TestHasValidFieldsetPair:
 
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["999", "999", "999"])
-        # since is_not_equal_to_values is set, if any of the grouped_by value is NOT blank,
-        # should return False.
         result1 = has_valid_fieldset_pair(
             {groupby_values: series}, condition_values, is_eq_and_not_eq_values
         )
@@ -881,8 +870,6 @@ class TestHasValidFieldsetPair:
 
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["", "", ""])
-        # since is_equal_to_values is set, if any of the grouped_by value is blank,
-        # should return False.
         result1 = has_valid_fieldset_pair(
             {groupby_values: series}, condition_values, is_eq_and_not_eq_values
         )
@@ -900,8 +887,6 @@ class TestHasValidFieldsetPair:
 
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["", "", "3", "4", "5"])
-        # In this case, if the groupby_values in indexes 3 and 4 are blank
-        # and values in indexes 0, 1, 2 ARE NOT EQUAL to 999, 999, or 0, then should retrun False.
         result1 = has_valid_fieldset_pair(
             {groupby_values: series}, condition_values, is_eq_and_not_eq_values
         )

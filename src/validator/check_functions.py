@@ -697,11 +697,11 @@ def _get_has_valid_fieldset_pair_eq_neq_validation_value(
 ) -> bool:
     for index, (equal_to, target_value) in enumerate(is_eq_and_not_eq_values):
         if equal_to is True:
-            # if received value equals target value, then returns False (Warning)
+            # if received value != target value, then returns False (Warning)
             if current_values[index] != target_value:
                 return False
         else:
-            # if received value does not equal target value, then returns False (Warning)
+            # if received value equal target value, then returns False (Warning)
             if current_values[index] == target_value:
                 return False
     # By default returns True (No Warning and fieldset pair is VALID)
@@ -756,8 +756,8 @@ def has_valid_fieldset_pair(
     Args:
         grouped_data (Dict[list[str], pd.Series]): parsed data provided by pandera
         condition_values (list[str]): list of value to be compared to main series
-        is_eq_and_not_eq_values list[(str, str)]: list of tuple, where the first value in
-        the tuple should be either "eq" or "neq", the second value should be the target
+        is_eq_and_not_eq_values list[(bool, str)]: list of tuple, where the first value in
+        the tuple should be either "True" or "False", the second value should be the target
         value for the fields passed in the groupby function.
         The number of tuples in the list should match the number of fields passed in the
         groupby function.
@@ -789,18 +789,18 @@ def has_valid_fieldset_pair(
         Then the is_eq_and_not_eq_values would be:
 
         is_eq_and_not_eq_values=[
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("eq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
-                        ("neq", ""),
+                        (False, ""),
+                        (False, ""),
+                        (False, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
+                        (True, ""),
                     ],
     Returns:
         pd.Series: list of series with update validations
