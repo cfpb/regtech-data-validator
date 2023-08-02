@@ -691,16 +691,46 @@ def has_valid_format(value: str, regex: str, accept_blank: bool = False) -> bool
     return _check_blank_(value, bool(re.match(regex, value)), accept_blank)
 
 
-def is_unique_column(grouped_data: Dict[any, pd.Series]) -> bool:
+def _is_unique_column_helper(series: pd.Series):
     """
-    verify if the content of a column is unique.
-    - To be used with element_wise set to false.
-    - Return single bool for a column.
+    helper function for is_unique_column
 
     Args:
-        grouped_data (Dict[any, pd.Series]): complete list of a column content
+        series (pd.Series): series related to a row
 
     Returns:
-        bool: if there is duplicate value, return false.
+        all rows validations
     """
-    return len(grouped_data.values) == len(set(grouped_data.values))
+    series_validations = {}
+    check_result = True
+    if series.count() > 1:
+        check_result = False
+    for current_index, _ in series.items():
+        series_validations[current_index] = check_result
+    return series_validations
+
+
+def is_unique_column(grouped_data: Dict[any, pd.Series]) -> pd.Series:
+    """
+    verify if the content of a column is unique.
+    - To be used with element_wise set to false
+    - To be used with group_by set to itself column
+    - Return validations for each row
+
+    Args:
+        grouped_data (Dict[any, pd.Series]): rows data
+
+    Returns:
+        pd.Series: all rows validations
+    """
+    validation_holder = []
+
+    for _, main_series in grouped_data.items():
+        validation_holder.append(
+            pd.Series(
+                index=main_series.index,
+                name=main_series.name,
+                data=_is_unique_column_helper(main_series),
+            )
+        )
+    return pd.concat(validation_holder)
