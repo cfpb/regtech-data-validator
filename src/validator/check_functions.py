@@ -691,7 +691,7 @@ def has_valid_format(value: str, regex: str, accept_blank: bool = False) -> bool
     return _check_blank_(value, bool(re.match(regex, value)), accept_blank)
 
 
-def _is_unique_column_helper(series: pd.Series):
+def _is_unique_column_helper(series: pd.Series, count_limit: int):
     """
     helper function for is_unique_column
 
@@ -702,15 +702,15 @@ def _is_unique_column_helper(series: pd.Series):
         all rows validations
     """
     series_validations = {}
-    check_result = True
-    if series.count() > 1:
-        check_result = False
+    check_result = series.count() <= count_limit
     for current_index, _ in series.items():
         series_validations[current_index] = check_result
     return series_validations
 
 
-def is_unique_column(grouped_data: Dict[any, pd.Series]) -> pd.Series:
+def is_unique_column(
+    grouped_data: Dict[any, pd.Series], count_limit: int = 1
+) -> pd.Series:
     """
     verify if the content of a column is unique.
     - To be used with element_wise set to false
@@ -724,13 +724,12 @@ def is_unique_column(grouped_data: Dict[any, pd.Series]) -> pd.Series:
         pd.Series: all rows validations
     """
     validation_holder = []
-
     for _, main_series in grouped_data.items():
         validation_holder.append(
             pd.Series(
                 index=main_series.index,
                 name=main_series.name,
-                data=_is_unique_column_helper(main_series),
+                data=_is_unique_column_helper(main_series, count_limit),
             )
         )
     return pd.concat(validation_holder)
