@@ -784,16 +784,63 @@ class TestHasValidFormat:
 
 class TestIsUniqueColumn:
     series = pd.Series(["ABC123"], name="id", index=[1])
+    other_series = pd.Series(["DEF456"], name="id", index=[3])
     invalid_series = pd.Series(["ABC123", "ABC123"], name="id", index=[1, 2])
+    multi_invalid_series = pd.Series(
+        ["GHI123", "GHI123", "GHI123"], name="id", index=[3, 4, 5]
+    )
     blank_value_series = pd.Series([""], name="id", index=[1])
 
     def test_with_valid_series(self):
         result = is_unique_column({"ABC123": self.series})
         assert result.values == [True]
 
+    def test_with_multiple_valid_series(self):
+        result = is_unique_column({"ABC123": self.series, "DEF456": self.other_series})
+        assert result.values[0] == True and result.values[1] == True
+
     def test_with_invalid_series(self):
         result = is_unique_column({"ABC123": self.invalid_series})
         assert result.values.all() == False
+
+    def test_with_multiple_items_series(self):
+        result = is_unique_column({"GHI123": self.multi_invalid_series})
+        assert result.values.all() == False
+
+    def test_with_multiple_series(self):
+        result = is_unique_column(
+            {"ABC123": self.invalid_series, "DEF456": self.other_series}
+        )
+        # first two rows should be FALSE and last Row should be TRUE
+        assert (
+            result.values[0] == False
+            and result.values[1] == False
+            and result.values[2] == True
+        )
+
+    def test_with_multiple_invalid_series(self):
+        result = is_unique_column(
+            {"ABC123": self.invalid_series, "GHI123": self.multi_invalid_series}
+        )
+        # ALL rows should be FALSE
+        assert (
+            result.values[0] == False
+            and result.values[1] == False
+            and result.values[2] == False
+            and result.values[3] == False
+            and result.values[4] == False
+        )
+
+    def test_with_multiple_mix_series(self):
+        result = is_unique_column(
+            {"ABC123": self.invalid_series, "DEF456": self.other_series}
+        )
+        # first two rows should be FALSE and last Row should be TRUE
+        assert (
+            result.values[0] == False
+            and result.values[1] == False
+            and result.values[2] == True
+        )
 
     def test_with_blank_value_series(self):
         result = is_unique_column({"": self.blank_value_series})
