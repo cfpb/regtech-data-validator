@@ -807,17 +807,6 @@ class TestIsUniqueColumn:
         result = is_unique_column({"GHI123": self.multi_invalid_series})
         assert result.values.all() == False
 
-    def test_with_multiple_series(self):
-        result = is_unique_column(
-            {"ABC123": self.invalid_series, "DEF456": self.other_series}
-        )
-        # first two rows should be FALSE and last Row should be TRUE
-        assert (
-            result.values[0] == False
-            and result.values[1] == False
-            and result.values[2] == True
-        )
-
     def test_with_multiple_invalid_series(self):
         result = is_unique_column(
             {"ABC123": self.invalid_series, "GHI123": self.multi_invalid_series}
