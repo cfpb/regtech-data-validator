@@ -11,8 +11,6 @@ from validator.check_functions import (
     has_valid_multi_field_value_count,
     has_valid_value_count,
     is_date,
-    is_fieldset_equal_to,
-    is_fieldset_not_equal_to,
     is_greater_than,
     is_greater_than_or_equal_to,
     is_less_than,
@@ -554,98 +552,6 @@ class TestHasCorrectLength:
     def test_with_incorrect_length(self):
         result = has_correct_length("1", 3, True)
         assert result is False
-
-
-class TestIsFieldsetEqualTo:
-    def test_with_correct_values(self):
-        target_values = ["999", "999", "999", "999", "", "", ""]
-        condition_values = ["3", "4", "5"]
-
-        series = pd.Series(["3"], name="action_taken", index=[1])
-        values = tuple(["999", "999", "999", "999", "", "", ""])
-        result1 = is_fieldset_equal_to(
-            {values: series}, condition_values, target_values
-        )
-        assert result1.values == [True]
-
-    def test_with_correct_other_values(self):
-        target_values = ["999", "999", "999", "999", "", "", ""]
-        condition_values = ["3", "4", "5"]
-
-        series = pd.Series(["2"], name="action_taken", index=[1])
-        values = tuple(["999", "999", "999", "999", "", "", ""])
-        result1 = is_fieldset_equal_to(
-            {values: series}, condition_values, target_values
-        )
-        assert result1.values == [True]
-
-    def test_with_incorrect_values(self):
-        target_values = ["999", "999", "999", "999", "", "", ""]
-        condition_values = ["3", "4", "5"]
-
-        series = pd.Series(["3"], name="action_taken", index=[1])
-        values = tuple(["999", "999", "999", "", "", "", ""])
-        result1 = is_fieldset_equal_to(
-            {values: series}, condition_values, target_values
-        )
-        assert result1.values == [False]
-
-    def test_with_incorrect_other_values(self):
-        target_values = ["999", "999", "999", "999", "", "", ""]
-        condition_values = ["3", "4", "5"]
-
-        series = pd.Series(["2"], name="action_taken", index=[1])
-        values = tuple(["999", "999", "999", "", "", "", ""])
-        result1 = is_fieldset_equal_to(
-            {values: series}, condition_values, target_values
-        )
-        assert result1.values == [True]
-
-
-class TestIsFieldsetNotEqualTo:
-    def test_with_all_equal_values(self):
-        target_values = ["", "", "", "999", "999"]
-        condition_values = ["1", "2"]
-
-        series = pd.Series(["1"], name="action_taken", index=[1])
-        values = tuple(["", "", "", "999", "999"])
-        result1 = is_fieldset_not_equal_to(
-            {values: series}, condition_values, target_values
-        )
-        assert result1.values == [False]
-
-    def test_with_some_equal_values(self):
-        target_values = ["1", "", "", "999", ""]
-        condition_values = ["1", "2"]
-
-        series = pd.Series(["1"], name="action_taken", index=[1])
-        values = tuple(["", "", "", "999", "999"])
-        result1 = is_fieldset_not_equal_to(
-            {values: series}, condition_values, target_values
-        )
-        assert result1.values == [False]
-
-    def test_with_none_equal_values(self):
-        target_values = ["1", "2", "3", "997", "997"]
-        condition_values = ["1", "2"]
-
-        series = pd.Series(["1"], name="action_taken", index=[1])
-        values = tuple(["", "", "", "999", "999"])
-        result1 = is_fieldset_not_equal_to(
-            {values: series}, condition_values, target_values
-        )
-        assert result1.values == [True]
-
-    def test_with_different_conditional_values(self):
-        target_values = ["", "", "", "999", "999"]
-        condition_values = ["1", "2"]
-
-        series = pd.Series(["4"], name="action_taken", index=[1])
-        values = tuple(["", "", "", "999", "999"])
-        result1 = is_fieldset_not_equal_to(
-            {values: series}, condition_values, target_values
-        )
-        assert result1.values == [True]
 
 
 class TestIsValidCode:
