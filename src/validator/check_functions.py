@@ -693,10 +693,11 @@ def has_valid_format(value: str, regex: str, accept_blank: bool = False) -> bool
 
 def _get_has_valid_fieldset_pair_eq_neq_validation_value(
     current_values: list[str],
-    is_eq_and_not_eq_values: list[(str, str)] = None,
+    should_fieldset_key_equal_to: dict({str: (int, bool, str)}) = None,
 ) -> bool:
-    for index, (equal_to, target_value) in enumerate(is_eq_and_not_eq_values):
-        if equal_to is True:
+    # for field_name, (index, equal_to, target_value) in should_fieldset_key_equal_to:
+    for index, should_equal_to, target_value in should_fieldset_key_equal_to.values():
+        if should_equal_to:
             # if received value != target value, then returns False (Warning)
             if current_values[index] != target_value:
                 return False
@@ -712,7 +713,7 @@ def _has_valid_fieldset_pair_helper(
     current_values: list[str],
     series: pd.Series,
     condition_values: list[str],
-    is_eq_and_not_eq_values: list[(bool, str)] = None,
+    should_fieldset_key_equal_to: dict({str: (int, bool, str)}) = None,
 ):
     series_validations = {}
     for current_index, current_value in series.items():
@@ -720,7 +721,7 @@ def _has_valid_fieldset_pair_helper(
         is_eq_and_not_eq_values (target values)"""
         has_valid_fieldset_pair_eq_neq_validation_value = (
             _get_has_valid_fieldset_pair_eq_neq_validation_value(
-                current_values, is_eq_and_not_eq_values
+                current_values, should_fieldset_key_equal_to
             )
         )
         """
@@ -743,7 +744,8 @@ def _has_valid_fieldset_pair_helper(
 def has_valid_fieldset_pair(
     grouped_data: Dict[any, pd.Series],
     condition_values: list[str],
-    is_eq_and_not_eq_values: list[(bool, str)] = None,
+    # is_eq_and_not_eq_values: list[(bool, str)] = None,
+    should_fieldset_key_equal_to: dict({str: (int, bool, str)}) = None,
 ) -> pd.Series:
     """conditional check to verify if groups of fields equal to specific
         values (equal_to_values) when another field is set/equal to
@@ -756,25 +758,21 @@ def has_valid_fieldset_pair(
     Args:
         grouped_data (Dict[list[str], pd.Series]): parsed data provided by pandera
         condition_values (list[str]): list of value to be compared to main series
-        is_eq_and_not_eq_values list[(bool, str)]: list of tuple, where the first
-        value should be True if the received value MUST EQUAL the target
-        value, else it should be False if the received value MUST NOT EQUAL the
-        target value.
-        the second value should be the target value for the fields passed
-        in the groupby function.
-        The number of tuples in the list should match the number of fields passed in the
-        groupby function.
+        should_fieldset_key_equal_to Dict{str, (int, bool, str)}: dict of field name
+        and tuple, where the first value is the index of field in the groupby and it
+        must start at zero.
+        The second value in tuple should be True if the received value MUST EQUAL
+        the target value, else it should be False if the received value
+        MUST NOT EQUAL the target value. The third value in the tuple should be the
+        target value for the fields passed in the groupby function.
+        The number of tuples in the list should match the number of fields passed in
+        the groupby function.
         For example:
         If the groupby function returns the values for the follwing fields:
         po_1_ethnicity, po_1_race, OR po_1_gender_flag,
         po_2_ethnicity, po_2_race, po_2_gender_flag,
         po_3_ethnicity, po_3_race, po_3_gender_flag,
         po_4_ethnicity, po_4_race, OR po_4_gender_flag
-
-        Then the is_eq_and_not_eq_values should include the condition (True or False)
-        and the target value for each of the field passed in the groupby function.
-        Each tuple represents each field in the groupby function. Their indexes should
-        be the same.
 
         If the condition is:
 
@@ -789,22 +787,22 @@ def has_valid_fieldset_pair(
             ENDIF
         ENDIF
 
-        Then the is_eq_and_not_eq_values would be:
+        Then the should_fieldset_key_equal_to would be:
 
-        is_eq_and_not_eq_values=[
-                        (False, ""),
-                        (False, ""),
-                        (False, ""),
-                        (True, ""),
-                        (True, ""),
-                        (True, ""),
-                        (True, ""),
-                        (True, ""),
-                        (True, ""),
-                        (True, ""),
-                        (True, ""),
-                        (True, ""),
-                    ],
+        should_fieldset_key_equal_to={
+            "po_1_ethnicity": (0, False, ""),
+            "po_1_race": (1, False, ""),
+            "po_1_gender_flag": (2, False, ""),
+            "po_2_ethnicity": (3, True, ""),
+            "po_2_race": (4, True, ""),
+            "po_2_gender_flag": (5, True, ""),
+            "po_3_ethnicity": (6, True, ""),
+            "po_3_race": (7, True, ""),
+            "po_3_gender_flag": (8, True, ""),
+            "po_4_ethnicity": (9, True, ""),
+            "po_4_race": (10, True, ""),
+            "po_4_gender_flag": (11, True, ""),
+        },
     Returns:
         pd.Series: list of series with update validations
     """
@@ -816,7 +814,10 @@ def has_valid_fieldset_pair(
                 name=main_series.name,
                 data=(
                     _has_valid_fieldset_pair_helper(
-                        values, main_series, condition_values, is_eq_and_not_eq_values
+                        values,
+                        main_series,
+                        condition_values,
+                        should_fieldset_key_equal_to,
                     )
                 ),
                 dtype=bool,

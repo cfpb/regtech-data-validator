@@ -785,109 +785,109 @@ class TestHasValidFormat:
 class TestHasValidFieldsetPair:
     def test_with_correct_is_not_equal_condition(self):
         condition_values = ["0", ""]
-        is_eq_and_not_eq_values = [
-            (True, ""),
-            (True, ""),
-            (True, ""),
-        ]
+        should_fieldset_key_equal_to = {
+            "field1": (0, True, ""),
+            "field2": (1, True, ""),
+            "field3": (2, True, ""),
+        }
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["", "", ""])
         result1 = has_valid_fieldset_pair(
-            {groupby_values: series}, condition_values, is_eq_and_not_eq_values
+            {groupby_values: series}, condition_values, should_fieldset_key_equal_to
         )
         assert result1.values == [True]
 
     def test_with_correct_is_equal_condition(self):
         condition_values = ["0", ""]
-        is_eq_and_not_eq_values = [
-            (False, ""),
-            (False, ""),
-            (False, ""),
-        ]
+        should_fieldset_key_equal_to = {
+            "field1": (0, False, ""),
+            "field2": (1, False, ""),
+            "field3": (2, False, ""),
+        }
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["999", "999", "0"])
         result1 = has_valid_fieldset_pair(
-            {groupby_values: series}, condition_values, is_eq_and_not_eq_values
+            {groupby_values: series}, condition_values, should_fieldset_key_equal_to
         )
         assert result1.values == [True]
 
     def test_with_correct_is_equal_and_not_equal_conditions(self):
         condition_values = ["0", ""]
-        is_eq_and_not_eq_values = [
-            (True, "999"),
-            (True, "999"),
-            (True, "0"),
-            (False, ""),
-            (False, ""),
-        ]
+        should_fieldset_key_equal_to = {
+            "field1": (0, True, "999"),
+            "field2": (1, True, "999"),
+            "field3": (2, True, "0"),
+            "field4": (3, False, ""),
+            "fiedl5": (4, False, ""),
+        }
 
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["999", "999", "0", "1", "2"])
         result1 = has_valid_fieldset_pair(
-            {groupby_values: series}, condition_values, is_eq_and_not_eq_values
+            {groupby_values: series}, condition_values, should_fieldset_key_equal_to
         )
         assert result1.values == [True]
 
     def test_with_value_not_in_condition_values(self):
         condition_values = ["0", ""]
-        is_eq_and_not_eq_values = [
-            (True, "999"),
-            (True, "999"),
-            (True, "0"),
-            (False, "1"),
-            (False, "2"),
-        ]
+        should_fieldset_key_equal_to = {
+            "field1": (0, True, "999"),
+            "field2": (1, True, "999"),
+            "field3": (2, True, "0"),
+            "fiedl4": (3, False, "1"),
+            "field5": (4, False, "2"),
+        }
 
         series = pd.Series(["2"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["999", "999", "0", "1", "2"])
         result1 = has_valid_fieldset_pair(
-            {groupby_values: series}, condition_values, is_eq_and_not_eq_values
+            {groupby_values: series}, condition_values, should_fieldset_key_equal_to
         )
         assert result1.values == [True]
 
     def test_with_incorrect_is_not_equal_condition(self):
         condition_values = ["0", ""]
-        is_eq_and_not_eq_values = [
-            (True, ""),
-            (True, ""),
-            (True, ""),
-        ]
+        should_fieldset_key_equal_to = {
+            "field1": (0, True, ""),
+            "field2": (1, True, ""),
+            "field3": (2, True, ""),
+        }
 
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["999", "999", "999"])
         result1 = has_valid_fieldset_pair(
-            {groupby_values: series}, condition_values, is_eq_and_not_eq_values
+            {groupby_values: series}, condition_values, should_fieldset_key_equal_to
         )
         assert result1.values == [False]
 
     def test_with_incorrect_is_equal_condition(self):
         condition_values = ["0", ""]
-        is_eq_and_not_eq_values = [
-            (False, ""),
-            (False, ""),
-            (False, ""),
-        ]
+        should_fieldset_key_equal_to = {
+            "field1": (0, False, ""),
+            "field2": (1, False, ""),
+            "field3": (2, False, ""),
+        }
 
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["", "", ""])
         result1 = has_valid_fieldset_pair(
-            {groupby_values: series}, condition_values, is_eq_and_not_eq_values
+            {groupby_values: series}, condition_values, should_fieldset_key_equal_to
         )
         assert result1.values == [False]
 
     def test_with_incorrect_is_equal_and_not_equal_conditions(self):
         condition_values = ["0", ""]
-        is_eq_and_not_eq_values = [
-            (True, "999"),
-            (True, "999"),
-            (True, "0"),
-            (False, ""),
-            (False, ""),
-        ]
+        should_fieldset_key_equal_to = {
+            "field1": (0, True, "999"),
+            "field2": (1, True, "999"),
+            "field3": (2, True, "0"),
+            "field4": (3, False, ""),
+            "field4": (4, False, ""),
+        }
 
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["", "", "3", "4", "5"])
         result1 = has_valid_fieldset_pair(
-            {groupby_values: series}, condition_values, is_eq_and_not_eq_values
+            {groupby_values: series}, condition_values, should_fieldset_key_equal_to
         )
         assert result1.values == [False]
