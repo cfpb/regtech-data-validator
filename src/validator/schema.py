@@ -978,7 +978,7 @@ sblar_schema = DataFrameSchema(
                     name="pricing_adj_index_name.invalid_enum_value",
                     description=(
                         "'Adjustable rate transaction: index name' must equal 1, 2, 3,"
-                        " 4,5, 6, 7, 8, 9, 10, 977, or 999."
+                        " 4, 5, 6, 7, 8, 9, 10, 977, or 999."
                     ),
                     element_wise=True,
                     accepted_values=[
