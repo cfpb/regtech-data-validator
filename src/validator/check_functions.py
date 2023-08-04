@@ -718,7 +718,7 @@ def _has_valid_fieldset_pair_helper(
     series_validations = {}
     for current_index, current_value in series.items():
         """Getting the validation result for comparing current_values to the
-        is_eq_and_not_eq_values (target values)"""
+        should_fieldset_key_equal_to (target values)"""
         has_valid_fieldset_pair_eq_neq_validation_value = (
             _get_has_valid_fieldset_pair_eq_neq_validation_value(
                 current_values, should_fieldset_key_equal_to
@@ -744,7 +744,6 @@ def _has_valid_fieldset_pair_helper(
 def has_valid_fieldset_pair(
     grouped_data: Dict[any, pd.Series],
     condition_values: list[str],
-    # is_eq_and_not_eq_values: list[(bool, str)] = None,
     should_fieldset_key_equal_to: dict({str: (int, bool, str)}) = None,
 ) -> pd.Series:
     """conditional check to verify if groups of fields equal to specific
