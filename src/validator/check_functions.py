@@ -588,6 +588,7 @@ def is_less_than(value: str, max_value: str, accept_blank: bool = False) -> bool
 def has_valid_format(value: str, regex: str, accept_blank: bool = False) -> bool:
     return _check_blank_(value, bool(re.match(regex, value)), accept_blank)
 
+
 def _is_unique_column_helper(series: pd.Series, count_limit: int):
     """
     helper function for is_unique_column
