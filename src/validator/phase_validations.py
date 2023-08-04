@@ -27,6 +27,7 @@ from check_functions import (
     is_greater_than_or_equal_to,
     is_less_than,
     is_number,
+    is_unique_column,
     is_unique_in_field,
     is_valid_code,
     is_valid_enum,
@@ -40,6 +41,15 @@ global_data.read_naics_codes()
 phase_1_and_2_validations = {
     "uid": {
         "phase_1": [
+            SBLCheck(
+                is_unique_column,
+                name="uid.duplicates_in_dataset",
+                description=(
+                    "Any 'unique identifier' may not be used in more than one "
+                    "record within a small business lending application register."
+                ),
+                groupby="uid",
+            ),
             SBLCheck.str_length(
                 21,
                 45,
