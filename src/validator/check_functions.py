@@ -503,108 +503,6 @@ def is_date_before_in_days(
     return pd.concat(validation_holder)
 
 
-def _is_fieldset_equal_to_helper(
-    current_values: list[str],
-    series: pd.Series,
-    condition_values: list[str],
-    target_values: list[str],
-):
-    series_validations = {}
-    for current_index, current_value in series.items():
-        validation = (
-            current_value in condition_values
-            and list(current_values) == list(target_values)
-        ) or current_value not in condition_values
-        series_validations[current_index] = validation
-    return series_validations
-
-
-def is_fieldset_equal_to(
-    grouped_data: Dict[any, pd.Series],
-    condition_values: list[str],
-    equal_to_values: list[str],
-) -> pd.Series:
-    """conditional check to verify if groups of fields equal to specific
-        values (equal_to_values) when another field is set/equal to
-        condition_values.
-        * Note: when we define multiple fields in group_by parameter,
-                Pandera returns group_by values in the dictionary key
-                as iterable string
-                and the column data in the series
-
-    Args:
-        grouped_data (Dict[list[str], pd.Series]): parsed data provided by pandera
-        condition_values (list[str]): list of value to be compared to main series
-        equal_to_values (list[str]): list of expected values from group_by's fields.
-            This list has to be in same sequence as the group_by list
-
-    Returns:
-        pd.Series: list of series with update validations
-    """
-    validation_holder = []
-    for values, main_series in grouped_data.items():
-        validation_holder.append(
-            pd.Series(
-                index=main_series.index,
-                name=main_series.name,
-                data=_is_fieldset_equal_to_helper(
-                    values, main_series, condition_values, equal_to_values
-                ),
-            )
-        )
-    return pd.concat(validation_holder)
-
-
-def _is_fieldset_not_equal_to_helper(
-    current_values: list[str],
-    series: pd.Series,
-    condition_values: list[str],
-    target_values: list[str],
-):
-    series_validations = {}
-    for current_index, current_value in series.items():
-        not_contains_map = list(map(lambda a, b: a != b, current_values, target_values))
-        validation = (
-            current_value in condition_values and all(not_contains_map)
-        ) or current_value not in condition_values
-        series_validations[current_index] = validation
-    return series_validations
-
-
-def is_fieldset_not_equal_to(
-    grouped_data: Dict[any, pd.Series],
-    condition_values: list[str],
-    not_equal_to_values: list[str],
-) -> pd.Series:
-    """conditional check to verify if groups of fields NOT equal specific
-        values (not_equal_to_values) when another field is set/equal to
-        condition_values.
-        * Note: when we define multiple fields in group_by parameter,
-                Pandera returns group_by values in the dictionary key as
-                iterable string and the column data in the series
-    Args:
-        grouped_data (Dict[list[str], pd.Series]): parsed data provided by pandera
-        condition_values (list[str]): list of value to be compared to main series
-        not_equal_to_values (list[str]): list of expected values from group_by's fields.
-            This list has to be in same sequence as the group_by list
-
-    Returns:
-        pd.Series: list of series with update validations
-    """
-    validation_holder = []
-    for values, main_series in grouped_data.items():
-        validation_holder.append(
-            pd.Series(
-                index=main_series.index,
-                name=main_series.name,
-                data=_is_fieldset_not_equal_to_helper(
-                    values, main_series, condition_values, not_equal_to_values
-                ),
-            )
-        )
-    return pd.concat(validation_holder)
-
-
 def has_correct_length(
     ct_value: str, accepted_length: int, accept_blank: bool = False
 ) -> bool:
@@ -730,6 +628,140 @@ def is_unique_column(
                 index=main_series.index,
                 name=main_series.name,
                 data=_is_unique_column_helper(main_series, count_limit),
+            )
+        )
+    return pd.concat(validation_holder)
+
+
+def _get_has_valid_fieldset_pair_eq_neq_validation_value(
+    current_values: list[str],
+    should_fieldset_key_equal_to: dict({str: (int, bool, str)}) = None,
+) -> bool:
+    # for field_name, (index, equal_to, target_value) in should_fieldset_key_equal_to:
+    for index, should_equal_to, target_value in should_fieldset_key_equal_to.values():
+        if should_equal_to:
+            # if received value != target value, then returns False (Warning)
+            if current_values[index] != target_value:
+                return False
+        else:
+            # if received value equal target value, then returns False (Warning)
+            if current_values[index] == target_value:
+                return False
+    # By default returns True (No Warning and fieldset pair is VALID)
+    return True
+
+
+def _has_valid_fieldset_pair_helper(
+    current_values: list[str],
+    series: pd.Series,
+    condition_values: list[str],
+    should_fieldset_key_equal_to: dict({str: (int, bool, str)}) = None,
+):
+    series_validations = {}
+    for current_index, current_value in series.items():
+        """Getting the validation result for comparing current_values to the
+        should_fieldset_key_equal_to (target values)"""
+        has_valid_fieldset_pair_eq_neq_validation_value = (
+            _get_has_valid_fieldset_pair_eq_neq_validation_value(
+                current_values, should_fieldset_key_equal_to
+            )
+        )
+        """
+        If current_value is in condition_values AND
+        has_valid_fieldset_pair_eq_neq_validation_value is True, 
+        then fieldset pair is valid (True). 
+
+        If current_value is in condition_values AND
+        has_valid_fieldset_pair_eq_neq_validation_value is False, 
+        then fieldset pair is NOT valid (False). 
+        """
+        validation = (
+            current_value in condition_values
+            and has_valid_fieldset_pair_eq_neq_validation_value
+        ) or current_value not in condition_values
+        series_validations[current_index] = validation
+    return series_validations
+
+
+def has_valid_fieldset_pair(
+    grouped_data: Dict[any, pd.Series],
+    condition_values: list[str],
+    should_fieldset_key_equal_to: dict({str: (int, bool, str)}) = None,
+) -> pd.Series:
+    """conditional check to verify if groups of fields equal to specific
+        values (equal_to_values) when another field is set/equal to
+        condition_values.
+        * Note: when we define multiple fields in group_by parameter,
+                Pandera returns group_by values in the dictionary key
+                as iterable string
+                and the column data in the series
+
+    Args:
+        grouped_data (Dict[list[str], pd.Series]): parsed data provided by pandera
+        condition_values (list[str]): list of value to be compared to main series
+        should_fieldset_key_equal_to Dict{str, (int, bool, str)}: dict of field name
+        and tuple, where the first value is the index of field in the groupby and it
+        must start at zero.
+        The second value in tuple should be True if the received value MUST EQUAL
+        the target value, else it should be False if the received value
+        MUST NOT EQUAL the target value. The third value in the tuple should be the
+        target value for the fields passed in the groupby function.
+        The number of tuples in the list should match the number of fields passed in
+        the groupby function.
+        For example:
+        If the groupby function returns the values for the follwing fields:
+        po_1_ethnicity, po_1_race, OR po_1_gender_flag,
+        po_2_ethnicity, po_2_race, po_2_gender_flag,
+        po_3_ethnicity, po_3_race, po_3_gender_flag,
+        po_4_ethnicity, po_4_race, OR po_4_gender_flag
+
+        If the condition is:
+
+        IF num_principal_owners is equal to 1 THEN
+            IF (po_1_ethnicity, po_1_race, OR po_1_gender_flag) is blank THEN
+                    Warning
+            ENDIF
+            IF (po_2_ethnicity, po_2_race, po_2_gender_flag,
+                po_3_ethnicity, po_3_race, po_3_gender_flag,
+                po_4_ethnicity, po_4_race, OR po_4_gender_flag) is not blank THEN
+                    Warning
+            ENDIF
+        ENDIF
+
+        Then the should_fieldset_key_equal_to would be:
+
+        should_fieldset_key_equal_to={
+            "po_1_ethnicity": (0, False, ""),
+            "po_1_race": (1, False, ""),
+            "po_1_gender_flag": (2, False, ""),
+            "po_2_ethnicity": (3, True, ""),
+            "po_2_race": (4, True, ""),
+            "po_2_gender_flag": (5, True, ""),
+            "po_3_ethnicity": (6, True, ""),
+            "po_3_race": (7, True, ""),
+            "po_3_gender_flag": (8, True, ""),
+            "po_4_ethnicity": (9, True, ""),
+            "po_4_race": (10, True, ""),
+            "po_4_gender_flag": (11, True, ""),
+        },
+    Returns:
+        pd.Series: list of series with update validations
+    """
+    validation_holder = []
+    for values, main_series in grouped_data.items():
+        validation_holder.append(
+            pd.Series(
+                index=main_series.index,
+                name=main_series.name,
+                data=(
+                    _has_valid_fieldset_pair_helper(
+                        values,
+                        main_series,
+                        condition_values,
+                        should_fieldset_key_equal_to,
+                    )
+                ),
+                dtype=bool,
             )
         )
     return pd.concat(validation_holder)

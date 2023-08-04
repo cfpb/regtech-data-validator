@@ -6,12 +6,11 @@ from validator.check_functions import (
     has_correct_length,
     has_no_conditional_field_conflict,
     has_valid_enum_pair,
+    has_valid_fieldset_pair,
     has_valid_format,
     has_valid_multi_field_value_count,
     has_valid_value_count,
     is_date,
-    is_fieldset_equal_to,
-    is_fieldset_not_equal_to,
     is_greater_than,
     is_greater_than_or_equal_to,
     is_less_than,
@@ -34,25 +33,25 @@ class TestInvalidDateFormat:
     invalid_date_format_6 = "2020120A"
 
     def test_with_valid_date(self):
-        assert is_date(self.valid_date_format) == True
+        assert is_date(self.valid_date_format) is True
 
     def test_with_invalid_date(self):
-        assert is_date(self.invalid_date_format_1) == False
+        assert is_date(self.invalid_date_format_1) is False
 
     def test_with_invalid_day(self):
-        assert is_date(self.invalid_date_format_2) == False
+        assert is_date(self.invalid_date_format_2) is False
 
     def test_with_invalid_month(self):
-        assert is_date(self.invalid_date_format_3) == False
+        assert is_date(self.invalid_date_format_3) is False
 
     def test_with_invalid_year(self):
-        assert is_date(self.invalid_date_format_4) == False
+        assert is_date(self.invalid_date_format_4) is False
 
     def test_with_invalid_format(self):
-        assert is_date(self.invalid_date_format_5) == False
+        assert is_date(self.invalid_date_format_5) is False
 
     def test_with_invalid_type(self):
-        assert is_date(self.invalid_date_format_6) == False
+        assert is_date(self.invalid_date_format_6) is False
 
 
 class TestDenialReasonsConditionalEnumValue:
@@ -101,49 +100,49 @@ class TestDenialReasonsConditionalEnumValue:
 
 class TestDuplicatesInField:
     def test_with_blank(self):
-        assert is_unique_in_field("") == True
+        assert is_unique_in_field("") is True
 
     def test_with_no_duplicates(self):
-        assert is_unique_in_field("1") == True
-        assert is_unique_in_field("1;2;3;4") == True
+        assert is_unique_in_field("1") is True
+        assert is_unique_in_field("1;2;3;4") is True
 
     def test_with_duplicates(self):
-        assert is_unique_in_field("1;2;3;3;4") == False
+        assert is_unique_in_field("1;2;3;3;4") is False
 
 
 class TestInvalidNumberOfValues:
     def test_with_in_range(self):
-        assert has_valid_value_count("1;2;", 1, 4) == True
+        assert has_valid_value_count("1;2;", 1, 4) is True
 
     def test_with_lower_range_value(self):
-        assert has_valid_value_count("1", 1, 4) == True
+        assert has_valid_value_count("1", 1, 4) is True
 
     def test_with_invalid_lower_range_value(self):
-        assert has_valid_value_count("1", 2, 4) == False
+        assert has_valid_value_count("1", 2, 4) is False
 
     def test_with_upper_range_value(self):
-        assert has_valid_value_count("1;2", 1, 2) == True
+        assert has_valid_value_count("1;2", 1, 2) is True
 
     def test_with_invalid_upper_range_value(self):
-        assert has_valid_value_count("1;2;3;4", 2, 3) == False
+        assert has_valid_value_count("1;2;3;4", 2, 3) is False
 
     def test_valid_with_no_upper_bound(self):
-        assert has_valid_value_count("1;2;3;4", 1, None) == True
+        assert has_valid_value_count("1;2;3;4", 1, None) is True
 
     def test_invalid_with_no_upper_bound(self):
-        assert has_valid_value_count("1", 2, None) == False
+        assert has_valid_value_count("1", 2, None) is False
 
 
 class TestMultiValueFieldRestriction:
     def test_with_invalid_values(self):
-        assert meets_multi_value_field_restriction("1;2;3", ["2"]) == False
+        assert meets_multi_value_field_restriction("1;2;3", ["2"]) is False
 
     def test_with_valid_length(self):
-        assert meets_multi_value_field_restriction("2", ["2"]) == True
-        assert meets_multi_value_field_restriction("1", ["2"]) == True
+        assert meets_multi_value_field_restriction("2", ["2"]) is True
+        assert meets_multi_value_field_restriction("1", ["2"]) is True
 
     def test_with_valid_values(self):
-        assert meets_multi_value_field_restriction("1;2;3", ["4"]) == True
+        assert meets_multi_value_field_restriction("1;2;3", ["4"]) is True
 
 
 class TestMultiInvalidNumberOfValues:
@@ -262,22 +261,22 @@ class TestInvalidEnumValue:
     def test_with_valid_enum_values(self):
         accepted_values = ["1", "2"]
         result = is_valid_enum("1;2", accepted_values)
-        assert result == True
+        assert result is True
 
     def test_with_is_valid_enums(self):
         accepted_values = ["1", "2"]
         result = is_valid_enum("0;3", accepted_values)
-        assert result == False
+        assert result is False
 
     def test_with_valid_blank(self):
         accepted_values = ["1", "2"]
         result = is_valid_enum("", accepted_values, True)
-        assert result == True
+        assert result is True
 
     def test_with_invalid_blank(self):
         accepted_values = ["1", "2"]
         result = is_valid_enum("", accepted_values)
-        assert result == False
+        assert result is False
 
 
 class TestIsNumber:
@@ -293,7 +292,7 @@ class TestIsNumber:
     def test_non_number_value(self):
         value = "a"
         result = is_number(value)
-        assert result == False
+        assert result is False
 
     def test_decimal_numeric_value(self):
         value = "0.1"
@@ -556,98 +555,6 @@ class TestHasCorrectLength:
         assert result is False
 
 
-class TestIsFieldsetEqualTo:
-    def test_with_correct_values(self):
-        target_values = ["999", "999", "999", "999", "", "", ""]
-        condition_values = ["3", "4", "5"]
-
-        series = pd.Series(["3"], name="action_taken", index=[1])
-        values = tuple(["999", "999", "999", "999", "", "", ""])
-        result1 = is_fieldset_equal_to(
-            {values: series}, condition_values, target_values
-        )
-        assert result1.values == [True]
-
-    def test_with_correct_other_values(self):
-        target_values = ["999", "999", "999", "999", "", "", ""]
-        condition_values = ["3", "4", "5"]
-
-        series = pd.Series(["2"], name="action_taken", index=[1])
-        values = tuple(["999", "999", "999", "999", "", "", ""])
-        result1 = is_fieldset_equal_to(
-            {values: series}, condition_values, target_values
-        )
-        assert result1.values == [True]
-
-    def test_with_incorrect_values(self):
-        target_values = ["999", "999", "999", "999", "", "", ""]
-        condition_values = ["3", "4", "5"]
-
-        series = pd.Series(["3"], name="action_taken", index=[1])
-        values = tuple(["999", "999", "999", "", "", "", ""])
-        result1 = is_fieldset_equal_to(
-            {values: series}, condition_values, target_values
-        )
-        assert result1.values == [False]
-
-    def test_with_incorrect_other_values(self):
-        target_values = ["999", "999", "999", "999", "", "", ""]
-        condition_values = ["3", "4", "5"]
-
-        series = pd.Series(["2"], name="action_taken", index=[1])
-        values = tuple(["999", "999", "999", "", "", "", ""])
-        result1 = is_fieldset_equal_to(
-            {values: series}, condition_values, target_values
-        )
-        assert result1.values == [True]
-
-
-class TestIsFieldsetNotEqualTo:
-    def test_with_all_equal_values(self):
-        target_values = ["", "", "", "999", "999"]
-        condition_values = ["1", "2"]
-
-        series = pd.Series(["1"], name="action_taken", index=[1])
-        values = tuple(["", "", "", "999", "999"])
-        result1 = is_fieldset_not_equal_to(
-            {values: series}, condition_values, target_values
-        )
-        assert result1.values == [False]
-
-    def test_with_some_equal_values(self):
-        target_values = ["1", "", "", "999", ""]
-        condition_values = ["1", "2"]
-
-        series = pd.Series(["1"], name="action_taken", index=[1])
-        values = tuple(["", "", "", "999", "999"])
-        result1 = is_fieldset_not_equal_to(
-            {values: series}, condition_values, target_values
-        )
-        assert result1.values == [False]
-
-    def test_with_none_equal_values(self):
-        target_values = ["1", "2", "3", "997", "997"]
-        condition_values = ["1", "2"]
-
-        series = pd.Series(["1"], name="action_taken", index=[1])
-        values = tuple(["", "", "", "999", "999"])
-        result1 = is_fieldset_not_equal_to(
-            {values: series}, condition_values, target_values
-        )
-        assert result1.values == [True]
-
-    def test_with_different_conditional_values(self):
-        target_values = ["", "", "", "999", "999"]
-        condition_values = ["1", "2"]
-
-        series = pd.Series(["4"], name="action_taken", index=[1])
-        values = tuple(["", "", "", "999", "999"])
-        result1 = is_fieldset_not_equal_to(
-            {values: series}, condition_values, target_values
-        )
-        assert result1.values == [True]
-
-
 class TestIsValidCode:
     def test_with_valid_code(self):
         global_data.read_naics_codes()
@@ -834,3 +741,114 @@ class TestIsUniqueColumn:
     def test_with_blank_value_series(self):
         result = is_unique_column({"": self.blank_value_series})
         assert result.values == [True]
+
+
+class TestHasValidFieldsetPair:
+    def test_with_correct_is_not_equal_condition(self):
+        condition_values = ["0", ""]
+        should_fieldset_key_equal_to = {
+            "field1": (0, True, ""),
+            "field2": (1, True, ""),
+            "field3": (2, True, ""),
+        }
+        series = pd.Series(["0"], name="num_principal_owners", index=[1])
+        groupby_values = tuple(["", "", ""])
+        result1 = has_valid_fieldset_pair(
+            {groupby_values: series}, condition_values, should_fieldset_key_equal_to
+        )
+        assert result1.values == [True]
+
+    def test_with_correct_is_equal_condition(self):
+        condition_values = ["0", ""]
+        should_fieldset_key_equal_to = {
+            "field1": (0, False, ""),
+            "field2": (1, False, ""),
+            "field3": (2, False, ""),
+        }
+        series = pd.Series(["0"], name="num_principal_owners", index=[1])
+        groupby_values = tuple(["999", "999", "0"])
+        result1 = has_valid_fieldset_pair(
+            {groupby_values: series}, condition_values, should_fieldset_key_equal_to
+        )
+        assert result1.values == [True]
+
+    def test_with_correct_is_equal_and_not_equal_conditions(self):
+        condition_values = ["0", ""]
+        should_fieldset_key_equal_to = {
+            "field1": (0, True, "999"),
+            "field2": (1, True, "999"),
+            "field3": (2, True, "0"),
+            "field4": (3, False, ""),
+            "fiedl5": (4, False, ""),
+        }
+
+        series = pd.Series(["0"], name="num_principal_owners", index=[1])
+        groupby_values = tuple(["999", "999", "0", "1", "2"])
+        result1 = has_valid_fieldset_pair(
+            {groupby_values: series}, condition_values, should_fieldset_key_equal_to
+        )
+        assert result1.values == [True]
+
+    def test_with_value_not_in_condition_values(self):
+        condition_values = ["0", ""]
+        should_fieldset_key_equal_to = {
+            "field1": (0, True, "999"),
+            "field2": (1, True, "999"),
+            "field3": (2, True, "0"),
+            "fiedl4": (3, False, "1"),
+            "field5": (4, False, "2"),
+        }
+
+        series = pd.Series(["2"], name="num_principal_owners", index=[1])
+        groupby_values = tuple(["999", "999", "0", "1", "2"])
+        result1 = has_valid_fieldset_pair(
+            {groupby_values: series}, condition_values, should_fieldset_key_equal_to
+        )
+        assert result1.values == [True]
+
+    def test_with_incorrect_is_not_equal_condition(self):
+        condition_values = ["0", ""]
+        should_fieldset_key_equal_to = {
+            "field1": (0, True, ""),
+            "field2": (1, True, ""),
+            "field3": (2, True, ""),
+        }
+
+        series = pd.Series(["0"], name="num_principal_owners", index=[1])
+        groupby_values = tuple(["999", "999", "999"])
+        result1 = has_valid_fieldset_pair(
+            {groupby_values: series}, condition_values, should_fieldset_key_equal_to
+        )
+        assert result1.values == [False]
+
+    def test_with_incorrect_is_equal_condition(self):
+        condition_values = ["0", ""]
+        should_fieldset_key_equal_to = {
+            "field1": (0, False, ""),
+            "field2": (1, False, ""),
+            "field3": (2, False, ""),
+        }
+
+        series = pd.Series(["0"], name="num_principal_owners", index=[1])
+        groupby_values = tuple(["", "", ""])
+        result1 = has_valid_fieldset_pair(
+            {groupby_values: series}, condition_values, should_fieldset_key_equal_to
+        )
+        assert result1.values == [False]
+
+    def test_with_incorrect_is_equal_and_not_equal_conditions(self):
+        condition_values = ["0", ""]
+        should_fieldset_key_equal_to = {
+            "field1": (0, True, "999"),
+            "field2": (1, True, "999"),
+            "field3": (2, True, "0"),
+            "field4": (3, False, ""),
+            "field4": (4, False, ""),
+        }
+
+        series = pd.Series(["0"], name="num_principal_owners", index=[1])
+        groupby_values = tuple(["", "", "3", "4", "5"])
+        result1 = has_valid_fieldset_pair(
+            {groupby_values: series}, condition_values, should_fieldset_key_equal_to
+        )
+        assert result1.values == [False]

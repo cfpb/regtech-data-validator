@@ -14,6 +14,7 @@ from check_functions import (
     has_correct_length,
     has_no_conditional_field_conflict,
     has_valid_enum_pair,
+    has_valid_fieldset_pair,
     has_valid_format,
     has_valid_multi_field_value_count,
     has_valid_value_count,
@@ -21,8 +22,6 @@ from check_functions import (
     is_date_after,
     is_date_before_in_days,
     is_date_in_range,
-    is_fieldset_equal_to,
-    is_fieldset_not_equal_to,
     is_greater_than,
     is_greater_than_or_equal_to,
     is_less_than,
@@ -575,7 +574,7 @@ phase_1_and_2_validations = {
         ],
         "phase_2": [
             SBLCheck(
-                is_fieldset_equal_to,
+                has_valid_fieldset_pair,
                 name="pricing_all.conditional_fieldset_conflict",
                 description=(
                     "When 'action taken' equals 3 (denied), "
@@ -600,11 +599,19 @@ phase_1_and_2_validations = {
                     "pricing_broker_fees",
                     "pricing_initial_charges",
                 ],
-                equal_to_values=["999", "999", "999", "999", "", "", ""],
                 condition_values=["3", "4", "5"],
+                should_fieldset_key_equal_to={
+                    "pricing_interest_rate_type": (0, True, "999"),
+                    "pricing_mca_addcost_flag": (1, True, "999"),
+                    "pricing_prepenalty_allowed": (2, True, "999"),
+                    "pricing_prepenalty_exists": (3, True, "999"),
+                    "pricing_origination_charges": (4, True, ""),
+                    "pricing_broker_fees": (5, True, ""),
+                    "pricing_initial_charges": (6, True, ""),
+                },
             ),
             SBLCheck(
-                is_fieldset_not_equal_to,
+                has_valid_fieldset_pair,
                 name="pricing_charges.conditional_fieldset_conflict",
                 description=(
                     "When 'action taken' equals 1 (originated)"
@@ -624,8 +631,14 @@ phase_1_and_2_validations = {
                     "pricing_prepenalty_allowed",
                     "pricing_prepenalty_exists",
                 ],
-                not_equal_to_values=["", "", "", "999", "999"],
                 condition_values=["1", "2"],
+                should_fieldset_key_equal_to={
+                    "pricing_origination_charges": (0, False, ""),
+                    "pricing_broker_fees": (1, False, ""),
+                    "pricing_initial_charges": (2, False, ""),
+                    "pricing_prepenalty_allowed": (3, False, "999"),
+                    "pricing_prepenalty_exists": (4, False, "999"),
+                },
             ),
         ],
     },
@@ -1424,7 +1437,205 @@ phase_1_and_2_validations = {
                 ],
             ),
         ],
-        "phase_2": [],
+        "phase_2": [
+            SBLCheck(
+                has_valid_fieldset_pair,
+                name="po_demographics_0.conditional_fieldset_conflict",
+                description=(
+                    "When 'number of principal owners' equals 0 or is blank, "
+                    "demographic fields for principal owners 1, 2, 3, and 4 "
+                    "should be blank."
+                ),
+                groupby=[
+                    "po_1_ethnicity",
+                    "po_1_race",
+                    "po_1_gender_flag",
+                    "po_2_ethnicity",
+                    "po_2_race",
+                    "po_2_gender_flag",
+                    "po_3_ethnicity",
+                    "po_3_race",
+                    "po_3_gender_flag",
+                    "po_4_ethnicity",
+                    "po_4_race",
+                    "po_4_gender_flag",
+                ],
+                condition_values=["0", ""],
+                should_fieldset_key_equal_to={
+                    "po_1_ethnicity": (0, True, ""),
+                    "po_1_race": (1, True, ""),
+                    "po_1_gender_flag": (2, True, ""),
+                    "po_2_ethnicity": (3, True, ""),
+                    "po_2_race": (4, True, ""),
+                    "po_2_gender_flag": (5, True, ""),
+                    "po_3_ethnicity": (6, True, ""),
+                    "po_3_race": (7, True, ""),
+                    "po_3_gender_flag": (8, True, ""),
+                    "po_4_ethnicity": (9, True, ""),
+                    "po_4_race": (10, True, ""),
+                    "po_4_gender_flag": (11, True, ""),
+                },
+            ),
+            SBLCheck(
+                has_valid_fieldset_pair,
+                name="po_demographics_1.conditional_fieldset_conflict",
+                description=(
+                    "When 'number of principal owners' equals 1, "
+                    "'ethnicity of principal owner 1', 'race of principal owner 1',"
+                    " and 'sex/gender of principal owner 1: NP flag' should not be"
+                    " blank. Demographic fields for principal owners 2, 3, and 4 "
+                    "should be blank."
+                ),
+                groupby=[
+                    "po_1_ethnicity",
+                    "po_1_race",
+                    "po_1_gender_flag",
+                    "po_2_ethnicity",
+                    "po_2_race",
+                    "po_2_gender_flag",
+                    "po_3_ethnicity",
+                    "po_3_race",
+                    "po_3_gender_flag",
+                    "po_4_ethnicity",
+                    "po_4_race",
+                    "po_4_gender_flag",
+                ],
+                condition_values=["1"],
+                should_fieldset_key_equal_to={
+                    "po_1_ethnicity": (0, False, ""),
+                    "po_1_race": (1, False, ""),
+                    "po_1_gender_flag": (2, False, ""),
+                    "po_2_ethnicity": (3, True, ""),
+                    "po_2_race": (4, True, ""),
+                    "po_2_gender_flag": (5, True, ""),
+                    "po_3_ethnicity": (6, True, ""),
+                    "po_3_race": (7, True, ""),
+                    "po_3_gender_flag": (8, True, ""),
+                    "po_4_ethnicity": (9, True, ""),
+                    "po_4_race": (10, True, ""),
+                    "po_4_gender_flag": (11, True, ""),
+                },
+            ),
+            SBLCheck(
+                has_valid_fieldset_pair,
+                name="po_demographics_2.conditional_fieldset_conflict",
+                description=(
+                    "When 'number of principal owners' equals 2, "
+                    "'ethnicity of principal owner 1 and 2', 'race of principal "
+                    "owner 1 and 2', and 'sex/gender of principal owner 1 and 2: "
+                    "NP flag' should not be blank."
+                ),
+                groupby=[
+                    "po_1_ethnicity",
+                    "po_1_race",
+                    "po_1_gender_flag",
+                    "po_2_ethnicity",
+                    "po_2_race",
+                    "po_2_gender_flag",
+                    "po_3_ethnicity",
+                    "po_3_race",
+                    "po_3_gender_flag",
+                    "po_4_ethnicity",
+                    "po_4_race",
+                    "po_4_gender_flag",
+                ],
+                condition_values=["2"],
+                should_fieldset_key_equal_to={
+                    "po_1_ethnicity": (0, False, ""),
+                    "po_1_race": (1, False, ""),
+                    "po_1_gender_flag": (2, False, ""),
+                    "po_2_ethnicity": (3, False, ""),
+                    "po_2_race": (4, False, ""),
+                    "po_2_gender_flag": (5, False, ""),
+                    "po_3_ethnicity": (6, True, ""),
+                    "po_3_race": (7, True, ""),
+                    "po_3_gender_flag": (8, True, ""),
+                    "po_4_ethnicity": (9, True, ""),
+                    "po_4_race": (10, True, ""),
+                    "po_4_gender_flag": (11, True, ""),
+                },
+            ),
+            SBLCheck(
+                has_valid_fieldset_pair,
+                name="po_demographics_3.conditional_fieldset_conflict",
+                description=(
+                    "When 'number of principal owners' equals 3, "
+                    "'ethnicity of principal owner 1, 2, and 3', 'race of principal"
+                    " owner 1, 2, and 3', and 'sex/gender of principal owner 1, 2, "
+                    "and 3: NP flag' should not be blank. Demographic fields for "
+                    "principal owner 4 should be blank."
+                ),
+                groupby=[
+                    "po_1_ethnicity",
+                    "po_1_race",
+                    "po_1_gender_flag",
+                    "po_2_ethnicity",
+                    "po_2_race",
+                    "po_2_gender_flag",
+                    "po_3_ethnicity",
+                    "po_3_race",
+                    "po_3_gender_flag",
+                    "po_4_ethnicity",
+                    "po_4_race",
+                    "po_4_gender_flag",
+                ],
+                condition_values=["3"],
+                should_fieldset_key_equal_to={
+                    "po_1_ethnicity": (0, False, ""),
+                    "po_1_race": (1, False, ""),
+                    "po_1_gender_flag": (2, False, ""),
+                    "po_2_ethnicity": (3, False, ""),
+                    "po_2_race": (4, False, ""),
+                    "po_2_gender_flag": (5, False, ""),
+                    "po_3_ethnicity": (6, False, ""),
+                    "po_3_race": (7, False, ""),
+                    "po_3_gender_flag": (8, False, ""),
+                    "po_4_ethnicity": (9, True, ""),
+                    "po_4_race": (10, True, ""),
+                    "po_4_gender_flag": (11, True, ""),
+                },
+            ),
+            SBLCheck(
+                has_valid_fieldset_pair,
+                name="po_demographics_4.conditional_fieldset_conflict",
+                description=(
+                    "When 'number of principal owners' equals 4, "
+                    "'ethnicity of principal owner 1, 2, 3, and 4', "
+                    "'race of principal owner 1, 2, 3, and 4', "
+                    "and 'sex/gender of principal owner 1, 2, 3, and 4: NP flag'"
+                    " should not be blank."
+                ),
+                groupby=[
+                    "po_1_ethnicity",
+                    "po_1_race",
+                    "po_1_gender_flag",
+                    "po_2_ethnicity",
+                    "po_2_race",
+                    "po_2_gender_flag",
+                    "po_3_ethnicity",
+                    "po_3_race",
+                    "po_3_gender_flag",
+                    "po_4_ethnicity",
+                    "po_4_race",
+                    "po_4_gender_flag",
+                ],
+                condition_values=["4"],
+                should_fieldset_key_equal_to={
+                    "po_1_ethnicity": (0, False, ""),
+                    "po_1_race": (1, False, ""),
+                    "po_1_gender_flag": (2, False, ""),
+                    "po_2_ethnicity": (3, False, ""),
+                    "po_2_race": (4, False, ""),
+                    "po_2_gender_flag": (5, False, ""),
+                    "po_3_ethnicity": (6, False, ""),
+                    "po_3_race": (7, False, ""),
+                    "po_3_gender_flag": (8, False, ""),
+                    "po_4_ethnicity": (9, False, ""),
+                    "po_4_race": (10, False, ""),
+                    "po_4_gender_flag": (11, False, ""),
+                },
+            ),
+        ],
     },
     "num_principal_owners": {
         "phase_1": [
