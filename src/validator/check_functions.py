@@ -123,60 +123,6 @@ def ct_credit_product_ff_blank_validity(
     return pd.concat(validation_holder)
 
 
-# helper function for denial_reasons_conditional_enum_value:
-# check for target_value in existing values
-# process series and return validations
-def _get_not_contains_series_validations(series: pd.Series, target_value: str) -> dict:
-    series_validations = {}
-    for index, value in series.items():
-        existing_values = value.split(";")
-        validation = target_value not in existing_values
-        series_validations[index] = validation
-    return series_validations
-
-
-def denial_reasons_conditional_enum_value(
-    grouped_data: Dict[str, pd.Series],
-) -> pd.Series:
-    """
-    custom validation function for denial_reasons.enum_value_conflict
-    "When 'action taken' equals 3, 'denial reason(s)' must not"
-    "contain 999. When 'action taken' does not equal 3, 'denial"
-    "reason(s)' must equal 999."
-
-    Args:
-        grouped_data (Dict[str, pd.Series]): values from source file
-        condition_values (set[str]): list of values that we will use to
-            compare with values from source
-        separator (str, optional): separator in the values
-
-    Returns:
-        pd.Series: list of series with updated validation
-    """
-    validation_holder = []
-    action_taken_value = "3"
-    denial_reasons_value = "999"
-    for value, other_series in grouped_data.items():
-        if value == action_taken_value:
-            # IF action_taken is equal to 3 THEN
-            #       IF denial_reasons MUST NOT contains 999
-            validation_holder.append(
-                pd.Series(
-                    index=other_series.index,
-                    name=other_series.name,
-                    data=_get_not_contains_series_validations(
-                        other_series, denial_reasons_value
-                    ),
-                )
-            )
-        else:
-            # IF action_taken is not equal to 3 THEN
-            #   IF denial_reasons MUST equal to 999
-            validation_holder.append(other_series == denial_reasons_value)
-
-    return pd.concat(validation_holder)
-
-
 # helper function to get non blank values
 def _get_non_blank_values(values: list[str]):
     return filter(lambda v: v.strip() != "", values)
@@ -398,11 +344,11 @@ def _has_valid_enum_pair_validation_helper(
     series: pd.Series = None,
     condition_value=None,
 ) -> pd.Series:
-    result = None
+    result = pd.Series(index=series.index, name=series.name, data=True)
     if condition:
-        result = series != condition_value
-    else:
         result = series == condition_value
+    else:
+        result = series != condition_value
     return result
 
 
@@ -418,7 +364,9 @@ def _has_valid_enum_pair_helper(
             and received_values.issubset(condition["condition_values"])
         ):
             return _has_valid_enum_pair_validation_helper(
-                condition["is_equal_target"], other_series, condition["target_value"]
+                condition["should_equal_target"],
+                other_series,
+                condition["target_value"],
             )
         elif (
             condition["condition_values"] is not None
@@ -426,7 +374,9 @@ def _has_valid_enum_pair_helper(
             and received_values.isdisjoint(condition["condition_values"])
         ):
             return _has_valid_enum_pair_validation_helper(
-                condition["is_equal_target"], other_series, condition["target_value"]
+                condition["should_equal_target"],
+                other_series,
+                condition["target_value"],
             )
 
     return pd.Series(index=other_series.index, name=other_series.name, data=True)
@@ -448,13 +398,13 @@ def has_valid_enum_pair(
                         "condition_values": {"1", "2"},
                         "is_equal_condition": True,
                         "target_value": "999",
-                        "is_equal_target": True,
+                        "should_equal_target": True,
                     },
                     {
                         "condition_values": {"988"},
                         "is_equal_condition": True,
                         "target_value": "999",
-                        "is_equal_target": False,
+                        "should_equal_target": False,
                     },
                 ],
         separator (str, optional): character used to separate multiple values.
@@ -463,6 +413,7 @@ def has_valid_enum_pair(
 
     Returns: Series with corresponding True/False validation values for the column
     """
+
     # will hold individual boolean series to be concatenated at return
     validation_holder = []
     for value, other_series in grouped_data.items():
