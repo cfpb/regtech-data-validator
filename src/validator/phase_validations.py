@@ -10,7 +10,6 @@ an instance of a PanderaSchema object for phase 1 and phase 2."""
 
 import global_data
 from check_functions import (
-    denial_reasons_conditional_enum_value,
     has_correct_length,
     has_no_conditional_field_conflict,
     has_valid_enum_pair,
@@ -306,9 +305,20 @@ phase_1_and_2_validations = {
                     "equal 999."
                 ),
                 groupby="ct_credit_product",
-                condition_values1={"1", "2"},
-                condition_values2={"988"},
-                condition_value="999",
+                conditions=[
+                    {
+                        "condition_values": {"1", "2"},
+                        "is_equal_condition": True,
+                        "target_value": "999",
+                        "should_equal_target": False,
+                    },
+                    {
+                        "condition_values": {"988"},
+                        "is_equal_condition": True,
+                        "target_value": "999",
+                        "should_equal_target": True,
+                    },
+                ],
             ),
         ],
     },
@@ -727,7 +737,7 @@ phase_1_and_2_validations = {
                 max_length=4,
             ),
             SBLCheck(
-                denial_reasons_conditional_enum_value,
+                has_valid_enum_pair,
                 name="denial_reasons.enum_value_conflict",
                 description=(
                     "When 'action taken' equals 3, 'denial reason(s)' must not"
@@ -735,6 +745,20 @@ phase_1_and_2_validations = {
                     "reason(s)' must equal 999."
                 ),
                 groupby="action_taken",
+                conditions=[
+                    {
+                        "condition_values": {"3"},
+                        "is_equal_condition": True,
+                        "target_value": "999",
+                        "should_equal_target": False,
+                    },
+                    {
+                        "condition_values": {"3"},
+                        "is_equal_condition": False,
+                        "target_value": "999",
+                        "should_equal_target": True,
+                    },
+                ],
             ),
             SBLCheck(
                 meets_multi_value_field_restriction,
@@ -966,14 +990,26 @@ phase_1_and_2_validations = {
                     "When 'interest rate type' does not equal 1 (variable interest"
                     "rate, no initial rate period), 3 (initial rate period > 12"
                     "months, adjustable interest rate), or 5 (initial rate"
-                    "period <= 12 months, adjustable interest rate), 'adjustable rate"
-                    "transaction: index name' must equal 999."
+                    "period <= 12 months, adjustable interest rate), 'adjustable"
+                    " rate transaction: index name' must equal 999."
                     "When 'interest rate type' equals 1, 3, or 5, 'adjustable rate"
                     "transaction: index name' must not equal 999."
                 ),
                 groupby="pricing_interest_rate_type",
-                condition_values1={"1", "3", "5"},
-                condition_value="999",
+                conditions=[
+                    {
+                        "condition_values": {"1", "3", "5"},
+                        "is_equal_condition": False,
+                        "target_value": "999",
+                        "should_equal_target": True,
+                    },
+                    {
+                        "condition_values": {"1", "3", "5"},
+                        "is_equal_condition": True,
+                        "target_value": "999",
+                        "should_equal_target": False,
+                    },
+                ],
             ),
         ],
     },
@@ -1096,7 +1132,28 @@ phase_1_and_2_validations = {
                 ],
             ),
         ],
-        "phase_2": [],
+        "phase_2": [
+            SBLCheck(
+                has_valid_enum_pair,
+                name="pricing_mca_addcost_flag.enum_value_conflict",
+                description=(
+                    "When 'credit product' does not equal 7 (merchant cash "
+                    "advance), 8 (other sales-based financing transaction) "
+                    "or 977 (other), 'MCA/sales-based: additional cost for "
+                    "merchant cash advances or other sales-based financing: "
+                    "NA flag' must be 999 (not applicable)."
+                ),
+                groupby="ct_credit_product",
+                conditions=[
+                    {
+                        "condition_values": {"7", "8", "977"},
+                        "is_equal_condition": False,
+                        "target_value": "999",
+                        "should_equal_target": True,
+                    }
+                ],
+            ),
+        ],
     },
     "pricing_prepenalty_exists": {
         "phase_1": [
@@ -1163,9 +1220,20 @@ phase_1_and_2_validations = {
                     " tract number' must not be blank."
                 ),
                 groupby="census_tract_adr_type",
-                condition_values1={"1", "2", "3"},
-                condition_values2={"988"},
-                condition_value="",
+                conditions=[
+                    {
+                        "condition_values": {"1", "2", "3"},
+                        "is_equal_condition": True,
+                        "target_value": "",
+                        "should_equal_target": False,
+                    },
+                    {
+                        "condition_values": {"988"},
+                        "is_equal_condition": True,
+                        "target_value": "",
+                        "should_equal_target": True,
+                    },
+                ],
             ),
         ],
     },
