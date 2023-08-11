@@ -716,3 +716,34 @@ def has_valid_fieldset_pair(
             )
         )
     return pd.concat(validation_holder)
+
+
+def is_valid_id(
+    ct_value: str,
+    target_value: str,
+    ct_slice_start_pos: int = None,
+    ct_slice_end_pos: int = None,
+) -> bool:
+    """
+    check if value matches target value
+
+    Args:
+        ct_value (str): parsed value
+        target_value (str): target value to which ct_value is compare to
+        accept_blank (bool): accept blank value
+        ct_slice_start_pos (int): the start position if the ct_value needs to sliced
+        ct_slice_end_pos (int): the end position if the ct_value needs to sliced
+    Returns:
+        bool: true if value matches target_value
+    """
+    result_value = ct_value
+    if ct_slice_start_pos is not None and ct_slice_end_pos is not None:
+        result_value = ct_value[ct_slice_start_pos:ct_slice_end_pos]
+    elif ct_slice_start_pos is not None and ct_slice_end_pos is None:
+        result_value = ct_value[ct_slice_start_pos:]
+    elif ct_slice_start_pos is None and ct_slice_end_pos is not None:
+        result_value = ct_value[:ct_slice_end_pos]
+
+    key_check = result_value == target_value
+
+    return key_check
