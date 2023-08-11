@@ -18,7 +18,7 @@ from validator.check_functions import (
     is_unique_in_field,
     is_valid_code,
     is_valid_enum,
-    is_valid_id,
+    is_valid_match,
     meets_multi_value_field_restriction,
 )
 
@@ -810,11 +810,11 @@ class TestIsValidId:
     def test_with_correct_values(self):
         """when ct_slice_start_pos and ct_slice_end_pos are not set,
         if ct_value matches target_value, must return true"""
-        assert is_valid_id("000TESTFIUIDDONOTUSE", "000TESTFIUIDDONOTUSE") is True
+        assert is_valid_match("000TESTFIUIDDONOTUSE", "000TESTFIUIDDONOTUSE") is True
         """ when ct_slice_start_pos and ct_slice_end_pos are set, 
         if sliced ct_value matches target_value, must return true """
         assert (
-            is_valid_id(
+            is_valid_match(
                 "000TESTFIUIDDONOTUSEXGXVID11XTC1",
                 "TEST",
                 ct_slice_start_pos=3,
@@ -825,7 +825,7 @@ class TestIsValidId:
         """ when only ct_slice_start_pos is set, 
         if sliced ct_value matches target_value, must return true """
         assert (
-            is_valid_id(
+            is_valid_match(
                 "000TESTFIUIDDONOTUSEXGXVID11XTC1",
                 "TESTFIUIDDONOTUSEXGXVID11XTC1",
                 ct_slice_start_pos=3,
@@ -835,7 +835,7 @@ class TestIsValidId:
         """ when only ct_slice_end_pos is set, 
         if sliced ct_value matches target_value, must return true """
         assert (
-            is_valid_id(
+            is_valid_match(
                 "000TESTFIUIDDONOTUSEXGXVID11XTC1",
                 "000TESTFIUIDDONOTUSE",
                 ct_slice_end_pos=20,
@@ -846,22 +846,22 @@ class TestIsValidId:
     def test_with_incorrect_values(self):
         """when ct_slice_start_pos and ct_slice_end_pos are not set,
         if ct_value does not match target_value, must return false"""
-        assert is_valid_id("000TESTFIUIDDONOTUSE", "TESTFIUIDDONOTUSE") is False
+        assert is_valid_match("000TESTFIUIDDONOTUSE", "TESTFIUIDDONOTUSE") is False
         """ when ct_slice_start_pos and ct_slice_end_pos are set, 
         if sliced ct_value does not match target_value, must return false """
-        assert is_valid_id("000FIUIDDONOTUSEXGXVID11XTC1", "TEST", 4, 7) is False
+        assert is_valid_match("000FIUIDDONOTUSEXGXVID11XTC1", "TEST", 4, 7) is False
         """ when only ct_slice_start_pos is set, 
         if sliced ct_value does not match target_value, must return false """
         assert (
-            is_valid_id(
+            is_valid_match(
                 "000TESTFIUIDDONOTUSEXGXVID11XTC1", "0TESTFIUIDDONOTUSEXGXVID11XTC1", 4
             )
             is False
         )
         """ when only ct_slice_start_pos is set, 
-        if sliced ct_value does not matche target_value, must return false """
+        if sliced ct_value does not match target_value, must return false """
         assert (
-            is_valid_id(
+            is_valid_match(
                 "000TESTFIUIDDONOTUSEXGXVID11XTC1", "000TESTFIUIDDONOTUSEXGX", 20
             )
             is False

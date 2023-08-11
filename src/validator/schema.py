@@ -27,7 +27,7 @@ from check_functions import (
     is_unique_in_field,
     is_valid_code,
     is_valid_enum,
-    is_valid_id,
+    is_valid_match,
     meets_multi_value_field_restriction,
 )
 from checks import SBLCheck
@@ -77,7 +77,7 @@ def return_sblar_schema(lei: str):
                         groupby="uid",
                     ),
                     SBLCheck(
-                        is_valid_id,
+                        is_valid_match,
                         name="uid.invalid_uid_lei",
                         description=(
                             "The first 20 characters of the 'unique identifier' should match "

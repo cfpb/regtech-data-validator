@@ -718,7 +718,7 @@ def has_valid_fieldset_pair(
     return pd.concat(validation_holder)
 
 
-def is_valid_id(
+def is_valid_match(
     ct_value: str,
     target_value: str,
     ct_slice_start_pos: int = None,
@@ -744,6 +744,6 @@ def is_valid_id(
     elif ct_slice_start_pos is None and ct_slice_end_pos is not None:
         result_value = ct_value[:ct_slice_end_pos]
 
-    key_check = result_value == target_value
+    result_check = result_value == target_value
 
-    return key_check
+    return result_check
