@@ -1191,8 +1191,8 @@ sblar_schema = DataFrameSchema(
         "pricing_mca_addcost": Column(
             str,
             title=(
-                "Field 31: MCA/sales-based: additional cost for merchant cash ",
-                "advances or other sales-based financing",
+                "Field 31: MCA/sales-based: additional cost for merchant cash "
+                "advances or other sales-based financing"
             ),
             checks=[
                 SBLCheck(

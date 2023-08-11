@@ -14,7 +14,7 @@ in the fig."""
 
 import re
 from datetime import datetime, timedelta
-from typing import Dict
+from typing import Dict,Any
 
 import pandas as pd
 
@@ -110,7 +110,7 @@ def ct_credit_product_ff_blank_validity(
     """
 
     # will hold individual boolean series to be concatenated at return
-    validation_holder = []
+    validation_holder: list[pd.Series] = []
 
     for ct_credit_product_value, ct_credit_product_ff_series in grouped_data.items():
         if ct_credit_product_value != 977:
@@ -146,7 +146,7 @@ def has_valid_multi_field_value_count(
     ignored_values: set[str] = set(),
     separator: str = ";",
 ) -> pd.Series:
-    validation_holder = []
+    validation_holder: list[pd.Series] = []
     items = grouped_data.items()
 
     for value, other_series in items:
@@ -198,7 +198,7 @@ def has_no_conditional_field_conflict(
         pd.Series: series of current column validations
     """
     # will hold individual boolean series to be concatenated at return
-    validation_holder = []
+    validation_holder: list[pd.Series] = []
     for value, other_series in grouped_data.items():
         received_values = set(value.split(separator))
         if received_values.isdisjoint(condition_values):
@@ -263,7 +263,7 @@ def is_valid_enum(
 
 
 def has_valid_value_count(
-    ct_value: str, min_length: int, max_length: int = None, separator: str = ";"
+    ct_value: str, min_length: int, max_length: int|None = None, separator: str = ";"
 ) -> bool:
     values_count = len(ct_value.split(separator))
     if max_length is None:
@@ -305,7 +305,7 @@ def is_date_after(
     Returns: Series with corresponding True/False validation values for the column
     """
     # will hold individual boolean series to be concatenated at return
-    validation_holder = []
+    validation_holder: list[pd.Series] = []
     for value, other_series in grouped_data.items():
         try:
             before_date = datetime.strptime(value, "%Y%m%d")
@@ -341,7 +341,7 @@ def is_number(ct_value: str, accept_blank: bool = False) -> bool:
 
 def _has_valid_enum_pair_validation_helper(
     condition=True,
-    series: pd.Series = None,
+    series: pd.Series = pd.Series(dtype=object), # FIXME: Remove default
     condition_value=None,
 ) -> pd.Series:
     result = pd.Series(index=series.index, name=series.name, data=True)
@@ -353,9 +353,9 @@ def _has_valid_enum_pair_validation_helper(
 
 
 def _has_valid_enum_pair_helper(
-    conditions: list[list] = None,
-    received_values: set[str] = None,
-    other_series: pd.Series = None,
+    conditions: list[dict],
+    received_values: set[str],
+    other_series: pd.Series,
 ) -> pd.Series:
     for condition in conditions:
         if (
@@ -384,7 +384,7 @@ def _has_valid_enum_pair_helper(
 
 def has_valid_enum_pair(
     grouped_data: Dict[str, pd.Series],
-    conditions: list[list] = None,
+    conditions: list[dict],
     separator: str = ";",
 ) -> pd.Series:
     """Validates a column's enum value based on another column's enum values.
@@ -415,7 +415,7 @@ def has_valid_enum_pair(
     """
 
     # will hold individual boolean series to be concatenated at return
-    validation_holder = []
+    validation_holder: list[pd.Series] = []
     for value, other_series in grouped_data.items():
         received_values = set(value.split(separator))
         validation_holder.append(
@@ -437,7 +437,7 @@ def is_date_before_in_days(
     Returns: Series with corresponding True/False validation values for the column
     """
     # will hold individual boolean series to be concatenated at return
-    validation_holder = []
+    validation_holder: list[pd.Series] = []
     for value, other_series in grouped_data.items():
         try:
             initial_date = datetime.strptime(value, "%Y%m%d")
@@ -451,6 +451,7 @@ def is_date_before_in_days(
             )
         except ValueError:
             validation_holder.append(other_series.apply(lambda v: False))
+
     return pd.concat(validation_holder)
 
 
@@ -540,56 +541,38 @@ def has_valid_format(value: str, regex: str, accept_blank: bool = False) -> bool
     return _check_blank_(value, bool(re.match(regex, value)), accept_blank)
 
 
-def _is_unique_column_helper(series: pd.Series, count_limit: int):
-    """
-    helper function for is_unique_column
-
-    Args:
-        series (pd.Series): series related to a row
-
-    Returns:
-        all rows validations
-    """
-    series_validations = {}
-    check_result = series.count() <= count_limit
-    for current_index, _ in series.items():
-        series_validations[current_index] = check_result
-    return series_validations
-
-
-def is_unique_column(
-    grouped_data: Dict[any, pd.Series], count_limit: int = 1
-) -> pd.Series:
+def is_unique_column(grouped_data: Dict[Any, pd.Series]) -> pd.Series:
     """
     verify if the content of a column is unique.
-    - To be used with element_wise set to false
-    - To be used with group_by set to itself column
-    - Return validations for each row
 
     Args:
-        grouped_data (Dict[any, pd.Series]): rows data
+        grouped_data (Dict[Any, pd.Series]): rows data
 
     Returns:
         pd.Series: all rows validations
     """
-    validation_holder = []
-    for _, main_series in grouped_data.items():
-        validation_holder.append(
-            pd.Series(
-                index=main_series.index,
-                name=main_series.name,
-                data=_is_unique_column_helper(main_series, count_limit),
-            )
-        )
-    return pd.concat(validation_holder)
+    # FIXME: Pull name from grouped_data
+    records = pd.Series(dtype=object, name='uid')
+
+    for record in grouped_data.values():
+        records = pd.concat([records, record], axis=0)
+
+    # `~` inverts `duplicated()` results. This is needed as it
+    # returns `True` for each dupe, but Pandera's Checks use
+    # `False` for failure.
+    dupe_records = ~records.duplicated(keep=False)
+
+    return dupe_records
 
 
 def _get_has_valid_fieldset_pair_eq_neq_validation_value(
     current_values: list[str],
-    should_fieldset_key_equal_to: dict({str: (int, bool, str)}) = None,
+    should_fieldset_key_equal_to: dict[str, int|bool|str],
 ) -> bool:
     # for field_name, (index, equal_to, target_value) in should_fieldset_key_equal_to:
+    # TODO: What _IS_ this doing?
     for index, should_equal_to, target_value in should_fieldset_key_equal_to.values():
+
         if should_equal_to:
             # if received value != target value, then returns False (Warning)
             if current_values[index] != target_value:
@@ -598,6 +581,7 @@ def _get_has_valid_fieldset_pair_eq_neq_validation_value(
             # if received value equal target value, then returns False (Warning)
             if current_values[index] == target_value:
                 return False
+            
     # By default returns True (No Warning and fieldset pair is VALID)
     return True
 
@@ -606,7 +590,7 @@ def _has_valid_fieldset_pair_helper(
     current_values: list[str],
     series: pd.Series,
     condition_values: list[str],
-    should_fieldset_key_equal_to: dict({str: (int, bool, str)}) = None,
+    should_fieldset_key_equal_to: dict[str, int|bool|str],
 ):
     series_validations = {}
     for current_index, current_value in series.items():
@@ -631,13 +615,14 @@ def _has_valid_fieldset_pair_helper(
             and has_valid_fieldset_pair_eq_neq_validation_value
         ) or current_value not in condition_values
         series_validations[current_index] = validation
+
     return series_validations
 
 
 def has_valid_fieldset_pair(
-    grouped_data: Dict[any, pd.Series],
+    grouped_data: dict[Any, pd.Series],
     condition_values: list[str],
-    should_fieldset_key_equal_to: dict({str: (int, bool, str)}) = None,
+    should_fieldset_key_equal_to: dict[str,bool|int|str],
 ) -> pd.Series:
     """conditional check to verify if groups of fields equal to specific
         values (equal_to_values) when another field is set/equal to
@@ -698,7 +683,7 @@ def has_valid_fieldset_pair(
     Returns:
         pd.Series: list of series with update validations
     """
-    validation_holder = []
+    validation_holder: list[pd.Series] = []
     for values, main_series in grouped_data.items():
         validation_holder.append(
             pd.Series(
