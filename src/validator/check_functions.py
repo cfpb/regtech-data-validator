@@ -733,7 +733,7 @@ def string_contains(
         start_idx (int): the start index if the value needs to sliced
         end_idx (int): the end index if the value needs to sliced
     Returns:
-        bool: true if value matches target_value
+        bool: true if value matches containing_value
     """
     if containing_value is not None:
         if start_idx is not None and end_idx is not None:
