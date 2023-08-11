@@ -720,7 +720,7 @@ def has_valid_fieldset_pair(
 
 def is_valid_match(
     ct_value: str,
-    target_value: str,
+    target_value: str = None,
     ct_slice_start_pos: int = None,
     ct_slice_end_pos: int = None,
 ) -> bool:
@@ -736,14 +736,16 @@ def is_valid_match(
     Returns:
         bool: true if value matches target_value
     """
-    result_value = ct_value
-    if ct_slice_start_pos is not None and ct_slice_end_pos is not None:
-        result_value = ct_value[ct_slice_start_pos:ct_slice_end_pos]
-    elif ct_slice_start_pos is not None and ct_slice_end_pos is None:
-        result_value = ct_value[ct_slice_start_pos:]
-    elif ct_slice_start_pos is None and ct_slice_end_pos is not None:
-        result_value = ct_value[:ct_slice_end_pos]
+    result_check = True
+    if target_value is not None:
+        result_value = ct_value
+        if ct_slice_start_pos is not None and ct_slice_end_pos is not None:
+            result_value = ct_value[ct_slice_start_pos:ct_slice_end_pos]
+        elif ct_slice_start_pos is not None and ct_slice_end_pos is None:
+            result_value = ct_value[ct_slice_start_pos:]
+        elif ct_slice_start_pos is None and ct_slice_end_pos is not None:
+            result_value = ct_value[:ct_slice_end_pos]
 
-    result_check = result_value == target_value
+        result_check = result_value == target_value
 
     return result_check

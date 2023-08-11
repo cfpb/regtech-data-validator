@@ -27,6 +27,8 @@ failed validation.
 
 ```sh
 # Test validating the "good" file
+# If passing lei value, pass lei as fist arg and csv_path as second arg
+# else just pass the csv_path as arg
 python src/validator/main.py SBL_Validations_SampleData_GoodFile_03312023.csv
 
 # Test validating the "bad" file

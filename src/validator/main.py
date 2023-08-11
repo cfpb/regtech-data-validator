@@ -55,10 +55,16 @@ def run_validation_on_df(df: pd.DataFrame, lei: str) -> None:
 
 if __name__ == "__main__":
     csv_path = None
-    try:
-        csv_path = sys.argv[1]
-    except IndexError:
+    lei: str = None
+    if len(sys.argv) == 1:
         raise ValueError("csv_path arg not provided")
+    elif len(sys.argv) == 2:
+        csv_path = sys.argv[1]
+    elif len(sys.argv) == 3:
+        lei = sys.argv[1]
+        csv_path = sys.argv[2]
+    else:
+        raise ValueError("correct number of args not provided")
 
     df = csv_to_df(csv_path)
-    run_validation_on_df(df, "000TESTFIUIDDONOTUSE")
+    run_validation_on_df(df, lei)
