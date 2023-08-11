@@ -9,7 +9,7 @@ import sys
 
 import pandas as pd
 from pandera.errors import SchemaErrors
-from schema import return_sblar_schema
+from schema import get_schema_for_lei
 
 
 def csv_to_df(path: str) -> pd.DataFrame:
@@ -28,7 +28,7 @@ def run_validation_on_df(df: pd.DataFrame, lei: str) -> None:
     print(df)
     print("")
 
-    sblar_schema = return_sblar_schema(lei)
+    sblar_schema = get_schema_for_lei(lei)
 
     try:
         sblar_schema(df, lazy=True)

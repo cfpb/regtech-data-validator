@@ -18,8 +18,8 @@ from validator.check_functions import (
     is_unique_in_field,
     is_valid_code,
     is_valid_enum,
-    is_valid_match,
     meets_multi_value_field_restriction,
+    string_contains,
 )
 
 
@@ -808,61 +808,70 @@ class TestHasValidFieldsetPair:
 
 class TestIsValidId:
     def test_with_correct_values(self):
-        """when ct_slice_start_pos and ct_slice_end_pos are not set,
-        if ct_value matches target_value, must return true"""
-        assert is_valid_match("000TESTFIUIDDONOTUSE", "000TESTFIUIDDONOTUSE") is True
-        """ when ct_slice_start_pos and ct_slice_end_pos are set, 
-        if sliced ct_value matches target_value, must return true """
+        """when start_idx and end_idx are not set,
+        if value matches containing_value, must return true"""
+        assert string_contains("000TESTFIUIDDONOTUSE", "000TESTFIUIDDONOTUSE") is True
+        """ when start_idx and end_idx are set, 
+        if sliced value matches ontaining_value, must return true """
         assert (
-            is_valid_match(
+            string_contains(
                 "000TESTFIUIDDONOTUSEXGXVID11XTC1",
                 "TEST",
-                ct_slice_start_pos=3,
-                ct_slice_end_pos=7,
+                start_idx=3,
+                end_idx=7,
             )
             is True
         )
-        """ when only ct_slice_start_pos is set, 
-        if sliced ct_value matches target_value, must return true """
+        """ when only start_idx is set, 
+        if sliced value matches containing_value, must return true """
         assert (
-            is_valid_match(
+            string_contains(
                 "000TESTFIUIDDONOTUSEXGXVID11XTC1",
                 "TESTFIUIDDONOTUSEXGXVID11XTC1",
-                ct_slice_start_pos=3,
+                start_idx=3,
             )
             is True
         )
-        """ when only ct_slice_end_pos is set, 
-        if sliced ct_value matches target_value, must return true """
+        """ when only end_idx is set, 
+        if sliced value matches containing_value, must return true """
         assert (
-            is_valid_match(
+            string_contains(
                 "000TESTFIUIDDONOTUSEXGXVID11XTC1",
                 "000TESTFIUIDDONOTUSE",
-                ct_slice_end_pos=20,
+                end_idx=20,
             )
             is True
         )
 
     def test_with_incorrect_values(self):
-        """when ct_slice_start_pos and ct_slice_end_pos are not set,
-        if ct_value does not match target_value, must return false"""
-        assert is_valid_match("000TESTFIUIDDONOTUSE", "TESTFIUIDDONOTUSE") is False
-        """ when ct_slice_start_pos and ct_slice_end_pos are set, 
-        if sliced ct_value does not match target_value, must return false """
-        assert is_valid_match("000FIUIDDONOTUSEXGXVID11XTC1", "TEST", 4, 7) is False
-        """ when only ct_slice_start_pos is set, 
-        if sliced ct_value does not match target_value, must return false """
+        """when start_idx and end_idx are not set,
+        if value does not match containing_value, must return false"""
+        assert string_contains("000TESTFIUIDDONOTUSE", "TESTFIUIDDONOTUSE") is False
+        """ when start_idx and end_idx are set, 
+        if sliced value does not match containing_value, must return false """
         assert (
-            is_valid_match(
-                "000TESTFIUIDDONOTUSEXGXVID11XTC1", "0TESTFIUIDDONOTUSEXGXVID11XTC1", 4
+            string_contains(
+                "000FIUIDDONOTUSEXGXVID11XTC1", "TEST", start_idx=4, end_idx=7
             )
             is False
         )
-        """ when only ct_slice_start_pos is set, 
-        if sliced ct_value does not match target_value, must return false """
+        """ when only start_idx is set, 
+        if sliced value does not match containing_value, must return false """
         assert (
-            is_valid_match(
-                "000TESTFIUIDDONOTUSEXGXVID11XTC1", "000TESTFIUIDDONOTUSEXGX", 20
+            string_contains(
+                "000TESTFIUIDDONOTUSEXGXVID11XTC1",
+                "0TESTFIUIDDONOTUSEXGXVID11XTC1",
+                start_idx=4,
+            )
+            is False
+        )
+        """ when only end_idx is set, 
+        if sliced value does not match containing_value, must return false """
+        assert (
+            string_contains(
+                "000TESTFIUIDDONOTUSEXGXVID11XTC1",
+                "000TESTFIUIDDONOTUSEXGX",
+                end_idx=20,
             )
             is False
         )

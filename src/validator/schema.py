@@ -27,8 +27,8 @@ from check_functions import (
     is_unique_in_field,
     is_valid_code,
     is_valid_enum,
-    is_valid_match,
     meets_multi_value_field_restriction,
+    string_contains,
 )
 from checks import SBLCheck
 from pandera import Column, DataFrameSchema
@@ -40,7 +40,7 @@ global_data.read_naics_codes()
 global_data.read_geoids()
 
 
-def return_sblar_schema(lei: str):
+def get_schema_for_lei(lei: str):
     return DataFrameSchema(
         {
             "uid": Column(
@@ -77,15 +77,15 @@ def return_sblar_schema(lei: str):
                         groupby="uid",
                     ),
                     SBLCheck(
-                        is_valid_match,
+                        string_contains,
                         name="uid.invalid_uid_lei",
                         description=(
                             "The first 20 characters of the 'unique identifier' should match "
                             "the Legal Entity Identifier (LEI) for the financial institution."
                         ),
                         element_wise=True,
-                        target_value=lei,
-                        ct_slice_end_pos=20,
+                        containing_value=lei,
+                        end_idx=20,
                     ),
                 ],
             ),

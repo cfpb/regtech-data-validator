@@ -718,34 +718,31 @@ def has_valid_fieldset_pair(
     return pd.concat(validation_holder)
 
 
-def is_valid_match(
-    ct_value: str,
-    target_value: str = None,
-    ct_slice_start_pos: int = None,
-    ct_slice_end_pos: int = None,
+def string_contains(
+    value: str,
+    containing_value: str = None,
+    start_idx: int = None,
+    end_idx: int = None,
 ) -> bool:
     """
-    check if value matches target value
+    check if value matches containing value
 
     Args:
-        ct_value (str): parsed value
-        target_value (str): target value to which ct_value is compare to
-        accept_blank (bool): accept blank value
-        ct_slice_start_pos (int): the start position if the ct_value needs to sliced
-        ct_slice_end_pos (int): the end position if the ct_value needs to sliced
+        value (str): parsed value
+        containing_value (str): tcontaining value to which value is compared to
+        start_idx (int): the start index if the value needs to sliced
+        end_idx (int): the end index if the value needs to sliced
     Returns:
         bool: true if value matches target_value
     """
-    result_check = True
-    if target_value is not None:
-        result_value = ct_value
-        if ct_slice_start_pos is not None and ct_slice_end_pos is not None:
-            result_value = ct_value[ct_slice_start_pos:ct_slice_end_pos]
-        elif ct_slice_start_pos is not None and ct_slice_end_pos is None:
-            result_value = ct_value[ct_slice_start_pos:]
-        elif ct_slice_start_pos is None and ct_slice_end_pos is not None:
-            result_value = ct_value[:ct_slice_end_pos]
-
-        result_check = result_value == target_value
-
-    return result_check
+    if containing_value is not None:
+        if start_idx is not None and end_idx is not None:
+            return value[start_idx:end_idx] == containing_value
+        elif start_idx is not None and end_idx is None:
+            return value[start_idx:] == containing_value
+        elif start_idx is None and end_idx is not None:
+            return value[:end_idx] == containing_value
+        else:
+            return value == containing_value
+    else:
+        return True
