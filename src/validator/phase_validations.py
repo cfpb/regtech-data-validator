@@ -38,7 +38,7 @@ from checks import SBLCheck
 global_data.read_naics_codes()
 
 
-def get_phase_1_and_2_validations(lei: str):
+def get_phase_1_and_2_validations_for_lei(lei: str = None):
     return {
         "uid": {
             "phase_1": [
