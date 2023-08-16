@@ -9,14 +9,14 @@ import sys
 
 import pandas as pd
 from pandera.errors import SchemaErrors
-from schema import sblar_schema
+from schema import get_schema_for_lei
 
 
 def csv_to_df(path: str) -> pd.DataFrame:
     return pd.read_csv(path, dtype=str, na_filter=False)
 
 
-def run_validation_on_df(df: pd.DataFrame) -> None:
+def run_validation_on_df(df: pd.DataFrame, lei: str) -> None:
     """
     Run validaition on the supplied dataframe and print a report to
     the terminal.
@@ -27,6 +27,8 @@ def run_validation_on_df(df: pd.DataFrame) -> None:
     print("")
     print(df)
     print("")
+
+    sblar_schema = get_schema_for_lei(lei)
 
     try:
         sblar_schema(df, lazy=True)
@@ -53,10 +55,16 @@ def run_validation_on_df(df: pd.DataFrame) -> None:
 
 if __name__ == "__main__":
     csv_path = None
-    try:
-        csv_path = sys.argv[1]
-    except IndexError:
+    lei: str = None
+    if len(sys.argv) == 1:
         raise ValueError("csv_path arg not provided")
-    
+    elif len(sys.argv) == 2:
+        csv_path = sys.argv[1]
+    elif len(sys.argv) == 3:
+        lei = sys.argv[1]
+        csv_path = sys.argv[2]
+    else:
+        raise ValueError("correct number of args not provided")
+
     df = csv_to_df(csv_path)
-    run_validation_on_df(df)
+    run_validation_on_df(df, lei)
