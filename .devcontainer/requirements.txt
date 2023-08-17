@@ -6,3 +6,6 @@ pandera==0.14.5
 ipykernel
 openpyxl
 pytest
+python-multipart
+uvicorn
+fastapi

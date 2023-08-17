@@ -1,25 +1,19 @@
 import pandas as pd
 
-from validator import global_data
-from validator.check_functions import (
-    has_correct_length,
-    has_no_conditional_field_conflict,
-    has_valid_enum_pair,
-    has_valid_fieldset_pair,
-    has_valid_format,
-    has_valid_multi_field_value_count,
-    has_valid_value_count,
-    is_date,
-    is_greater_than,
-    is_greater_than_or_equal_to,
-    is_less_than,
-    is_number,
-    is_unique_column,
-    is_unique_in_field,
-    is_valid_code,
-    is_valid_enum,
-    meets_multi_value_field_restriction,
-)
+from util import global_data
+from validator.check_functions import (has_correct_length,
+                                       has_no_conditional_field_conflict,
+                                       has_valid_enum_pair,
+                                       has_valid_fieldset_pair,
+                                       has_valid_format,
+                                       has_valid_multi_field_value_count,
+                                       has_valid_value_count, is_date,
+                                       is_greater_than,
+                                       is_greater_than_or_equal_to,
+                                       is_less_than, is_number,
+                                       is_unique_column, is_unique_in_field,
+                                       is_valid_code, is_valid_enum,
+                                       meets_multi_value_field_restriction)
 
 
 class TestInvalidDateFormat:
@@ -507,32 +501,29 @@ class TestHasCorrectLength:
 
 
 class TestIsValidCode:
+    naics_codes = global_data.read_naics_codes()
     def test_with_valid_code(self):
-        global_data.read_naics_codes()
-        result = is_valid_code("111", False, global_data.naics_codes)
+        result = is_valid_code("111", False, self.naics_codes)
         assert result is True
-        result = is_valid_code("111", True, global_data.naics_codes)
+        result = is_valid_code("111", True, self.naics_codes)
         assert result is True
 
     def test_with_invalid_code(self):
-        global_data.read_naics_codes()
-        result = is_valid_code("101", False, global_data.naics_codes)
+        result = is_valid_code("101", False, self.naics_codes)
         assert result is False
-        result = is_valid_code("101", True, global_data.naics_codes)
+        result = is_valid_code("101", True, self.naics_codes)
         assert result is False
 
     def test_with_accepted_blank(self):
-        global_data.read_naics_codes()
-        result = is_valid_code("", True, global_data.naics_codes)
+        result = is_valid_code("", True, self.naics_codes)
         assert result is True
-        result = is_valid_code(" ", True, global_data.naics_codes)
+        result = is_valid_code(" ", True, self.naics_codes)
         assert result is True
 
     def test_with_invalid_blank(self):
-        global_data.read_naics_codes()
-        result = is_valid_code("", False, global_data.naics_codes)
+        result = is_valid_code("", False, self.naics_codes)
         assert result is False
-        result = is_valid_code(" ", False, global_data.naics_codes)
+        result = is_valid_code(" ", False, self.naics_codes)
         assert result is False
 
 
