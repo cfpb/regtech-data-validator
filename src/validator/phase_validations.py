@@ -3,13 +3,7 @@
 This mapping is used to populate the schema template object and create
 an instance of a PanderaSchema object for phase 1 and phase 2."""
 
-#! NOTE: "pricing_adj_margin", "pricing_adj_index_name": "pricing_adj_index_name_ff",
-#        and "pricing_adj_index_value" have been renamed. They used to be called
-#        pricing_var_xyz but are now called pricing_adj_xyz
-
-
-import global_data
-from check_functions import (
+from .check_functions import (
     has_correct_length,
     has_no_conditional_field_conflict,
     has_valid_enum_pair,
@@ -32,13 +26,12 @@ from check_functions import (
     meets_multi_value_field_restriction,
     string_contains,
 )
-from checks import SBLCheck
-
-# read and populate global naics code (this should be called only once)
-global_data.read_naics_codes()
+from .checks import SBLCheck
 
 
-def get_phase_1_and_2_validations_for_lei(lei: str = None):
+def get_phase_1_and_2_validations_for_lei(
+    naics_codes: dict, census_geoids: dict, lei: str = None
+):
     return {
         "uid": {
             "phase_1": [
@@ -1131,24 +1124,8 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             ],
             "phase_2": [],
         },
-        "pricing_mca_addcost_flag": {"phase_1": [], "phase_2": []},
-        "pricing_mca_addcost": {"phase_1": [], "phase_2": []},
-        "pricing_prepenalty_allowed": {
-            "phase_1": [
-                SBLCheck(
-                    is_valid_enum,
-                    name="pricing_prepenalty_allowed.invalid_enum_value",
-                    description=(
-                        "'Prepayment penalty could be imposed' must equal 1, 2, or 999."
-                    ),
-                    element_wise=True,
-                    accepted_values=[
-                        "1",
-                        "2",
-                        "999",
-                    ],
-                ),
-            ],
+        "pricing_mca_addcost_flag": {
+            "phase_1": [],
             "phase_2": [
                 SBLCheck(
                     has_valid_enum_pair,
@@ -1171,6 +1148,25 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     ],
                 ),
             ],
+        },
+        "pricing_mca_addcost": {"phase_1": [], "phase_2": []},
+        "pricing_prepenalty_allowed": {
+            "phase_1": [
+                SBLCheck(
+                    is_valid_enum,
+                    name="pricing_prepenalty_allowed.invalid_enum_value",
+                    description=(
+                        "'Prepayment penalty could be imposed' must equal 1, 2, or 999."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                        "999",
+                    ],
+                ),
+            ],
+            "phase_2": [],
         },
         "pricing_prepenalty_exists": {
             "phase_1": [
@@ -1251,6 +1247,18 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                             "should_equal_target": True,
                         },
                     ],
+                ),
+                SBLCheck(
+                    is_valid_code,
+                    name="census_tract_number.invalid_geoid",
+                    description=(
+                        "When present, 'census tract: tract number' "
+                        "should be a valid census tract GEOID as defined "
+                        "by the U.S. Census Bureau."
+                    ),
+                    element_wise=True,
+                    accept_blank=True,
+                    codes=census_geoids,
                 ),
             ],
         },
@@ -1350,7 +1358,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     ),
                     element_wise=True,
                     accept_blank=True,
-                    codes=global_data.naics_codes,
+                    codes=naics_codes,
                 ),
                 SBLCheck(
                     has_no_conditional_field_conflict,

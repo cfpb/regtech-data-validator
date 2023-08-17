@@ -14,6 +14,8 @@ from typing import Dict
 
 from pandera import Column
 
+# NOTE: we should not use unique flag in column definitions.
+#  to check for uniqueness, add `is_unique_column` check to column
 _schema_template = {
     "uid": Column(
         str,

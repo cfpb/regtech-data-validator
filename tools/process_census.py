@@ -5,8 +5,8 @@ import zipfile
 
 import pandas as pd
 
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # noqa: E402
-sys.path.append(ROOT_DIR)  # noqa: E402
+PARENT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # noqa: E402
+sys.path.append(PARENT_DIR)  # noqa: E402
 
 import config  # noqa: E402
 
@@ -24,11 +24,13 @@ def _is_number(s):
 def _extract_census_zip_file():
     CENSUS_TMP_CSV_PATH = config.CENSUS_RAW_ZIP_PATH + ".tmp.csv"
     # unzip and extract csv files
-    with zipfile.ZipFile(config.CENSUS_RAW_ZIP_PATH, "r") as zip_ref:
+    input_file = os.path.join(PARENT_DIR, config.CENSUS_RAW_ZIP_PATH)
+    output_file = os.path.join(PARENT_DIR, CENSUS_TMP_CSV_PATH)
+    with zipfile.ZipFile(input_file, "r") as zip_ref:
         for file in zip_ref.namelist():  # iterate over files in archive
             if file[-4:] == ".csv":
-                print("Extracting CSV to {}".format(CENSUS_TMP_CSV_PATH))
-                with open(CENSUS_TMP_CSV_PATH, "wb") as outfile:
+                print("Extracting CSV to {}".format(output_file))
+                with open(output_file, "wb") as outfile:
                     outfile.write(zip_ref.read(file))
                 # it should only have one csv file
                 return CENSUS_TMP_CSV_PATH
@@ -85,13 +87,13 @@ filter Census data.
 """
 if __name__ == "__main__":
     CSV_PATH = config.CENSUS_PROCESSED_CSV_PATH
-
-    if os.path.isfile(CSV_PATH):
-        error_msg = "Output {} csv file existed".format(CSV_PATH)
+    file = os.path.join(PARENT_DIR, CSV_PATH)
+    if os.path.isfile(file):
+        error_msg = "Output {} csv file existed".format(file)
         raise FileExistsError(error_msg)
 
     tmp_census_csv_file = _extract_census_zip_file()
     print("Reading extracted CSV File . {}".format(tmp_census_csv_file))
-    _read_census_csv(tmp_census_csv_file, CSV_PATH)
+    _read_census_csv(tmp_census_csv_file, file)
     print("Removing extracted CSV File")
     os.remove(tmp_census_csv_file)

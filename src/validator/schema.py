@@ -6,7 +6,6 @@ https://pandera.readthedocs.io/en/stable/dataframe_schemas.html
 The only major modification from native Pandera is the use of custom
 Check classes to differentiate between warnings and errors. """
 
-import global_data
 from check_functions import (
     has_correct_length,
     has_no_conditional_field_conflict,
@@ -33,14 +32,8 @@ from check_functions import (
 from checks import SBLCheck
 from pandera import Column, DataFrameSchema
 
-# read and populate global naics code (this should be called only once)
-global_data.read_naics_codes()
 
-# read and populate global census geoids (this should be called only once)
-global_data.read_geoids()
-
-
-def get_schema_for_lei(lei: str):
+def get_schema_for_lei(naics: dict, geoids: dict, lei: str):
     return DataFrameSchema(
         {
             "uid": Column(
@@ -1353,7 +1346,7 @@ def get_schema_for_lei(lei: str):
                         ),
                         element_wise=True,
                         accept_blank=True,
-                        codes=global_data.census_geoids,
+                        codes=geoids,
                     ),
                 ],
             ),
@@ -1463,7 +1456,7 @@ def get_schema_for_lei(lei: str):
                         ),
                         element_wise=True,
                         accept_blank=True,
-                        codes=global_data.naics_codes,
+                        codes=naics,
                     ),
                     SBLCheck(
                         has_no_conditional_field_conflict,

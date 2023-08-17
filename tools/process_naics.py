@@ -23,14 +23,16 @@ if __name__ == "__main__":
     TITLE_COL = config.NAICS_TITLE_COL
     
     #check for paths
-    if not os.path.isfile(EXCEL_PATH):
+    excel_file = os.path.join(ROOT_DIR, EXCEL_PATH)
+    csv_file = os.path.join(ROOT_DIR, CSV_PATH)
+    if not os.path.isfile(excel_file):
         error_msg = "Input excel file not existed"
         raise FileNotFoundError(error_msg)
-    if os.path.isfile(CSV_PATH):
+    if os.path.isfile(csv_file):
         error_msg = "Output csv file existed"
         raise FileExistsError(error_msg)
     
-    df = pd.read_excel(EXCEL_PATH, dtype=str, na_filter=False)
+    df = pd.read_excel(excel_file, dtype=str, na_filter=False)
     
     #add header
     result = [["code", "title"]]
@@ -44,7 +46,7 @@ if __name__ == "__main__":
             result.append(a_row)
     
     #output data to csv file
-    with open(CSV_PATH, 'w') as f:
+    with open(csv_file, 'w') as f:
         writer = csv.writer(f)
         writer.writerows(result)
     

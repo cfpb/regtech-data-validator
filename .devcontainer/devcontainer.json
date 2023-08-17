@@ -35,6 +35,7 @@
         "editor.tabSize": 4,
         "editor.formatOnSave": true,
         "python.formatting.provider": "black",
+        "python.formatting.black": true,
         "python.envFile": "${workspaceFolder}/.env",
         "editor.codeActionsOnSave": {
           "source.organizeImports": true
