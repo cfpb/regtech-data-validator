@@ -26,7 +26,7 @@ async def api_exception_handler(request: Request, err: Exception):
     Returns:
         returns JSON Response with status code and message
     """
-    error_code = (400,)
+    error_code = 400
     error_msg = str(err)
     if type(err) is ValueError:
         error_code = 422
