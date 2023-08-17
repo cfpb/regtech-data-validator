@@ -1,19 +1,26 @@
 import pandas as pd
 
 from util import global_data
-from validator.check_functions import (has_correct_length,
-                                       has_no_conditional_field_conflict,
-                                       has_valid_enum_pair,
-                                       has_valid_fieldset_pair,
-                                       has_valid_format,
-                                       has_valid_multi_field_value_count,
-                                       has_valid_value_count, is_date,
-                                       is_greater_than,
-                                       is_greater_than_or_equal_to,
-                                       is_less_than, is_number,
-                                       is_unique_column, is_unique_in_field,
-                                       is_valid_code, is_valid_enum,
-                                       meets_multi_value_field_restriction)
+from validator.check_functions import (
+    has_correct_length,
+    has_no_conditional_field_conflict,
+    has_valid_enum_pair,
+    has_valid_fieldset_pair,
+    has_valid_format,
+    has_valid_multi_field_value_count,
+    has_valid_value_count,
+    is_date,
+    is_greater_than,
+    is_greater_than_or_equal_to,
+    is_less_than,
+    is_number,
+    is_unique_column,
+    is_unique_in_field,
+    is_valid_code,
+    is_valid_enum,
+    meets_multi_value_field_restriction,
+    string_contains,
+)
 
 
 class TestInvalidDateFormat:
@@ -502,6 +509,7 @@ class TestHasCorrectLength:
 
 class TestIsValidCode:
     naics_codes = global_data.read_naics_codes()
+
     def test_with_valid_code(self):
         result = is_valid_code("111", False, self.naics_codes)
         assert result is True
@@ -794,3 +802,74 @@ class TestHasValidFieldsetPair:
             {groupby_values: series}, condition_values, should_fieldset_key_equal_to
         )
         assert result1.values == [False]
+
+
+class TestIsValidId:
+    def test_with_correct_values(self):
+        """when start_idx and end_idx are not set,
+        if value matches containing_value, must return true"""
+        assert string_contains("000TESTFIUIDDONOTUSE", "000TESTFIUIDDONOTUSE") is True
+        """ when start_idx and end_idx are set, 
+        if sliced value matches ontaining_value, must return true """
+        assert (
+            string_contains(
+                "000TESTFIUIDDONOTUSEXGXVID11XTC1",
+                "TEST",
+                start_idx=3,
+                end_idx=7,
+            )
+            is True
+        )
+        """ when only start_idx is set, 
+        if sliced value matches containing_value, must return true """
+        assert (
+            string_contains(
+                "000TESTFIUIDDONOTUSEXGXVID11XTC1",
+                "TESTFIUIDDONOTUSEXGXVID11XTC1",
+                start_idx=3,
+            )
+            is True
+        )
+        """ when only end_idx is set, 
+        if sliced value matches containing_value, must return true """
+        assert (
+            string_contains(
+                "000TESTFIUIDDONOTUSEXGXVID11XTC1",
+                "000TESTFIUIDDONOTUSE",
+                end_idx=20,
+            )
+            is True
+        )
+
+    def test_with_incorrect_values(self):
+        """when start_idx and end_idx are not set,
+        if value does not match containing_value, must return false"""
+        assert string_contains("000TESTFIUIDDONOTUSE", "TESTFIUIDDONOTUSE") is False
+        """ when start_idx and end_idx are set, 
+        if sliced value does not match containing_value, must return false """
+        assert (
+            string_contains(
+                "000FIUIDDONOTUSEXGXVID11XTC1", "TEST", start_idx=4, end_idx=7
+            )
+            is False
+        )
+        """ when only start_idx is set, 
+        if sliced value does not match containing_value, must return false """
+        assert (
+            string_contains(
+                "000TESTFIUIDDONOTUSEXGXVID11XTC1",
+                "0TESTFIUIDDONOTUSEXGXVID11XTC1",
+                start_idx=4,
+            )
+            is False
+        )
+        """ when only end_idx is set, 
+        if sliced value does not match containing_value, must return false """
+        assert (
+            string_contains(
+                "000TESTFIUIDDONOTUSEXGXVID11XTC1",
+                "000TESTFIUIDDONOTUSEXGX",
+                end_idx=20,
+            )
+            is False
+        )

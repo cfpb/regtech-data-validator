@@ -716,3 +716,33 @@ def has_valid_fieldset_pair(
             )
         )
     return pd.concat(validation_holder)
+
+
+def string_contains(
+    value: str,
+    containing_value: str = None,
+    start_idx: int = None,
+    end_idx: int = None,
+) -> bool:
+    """
+    check if value matches containing value
+
+    Args:
+        value (str): parsed value
+        containing_value (str): tcontaining value to which value is compared to
+        start_idx (int): the start index if the value needs to sliced
+        end_idx (int): the end index if the value needs to sliced
+    Returns:
+        bool: true if value matches containing_value
+    """
+    if containing_value is not None:
+        if start_idx is not None and end_idx is not None:
+            return value[start_idx:end_idx] == containing_value
+        elif start_idx is not None and end_idx is None:
+            return value[start_idx:] == containing_value
+        elif start_idx is None and end_idx is not None:
+            return value[:end_idx] == containing_value
+        else:
+            return value == containing_value
+    else:
+        return True

@@ -69,7 +69,6 @@ class TestApiSchemas:
         assert res.status_code == 200
 
     def test_upload_valid_file(self):
-        print("CURR_DIR:", self.CURR_DIR)
         valid_file_path = os.path.join(
             self.CURR_DIR, "sample_csv_files/valid_sample_data.csv"
         )

@@ -8,22 +8,39 @@ from pandera import DataFrameSchema
 from pandera.errors import SchemaErrors
 
 from .checks import SBLCheck
-from .phase_validations import get_phase_1_and_2_validations
+from .phase_validations import get_phase_1_and_2_validations_for_lei
 from .schema_template import get_template
 
+# Get separate schema templates for phase 1 and 2
+phase_1_template = get_template()
+phase_2_template = get_template()
 
-def get_schemas(naics: dict, geoids: dict) -> (DataFrameSchema, DataFrameSchema):
-    phase_1_template = get_template()
-    phase_2_template = get_template()
 
-    for col, validations in get_phase_1_and_2_validations(naics, geoids).items():
-        phase_1_template[col].checks = validations["phase_1"]
-        phase_2_template[col].checks = validations["phase_2"]
-
-    phase_1_schema = DataFrameSchema(phase_1_template)
-    phase_2_schema = DataFrameSchema(phase_2_template)
+def get_schemas(
+    naics: dict, geoids: dict, lei: str = None
+) -> (DataFrameSchema, DataFrameSchema):
+    phase_1_schema = get_phase_1_schema_for_lei(naics, geoids, lei)
+    phase_2_schema = get_phase_2_schema_for_lei(naics, geoids, lei)
 
     return (phase_1_schema, phase_2_schema)
+
+
+def get_schema_by_phase_for_lei(
+    template: dict, phase: str, naics: dict, geoids: dict, lei: str = None
+):
+    for column, validations in get_phase_1_and_2_validations_for_lei(
+        naics, geoids, lei
+    ).items():
+        template[column].checks = validations[phase]
+    return DataFrameSchema(template)
+
+
+def get_phase_1_schema_for_lei(naics: dict, geoids: dict, lei: str = None):
+    return get_schema_by_phase_for_lei(phase_1_template, "phase_1", naics, geoids, lei)
+
+
+def get_phase_2_schema_for_lei(naics: dict, geoids: dict, lei: str = None):
+    return get_schema_by_phase_for_lei(phase_2_template, "phase_2", naics, geoids, lei)
 
 
 def validate(schema: DataFrameSchema, df: pd.DataFrame):

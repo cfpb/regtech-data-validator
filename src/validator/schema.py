@@ -6,22 +6,34 @@ https://pandera.readthedocs.io/en/stable/dataframe_schemas.html
 The only major modification from native Pandera is the use of custom
 Check classes to differentiate between warnings and errors. """
 
-from check_functions import (has_correct_length,
-                             has_no_conditional_field_conflict,
-                             has_valid_enum_pair, has_valid_fieldset_pair,
-                             has_valid_format,
-                             has_valid_multi_field_value_count,
-                             has_valid_value_count, is_date, is_date_after,
-                             is_date_before_in_days, is_date_in_range,
-                             is_greater_than, is_greater_than_or_equal_to,
-                             is_less_than, is_number, is_unique_column,
-                             is_unique_in_field, is_valid_code, is_valid_enum,
-                             meets_multi_value_field_restriction)
+from check_functions import (
+    has_correct_length,
+    has_no_conditional_field_conflict,
+    has_valid_enum_pair,
+    has_valid_fieldset_pair,
+    has_valid_format,
+    has_valid_multi_field_value_count,
+    has_valid_value_count,
+    is_date,
+    is_date_after,
+    is_date_before_in_days,
+    is_date_in_range,
+    is_greater_than,
+    is_greater_than_or_equal_to,
+    is_less_than,
+    is_number,
+    is_unique_column,
+    is_unique_in_field,
+    is_valid_code,
+    is_valid_enum,
+    meets_multi_value_field_restriction,
+    string_contains,
+)
 from checks import SBLCheck
 from pandera import Column, DataFrameSchema
 
 
-def get_sblar_schema(naics: dict, geoids: dict):
+def get_schema_for_lei(naics: dict, geoids: dict, lei: str):
     return DataFrameSchema(
         {
             "uid": Column(
@@ -56,6 +68,17 @@ def get_sblar_schema(naics: dict, geoids: dict):
                             "record within a small business lending application register."
                         ),
                         groupby="uid",
+                    ),
+                    SBLCheck(
+                        string_contains,
+                        name="uid.invalid_uid_lei",
+                        description=(
+                            "The first 20 characters of the 'unique identifier' should match "
+                            "the Legal Entity Identifier (LEI) for the financial institution."
+                        ),
+                        element_wise=True,
+                        containing_value=lei,
+                        end_idx=20,
                     ),
                 ],
             ),
@@ -184,7 +207,8 @@ def get_sblar_schema(naics: dict, geoids: dict):
                         warning=True,
                         name="ct_guarantee.duplicates_in_field",
                         description=(
-                            "'Type of guarantee' should not contain " "duplicated values."
+                            "'Type of guarantee' should not contain "
+                            "duplicated values."
                         ),
                         element_wise=True,
                     ),
@@ -510,7 +534,8 @@ def get_sblar_schema(naics: dict, geoids: dict):
                         is_number,
                         name="amount_applied_for.invalid_numeric_format",
                         description=(
-                            "When present, 'amount applied for' must be a numeric" "value."
+                            "When present, 'amount applied for' must be a numeric"
+                            "value."
                         ),
                         element_wise=True,
                         accept_blank=True,
@@ -1396,7 +1421,8 @@ def get_sblar_schema(naics: dict, geoids: dict):
             "naics_code": Column(
                 str,
                 title=(
-                    "Field 39: North American Industry Classification" "System (NAICS) code"
+                    "Field 39: North American Industry Classification"
+                    "System (NAICS) code"
                 ),
                 nullable=True,
                 checks=[

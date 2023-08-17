@@ -10,12 +10,10 @@ import sys
 
 import pandas as pd
 from pandera.errors import SchemaErrors
-from schema import get_sblar_schema
+from schema import get_schema_for_lei
 
-PARENT_DIR = os.path.dirname(
-    os.path.dirname(os.path.abspath(__file__))
-) # noqa: E402
-sys.path.append(PARENT_DIR) # noqa: E402
+PARENT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # noqa: E402
+sys.path.append(PARENT_DIR)  # noqa: E402
 from util import global_data  # noqa: E402
 
 
@@ -23,7 +21,7 @@ def csv_to_df(path: str) -> pd.DataFrame:
     return pd.read_csv(path, dtype=str, na_filter=False)
 
 
-def run_validation_on_df(df: pd.DataFrame, naics: dict, geoids: dict) -> None:
+def run_validation_on_df(df: pd.DataFrame, naics: dict, geoids: dict, lei: str) -> None:
     """
     Run validaition on the supplied dataframe and print a report to
     the terminal.
@@ -36,7 +34,7 @@ def run_validation_on_df(df: pd.DataFrame, naics: dict, geoids: dict) -> None:
     print("")
 
     try:
-        schema = get_sblar_schema(naics, geoids)
+        schema = get_schema_for_lei(naics, geoids, lei)
         schema(df, lazy=True)
     except SchemaErrors as errors:
         for error in errors.schema_errors:
@@ -53,8 +51,6 @@ def run_validation_on_df(df: pd.DataFrame, naics: dict, geoids: dict) -> None:
                 print("")
             else:
                 raise AttributeError(f"{check}")
-            
-            
 
 
 if __name__ == "__main__":
@@ -63,12 +59,18 @@ if __name__ == "__main__":
 
     # read and populate global census geoids (this should be called only once)
     geoids = global_data.read_geoids()
-    
+
     csv_path = None
-    try:
-        csv_path = sys.argv[1]
-    except IndexError:
+    lei: str = None
+    if len(sys.argv) == 1:
         raise ValueError("csv_path arg not provided")
-    
+    elif len(sys.argv) == 2:
+        csv_path = sys.argv[1]
+    elif len(sys.argv) == 3:
+        lei = sys.argv[1]
+        csv_path = sys.argv[2]
+    else:
+        raise ValueError("correct number of args not provided")
+
     df = csv_to_df(csv_path)
-    run_validation_on_df(df, naics, geoids)
+    run_validation_on_df(df, naics, geoids, lei)

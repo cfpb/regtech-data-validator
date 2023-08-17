@@ -3,22 +3,36 @@
 This mapping is used to populate the schema template object and create
 an instance of a PanderaSchema object for phase 1 and phase 2."""
 
-from .check_functions import (has_correct_length,
-                              has_no_conditional_field_conflict,
-                              has_valid_enum_pair, has_valid_fieldset_pair,
-                              has_valid_format,
-                              has_valid_multi_field_value_count,
-                              has_valid_value_count, is_date, is_date_after,
-                              is_date_before_in_days, is_date_in_range,
-                              is_greater_than, is_greater_than_or_equal_to,
-                              is_less_than, is_number, is_unique_column,
-                              is_unique_in_field, is_valid_code, is_valid_enum,
-                              meets_multi_value_field_restriction)
+from .check_functions import (
+    has_correct_length,
+    has_no_conditional_field_conflict,
+    has_valid_enum_pair,
+    has_valid_fieldset_pair,
+    has_valid_format,
+    has_valid_multi_field_value_count,
+    has_valid_value_count,
+    is_date,
+    is_date_after,
+    is_date_before_in_days,
+    is_date_in_range,
+    is_greater_than,
+    is_greater_than_or_equal_to,
+    is_less_than,
+    is_number,
+    is_unique_column,
+    is_unique_in_field,
+    is_valid_code,
+    is_valid_enum,
+    meets_multi_value_field_restriction,
+    string_contains,
+)
 from .checks import SBLCheck
 
 
-def get_phase_1_and_2_validations(naics_codes: dict, census_geoids: dict):
-    two_phases_schema = {
+def get_phase_1_and_2_validations_for_lei(
+    naics_codes: dict, census_geoids: dict, lei: str = None
+):
+    return {
         "uid": {
             "phase_1": [
                 SBLCheck(
@@ -49,6 +63,17 @@ def get_phase_1_and_2_validations(naics_codes: dict, census_geoids: dict):
                     ),
                     element_wise=True,
                     regex="^[A-Z0-9]+$",
+                ),
+                SBLCheck(
+                    string_contains,
+                    name="uid.invalid_uid_lei",
+                    description=(
+                        "The first 20 characters of the 'unique identifier' should match "
+                        "the Legal Entity Identifier (LEI) for the financial institution."
+                    ),
+                    element_wise=True,
+                    containing_value=lei,
+                    end_idx=20,
                 ),
             ],
             "phase_2": [],
@@ -330,7 +355,8 @@ def get_phase_1_and_2_validations(naics_codes: dict, census_geoids: dict):
                     is_greater_than_or_equal_to,
                     name="ct_loan_term.invalid_numeric_value",
                     description=(
-                        "When present, 'loan term' must be greater than or equal" "to 1."
+                        "When present, 'loan term' must be greater than or equal"
+                        "to 1."
                     ),
                     element_wise=True,
                     min_value="1",
@@ -340,7 +366,8 @@ def get_phase_1_and_2_validations(naics_codes: dict, census_geoids: dict):
                     is_less_than,
                     name="ct_loan_term.unreasonable_numeric_value",
                     description=(
-                        "When present, 'loan term' should be less than 1200" "(100 years)."
+                        "When present, 'loan term' should be less than 1200"
+                        "(100 years)."
                     ),
                     element_wise=True,
                     max_value="1200",
@@ -1088,7 +1115,8 @@ def get_phase_1_and_2_validations(naics_codes: dict, census_geoids: dict):
                     is_number,
                     name="pricing_initial_charges.invalid_numeric_format",
                     description=(
-                        "When present, 'initial annual charges' must be a" "numeric value."
+                        "When present, 'initial annual charges' must be a"
+                        "numeric value."
                     ),
                     element_wise=True,
                     accept_blank=True,
@@ -1096,8 +1124,9 @@ def get_phase_1_and_2_validations(naics_codes: dict, census_geoids: dict):
             ],
             "phase_2": [],
         },
-        "pricing_mca_addcost_flag": {"phase_1": [], "phase_2": [
-            
+        "pricing_mca_addcost_flag": {
+            "phase_1": [],
+            "phase_2": [
                 SBLCheck(
                     has_valid_enum_pair,
                     name="pricing_mca_addcost_flag.enum_value_conflict",
@@ -1118,41 +1147,9 @@ def get_phase_1_and_2_validations(naics_codes: dict, census_geoids: dict):
                         }
                     ],
                 ),
-            ]
+            ],
         },
-        "pricing_mca_addcost": {
-            "phase_1": [], 
-            "phase_2": [
-                SBLCheck(
-                    has_no_conditional_field_conflict,
-                    name="pricing_mca_addcost.conditional_field_conflict",
-                    description=(
-                        "When 'MCA/sales-based: additional cost for merchant "
-                        "cash advances or other sales-based financing: NA flag' "
-                        "does not equal 900 (applicable), 'MCA/sales-based: "
-                        "additional cost for merchant cash advances or other "
-                        "sales-based financing' must be blank. When 'MCA/sales-based: "
-                        "additional cost for merchant cash advances or other "
-                        "sales-based financing: NA flag' equals 900, MCA/sales-based: "
-                        "additional cost for merchant cash advances or other "
-                        "sales-based financing’ must not be blank."
-                    ),
-                    groupby="pricing_mca_addcost_flag",
-                    condition_values={"900"},
-                ),
-                SBLCheck(
-                    is_number,
-                    name="pricing_mca_addcost.invalid_numeric_format",
-                    description=(
-                        "When present, 'MCA/sales-based: additional cost for "
-                        "merchant cash advances or other sales-based financing' "
-                        "must be a numeric value"
-                    ),
-                    element_wise=True,
-                    accept_blank=True,
-                ),
-            ]
-        },
+        "pricing_mca_addcost": {"phase_1": [], "phase_2": []},
         "pricing_prepenalty_allowed": {
             "phase_1": [
                 SBLCheck(
@@ -1270,7 +1267,9 @@ def get_phase_1_and_2_validations(naics_codes: dict, census_geoids: dict):
                 SBLCheck(
                     is_valid_enum,
                     name="gross_annual_revenue_flag.invalid_enum_value",
-                    description=("'Gross annual revenue: NP flag' must equal 900 or 988."),
+                    description=(
+                        "'Gross annual revenue: NP flag' must equal 900 or 988."
+                    ),
                     element_wise=True,
                     accepted_values=[
                         "900",
@@ -1487,7 +1486,8 @@ def get_phase_1_and_2_validations(naics_codes: dict, census_geoids: dict):
                     has_valid_value_count,
                     name="business_ownership_status.invalid_number_of_values",
                     description=(
-                        "'Business ownership status' must" " contain at least one value."
+                        "'Business ownership status' must"
+                        " contain at least one value."
                     ),
                     element_wise=True,
                     min_length=1,
@@ -3131,4 +3131,3 @@ def get_phase_1_and_2_validations(naics_codes: dict, census_geoids: dict):
             ],
         },
     }
-    return two_phases_schema
