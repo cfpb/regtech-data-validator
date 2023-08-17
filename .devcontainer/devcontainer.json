@@ -34,12 +34,15 @@
         ],
         "editor.tabSize": 4,
         "editor.formatOnSave": true,
+        "python.formatting.provider": "black",
+        "python.formatting.black": true,
         "python.envFile": "${workspaceFolder}/.env",
         "editor.codeActionsOnSave": {
           "source.organizeImports": true
         },
         "python.testing.pytestEnabled": true,
         "python.testing.unittestEnabled": false,
+        "python.testing.nosetestsEnabled": false,
         "python.testing.pytestArgs": [
           "--rootdir",
           "${workspaceFolder}/src/tests"

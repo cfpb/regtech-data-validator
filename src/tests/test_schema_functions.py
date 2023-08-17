@@ -259,39 +259,75 @@ class TestValidateRawCsv:
     phase2_schema = schemas[1]
 
     def test_with_valid_data(self):
-        data = "000TESTFIUIDDONOTUSEXGXVID11XTC1,20241201,1,1,988,,999,,999,,999,,999,,,5,20241231,999,,999,,,,999,,,,,,999,,999,999,988,,988,,988,,988,988,,988,988,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+        data = (
+            "000TESTFIUIDDONOTUSEXGXVID11XTC1,20241201,1,1,988,,999,,999,,999,"
+            ",999,,,5,20241231,999,,999,,,,999,,,,,,999,,999,999,988,,988,,988,"
+            ",988,988,,988,988,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+        )
         csv_bytes = self.util.get_csv_bytes(data)
         result = validate_raw_csv(self.phase1_schema, self.phase2_schema, csv_bytes)
         assert len(result) == 1
         assert result[0] == self.util.valid_response
 
     def test_with_multi_valid_data(self):
-        data = "000TESTFIUIDDONOTUSEXGXVID11XTC1,20241201,1,1,988,,999,,999,,999,,999,,,5,20241231,999,,999,,,,999,,,,,,999,,999,999,988,,988,,988,,988,988,,988,988,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
-        data2 = "000TESTFIUIDDONOTUSEXGXVID13XTC1,20241201,1,1,988,,999,,999,,999,,999,,,5,20241231,999,,999,,,,999,,,,,,999,,999,999,988,,988,,988,,988,988,,988,988,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+        data = (
+            "000TESTFIUIDDONOTUSEXGXVID11XTC1,20241201,1,1,988,,999,,999,"
+            ",999,,999,,,5,20241231,999,,999,,,,999,,,,,,999,,999,999,988,"
+            ",988,,988,,988,988,,988,988,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+        )
+        data2 = (
+            "000TESTFIUIDDONOTUSEXGXVID13XTC1,20241201,1,1,988,,999,,999,"
+            ",999,,999,,,5,20241231,999,,999,,,,999,,,,,,999,,999,999,988,"
+            ",988,,988,,988,988,,988,988,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+        )
         csv_bytes = self.util.get_csv_bytes(data, data2)
         result = validate_raw_csv(self.phase1_schema, self.phase2_schema, csv_bytes)
         assert len(result) == 1
         assert result[0] == self.util.valid_response
 
     def test_with_invalid_data(self):
-        data = "000TESTFIUIDDONOTUSEXGXVID11XTC1,20241201,1,1,989,,999,,999,,999,,999,,,5,20241231,999,,999,,,,999,,,,,,999,,999,999,988,,988,,988,,988,988,,988,988,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
-        data2 = "000TESTFIUIDDONOTUSEXGXVID13XTC1,20241201,1,1,988,,990,,999,,999,,999,,,5,20241231,999,,999,,,,999,,,,,,999,,999,999,988,,988,,988,,988,988,,988,988,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+        data = (
+            "000TESTFIUIDDONOTUSEXGXVID11XTC1,20241201,1,1,989,,999,,999,"
+            ",999,,999,,,5,20241231,999,,999,,,,999,,,,,,999,,999,999,988,"
+            ",988,,988,,988,988,,988,988,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+        )
+        data2 = (
+            "000TESTFIUIDDONOTUSEXGXVID13XTC1,20241201,1,1,988,,990,,999,"
+            ",999,,999,,,5,20241231,999,,999,,,,999,,,,,,999,,999,999,988,"
+            ",988,,988,,988,988,,988,988,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+        )
         csv_bytes = self.util.get_csv_bytes(data, data2)
         result = validate_raw_csv(self.phase1_schema, self.phase2_schema, csv_bytes)
         assert len(result) == 2
         assert result[0] != self.util.valid_response
 
     def test_with_multi_invalid_data_with_phase1(self):
-        data = "000TESTFIUIDDONOTUSEXGXVID11XTC1,20241201,1,1,988,,999,,999,,999,,999,,,2,20241231,999,,999,,,,999,,,,,,999,,999,999,988,,988,,988,,988,988,,988,988,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
-        data2 = "000TESTFIUIDDONOTUSEXGXVID11XTC1,20241201,1,1,988,,999,,999,,999,,999,,,5,20241231,999,,999,,,,999,,,,,,999,,999,999,988,,988,,988,,988,988,,988,988,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+        data = (
+            "000TESTFIUIDDONOTUSEXGXVID11XTC1,20241201,1,1,988,,999,,999,,999,"
+            ",999,,,2,20241231,999,,999,,,,999,,,,,,999,,999,999,988,,988,,988,"
+            ",988,988,,988,988,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+        )
+        data2 = (
+            "000TESTFIUIDDONOTUSEXGXVID11XTC1,20241201,1,1,988,,999,,999,,999,"
+            ",999,,,5,20241231,999,,999,,,,999,,,,,,999,,999,999,988,,988,,988,"
+            ",988,988,,988,988,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+        )
         csv_bytes = self.util.get_csv_bytes(data, data2)
         result = validate_raw_csv(self.phase1_schema, self.phase2_schema, csv_bytes)
         assert len(result) == 1
         assert result[0] != self.util.valid_response
 
     def test_with_multi_invalid_data_with_phase2(self):
-        data = "000TESTFIUIDDONOTUSEXGXVID11XTC1,20241201,1,1,988,,999,,999,,999,,999,,,2,20241231,999,,999,,,,999,,,,,,999,,999,999,988,,988,,988,,988,988,,988,988,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
-        data2 = "000TESTFIUIDDONOTUSEXGXVID12XTC1,20241201,1,1,988,,999,,999,,999,,999,,,1,20241231,999,,999,,,,999,,,,,,999,,999,999,988,,988,,988,,988,988,,988,988,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+        data = (
+            "000TESTFIUIDDONOTUSEXGXVID11XTC1,20241201,1,1,988,,999,,999,,999,"
+            ",999,,,2,20241231,999,,999,,,,999,,,,,,999,,999,999,988,,988,,988,"
+            ",988,988,,988,988,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+        )
+        data2 = (
+            "000TESTFIUIDDONOTUSEXGXVID12XTC1,20241201,1,1,988,,999,,999,,999,"
+            ",999,,,1,20241231,999,,999,,,,999,,,,,,999,,999,999,988,,988,,988,"
+            ",988,988,,988,988,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+        )
         csv_bytes = self.util.get_csv_bytes(data, data2)
         result = validate_raw_csv(self.phase1_schema, self.phase2_schema, csv_bytes)
         assert len(result) == 2
