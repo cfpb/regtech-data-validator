@@ -298,7 +298,8 @@ class TestConditionalFieldConflict:
 
     def test_conditional_field_conflict_incorrect(self):
         # if ct_loan_term_flag != 900 then ct_loan_term must be blank
-        # in this test, ct_loan_term_flag is not 900 and ct_loan_term is NOT blank, so must return False
+        # in this test, ct_loan_term_flag is not 900 and ct_loan_term is
+        # NOT blank, so must return False
         series = pd.Series(["36"], name="ct_loan_term", index=[2])
         condition_values: set[str] = {"900"}
 
@@ -652,15 +653,15 @@ class TestIsUniqueColumn:
 
     def test_with_multiple_valid_series(self):
         result = is_unique_column({"ABC123": self.series, "DEF456": self.other_series})
-        assert result.values[0] == True and result.values[1] == True
+        assert bool(result.values[0]) is True and bool(result.values[1]) is True
 
     def test_with_invalid_series(self):
         result = is_unique_column({"ABC123": self.invalid_series})
-        assert result.values.all() == False
+        assert bool(result.values.all()) is False
 
     def test_with_multiple_items_series(self):
         result = is_unique_column({"GHI123": self.multi_invalid_series})
-        assert result.values.all() == False
+        assert bool(result.values.all()) is False
 
     def test_with_multiple_invalid_series(self):
         result = is_unique_column(
@@ -668,11 +669,11 @@ class TestIsUniqueColumn:
         )
         # ALL rows should be FALSE
         assert (
-            result.values[0] == False
-            and result.values[1] == False
-            and result.values[2] == False
-            and result.values[3] == False
-            and result.values[4] == False
+            bool(result.values[0]) is False
+            and bool(result.values[1]) is False
+            and bool(result.values[2]) is False
+            and bool(result.values[3]) is False
+            and bool(result.values[4]) is False
         )
 
     def test_with_multiple_mix_series(self):
@@ -681,9 +682,9 @@ class TestIsUniqueColumn:
         )
         # first two rows should be FALSE and last Row should be TRUE
         assert (
-            result.values[0] == False
-            and result.values[1] == False
-            and result.values[2] == True
+            bool(result.values[0]) is False
+            and bool(result.values[1]) is False
+            and bool(result.values[2]) is True
         )
 
     def test_with_blank_value_series(self):
@@ -791,7 +792,7 @@ class TestHasValidFieldsetPair:
             "field2": (1, True, "999"),
             "field3": (2, True, "0"),
             "field4": (3, False, ""),
-            "field4": (4, False, ""),
+            "field5": (4, False, ""),
         }
 
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
@@ -867,7 +868,7 @@ class TestIsValidId:
             string_contains(
                 "000TESTFIUIDDONOTUSEXGXVID11XTC1",
                 "000TESTFIUIDDONOTUSEXGX",
-                end_idx=20,
+                end_idx=23,
             )
             is True
         )
