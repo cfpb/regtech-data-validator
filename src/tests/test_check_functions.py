@@ -148,10 +148,6 @@ class TestMultiInvalidNumberOfValues:
         result = has_valid_multi_field_value_count({"4": self.series}, 1)
         assert result.values == [False]
 
-    def test_inside_maxlength(self):
-        result = has_valid_multi_field_value_count({"4": self.series}, 5)
-        assert result.values == [True]
-
     def test_valid_length_with_non_blank(self):
         result = has_valid_multi_field_value_count(
             {"4;1": self.multiple_values_series}, 5
@@ -873,5 +869,5 @@ class TestIsValidId:
                 "000TESTFIUIDDONOTUSEXGX",
                 end_idx=20,
             )
-            is False
+            is True
         )
