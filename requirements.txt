@@ -1,0 +1,8 @@
+kedro
+black
+ruff
+pandas
+pandera
+ipykernel
+openpyxl
+pytest
