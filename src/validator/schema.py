@@ -72,7 +72,8 @@ def get_schema_for_lei(lei: str):
                         name="uid.duplicates_in_dataset",
                         description=(
                             "Any 'unique identifier' may not be used in more than one "
-                            "record within a small business lending application register."
+                            "record within a small business lending application "
+                            "register."
                         ),
                         groupby="uid",
                     ),
@@ -80,8 +81,9 @@ def get_schema_for_lei(lei: str):
                         string_contains,
                         name="uid.invalid_uid_lei",
                         description=(
-                            "The first 20 characters of the 'unique identifier' should match "
-                            "the Legal Entity Identifier (LEI) for the financial institution."
+                            "The first 20 characters of the 'unique identifier' should "
+                            "match the Legal Entity Identifier (LEI) for the financial "
+                            "institution."
                         ),
                         element_wise=True,
                         containing_value=lei,
@@ -183,10 +185,10 @@ def get_schema_for_lei(lei: str):
                         has_no_conditional_field_conflict,
                         name="ct_credit_product_ff.conditional_field_conflict",
                         description=(
-                            "When 'credit product' does not equal 977 (other), 'free-form"
-                            " text field for other credit products' must be blank."
-                            "When 'credit product' equals 977, 'free-form text field "
-                            "for other credit products' must not be blank."
+                            "When 'credit product' does not equal 977 (other), "
+                            "'free-form text field for other credit products' must be "
+                            "blank. When 'credit product' equals 977, 'free-form text "
+                            "field for other credit products' must not be blank."
                         ),
                         groupby="ct_credit_product",
                         condition_values={"977"},
@@ -278,8 +280,8 @@ def get_schema_for_lei(lei: str):
                         description=(
                             "When 'type of guarantee' does not contain 977 (other), "
                             "'free-form text field for other guarantee' must be blank. "
-                            "When 'type of guarantee' contains 977, 'free-form text field"
-                            " for other guarantee' must not be blank."
+                            "When 'type of guarantee' contains 977, 'free-form text "
+                            "field for other guarantee' must not be blank."
                         ),
                         groupby="ct_guarantee",
                         condition_values={"977"},
@@ -290,10 +292,10 @@ def get_schema_for_lei(lei: str):
                         name="ct_guarantee_ff.multi_invalid_number_of_values",
                         description=(
                             "'Type of guarantee' and 'free-form text field for other "
-                            "guarantee' combined should not contain more than five values. "
-                            "Code 977 (other), within 'type of guarantee', does not count "
-                            "toward the maximum number of values for the purpose of this "
-                            "validation check."
+                            "guarantee' combined should not contain more than five "
+                            "values. Code 977 (other), within 'type of guarantee', "
+                            "does not count toward the maximum number of values for "
+                            "the purpose of this validation check."
                         ),
                         groupby="ct_guarantee",
                         ignored_values={"977"},
@@ -323,12 +325,11 @@ def get_schema_for_lei(lei: str):
                         has_valid_enum_pair,
                         name="ct_loan_term_flag.enum_value_conflict",
                         description=(
-                            "When 'credit product' equals 1 (term loan - unsecured) or 2"
-                            "(term loan - secured), 'loan term: NA/NP flag' must not equal"
-                            "999 (not applicable)."
-                            "When 'credit product' equals 988 (not provided by applicant "
-                            "and otherwise undetermined), 'loan term: NA/NP flag' must"
-                            "equal 999."
+                            "When 'credit product' equals 1 (term loan - unsecured) or "
+                            "2 (term loan - secured), 'loan term: NA/NP flag' must not "
+                            "equal 999 (not applicable). When 'credit product' equals "
+                            "988 (not provided by applicant and otherwise "
+                            "undetermined), 'loan term: NA/NP flag' must equal 999."
                         ),
                         groupby="ct_credit_product",
                         conditions=[
@@ -357,9 +358,10 @@ def get_schema_for_lei(lei: str):
                         has_no_conditional_field_conflict,
                         name="ct_loan_term.conditional_field_conflict",
                         description=(
-                            "When 'loan term: NA/NP flag' does not equal 900 (applicable "
-                            "and reported), 'loan term' must be blank. When 'loan term:"
-                            "NA/NP flag' equals 900, 'loan term' must not be blank."
+                            "When 'loan term: NA/NP flag' does not equal"
+                            " 900 (applicable and reported), 'loan term' must be blank."
+                            " When 'loan term: NA/NP flag' equals 900, 'loan term' "
+                            "must not be blank."
                         ),
                         groupby="ct_loan_term_flag",
                         condition_values={"900"},
@@ -481,9 +483,9 @@ def get_schema_for_lei(lei: str):
                         name="credit_purpose_ff.conditional_field_conflict",
                         description=(
                             "When 'credit purpose' does not contain 977 (other),"
-                            "'free-form text field for other credit purpose' must be blank."
-                            "When 'credit purpose' contains 977, 'free-form text field for"
-                            "other credit purpose' must not be blank."
+                            "'free-form text field for other credit purpose' must be "
+                            "blank. When 'credit purpose' contains 977, 'free-form "
+                            "text field for other credit purpose' must not be blank."
                         ),
                         groupby="credit_purpose",
                         condition_values={"977"},
@@ -509,7 +511,8 @@ def get_schema_for_lei(lei: str):
                         is_valid_enum,
                         name="amount_applied_for_flag.invalid_enum_value",
                         description=(
-                            "'Amount applied For: NA/NP flag' must equal 900, 988, or 999."
+                            "'Amount applied For: NA/NP flag' must equal "
+                            "900, 988, or 999."
                         ),
                         element_wise=True,
                         accepted_values=[
@@ -530,8 +533,8 @@ def get_schema_for_lei(lei: str):
                         name="amount_applied_for.conditional_field_conflict",
                         description=(
                             "When 'amount applied for: NA/NP flag' does not equal 900 "
-                            "(applicable and reported), 'amount applied for' must be blank."
-                            "When 'amount applied for: NA/NP flag' equals 900, "
+                            "(applicable and reported), 'amount applied for' must be "
+                            "blank. When 'amount applied for: NA/NP flag' equals 900, "
                             "'amount applied for' must not be blank."
                         ),
                         groupby="amount_applied_for_flag",
@@ -763,8 +766,8 @@ def get_schema_for_lei(lei: str):
                         has_valid_value_count,
                         name="denial_reasons.invalid_number_of_values",
                         description=(
-                            "'Denial reason(s)' must contain at least one and at most four"
-                            "values, separated by semicolons."
+                            "'Denial reason(s)' must contain at least one and at most "
+                            "four values, separated by semicolons."
                         ),
                         element_wise=True,
                         min_length=1,
@@ -834,10 +837,11 @@ def get_schema_for_lei(lei: str):
                         has_no_conditional_field_conflict,
                         name="denial_reasons_ff.conditional_field_conflict",
                         description=(
-                            "When 'denial reason(s)' does not contain 977 (other), field"
-                            "'free-form text field for other denial reason(s)' must be"
-                            "blank. When 'denial reason(s)' contains 977, 'free-form text"
-                            "field for other denial reason(s)' must not be blank."
+                            "When 'denial reason(s)' does not contain 977 (other), "
+                            "field 'free-form text field for other denial reason(s)' "
+                            "must be blank. When 'denial reason(s)' contains 977, "
+                            "'free-form text field for other denial reason(s)' must "
+                            "not be blank."
                         ),
                         groupby="denial_reasons",
                         condition_values={"977"},
@@ -879,11 +883,11 @@ def get_schema_for_lei(lei: str):
                         description=(
                             "When 'interest rate type' does not equal 3 (initial rate "
                             "period > 12 months, variable interest), 4 (initial rate "
-                            "period > 12 months, fixed interest), 5 (initial rate period "
-                            "<= 12 months, variable interest), or 6 (initial rate period "
-                            "<= 12 months, fixed interest), 'initial rate period' must "
-                            "be blank. When 'interest rate type' equals 3, 4, 5, or 6, "
-                            "'initial rate period' must not be blank"
+                            "period > 12 months, fixed interest), 5 (initial rate "
+                            "period <= 12 months, variable interest), or 6 (initial "
+                            "rate period <= 12 months, fixed interest), 'initial rate "
+                            "period' must be blank. When 'interest rate type' equals "
+                            "3, 4, 5, or 6, 'initial rate period' must not be blank"
                         ),
                         groupby="pricing_interest_rate_type",
                         condition_values={"3", "4", "5", "6"},
@@ -892,7 +896,8 @@ def get_schema_for_lei(lei: str):
                         is_number,
                         name="pricing_init_rate_period.invalid_numeric_format",
                         description=(
-                            "When present, 'initial rate period' must be a whole number.",
+                            "When present, 'initial rate period' must be a "
+                            "whole number."
                         ),
                         element_wise=True,
                         accept_blank=True,
@@ -901,7 +906,7 @@ def get_schema_for_lei(lei: str):
                         is_greater_than,
                         name="pricing_init_rate_period.invalid_numeric_value",
                         description=(
-                            "When present, 'initial rate period' must be greater than 0",
+                            "When present, 'initial rate period' must be greater than 0"
                         ),
                         element_wise=True,
                         min_value="0",
@@ -973,11 +978,11 @@ def get_schema_for_lei(lei: str):
                         description=(
                             "When 'interest rate type' does not equal 1"
                             " (adjustable interest rate, no initial rate period), 3 "
-                            "(initial rate period > 12 months, adjustable interest rate),"
-                            " or 5 (initial rate period <= 12 months, variable interest"
-                            " rate), 'adjustable rate transaction: margin' must be blank."
-                            " When 'interest rate type' equals 1, 3, or 5, 'variable"
-                            " rate transaction: margin' must not be blank."
+                            "(initial rate period > 12 months, adjustable interest "
+                            "rate), or 5 (initial rate period <= 12 months, variable "
+                            "interest rate), 'adjustable rate transaction: margin' "
+                            "must be blank. When 'interest rate type' equals 1, 3, or "
+                            "5, 'variable rate transaction: margin' must not be blank."
                         ),
                         groupby="pricing_interest_rate_type",
                         condition_values={"1", "3", "5"},
@@ -1003,8 +1008,8 @@ def get_schema_for_lei(lei: str):
                         is_valid_enum,
                         name="pricing_adj_index_name.invalid_enum_value",
                         description=(
-                            "'Adjustable rate transaction: index name' must equal 1, 2, 3,"
-                            " 4, 5, 6, 7, 8, 9, 10, 977, or 999."
+                            "'Adjustable rate transaction: index name' must equal "
+                            "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 977, or 999."
                         ),
                         element_wise=True,
                         accepted_values=[
@@ -1026,13 +1031,14 @@ def get_schema_for_lei(lei: str):
                         has_valid_enum_pair,
                         name="pricing_adj_index_name.enum_value_conflict",
                         description=(
-                            "When 'interest rate type' does not equal 1 (variable interest"
-                            "rate, no initial rate period), 3 (initial rate period > 12"
-                            "months, adjustable interest rate), or 5 (initial rate"
-                            "period <= 12 months, adjustable interest rate), 'adjustable"
-                            " rate transaction: index name' must equal 999."
-                            "When 'interest rate type' equals 1, 3, or 5, 'adjustable rate"
-                            "transaction: index name' must not equal 999."
+                            "When 'interest rate type' does not equal 1 (variable "
+                            "interest rate, no initial rate period), 3 (initial rate "
+                            "period > 12  months, adjustable interest rate), or 5 "
+                            "(initial rate period <= 12 months, adjustable interest "
+                            "rate), 'adjustable rate transaction: index name' must "
+                            "equal 999. When 'interest rate type' equals 1, 3, or 5, "
+                            "'adjustable rate transaction: index name' must not "
+                            "equal 999."
                         ),
                         groupby="pricing_interest_rate_type",
                         conditions=[
@@ -1070,12 +1076,11 @@ def get_schema_for_lei(lei: str):
                         has_no_conditional_field_conflict,
                         name="pricing_adj_index_name_ff.conditional_field_conflict",
                         description=(
-                            "When 'adjustable rate transaction: index name' does not equal"
-                            "977 (other), 'adjustable rate transaction: index name: other'"
-                            "must be blank."
-                            "When 'adjustable rate transaction: index name' equals 977,"
-                            "'adjustable rate transaction: index name: other' must not be"
-                            "blank."
+                            "When 'adjustable rate transaction: index name' does not "
+                            "equal 977 (other), 'adjustable rate transaction: index "
+                            "name: other' must be blank. When 'adjustable rate "
+                            " transaction: index name' equals 977, 'adjustable rate "
+                            "transaction: index name: other' must not be blank."
                         ),
                         groupby="pricing_adj_index_name",
                         condition_values={"977"},
@@ -1103,7 +1108,8 @@ def get_schema_for_lei(lei: str):
                             " or 3 (initial rate period > 12 months, variable interest"
                             " rate), 'adjustable rate transaction: index value' must be"
                             " blank. When 'interest rate type' equals 1 or 3,"
-                            " 'adjustable rate transaction: index value' must not be blank."
+                            " 'adjustable rate transaction: index value' must not be "
+                            "blank."
                         ),
                         groupby="pricing_interest_rate_type",
                         condition_values={"1", "3"},
@@ -1119,8 +1125,8 @@ def get_schema_for_lei(lei: str):
                         is_number,
                         name="pricing_origination_charges.invalid_numeric_format",
                         description=(
-                            "When present, 'total origination charges' must be a numeric",
-                            "value.",
+                            "When present, 'total origination charges' must be a "
+                            "numeric value."
                         ),
                         element_wise=True,
                         accept_blank=True,
@@ -1136,8 +1142,8 @@ def get_schema_for_lei(lei: str):
                         is_number,
                         name="pricing_broker_fees.invalid_numeric_format",
                         description=(
-                            "When present, 'amount of total broker fees' must be a",
-                            "numeric value.",
+                            "When present, 'amount of total broker fees' must be a"
+                            "numeric value."
                         ),
                         element_wise=True,
                         accept_blank=True,
@@ -1219,11 +1225,12 @@ def get_schema_for_lei(lei: str):
                             "cash advances or other sales-based financing: NA flag' "
                             "does not equal 900 (applicable), 'MCA/sales-based: "
                             "additional cost for merchant cash advances or other "
-                            "sales-based financing' must be blank. When 'MCA/sales-based: "
-                            "additional cost for merchant cash advances or other "
-                            "sales-based financing: NA flag' equals 900, MCA/sales-based: "
-                            "additional cost for merchant cash advances or other "
-                            "sales-based financing’ must not be blank."
+                            "sales-based financing' must be blank. When "
+                            "'MCA/sales-based: additional cost for merchant cash "
+                            "advances or other sales-based financing: NA flag' equals "
+                            "900, MCA/sales-based: additional cost for merchant cash "
+                            "advances or other sales-based financing’ must not be "
+                            "blank."
                         ),
                         groupby="pricing_mca_addcost_flag",
                         condition_values={"900"},
@@ -1249,7 +1256,8 @@ def get_schema_for_lei(lei: str):
                         is_valid_enum,
                         name="pricing_prepenalty_allowed.invalid_enum_value",
                         description=(
-                            "'Prepayment penalty could be imposed' must equal 1, 2, or 999."
+                            "'Prepayment penalty could be imposed' must equal 1, 2, or "
+                            "999."
                         ),
                         element_wise=True,
                         accepted_values=[
@@ -1267,7 +1275,9 @@ def get_schema_for_lei(lei: str):
                     SBLCheck(
                         is_valid_enum,
                         name="pricing_prepenalty_exists.invalid_enum_value",
-                        description="'Prepayment penalty exists' must equal 1, 2, or 999.",
+                        description=(
+                            "'Prepayment penalty exists' must equal 1, 2, " "or 999."
+                        ),
                         element_wise=True,
                         accepted_values=[
                             "1",
@@ -1285,7 +1295,8 @@ def get_schema_for_lei(lei: str):
                         is_valid_enum,
                         name="census_tract_adr_type.invalid_enum_value",
                         description=(
-                            "'Census tract: type of address' must equal 1, 2, 3, or 988."
+                            "'Census tract: type of address' must equal 1, 2, 3, "
+                            "or 988."
                         ),
                         element_wise=True,
                         accepted_values=[
@@ -1384,7 +1395,8 @@ def get_schema_for_lei(lei: str):
                         is_number,
                         name="gross_annual_revenue.invalid_numeric_format",
                         description=(
-                            "When present, 'gross annual revenue' must be a numeric value."
+                            "When present, 'gross annual revenue' must be a "
+                            "numeric value."
                         ),
                         element_wise=True,
                         accept_blank=True,
@@ -1447,8 +1459,8 @@ def get_schema_for_lei(lei: str):
                         has_correct_length,
                         name="naics_code.invalid_text_length",
                         description=(
-                            "When present, 'North American Industry Classification System "
-                            "(NAICS) code' must be three digits in length."
+                            "When present, 'North American Industry Classification "
+                            "System (NAICS) code' must be three digits in length."
                         ),
                         element_wise=True,
                         accepted_length=3,
@@ -1458,8 +1470,8 @@ def get_schema_for_lei(lei: str):
                         is_valid_code,
                         name="naics_code.invalid_naics_value",
                         description=(
-                            "When present, 'North American Industry Classification System "
-                            "(NAICS) code' should be a valid NAICS code."
+                            "When present, 'North American Industry Classification "
+                            "System (NAICS) code' should be a valid NAICS code."
                         ),
                         element_wise=True,
                         accept_blank=True,
@@ -1469,12 +1481,13 @@ def get_schema_for_lei(lei: str):
                         has_no_conditional_field_conflict,
                         name="naics_code.conditional_field_conflict",
                         description=(
-                            "When 'North American Industry Classification System (NAICS) "
-                            " code: NP flag' does not equal 900 (reported), 'North American"
-                            " Industry Classification System (NAICS) code' must be blank."
-                            "When 'North American Industry Classification System (NAICS) "
-                            "code: NP flag' equals 900, 'North American Industry "
-                            "Classification System (NAICS) code' must not be blank."
+                            "When 'North American Industry Classification System "
+                            "(NAICS)  code: NP flag' does not equal 900 (reported), "
+                            "'North American Industry Classification System (NAICS) "
+                            "code' must be blank. When 'North American Industry "
+                            "Classification System (NAICS) code: NP flag' equals 900, "
+                            "'North American Industry Classification System (NAICS) "
+                            "code' must not be blank."
                         ),
                         groupby="naics_code_flag",
                         condition_values={"900"},
@@ -1636,7 +1649,8 @@ def get_schema_for_lei(lei: str):
                         is_valid_enum,
                         name="num_principal_owners_flag.invalid_enum_value",
                         description=(
-                            "'Number of principal owners: NP flag' must equal 900 or 988."
+                            "'Number of principal owners: NP flag' must equal "
+                            "900 or 988."
                         ),
                         element_wise=True,
                         accepted_values=[
@@ -1666,10 +1680,11 @@ def get_schema_for_lei(lei: str):
                         has_no_conditional_field_conflict,
                         name="num_principal_owners.conditional_field_conflict",
                         description=(
-                            "When 'number of principal owners: NP flag' does not equal 900 "
-                            "(reported), 'number of principal owners' must be blank."
-                            "When 'number of principal owners: NP flag' equals 900, "
-                            "'number of principal owners' must not be blank."
+                            "When 'number of principal owners: NP flag' does not equal "
+                            "900 (reported), 'number of principal owners' must "
+                            "be blank. When 'number of principal owners: NP flag' "
+                            "equals 900, 'number of principal owners' must not "
+                            "be blank."
                         ),
                         groupby="num_principal_owners_flag",
                         condition_values={"900"},
@@ -1717,10 +1732,10 @@ def get_schema_for_lei(lei: str):
                         name="po_demographics_1.conditional_fieldset_conflict",
                         description=(
                             "When 'number of principal owners' equals 1, "
-                            "'ethnicity of principal owner 1', 'race of principal owner 1',"
-                            " and 'sex/gender of principal owner 1: NP flag' should not be"
-                            " blank. Demographic fields for principal owners 2, 3, and 4 "
-                            "should be blank."
+                            "'ethnicity of principal owner 1', 'race of principal "
+                            "owner 1', and 'sex/gender of principal owner 1: NP flag' "
+                            "should not be blank. Demographic fields for principal "
+                            "owners 2, 3, and 4 should be blank."
                         ),
                         groupby=[
                             "po_1_ethnicity",
@@ -1757,9 +1772,9 @@ def get_schema_for_lei(lei: str):
                         name="po_demographics_2.conditional_fieldset_conflict",
                         description=(
                             "When 'number of principal owners' equals 2, "
-                            "'ethnicity of principal owner 1 and 2', 'race of principal "
-                            "owner 1 and 2', and 'sex/gender of principal owner 1 and 2: "
-                            "NP flag' should not be blank."
+                            "'ethnicity of principal owner 1 and 2', 'race of "
+                            "principal owner 1 and 2', and 'sex/gender of principal "
+                            "owner 1 and 2: NP flag' should not be blank."
                         ),
                         groupby=[
                             "po_1_ethnicity",
@@ -1796,10 +1811,11 @@ def get_schema_for_lei(lei: str):
                         name="po_demographics_3.conditional_fieldset_conflict",
                         description=(
                             "When 'number of principal owners' equals 3, "
-                            "'ethnicity of principal owner 1, 2, and 3', 'race of principal"
-                            " owner 1, 2, and 3', and 'sex/gender of principal owner 1, 2, "
-                            "and 3: NP flag' should not be blank. Demographic fields for "
-                            "principal owner 4 should be blank."
+                            "'ethnicity of principal owner 1, 2, and 3', 'race of "
+                            "principal owner 1, 2, and 3', and 'sex/gender of "
+                            "principal owner 1, 2, and 3: NP flag' should not be "
+                            "blank. Demographic fields for principal owner 4 should "
+                            "be blank."
                         ),
                         groupby=[
                             "po_1_ethnicity",
@@ -1838,8 +1854,8 @@ def get_schema_for_lei(lei: str):
                             "When 'number of principal owners' equals 4, "
                             "'ethnicity of principal owner 1, 2, 3, and 4', "
                             "'race of principal owner 1, 2, 3, and 4', "
-                            "and 'sex/gender of principal owner 1, 2, 3, and 4: NP flag'"
-                            " should not be blank."
+                            "and 'sex/gender of principal owner 1, 2, 3, "
+                            "and 4: NP flag' should not be blank."
                         ),
                         groupby=[
                             "po_1_ethnicity",
@@ -1920,7 +1936,8 @@ def get_schema_for_lei(lei: str):
                             " 966 (the applicant responded that they did"
                             " not wish to provide this information) or 988"
                             " (not provided by applicant), 'ethnicity of"
-                            " principal owner 1' should not contain more than one value."
+                            " principal owner 1' should not contain more "
+                            "than one value."
                         ),
                         element_wise=True,
                         single_values={"966", "988"},
@@ -2083,8 +2100,8 @@ def get_schema_for_lei(lei: str):
             "po_1_race_asian_ff": Column(
                 str,
                 title=(
-                    "Field 50: Race of principal owner 1: free-form text field for other"
-                    "Asian race"
+                    "Field 50: Race of principal owner 1: free-form text field "
+                    "for other Asian race"
                 ),
                 nullable=True,
                 checks=[
@@ -2118,8 +2135,8 @@ def get_schema_for_lei(lei: str):
             "po_1_race_baa_ff": Column(
                 str,
                 title=(
-                    "Field 51: Race of principal owner 1: free-form text field for other"
-                    "Black or African American race"
+                    "Field 51: Race of principal owner 1: free-form text field for "
+                    "other Black or African American race"
                 ),
                 nullable=True,
                 checks=[
@@ -2143,7 +2160,8 @@ def get_schema_for_lei(lei: str):
                             " owner 1: free-form text field for other Black or African"
                             " American' must be blank. When 'race of principal owner 1'"
                             " contains 973, 'race of principal owner 1: free-form text"
-                            " field for other Black or African American' must not be blank."
+                            " field for other Black or African American' must not be "
+                            "blank."
                         ),
                         groupby="po_1_race",
                         condition_values={"973"},
@@ -2153,8 +2171,8 @@ def get_schema_for_lei(lei: str):
             "po_1_race_pi_ff": Column(
                 str,
                 title=(
-                    "Field 52: Race of principal owner 1: free-form text field for other"
-                    "Pacific Islander race"
+                    "Field 52: Race of principal owner 1: free-form text field for "
+                    "other Pacific Islander race"
                 ),
                 nullable=True,
                 checks=[
@@ -2210,8 +2228,8 @@ def get_schema_for_lei(lei: str):
             "po_1_gender_ff": Column(
                 str,
                 title=(
-                    "Field 54: Sex/gender of principal owner 1: free-form text field for"
-                    "self-identified sex/gender"
+                    "Field 54: Sex/gender of principal owner 1: free-form text field "
+                    "for self-identified sex/gender"
                 ),
                 nullable=True,
                 checks=[
@@ -2290,7 +2308,8 @@ def get_schema_for_lei(lei: str):
                             " 966 (the applicant responded that they did"
                             " not wish to provide this information) or 988"
                             " (not provided by applicant), 'ethnicity of"
-                            " principal owner 2' should not contain more than one value."
+                            " principal owner 2' should not contain more than "
+                            "one value."
                         ),
                         element_wise=True,
                         single_values={"966", "988"},
@@ -2453,8 +2472,8 @@ def get_schema_for_lei(lei: str):
             "po_2_race_asian_ff": Column(
                 str,
                 title=(
-                    "Field 59: Race of principal owner 2: free-form text field for other"
-                    "Asian race"
+                    "Field 59: Race of principal owner 2: free-form text field for "
+                    "other Asian race"
                 ),
                 nullable=True,
                 checks=[
@@ -2488,8 +2507,8 @@ def get_schema_for_lei(lei: str):
             "po_2_race_baa_ff": Column(
                 str,
                 title=(
-                    "Field 60: Race of principal owner 2: free-form text field for other"
-                    "Black or African American race"
+                    "Field 60: Race of principal owner 2: free-form text field for "
+                    "other Black or African American race"
                 ),
                 nullable=True,
                 checks=[
@@ -2513,7 +2532,8 @@ def get_schema_for_lei(lei: str):
                             " owner 2: free-form text field for other Black or African"
                             " American' must be blank. When 'race of principal owner 2'"
                             " contains 973, 'race of principal owner 2: free-form text"
-                            " field for other Black or African American' must not be blank."
+                            " field for other Black or African American' must not be "
+                            "blank."
                         ),
                         groupby="po_2_race",
                         condition_values={"973"},
@@ -2523,8 +2543,8 @@ def get_schema_for_lei(lei: str):
             "po_2_race_pi_ff": Column(
                 str,
                 title=(
-                    "Field 61: Race of principal owner 2: free-form text field for other"
-                    "Pacific Islander race"
+                    "Field 61: Race of principal owner 2: free-form text field for "
+                    "other Pacific Islander race"
                 ),
                 nullable=True,
                 checks=[
@@ -2580,8 +2600,8 @@ def get_schema_for_lei(lei: str):
             "po_2_gender_ff": Column(
                 str,
                 title=(
-                    "Field 63: Sex/gender of principal owner 2: free-form text field for"
-                    "self-identified sex/gender"
+                    "Field 63: Sex/gender of principal owner 2: free-form text field "
+                    "for self-identified sex/gender"
                 ),
                 nullable=True,
                 checks=[
@@ -2660,7 +2680,8 @@ def get_schema_for_lei(lei: str):
                             " 966 (the applicant responded that they did"
                             " not wish to provide this information) or 988"
                             " (not provided by applicant), 'ethnicity of"
-                            " principal owner 3' should not contain more than one value."
+                            " principal owner 3' should not contain more than "
+                            "one value."
                         ),
                         element_wise=True,
                         single_values={"966", "988"},
@@ -2823,8 +2844,8 @@ def get_schema_for_lei(lei: str):
             "po_3_race_asian_ff": Column(
                 str,
                 title=(
-                    "Field 68: Race of principal owner 3: free-form text field for other"
-                    "Asian race"
+                    "Field 68: Race of principal owner 3: free-form text field for "
+                    "other Asian race"
                 ),
                 nullable=True,
                 checks=[
@@ -2858,8 +2879,8 @@ def get_schema_for_lei(lei: str):
             "po_3_race_baa_ff": Column(
                 str,
                 title=(
-                    "Field 69: Race of principal owner 3: free-form text field for other"
-                    "Black or African American race"
+                    "Field 69: Race of principal owner 3: free-form text field for "
+                    "other Black or African American race"
                 ),
                 nullable=True,
                 checks=[
@@ -2883,7 +2904,8 @@ def get_schema_for_lei(lei: str):
                             " owner 3: free-form text field for other Black or African"
                             " American' must be blank. When 'race of principal owner 3'"
                             " contains 973, 'race of principal owner 3: free-form text"
-                            " field for other Black or African American' must not be blank."
+                            " field for other Black or African American' must not be "
+                            "blank."
                         ),
                         groupby="po_3_race",
                         condition_values={"973"},
@@ -2893,8 +2915,8 @@ def get_schema_for_lei(lei: str):
             "po_3_race_pi_ff": Column(
                 str,
                 title=(
-                    "Field 70: Race of principal owner 3: free-form text field for other"
-                    "Pacific Islander race"
+                    "Field 70: Race of principal owner 3: free-form text field for "
+                    "other Pacific Islander race"
                 ),
                 nullable=True,
                 checks=[
@@ -2950,8 +2972,8 @@ def get_schema_for_lei(lei: str):
             "po_3_gender_ff": Column(
                 str,
                 title=(
-                    "Field 72: Sex/gender of principal owner 3: free-form text field for"
-                    "self-identified sex/gender"
+                    "Field 72: Sex/gender of principal owner 3: free-form text field "
+                    "for self-identified sex/gender"
                 ),
                 nullable=True,
                 checks=[
@@ -3030,7 +3052,8 @@ def get_schema_for_lei(lei: str):
                             " 966 (the applicant responded that they did"
                             " not wish to provide this information) or 988"
                             " (not provided by applicant), 'ethnicity of"
-                            " principal owner 4' should not contain more than one value."
+                            " principal owner 4' should not contain more than one "
+                            "value."
                         ),
                         element_wise=True,
                         single_values={"966", "988"},
@@ -3193,8 +3216,8 @@ def get_schema_for_lei(lei: str):
             "po_4_race_asian_ff": Column(
                 str,
                 title=(
-                    "Field 77: Race of principal owner 4: free-form text field for other"
-                    "Asian race"
+                    "Field 77: Race of principal owner 4: free-form text field for "
+                    "other Asian race"
                 ),
                 nullable=True,
                 checks=[
@@ -3228,8 +3251,8 @@ def get_schema_for_lei(lei: str):
             "po_4_race_baa_ff": Column(
                 str,
                 title=(
-                    "Field 78: Race of principal owner 4: free-form text field for other"
-                    "Black or African American race"
+                    "Field 78: Race of principal owner 4: free-form text field for "
+                    "other Black or African American race"
                 ),
                 nullable=True,
                 checks=[
@@ -3253,7 +3276,8 @@ def get_schema_for_lei(lei: str):
                             " owner 4: free-form text field for other Black or African"
                             " American' must be blank. When 'race of principal owner 4'"
                             " contains 973, 'race of principal owner 4: free-form text"
-                            " field for other Black or African American' must not be blank."
+                            " field for other Black or African American' must not be "
+                            "blank."
                         ),
                         groupby="po_4_race",
                         condition_values={"973"},
@@ -3263,8 +3287,8 @@ def get_schema_for_lei(lei: str):
             "po_4_race_pi_ff": Column(
                 str,
                 title=(
-                    "Field 79: Race of principal owner 4: free-form text field for other"
-                    "Pacific Islander race"
+                    "Field 79: Race of principal owner 4: free-form text field for "
+                    "other Pacific Islander race"
                 ),
                 nullable=True,
                 checks=[
@@ -3320,8 +3344,8 @@ def get_schema_for_lei(lei: str):
             "po_4_gender_ff": Column(
                 str,
                 title=(
-                    "Field 81: Sex/gender of principal owner 4: free-form text field for"
-                    "self-identified sex/gender"
+                    "Field 81: Sex/gender of principal owner 4: free-form text field "
+                    "for self-identified sex/gender"
                 ),
                 nullable=True,
                 checks=[
