@@ -1,26 +1,20 @@
 import pandas as pd
 
 from validator import global_data
-from validator.check_functions import (
-    has_correct_length,
-    has_no_conditional_field_conflict,
-    has_valid_enum_pair,
-    has_valid_fieldset_pair,
-    has_valid_format,
-    has_valid_multi_field_value_count,
-    has_valid_value_count,
-    is_date,
-    is_greater_than,
-    is_greater_than_or_equal_to,
-    is_less_than,
-    is_number,
-    is_unique_column,
-    is_unique_in_field,
-    is_valid_code,
-    is_valid_enum,
-    meets_multi_value_field_restriction,
-    string_contains,
-)
+from validator.check_functions import (has_correct_length,
+                                       has_no_conditional_field_conflict,
+                                       has_valid_enum_pair,
+                                       has_valid_fieldset_pair,
+                                       has_valid_format,
+                                       has_valid_multi_field_value_count,
+                                       has_valid_value_count, is_date,
+                                       is_greater_than,
+                                       is_greater_than_or_equal_to,
+                                       is_less_than, is_number,
+                                       is_unique_column, is_unique_in_field,
+                                       is_valid_code, is_valid_enum,
+                                       meets_multi_value_field_restriction,
+                                       string_contains)
 
 
 class TestInvalidDateFormat:
@@ -868,7 +862,7 @@ class TestIsValidId:
             string_contains(
                 "000TESTFIUIDDONOTUSEXGXVID11XTC1",
                 "000TESTFIUIDDONOTUSEXGX",
-                end_idx=23,
+                end_idx=20,
             )
-            is True
+            is False
         )
