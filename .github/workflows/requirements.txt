@@ -1,6 +1,0 @@
-kedro
-pandas
-pandera
-ipykernel
-openpyxl
-pytest
