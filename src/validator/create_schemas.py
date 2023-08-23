@@ -2,6 +2,7 @@
 with validations listed in phase 1 and phase 2."""
 
 from pandera import DataFrameSchema
+from pandera.errors import SchemaErrors
 from phase_validations import get_phase_1_and_2_validations_for_lei
 from schema_template import get_template
 
@@ -17,6 +18,27 @@ def get_schema_by_phase_for_lei(template: dict, phase: str, lei: str = None):
         validations = get_phase_1_and_2_validations_for_lei(lei)[column]
         template[column].checks = validations[phase]
     return DataFrameSchema(template)
+
+
+def print_schema_errors(errors: SchemaErrors, phase: str):
+    for error in errors.schema_errors:
+        # Name of the column in the dataframe being checked
+        column_name = error["error"].schema.name
+
+        # built in checks such as unique=True are different than custom
+        # checks unfortunately so the name needs to be accessed differently
+        try:
+            check_name = error["error"].check.name
+            # This will either be a boolean series or a single bool
+            check_output = error["error"].check_output
+        except AttributeError:
+            check_name = error["error"].check
+            # this is just a string that we'd need to parse manually
+            check_output = error["error"].args[0]
+
+        print(f"{phase} Validation `{check_name}` failed for column `{column_name}`")
+        print(check_output)
+        print("")
 
 
 def get_phase_1_schema_for_lei(lei: str = None):
