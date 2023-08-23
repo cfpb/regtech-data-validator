@@ -8,10 +8,8 @@ Run from the terminal to see the generated output.
 import sys
 
 import pandas as pd
-from create_schemas import (get_phase_1_schema_for_lei,
-                            get_phase_2_schema_for_lei)
+from create_schemas import get_phase_1_schema_for_lei, get_phase_2_schema_for_lei
 from pandera.errors import SchemaErrors
-from schema import get_schema_for_lei
 
 
 def csv_to_df(path: str) -> pd.DataFrame:
@@ -52,12 +50,13 @@ def run_validation_on_df(df: pd.DataFrame, lei: str) -> None:
                 # this is just a string that we'd need to parse manually
                 check_output = error["error"].args[0]
 
-            print(f"Phase 1 Validation `{check_name}` failed for column `{column_name}`")
+            print(
+                f"Phase 1 Validation `{check_name}` failed for column `{column_name}`"
+            )
             print(check_output)
             print("")
-    
-    if phase_1_failure_cases is None:
 
+    if phase_1_failure_cases is None:
         phase_2_sblar_chema = get_phase_2_schema_for_lei(lei)
         try:
             phase_2_sblar_chema(df, lazy=True)
@@ -77,7 +76,9 @@ def run_validation_on_df(df: pd.DataFrame, lei: str) -> None:
                     # this is just a string that we'd need to parse manually
                     check_output = error["error"].args[0]
 
-                print(f"Phase 2 Validation `{check_name}` failed for column `{column_name}`")
+                print(
+                    f"Phase 2 Validation `{check_name}` failed for column `{column_name}`"
+                )
                 print(check_output)
                 print("")
 
