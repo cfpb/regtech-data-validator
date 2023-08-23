@@ -8,8 +8,11 @@ Run from the terminal to see the generated output.
 import sys
 
 import pandas as pd
-from create_schemas import (get_phase_1_schema_for_lei,
-                            get_phase_2_schema_for_lei, print_schema_errors)
+from create_schemas import (
+    get_phase_1_schema_for_lei,
+    get_phase_2_schema_for_lei,
+    print_schema_errors,
+)
 from pandera.errors import SchemaErrors
 
 
