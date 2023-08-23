@@ -13,7 +13,8 @@ phase_2_template = get_template()
 
 
 def get_schema_by_phase_for_lei(template: dict, phase: str, lei: str = None):
-    for column, validations in get_phase_1_and_2_validations_for_lei(lei):
+    for column in get_phase_1_and_2_validations_for_lei(lei):
+        validations = get_phase_1_and_2_validations_for_lei(lei)[column]
         template[column].checks = validations[phase]
     return DataFrameSchema(template)
 
