@@ -34,17 +34,17 @@ def run_validation_on_df(df: pd.DataFrame, lei: str) -> None:
 
     phase_1_failure_cases = None
 
-    phase_1_sblar_chema = get_phase_1_schema_for_lei(lei)
+    phase_1_sblar_schema = get_phase_1_schema_for_lei(lei)
     try:
-        phase_1_sblar_chema(df, lazy=True)
+        phase_1_sblar_schema(df, lazy=True)
     except SchemaErrors as errors:
         phase_1_failure_cases = errors.failure_cases
         print_schema_errors(errors, "Phase 1")
 
     if phase_1_failure_cases is None:
-        phase_2_sblar_chema = get_phase_2_schema_for_lei(lei)
+        phase_2_sblar_schema = get_phase_2_schema_for_lei(lei)
         try:
-            phase_2_sblar_chema(df, lazy=True)
+            phase_2_sblar_schema(df, lazy=True)
         except SchemaErrors as errors:
             print_schema_errors(errors, "Phase 2")
 
