@@ -653,15 +653,15 @@ class TestIsUniqueColumn:
 
     def test_with_multiple_valid_series(self):
         result = is_unique_column({"ABC123": self.series, "DEF456": self.other_series})
-        assert bool(result.values[0]) is True and bool(result.values[1]) is True
+        assert result.values[0] and result.values[1]
 
     def test_with_invalid_series(self):
         result = is_unique_column({"ABC123": self.invalid_series})
-        assert bool(result.values.all()) is False
+        assert not result.values.all()
 
     def test_with_multiple_items_series(self):
         result = is_unique_column({"GHI123": self.multi_invalid_series})
-        assert bool(result.values.all()) is False
+        assert not result.values.all()
 
     def test_with_multiple_invalid_series(self):
         result = is_unique_column(
@@ -669,11 +669,11 @@ class TestIsUniqueColumn:
         )
         # ALL rows should be FALSE
         assert (
-            bool(result.values[0]) is False
-            and bool(result.values[1]) is False
-            and bool(result.values[2]) is False
-            and bool(result.values[3]) is False
-            and bool(result.values[4]) is False
+            not result.values[0]
+            and not result.values[1]
+            and not result.values[2]
+            and not result.values[3]
+            and not result.values[4]
         )
 
     def test_with_multiple_mix_series(self):
@@ -681,11 +681,7 @@ class TestIsUniqueColumn:
             {"ABC123": self.invalid_series, "DEF456": self.other_series}
         )
         # first two rows should be FALSE and last Row should be TRUE
-        assert (
-            bool(result.values[0]) is False
-            and bool(result.values[1]) is False
-            and bool(result.values[2]) is True
-        )
+        assert not result.values[0] and not result.values[1] and result.values[2]
 
     def test_with_blank_value_series(self):
         result = is_unique_column({"": self.blank_value_series})
