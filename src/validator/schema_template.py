@@ -505,13 +505,13 @@ _schema_template = {
     ),
 }
 
+
 def get_template() -> Dict:
-    """Returns a deep copy of the above schema_template object. 
-    
+    """Returns a deep copy of the above schema_template object.
+
     This is done because this dictionary template is going to be
     modified both by the phase 1 imputer and phase 2 imputer. This can
     cause absolute havoc in a program and it's proactically impossible
     to debug."""
-    
+
     return deepcopy(_schema_template)
-    
