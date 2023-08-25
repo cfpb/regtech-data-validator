@@ -1,6 +1,10 @@
 name: Tests
 
-on: [push]
+on:
+  pull_request:
+  push:
+    branches:
+      - "main"
 
 jobs:
   unit-tests:
@@ -24,13 +28,13 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f .devcontainer/requirements.txt ]; then pip install -r .devcontainer/requirements.txt; fi
       - name: Launch tests & generate report
-        run: coverage run --rcfile=.coveragerc -m pytest
+        run: pytest
       - name: Coverage comment
         id: coverage_comment
         uses: py-cov-action/python-coverage-comment-action@v3
         with:
           GITHUB_TOKEN: ${{ github.token }}
-
+          verbose: true
       - name: Store Pull Request comment to be posted
         uses: actions/upload-artifact@v3
         if: steps.coverage_comment.outputs.COMMENT_FILE_WRITTEN == 'true'
