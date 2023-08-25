@@ -23,18 +23,19 @@ def get_schema_by_phase_for_lei(template: dict, phase: str, lei: str = None):
 def print_schema_errors(errors: SchemaErrors, phase: str):
     for error in errors.schema_errors:
         # Name of the column in the dataframe being checked
-        column_name = error["error"].schema.name
+        schema_error = error["error"]
+        column_name = schema_error.schema.name
 
         # built in checks such as unique=True are different than custom
         # checks unfortunately so the name needs to be accessed differently
         try:
-            check_name = error["error"].check.name
+            check_name = schema_error.check.name
             # This will either be a boolean series or a single bool
-            check_output = error["error"].check_output
+            check_output = schema_error.check_output
         except AttributeError:
-            check_name = error["error"].check
+            check_name = schema_error.check
             # this is just a string that we'd need to parse manually
-            check_output = error["error"].args[0]
+            check_output = schema_error.args[0]
 
         print(f"{phase} Validation `{check_name}` failed for column `{column_name}`")
         print(check_output)
