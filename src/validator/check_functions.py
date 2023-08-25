@@ -349,10 +349,6 @@ def _has_valid_enum_pair_validation_helper(
         result = series == condition_value
     else:
         result = series != condition_value
-    for i, v in result.items():
-        if v is False:
-            print(i)
-
     return result
 
 
