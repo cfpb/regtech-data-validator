@@ -75,8 +75,9 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     string_contains,
                     name="uid.invalid_uid_lei",
                     description=(
-                        "The first 20 characters of the 'unique identifier' should match "
-                        "the Legal Entity Identifier (LEI) for the financial institution."
+                        "The first 20 characters of the 'unique identifier' should"
+                        " match the Legal Entity Identifier (LEI) for the financial"
+                        " institution."
                     ),
                     element_wise=True,
                     containing_value=lei,
@@ -950,11 +951,11 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     description=(
                         "When 'interest rate type' does not equal 1"
                         " (adjustable interest rate, no initial rate period),"
-                        " 3 (initial rate period > 12 months, adjustable interest rate),"
-                        " or 5 (initial rate period <= 12 months, variable interest"
-                        " rate), 'adjustable rate transaction: margin' must be blank."
-                        " When 'interest rate type' equals 1, 3, or 5, 'variable"
-                        " rate transaction: margin' must not be blank."
+                        " 3 (initial rate period > 12 months, adjustable interest"
+                        " rate), or 5 (initial rate period <= 12 months, variable "
+                        "interest rate), 'adjustable rate transaction: margin' must "
+                        "be blank. When 'interest rate type' equals 1, 3, or 5, "
+                        "'variable rate transaction: margin' must not be blank."
                     ),
                     groupby="pricing_interest_rate_type",
                     condition_values={"1", "3", "5"},
@@ -978,8 +979,8 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_valid_enum,
                     name="pricing_adj_index_name.invalid_enum_value",
                     description=(
-                        "'Adjustable rate transaction: index name' must equal 1, 2, 3, 4,"
-                        "5, 6, 7, 8, 9, 10, 977, or 999."
+                        "'Adjustable rate transaction: index name' must equal "
+                        "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 977, or 999."
                     ),
                     element_wise=True,
                     accepted_values=[
@@ -1036,8 +1037,8 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     max_value=300,
                     name="pricing_adj_index_name_ff.invalid_text_length",
                     description=(
-                        "'Adjustable rate transaction: index name: other' must not exceed"
-                        "300 characters in length."
+                        "'Adjustable rate transaction: index name: other' must not"
+                        " exceed 300 characters in length."
                     ),
                 ),
             ],
@@ -1131,20 +1132,19 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             ],
             "phase_2": [],
         },
-        "pricing_mca_addcost_flag": {"phase_1": [], "phase_2": []},
-        "pricing_mca_addcost": {"phase_1": [], "phase_2": []},
-        "pricing_prepenalty_allowed": {
+        "pricing_mca_addcost_flag": {
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
-                    name="pricing_prepenalty_allowed.invalid_enum_value",
+                    name="pricing_mca_addcost_flag.invalid_enum_value",
                     description=(
-                        "'Prepayment penalty could be imposed' must equal 1, 2, or 999."
+                        "'MCA/sales-based: additional cost for merchant cash "
+                        "advances or other sales-based financing: NA flag' "
+                        "must equal 900 or 999."
                     ),
                     element_wise=True,
                     accepted_values=[
-                        "1",
-                        "2",
+                        "900",
                         "999",
                     ],
                 ),
@@ -1171,6 +1171,58 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     ],
                 ),
             ],
+        },
+        "pricing_mca_addcost": {
+            "phase_1": [
+                SBLCheck(
+                    is_number,
+                    name="pricing_mca_addcost.invalid_numeric_format",
+                    description=(
+                        "When present, 'MCA/sales-based: additional cost for "
+                        "merchant cash advances or other sales-based financing' "
+                        "must be a numeric value"
+                    ),
+                    element_wise=True,
+                    accept_blank=True,
+                ),
+            ],
+            "phase_2": [
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    name="pricing_mca_addcost.conditional_field_conflict",
+                    description=(
+                        "When 'MCA/sales-based: additional cost for merchant "
+                        "cash advances or other sales-based financing: NA flag' "
+                        "does not equal 900 (applicable), 'MCA/sales-based: "
+                        "additional cost for merchant cash advances or other "
+                        "sales-based financing' must be blank. When 'MCA/sales-based: "
+                        "additional cost for merchant cash advances or other "
+                        "sales-based financing: NA flag' equals 900, MCA/sales-based: "
+                        "additional cost for merchant cash advances or other "
+                        "sales-based financing’ must not be blank."
+                    ),
+                    groupby="pricing_mca_addcost_flag",
+                    condition_values={"900"},
+                ),
+            ],
+        },
+        "pricing_prepenalty_allowed": {
+            "phase_1": [
+                SBLCheck(
+                    is_valid_enum,
+                    name="pricing_prepenalty_allowed.invalid_enum_value",
+                    description=(
+                        "'Prepayment penalty could be imposed' must equal 1, 2, or 999."
+                    ),
+                    element_wise=True,
+                    accepted_values=[
+                        "1",
+                        "2",
+                        "999",
+                    ],
+                ),
+            ],
+            "phase_2": [],
         },
         "pricing_prepenalty_exists": {
             "phase_1": [
