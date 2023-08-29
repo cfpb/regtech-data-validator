@@ -3,10 +3,6 @@
 This mapping is used to populate the schema template object and create
 an instance of a PanderaSchema object for phase 1 and phase 2."""
 
-#! NOTE: "pricing_adj_margin", "pricing_adj_index_name": "pricing_adj_index_name_ff",
-#        and "pricing_adj_index_value" have been renamed. They used to be called
-#        pricing_var_xyz but are now called pricing_adj_xyz
-
 
 import global_data
 from check_functions import (
@@ -138,8 +134,8 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_valid_enum,
                     name="ct_credit_product.invalid_enum_value",
                     description=(
-                        "'Credit product' must equal 1, 2, 3, 4, 5, 6, 7, 8, "
-                        "977, or 988."
+                        "'Credit product' must equal 1, 2, 3, 4, 5, 6, "
+                        "7, 8, 977, or 988."
                     ),
                     element_wise=True,
                     accepted_values=[
