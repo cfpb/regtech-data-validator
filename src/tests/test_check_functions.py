@@ -148,10 +148,6 @@ class TestMultiInvalidNumberOfValues:
         result = has_valid_multi_field_value_count({"4": self.series}, 1)
         assert result.values == [False]
 
-    def test_inside_maxlength(self):
-        result = has_valid_multi_field_value_count({"4": self.series}, 5)
-        assert result.values == [True]
-
     def test_valid_length_with_non_blank(self):
         result = has_valid_multi_field_value_count(
             {"4;1": self.multiple_values_series}, 5
@@ -302,7 +298,8 @@ class TestConditionalFieldConflict:
 
     def test_conditional_field_conflict_incorrect(self):
         # if ct_loan_term_flag != 900 then ct_loan_term must be blank
-        # in this test, ct_loan_term_flag is not 900 and ct_loan_term is NOT blank, so must return False
+        # in this test, ct_loan_term_flag is not 900 and ct_loan_term is
+        # NOT blank, so must return False
         series = pd.Series(["36"], name="ct_loan_term", index=[2])
         condition_values: set[str] = {"900"}
 
@@ -656,15 +653,15 @@ class TestIsUniqueColumn:
 
     def test_with_multiple_valid_series(self):
         result = is_unique_column({"ABC123": self.series, "DEF456": self.other_series})
-        assert result.values[0] == True and result.values[1] == True
+        assert result.values[0] and result.values[1]
 
     def test_with_invalid_series(self):
         result = is_unique_column({"ABC123": self.invalid_series})
-        assert result.values.all() == False
+        assert not result.values.all()
 
     def test_with_multiple_items_series(self):
         result = is_unique_column({"GHI123": self.multi_invalid_series})
-        assert result.values.all() == False
+        assert not result.values.all()
 
     def test_with_multiple_invalid_series(self):
         result = is_unique_column(
@@ -672,11 +669,11 @@ class TestIsUniqueColumn:
         )
         # ALL rows should be FALSE
         assert (
-            result.values[0] == False
-            and result.values[1] == False
-            and result.values[2] == False
-            and result.values[3] == False
-            and result.values[4] == False
+            not result.values[0]
+            and not result.values[1]
+            and not result.values[2]
+            and not result.values[3]
+            and not result.values[4]
         )
 
     def test_with_multiple_mix_series(self):
@@ -684,11 +681,7 @@ class TestIsUniqueColumn:
             {"ABC123": self.invalid_series, "DEF456": self.other_series}
         )
         # first two rows should be FALSE and last Row should be TRUE
-        assert (
-            result.values[0] == False
-            and result.values[1] == False
-            and result.values[2] == True
-        )
+        assert not result.values[0] and not result.values[1] and result.values[2]
 
     def test_with_blank_value_series(self):
         result = is_unique_column({"": self.blank_value_series})
@@ -795,7 +788,7 @@ class TestHasValidFieldsetPair:
             "field2": (1, True, "999"),
             "field3": (2, True, "0"),
             "field4": (3, False, ""),
-            "field4": (4, False, ""),
+            "field5": (4, False, ""),
         }
 
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
