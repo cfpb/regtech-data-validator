@@ -21,7 +21,6 @@ from validator.check_functions import (
     meets_multi_value_field_restriction,
     string_contains,
 )
-from validator.checks import SBLCheck
 
 
 class TestInvalidDateFormat:
