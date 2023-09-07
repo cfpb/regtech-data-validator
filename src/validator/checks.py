@@ -73,14 +73,3 @@ class SBLCheck(Check):
     def get_backend(cls, check_obj: Any) -> Type[BaseCheckBackend]:
         """Assume Pandas DataFrame and return PandasCheckBackend"""
         return PandasCheckBackend
-
-
-if __name__ == "__main__":
-    warning_check = SBLCheck(
-        lambda: True, id="00000", warning=True, name="Just a Warning"
-    )
-
-    error_check_implied = SBLCheck(lambda: True, id="00000", name="Error Check")
-    error_check_explicit = SBLCheck(
-        lambda: True, id="00000", warning=False, name="Also an Error"
-    )

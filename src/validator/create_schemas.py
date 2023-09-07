@@ -35,7 +35,6 @@ def print_schema_errors(errors: SchemaErrors, phase: str):
             check_output = schema_error.check_output
         except AttributeError:
             check_name = schema_error.check
-            check_id = schema_error.check
             # this is just a string that we'd need to parse manually
             check_output = schema_error.args[0]
 
