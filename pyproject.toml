@@ -1,0 +1,81 @@
+[tool.poetry]
+name = "regtech-data-validator"
+version = "0.1.0"
+description = ""
+authors = []
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+black = "23.3.0"
+ruff = "0.0.259"
+pandas = "2.1.0"
+pandera = "0.16.1"
+pytest = "7.4.0"
+pytest-cov = "4.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+# Black formatting
+[tool.black]
+preview = true
+skip-string-normalization = true
+line-length = 120
+include = '\.pyi?$'
+exclude = '''
+/(
+    | .gitignore    # list of files or directories to be excluded in the
+    | .git          # root of the project
+    | Dockerfile
+    | .github
+    | .devcontainer
+    | data
+  )/
+'''
+
+# Linting
+[tool.ruff]
+# Same as Black.
+line-length = 120
+
+# Testing
+[tool.pytest.ini_options]
+addopts = [
+    "--cov-report=term-missing",
+    "--cov-branch",
+    "--cov-report=xml",
+    "--cov-report=term",
+    "--cov=src",
+    "-vv",
+    "--strict-markers",
+    "-rfE",
+]
+testpaths = [
+    "src/tests",
+]
+
+[tool.coverage.run]
+relative_files = true
+source = ["src"]
+
+[tool.coverage.report]
+skip_empty = true
+# Regexes for lines to exclude from consideration
+exclude_also = [
+    # Don't complain about missing debug-only code:
+    "def __repr__",
+    "if self\\.debug",
+
+    # Don't complain if tests don't hit defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+
+    # Don't complain if non-runnable code isn't run:
+    "if 0:",
+    "if __name__ == .__main__.:",
+
+    # Don't complain about abstract methods, they aren't run:
+    "@(abc\\.)?abstractmethod",
+    ]
