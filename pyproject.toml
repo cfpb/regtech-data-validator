@@ -22,7 +22,6 @@ build-backend = "poetry.core.masonry.api"
 [tool.black]
 preview = true
 skip-string-normalization = true
-line-length = 120
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -32,6 +31,9 @@ exclude = '''
     | .github
     | .devcontainer
     | data
+    | tools
+    | poetry.lock
+    | pyproject.toml
   )/
 '''
 

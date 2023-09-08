@@ -226,7 +226,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     warning=True,
                     name="ct_guarantee.duplicates_in_field",
                     description=(
-                        "'Type of guarantee' should not contain " "duplicated values."
+                        "'Type of guarantee' should not contain duplicated values."
                     ),
                     element_wise=True,
                 ),
@@ -359,8 +359,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_greater_than_or_equal_to,
                     name="ct_loan_term.invalid_numeric_value",
                     description=(
-                        "When present, 'loan term' must be greater than or equal"
-                        "to 1."
+                        "When present, 'loan term' must be greater than or equal to 1."
                     ),
                     element_wise=True,
                     min_value="1",
@@ -370,8 +369,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_less_than,
                     name="ct_loan_term.unreasonable_numeric_value",
                     description=(
-                        "When present, 'loan term' should be less than 1200"
-                        "(100 years)."
+                        "When present, 'loan term' should be less than 1200(100 years)."
                     ),
                     element_wise=True,
                     max_value="1200",
@@ -440,7 +438,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     warning=True,
                     name="credit_purpose.duplicates_in_field",
                     description=(
-                        "'Credit purpose' should not contain " " duplicated values."
+                        "'Credit purpose' should not contain  duplicated values."
                     ),
                     element_wise=True,
                 ),
@@ -508,7 +506,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_number,
                     name="amount_applied_for.invalid_numeric_format",
                     description=(
-                        "When present, 'amount applied for' must be a numeric" "value."
+                        "When present, 'amount applied for' must be a numericvalue."
                     ),
                     element_wise=True,
                     accept_blank=True,
@@ -1060,8 +1058,10 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck(
                     is_number,
                     name="pricing_adj_index_value.invalid_numeric_format",
-                    description="When present, 'adjustable rate transaction:"
-                    " index value' must be a numeric value.",
+                    description=(
+                        "When present, 'adjustable rate transaction:"
+                        " index value' must be a numeric value."
+                    ),
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -1119,8 +1119,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_number,
                     name="pricing_initial_charges.invalid_numeric_format",
                     description=(
-                        "When present, 'initial annual charges' must be a"
-                        "numeric value."
+                        "When present, 'initial annual charges' must be anumeric value."
                     ),
                     element_wise=True,
                     accept_blank=True,
@@ -1477,8 +1476,10 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_greater_than_or_equal_to,
                     name="time_in_business.invalid_numeric_value",
                     description=(
-                        "When present, 'time in business'"
-                        " must be greater than or equal to 0.",
+                        (
+                            "When present, 'time in business'"
+                            " must be greater than or equal to 0."
+                        ),
                     ),
                     element_wise=True,
                     min_value="0",
@@ -1526,8 +1527,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     has_valid_value_count,
                     name="business_ownership_status.invalid_number_of_values",
                     description=(
-                        "'Business ownership status' must"
-                        " contain at least one value."
+                        "'Business ownership status' must contain at least one value."
                     ),
                     element_wise=True,
                     min_length=1,

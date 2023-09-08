@@ -210,15 +210,13 @@ _schema_template = {
         str,
         title=(
             "Field 38: North American Industry Classification System (NAICS)"
-            "code: NP flag"
+            " code: NP flag"
         ),
         checks=[],
     ),
     "naics_code": Column(
         str,
-        title=(
-            "Field 39: North American Industry Classification" "System (NAICS) code"
-        ),
+        title="Field 39: North American Industry Classification System (NAICS) code",
         checks=[],
     ),
     "number_of_workers": Column(
