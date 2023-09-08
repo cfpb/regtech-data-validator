@@ -369,7 +369,8 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_less_than,
                     name="ct_loan_term.unreasonable_numeric_value",
                     description=(
-                        "When present, 'loan term' should be less than 1200(100 years)."
+                        "When present, 'loan term' should be less than 1200 (100"
+                        " years)."
                     ),
                     element_wise=True,
                     max_value="1200",
