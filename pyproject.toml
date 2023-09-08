@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "regtech-data-validator"
 version = "0.1.0"
-description = ""
+description = "RegTech submission data parser and validator"
 authors = []
 readme = "README.md"
 
