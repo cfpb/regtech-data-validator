@@ -439,7 +439,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     warning=True,
                     name="credit_purpose.duplicates_in_field",
                     description=(
-                        "'Credit purpose' should not contain  duplicated values."
+                        "'Credit purpose' should not contain duplicated values."
                     ),
                     element_wise=True,
                 ),
@@ -507,7 +507,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_number,
                     name="amount_applied_for.invalid_numeric_format",
                     description=(
-                        "When present, 'amount applied for' must be a numericvalue."
+                        "When present, 'amount applied for' must be a numeric value."
                     ),
                     element_wise=True,
                     accept_blank=True,
@@ -1477,10 +1477,8 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_greater_than_or_equal_to,
                     name="time_in_business.invalid_numeric_value",
                     description=(
-                        (
-                            "When present, 'time in business'"
-                            " must be greater than or equal to 0."
-                        ),
+                        "When present, 'time in business'"
+                        " must be greater than or equal to 0."
                     ),
                     element_wise=True,
                     min_value="0",
