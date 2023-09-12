@@ -24,7 +24,6 @@ def print_schema_errors(errors: SchemaErrors, phase: str):
     for error in errors.schema_errors:
         # Name of the column in the dataframe being checked
         schema_error = error["error"]
-        column_name = schema_error.schema.name
         check_id = "n/a"
 
         # built in checks such as unique=True are different than custom
