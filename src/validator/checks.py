@@ -14,7 +14,7 @@ Examples:
         name="Just a Warning"
     )
     
-    error_check_implied = SBLCheck(lambda: True name="Error Check")
+    error_check_implied = SBLCheck(lambda: True, name="Error Check")
     
     error_check_explicit = SBLCheck(
         lambda: True,
