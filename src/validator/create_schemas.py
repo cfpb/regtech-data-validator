@@ -40,8 +40,8 @@ def print_schema_errors(errors: SchemaErrors, phase: str):
             check_output = schema_error.args[0]
 
         print(
-            f"{phase} Validation `{check_name}` with id: `{check_id}` \
-            failed for column `{column_name}`"
+            f"{phase} Validation `{check_name}` with id: `{check_id}` "
+            "failed for column `{column_name}`"
         )
         print(check_output)
         print("")
