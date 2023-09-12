@@ -40,6 +40,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_unique_column,
+                    id="E3000",
                     name="uid.duplicates_in_dataset",
                     description=(
                         "Any 'unique identifier' may not be used in more than one "
@@ -50,6 +51,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     21,
                     45,
+                    id="E0001",
                     name="uid.invalid_text_length",
                     description=(
                         "'Unique identifier' must be at least 21 characters "
@@ -58,6 +60,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     has_valid_format,
+                    id="E0002",
                     name="uid.invalid_text_pattern",
                     description=(
                         "'Unique identifier' may contain any combination of "
@@ -69,6 +72,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     string_contains,
+                    id="W0003",
                     name="uid.invalid_uid_lei",
                     description=(
                         "The first 20 characters of the 'unique identifier' should"
@@ -86,6 +90,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_date,
+                    id="E0020",
                     name="app_date.invalid_date_format",
                     description=(
                         "'Application date' must be a real calendar "
@@ -100,6 +105,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0040",
                     name="app_method.invalid_enum_value",
                     description="'Application method' must equal 1, 2, 3, or 4.",
                     element_wise=True,
@@ -117,6 +123,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0060",
                     name="app_recipient.invalid_enum_value",
                     description="'Application recipient' must equal 1 or 2",
                     element_wise=True,
@@ -132,10 +139,11 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0080",
                     name="ct_credit_product.invalid_enum_value",
                     description=(
-                        "'Credit product' must equal 1, 2, 3, 4, 5, 6, "
-                        "7, 8, 977, or 988."
+                        "'Credit product' must equal 1, 2, 3, 4, 5, 6, 7, 8, "
+                        "977, or 988."
                     ),
                     element_wise=True,
                     accepted_values=[
@@ -159,6 +167,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E0100",
                     name="ct_credit_product_ff.invalid_text_length",
                     description=(
                         "'Free-form text field for other credit products' "
@@ -169,6 +178,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2000",
                     name="ct_credit_product_ff.conditional_field_conflict",
                     description=(
                         "When 'credit product' does not equal 977 (other), 'free-form"
@@ -185,6 +195,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0120",
                     name="ct_guarantee.invalid_enum_value",
                     description=(
                         "Each value in 'type of guarantee' (separated by "
@@ -212,6 +223,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_valid_value_count,
+                    id="E0121",
                     name="ct_guarantee.invalid_number_of_values",
                     description=(
                         "'Type of guarantee' must contain at least one and at"
@@ -223,6 +235,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     is_unique_in_field,
+                    id="W0123",
                     warning=True,
                     name="ct_guarantee.duplicates_in_field",
                     description=(
@@ -232,6 +245,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
+                    id="W0122",
                     warning=True,
                     name="ct_guarantee.multi_value_field_restriction",
                     description=(
@@ -249,6 +263,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E0140",
                     name="ct_guarantee_ff.invalid_text_length",
                     description=(
                         "'Free-form text field for other guarantee' must not "
@@ -259,6 +274,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2001",
                     name="ct_guarantee_ff.conditional_field_conflict",
                     description=(
                         "When 'type of guarantee' does not contain 977 (other), "
@@ -271,6 +287,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     has_valid_multi_field_value_count,
+                    id="W2006",
                     warning=True,
                     name="ct_guarantee_ff.multi_invalid_number_of_values",
                     description=(
@@ -290,6 +307,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0160",
                     name="ct_loan_term_flag.invalid_enum_value",
                     description=(
                         "Each value in 'Loan term: NA/NP flag' (separated by "
@@ -306,6 +324,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_valid_enum_pair,
+                    id="E2003",
                     name="ct_loan_term_flag.enum_value_conflict",
                     description=(
                         "When 'credit product' equals 1 (term loan - unsecured) or 2"
@@ -337,6 +356,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_number,
+                    id="E0180",
                     name="ct_loan_term.invalid_numeric_format",
                     description="When present, 'loan term' must be a whole number.",
                     element_wise=True,
@@ -346,6 +366,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2004",
                     name="ct_loan_term.conditional_field_conflict",
                     description=(
                         "When 'loan term: NA/NP flag' does not equal 900 (applicable "
@@ -357,6 +378,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     is_greater_than_or_equal_to,
+                    id="E0181",
                     name="ct_loan_term.invalid_numeric_value",
                     description=(
                         "When present, 'loan term' must be greater than or equal"
@@ -368,6 +390,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     is_less_than,
+                    id="W0182",
                     name="ct_loan_term.unreasonable_numeric_value",
                     description=(
                         "When present, 'loan term' should be less than 1200"
@@ -383,6 +406,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0200",
                     name="credit_purpose.invalid_enum_value",
                     description=(
                         "Each value in 'credit purpose' (separated by "
@@ -411,6 +435,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_valid_value_count,
+                    id="E0201",
                     name="credit_purpose.invalid_number_of_values",
                     description=(
                         "'Credit purpose' must contain at least one and at"
@@ -422,6 +447,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
+                    id="W0202",
                     warning=True,
                     name="credit_purpose.multi_value_field_restriction",
                     description=(
@@ -437,6 +463,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     is_unique_in_field,
+                    id="W0203",
                     warning=True,
                     name="credit_purpose.duplicates_in_field",
                     description=(
@@ -451,6 +478,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E0220",
                     name="credit_purpose_ff.invalid_text_length",
                     description=(
                         "'Free-form text field for other credit purpose' "
@@ -461,6 +489,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2005",
                     name="credit_purpose_ff.conditional_field_conflict",
                     description=(
                         "When 'credit purpose' does not contain 977 (other),"
@@ -473,6 +502,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     has_valid_value_count,
+                    id="W2006",
                     name="credit_purpose_ff.invalid_number_of_values",
                     description=(
                         "'Other Credit purpose' must not contain more "
@@ -488,6 +518,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0240",
                     name="amount_applied_for_flag.invalid_enum_value",
                     description=(
                         "'Amount applied For: NA/NP flag' must equal 900, 988, or 999."
@@ -506,6 +537,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_number,
+                    id="E0260",
                     name="amount_applied_for.invalid_numeric_format",
                     description=(
                         "When present, 'amount applied for' must be a numeric" "value."
@@ -517,6 +549,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2007",
                     name="amount_applied_for.conditional_field_conflict",
                     description=(
                         "When 'amount applied for: NA/NP flag' does not equal 900 "
@@ -529,6 +562,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     is_greater_than,
+                    id="E0261",
                     name="amount_applied_for.invalid_numeric_value",
                     description=(
                         "When present, 'amount applied for' must be greater than 0."
@@ -543,6 +577,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_number,
+                    id="E0280",
                     name="amount_approved.invalid_numeric_format",
                     description=(
                         "When present, 'amount approved or originated' "
@@ -555,6 +590,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     is_greater_than,
+                    id="E0281",
                     name="amount_approved.invalid_numeric_value",
                     description=(
                         "When present, 'amount approved or originated' "
@@ -566,6 +602,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2008",
                     name="amount_approved.conditional_field_conflict",
                     description=(
                         "When 'action taken' does not equal 1 (originated) "
@@ -583,6 +620,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0300",
                     name="action_taken.invalid_enum_value",
                     description="'Action taken' must equal 1, 2, 3, 4, or 5.",
                     element_wise=True,
@@ -598,6 +636,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_valid_fieldset_pair,
+                    id="E2014",
                     name="pricing_all.conditional_fieldset_conflict",
                     description=(
                         "When 'action taken' equals 3 (denied), "
@@ -635,6 +674,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     has_valid_fieldset_pair,
+                    id="E2015",
                     name="pricing_charges.conditional_fieldset_conflict",
                     description=(
                         "When 'action taken' equals 1 (originated)"
@@ -669,6 +709,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_date,
+                    id="E0320",
                     name="action_taken_date.invalid_date_format",
                     description=(
                         "'Action taken date' must be a real calendar"
@@ -680,6 +721,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     is_date_in_range,
+                    id="E0321",
                     name="action_taken_date.invalid_date_value",
                     description=(
                         "The date indicated by 'action taken date' must occur"
@@ -692,6 +734,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     is_date_after,
+                    id="E2009",
                     name="action_taken_date.date_value_conflict",
                     description=(
                         "The date indicated by 'action taken date'"
@@ -701,6 +744,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     is_date_before_in_days,
+                    id="W2010",
                     name="action_taken_date.unreasonable_date_value",
                     description=(
                         "The date indicated by 'application date' should"
@@ -716,6 +760,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0001",
                     name="denial_reasons.invalid_enum_value",
                     description=(
                         "Each value in 'denial reason(s)' (separated by semicolons)"
@@ -740,6 +785,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_valid_value_count,
+                    id="E0341",
                     name="denial_reasons.invalid_number_of_values",
                     description=(
                         "'Denial reason(s)' must contain at least one and at most four"
@@ -751,6 +797,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     has_valid_enum_pair,
+                    id="E2011",
                     name="denial_reasons.enum_value_conflict",
                     description=(
                         "When 'action taken' equals 3, 'denial reason(s)' must not"
@@ -775,6 +822,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
+                    id="W0340",
                     warning=True,
                     name="denial_reasons.multi_value_field_restriction",
                     description=(
@@ -786,6 +834,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     is_unique_in_field,
+                    id="W0341",
                     warning=True,
                     name="denial_reasons.duplicates_in_field",
                     description=(
@@ -800,6 +849,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     min_value=0,
                     max_value=300,
+                    id="E0360",
                     name="denial_reasons_ff.invalid_text_length",
                     description=(
                         "'Free-form text field for other denial reason(s)'"
@@ -810,6 +860,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2012",
                     name="denial_reasons_ff.conditional_field_conflict",
                     description=(
                         "When 'denial reason(s)' does not contain 977 (other), field"
@@ -826,6 +877,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0380",
                     name="pricing_interest_rate_type.invalid_enum_value",
                     description=(
                         "Each value in 'Interest rate type' (separated by "
@@ -849,6 +901,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_number,
+                    id="E0400",
                     name="pricing_init_rate_period.invalid_numeric_format",
                     description=(
                         "When present, 'initial rate period' must be a whole number.",
@@ -860,6 +913,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2016",
                     name="pricing_init_rate_period.conditional_field_conflict",
                     description=(
                         "When 'interest rate type' does not equal 3 (initial rate "
@@ -875,6 +929,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     is_greater_than,
+                    id="E0401",
                     name="pricing_init_rate_period.invalid_numeric_value",
                     description=(
                         "When present, 'initial rate period' must be greater than 0",
@@ -889,6 +944,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_number,
+                    id="E0420",
                     name="pricing_fixed_rate.invalid_numeric_format",
                     description=(
                         "When present, 'fixed rate: interest rate'"
@@ -901,6 +957,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2017",
                     name="pricing_fixed_rate.conditional_field_conflict",
                     description=(
                         "When 'interest rate type' does not equal 2"
@@ -916,6 +973,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     is_greater_than,
+                    id="W0420",
                     name="pricing_fixed_rate.unreasonable_numeric_value",
                     description=(
                         "When present, 'fixed rate: interest rate'"
@@ -931,6 +989,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_number,
+                    id="E0440",
                     name="pricing_adj_margin.invalid_numeric_format",
                     description=(
                         "When present, 'adjustable rate transaction:"
@@ -943,6 +1002,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2018",
                     name="pricing_adj_margin.conditional_field_conflict",
                     description=(
                         "When 'interest rate type' does not equal 1"
@@ -958,6 +1018,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     is_greater_than,
+                    id="E0001",
                     name="pricing_adj_margin.unreasonable_numeric_value",
                     description=(
                         "When present, 'adjustable rate transaction:"
@@ -973,6 +1034,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0460",
                     name="pricing_adj_index_name.invalid_enum_value",
                     description=(
                         "'Adjustable rate transaction: index name' must equal "
@@ -998,6 +1060,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_valid_enum_pair,
+                    id="E2019",
                     name="pricing_adj_index_name.enum_value_conflict",
                     description=(
                         "When 'interest rate type' does not equal 1 (variable interest"
@@ -1031,6 +1094,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     min_value=0,
                     max_value=300,
+                    id="E0480",
                     name="pricing_adj_index_name_ff.invalid_text_length",
                     description=(
                         "'Adjustable rate transaction: index name: other' must not"
@@ -1041,6 +1105,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2020",
                     name="pricing_adj_index_name_ff.conditional_field_conflict",
                     description=(
                         "When 'adjustable rate transaction: index name' does not equal"
@@ -1059,6 +1124,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_number,
+                    id="E0500",
                     name="pricing_adj_index_value.invalid_numeric_format",
                     description="When present, 'adjustable rate transaction:"
                     " index value' must be a numeric value.",
@@ -1069,6 +1135,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2021",
                     name="pricing_adj_index_value.conditional_field_conflict",
                     description=(
                         "When 'interest rate type' does not equal 1 (variable"
@@ -1087,6 +1154,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_number,
+                    id="E0520",
                     name="pricing_origination_charges.invalid_numeric_format",
                     description=(
                         "When present, 'total origination charges' must be a numeric",
@@ -1102,6 +1170,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_number,
+                    id="E0540",
                     name="pricing_broker_fees.invalid_numeric_format",
                     description=(
                         "When present, 'amount of total broker fees' must be a",
@@ -1117,6 +1186,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_number,
+                    id="E0560",
                     name="pricing_initial_charges.invalid_numeric_format",
                     description=(
                         "When present, 'initial annual charges' must be a"
@@ -1132,6 +1202,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0580",
                     name="pricing_mca_addcost_flag.invalid_enum_value",
                     description=(
                         "'MCA/sales-based: additional cost for merchant cash "
@@ -1148,6 +1219,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_valid_enum_pair,
+                    id="E2022",
                     name="pricing_mca_addcost_flag.enum_value_conflict",
                     description=(
                         "When 'credit product' does not equal 7 (merchant cash "
@@ -1172,6 +1244,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_number,
+                    id="E0600",
                     name="pricing_mca_addcost.invalid_numeric_format",
                     description=(
                         "When present, 'MCA/sales-based: additional cost for "
@@ -1185,6 +1258,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2023",
                     name="pricing_mca_addcost.conditional_field_conflict",
                     description=(
                         "When 'MCA/sales-based: additional cost for merchant "
@@ -1206,6 +1280,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0620",
                     name="pricing_prepenalty_allowed.invalid_enum_value",
                     description=(
                         "'Prepayment penalty could be imposed' must equal 1, 2, or 999."
@@ -1224,6 +1299,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0640",
                     name="pricing_prepenalty_exists.invalid_enum_value",
                     description="'Prepayment penalty exists' must equal 1, 2, or 999.",
                     element_wise=True,
@@ -1240,6 +1316,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0640",
                     name="census_tract_adr_type.invalid_enum_value",
                     description=(
                         "'Census tract: type of address' must equal 1, 2, 3, or 988."
@@ -1259,6 +1336,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     has_correct_length,
+                    id="E0680",
                     name="census_tract_number.invalid_text_length",
                     description=(
                         "When present, 'census tract: tract number' must "
@@ -1272,6 +1350,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_valid_enum_pair,
+                    id="E2024",
                     name="census_tract_number.conditional_field_conflict",
                     description=(
                         "When 'census tract: type of address' equals 988 (not "
@@ -1306,6 +1385,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0700",
                     name="gross_annual_revenue_flag.invalid_enum_value",
                     description=(
                         "'Gross annual revenue: NP flag' must equal 900 or 988."
@@ -1323,6 +1403,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_number,
+                    id="E0720",
                     name="gross_annual_revenue.invalid_numeric_format",
                     description=(
                         "When present, 'gross annual revenue' must be a numeric value."
@@ -1334,6 +1415,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2025",
                     name="gross_annual_revenue.conditional_field_conflict",
                     description=(
                         "When 'gross annual revenue: NP flag' does not equal 900 "
@@ -1350,6 +1432,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0720",
                     name="naics_code_flag.invalid_enum_value",
                     description=(
                         "'North American Industry Classification System (NAICS) "
@@ -1368,6 +1451,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_number,
+                    id="E0761",
                     name="naics_code.invalid_naics_format",
                     description=(
                         "'North American Industry Classification System "
@@ -1380,6 +1464,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_correct_length,
+                    id="E0760",
                     name="naics_code.invalid_text_length",
                     description=(
                         "When present, 'North American Industry Classification System "
@@ -1391,6 +1476,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     is_valid_code,
+                    id="W0762",
                     name="naics_code.invalid_naics_value",
                     description=(
                         "When present, 'North American Industry Classification System "
@@ -1402,6 +1488,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2026",
                     name="naics_code.conditional_field_conflict",
                     description=(
                         "When 'type of guarantee' does not contain 977 (other), "
@@ -1418,6 +1505,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0780",
                     name="number_of_workers.invalid_enum_value",
                     description=(
                         "'Number of workers' must equal 1, 2, 3, 4, 5, 6, 7, 8, 9,"
@@ -1444,6 +1532,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0800",
                     name="time_in_business_type.invalid_enum_value",
                     description=(
                         "'Time in business: type of response'"
@@ -1464,6 +1553,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_number,
+                    id="E0820",
                     name="time_in_business.invalid_numeric_format",
                     description=(
                         "When present, 'time in business' must be a whole number."
@@ -1475,6 +1565,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     is_greater_than_or_equal_to,
+                    id="E0821",
                     name="time_in_business.invalid_numeric_value",
                     description=(
                         "When present, 'time in business'"
@@ -1486,6 +1577,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2027",
                     name="time_in_business.conditional_field_conflict",
                     description=(
                         "When 'time in business: type of response' does not"
@@ -1504,6 +1596,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0840",
                     name="business_ownership_status.invalid_enum_value",
                     description=(
                         "Each value in 'business ownership status'"
@@ -1524,6 +1617,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_valid_value_count,
+                    id="E0841",
                     name="business_ownership_status.invalid_number_of_values",
                     description=(
                         "'Business ownership status' must"
@@ -1534,6 +1628,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     is_unique_in_field,
+                    id="W0842",
                     warning=True,
                     name="business_ownership_status.duplicates_in_field",
                     description=(
@@ -1544,6 +1639,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
+                    id="W0843",
                     warning=True,
                     name="business_ownership_status.multi_value_field_restriction",
                     description=(
@@ -1562,6 +1658,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0860",
                     name="num_principal_owners_flag.invalid_enum_value",
                     description=(
                         "'Number of principal owners: NP flag' must equal 900 or 988."
@@ -1576,6 +1673,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_valid_fieldset_pair,
+                    id="W2035",
                     name="po_demographics_0.conditional_fieldset_conflict",
                     description=(
                         "When 'number of principal owners' equals 0 or is blank, "
@@ -1614,6 +1712,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     has_valid_fieldset_pair,
+                    id="W2036",
                     name="po_demographics_1.conditional_fieldset_conflict",
                     description=(
                         "When 'number of principal owners' equals 1, "
@@ -1654,6 +1753,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     has_valid_fieldset_pair,
+                    id="W2037",
                     name="po_demographics_2.conditional_fieldset_conflict",
                     description=(
                         "When 'number of principal owners' equals 2, "
@@ -1693,6 +1793,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     has_valid_fieldset_pair,
+                    id="W2038",
                     name="po_demographics_3.conditional_fieldset_conflict",
                     description=(
                         "When 'number of principal owners' equals 3, "
@@ -1733,6 +1834,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     has_valid_fieldset_pair,
+                    id="W2039",
                     name="po_demographics_4.conditional_fieldset_conflict",
                     description=(
                         "When 'number of principal owners' equals 4, "
@@ -1777,6 +1879,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0880",
                     name="num_principal_owners.invalid_enum_value",
                     description=(
                         "When present, 'number of principal owners' must equal "
@@ -1790,6 +1893,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2028",
                     name="num_principal_owners.conditional_field_conflict",
                     description=(
                         "When 'number of principal owners: NP flag' does not equal 900 "
@@ -1806,6 +1910,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0900",
                     name="po_1_ethnicity.invalid_enum_value",
                     description=(
                         "When present, each value in 'ethnicity"
@@ -1831,6 +1936,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     is_unique_in_field,
+                    id="W0901",
                     warning=True,
                     name="po_1_ethnicity.duplicates_in_field",
                     description=(
@@ -1841,6 +1947,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
+                    id="W0902",
                     warning=True,
                     name="po_1_ethnicity.multi_value_field_restriction",
                     description=(
@@ -1860,6 +1967,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E0920",
                     name="po_1_ethnicity_ff.invalid_text_length",
                     description=(
                         "'Ethnicity of principal owner 1: free-form"
@@ -1871,6 +1979,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2029",
                     name="po_1_ethnicity_ff.conditional_field_conflict",
                     description=(
                         "When 'ethnicity of principal owner 1' does not"
@@ -1891,6 +2000,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0940",
                     name="po_1_race.invalid_enum_value",
                     description=(
                         "When present, each value in 'race"
@@ -1938,6 +2048,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     is_unique_in_field,
+                    id="W0941",
                     warning=True,
                     name="po_1_race.duplicates_in_field",
                     description=(
@@ -1948,6 +2059,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
+                    id="W0942",
                     warning=True,
                     name="po_1_race.multi_value_field_restriction",
                     description=(
@@ -1968,6 +2080,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E0960",
                     name="po_1_race_anai_ff.invalid_text_length",
                     description=(
                         "'Race of principal owner 1: free-form"
@@ -1980,6 +2093,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2030",
                     name="po_1_race_anai_ff.conditional_field_conflict",
                     description=(
                         "When 'race of principal owner 1' does not"
@@ -2004,6 +2118,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E0980",
                     name="po_1_race_asian_ff.invalid_text_length",
                     description=(
                         "'Race of principal owner 1: free-form text"
@@ -2015,6 +2130,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2031",
                     name="po_1_race_asian_ff.conditional_field_conflict",
                     description=(
                         "When 'race of principal owner 1' does not contain"
@@ -2035,6 +2151,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E1000",
                     name="po_1_race_baa_ff.invalid_text_length",
                     description=(
                         "'Race of principal owner 1: free-form text"
@@ -2046,6 +2163,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2032",
                     name="po_1_race_baa_ff.conditional_field_conflict",
                     description=(
                         "When 'race of principal owner 1' does not contain 973"
@@ -2066,6 +2184,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E1020",
                     name="po_1_race_pi_ff.invalid_text_length",
                     description=(
                         "'Race of principal owner 1: free-form text"
@@ -2077,6 +2196,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2033",
                     name="po_1_race_pi_ff.conditional_field_conflict",
                     description=(
                         "When 'race of principal owner 1' does not contain 974"
@@ -2096,6 +2216,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E1040",
                     name="po_1_gender_flag.invalid_enum_value",
                     description=(
                         "When present, 'sex/gender of principal"
@@ -2117,6 +2238,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E1060",
                     name="po_1_gender_ff.invalid_text_length",
                     description=(
                         "'Sex/gender of principal owner 1: free-form"
@@ -2128,6 +2250,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2034",
                     name="po_1_gender_ff.conditional_field_conflict",
                     description=(
                         "When 'sex/gender of principal owner 1: NP flag'"
@@ -2148,6 +2271,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0900",
                     name="po_2_ethnicity.invalid_enum_value",
                     description=(
                         "When present, each value in 'ethnicity"
@@ -2173,6 +2297,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     is_unique_in_field,
+                    id="W0901",
                     warning=True,
                     name="po_2_ethnicity.duplicates_in_field",
                     description=(
@@ -2183,6 +2308,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
+                    id="W0902",
                     warning=True,
                     name="po_2_ethnicity.multi_value_field_restriction",
                     description=(
@@ -2202,6 +2328,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E0920",
                     name="po_2_ethnicity_ff.invalid_text_length",
                     description=(
                         "'Ethnicity of principal owner 2: free-form"
@@ -2213,6 +2340,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2029",
                     name="po_2_ethnicity_ff.conditional_field_conflict",
                     description=(
                         "When 'ethnicity of principal owner 2' does not"
@@ -2233,6 +2361,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0940",
                     name="po_2_race.invalid_enum_value",
                     description=(
                         "When present, each value in 'race"
@@ -2280,6 +2409,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     is_unique_in_field,
+                    id="W0941",
                     warning=True,
                     name="po_2_race.duplicates_in_field",
                     description=(
@@ -2290,6 +2420,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
+                    id="W0942",
                     warning=True,
                     name="po_2_race.multi_value_field_restriction",
                     description=(
@@ -2310,6 +2441,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E0960",
                     name="po_2_race_anai_ff.invalid_text_length",
                     description=(
                         "'Race of principal owner 2: free-form"
@@ -2322,6 +2454,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2030",
                     name="po_2_race_anai_ff.conditional_field_conflict",
                     description=(
                         "When 'race of principal owner 2' does not"
@@ -2346,6 +2479,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E0980",
                     name="po_2_race_asian_ff.invalid_text_length",
                     description=(
                         "'Race of principal owner 2: free-form text"
@@ -2357,6 +2491,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2031",
                     name="po_2_race_asian_ff.conditional_field_conflict",
                     description=(
                         "When 'race of principal owner 2' does not contain"
@@ -2377,6 +2512,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E1000",
                     name="po_2_race_baa_ff.invalid_text_length",
                     description=(
                         "'Race of principal owner 2: free-form text"
@@ -2388,6 +2524,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2032",
                     name="po_2_race_baa_ff.conditional_field_conflict",
                     description=(
                         "When 'race of principal owner 2' does not contain 973"
@@ -2408,6 +2545,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E1020",
                     name="po_2_race_pi_ff.invalid_text_length",
                     description=(
                         "'Race of principal owner 2: free-form text"
@@ -2419,6 +2557,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2033",
                     name="po_2_race_pi_ff.conditional_field_conflict",
                     description=(
                         "When 'race of principal owner 2' does not contain 974"
@@ -2438,6 +2577,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E1040",
                     name="po_2_gender_flag.invalid_enum_value",
                     description=(
                         "When present, 'sex/gender of principal"
@@ -2459,6 +2599,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E1060",
                     name="po_2_gender_ff.invalid_text_length",
                     description=(
                         "'Sex/gender of principal owner 2: free-form"
@@ -2470,6 +2611,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2034",
                     name="po_2_gender_ff.conditional_field_conflict",
                     description=(
                         "When 'sex/gender of principal owner 2: NP flag'"
@@ -2490,6 +2632,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0900",
                     name="po_3_ethnicity.invalid_enum_value",
                     description=(
                         "When present, each value in 'ethnicity"
@@ -2515,6 +2658,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     is_unique_in_field,
+                    id="W0901",
                     warning=True,
                     name="po_3_ethnicity.duplicates_in_field",
                     description=(
@@ -2525,6 +2669,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
+                    id="W0902",
                     warning=True,
                     name="po_3_ethnicity.multi_value_field_restriction",
                     description=(
@@ -2544,6 +2689,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E0920",
                     name="po_3_ethnicity_ff.invalid_text_length",
                     description=(
                         "'Ethnicity of principal owner 3: free-form"
@@ -2555,6 +2701,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2029",
                     name="po_3_ethnicity_ff.conditional_field_conflict",
                     description=(
                         "When 'ethnicity of principal owner 3' does not"
@@ -2575,6 +2722,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0940",
                     name="po_3_race.invalid_enum_value",
                     description=(
                         "When present, each value in 'race"
@@ -2622,6 +2770,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     is_unique_in_field,
+                    id="W0941",
                     warning=True,
                     name="po_3_race.duplicates_in_field",
                     description=(
@@ -2632,6 +2781,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
+                    id="W0942",
                     warning=True,
                     name="po_3_race.multi_value_field_restriction",
                     description=(
@@ -2652,6 +2802,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E0960",
                     name="po_3_race_anai_ff.invalid_text_length",
                     description=(
                         "'Race of principal owner 3: free-form"
@@ -2664,6 +2815,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2030",
                     name="po_3_race_anai_ff.conditional_field_conflict",
                     description=(
                         "When 'race of principal owner 3' does not"
@@ -2688,6 +2840,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E0980",
                     name="po_3_race_asian_ff.invalid_text_length",
                     description=(
                         "'Race of principal owner 3: free-form text"
@@ -2699,6 +2852,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2031",
                     name="po_3_race_asian_ff.conditional_field_conflict",
                     description=(
                         "When 'race of principal owner 3' does not contain"
@@ -2719,6 +2873,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E1000",
                     name="po_3_race_baa_ff.invalid_text_length",
                     description=(
                         "'Race of principal owner 3: free-form text"
@@ -2730,6 +2885,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2032",
                     name="po_3_race_baa_ff.conditional_field_conflict",
                     description=(
                         "When 'race of principal owner 3' does not contain 973"
@@ -2750,6 +2906,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E1020",
                     name="po_3_race_pi_ff.invalid_text_length",
                     description=(
                         "'Race of principal owner 3: free-form text"
@@ -2761,6 +2918,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2033",
                     name="po_3_race_pi_ff.conditional_field_conflict",
                     description=(
                         "When 'race of principal owner 3' does not contain 974"
@@ -2780,6 +2938,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E1040",
                     name="po_3_gender_flag.invalid_enum_value",
                     description=(
                         "When present, 'sex/gender of principal"
@@ -2801,6 +2960,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E1060",
                     name="po_3_gender_ff.invalid_text_length",
                     description=(
                         "'Sex/gender of principal owner 3: free-form"
@@ -2812,6 +2972,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2034",
                     name="po_3_gender_ff.conditional_field_conflict",
                     description=(
                         "When 'sex/gender of principal owner 3: NP flag'"
@@ -2832,6 +2993,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0900",
                     name="po_4_ethnicity.invalid_enum_value",
                     description=(
                         "When present, each value in 'ethnicity"
@@ -2857,6 +3019,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     is_unique_in_field,
+                    id="W0901",
                     warning=True,
                     name="po_4_ethnicity.duplicates_in_field",
                     description=(
@@ -2867,6 +3030,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
+                    id="W0902",
                     warning=True,
                     name="po_4_ethnicity.multi_value_field_restriction",
                     description=(
@@ -2886,6 +3050,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E0920",
                     name="po_4_ethnicity_ff.invalid_text_length",
                     description=(
                         "'Ethnicity of principal owner 4: free-form"
@@ -2897,6 +3062,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2029",
                     name="po_4_ethnicity_ff.conditional_field_conflict",
                     description=(
                         "When 'ethnicity of principal owner 4' does not"
@@ -2917,6 +3083,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E0940",
                     name="po_4_race.invalid_enum_value",
                     description=(
                         "When present, each value in 'race"
@@ -2964,6 +3131,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     is_unique_in_field,
+                    id="W0941",
                     warning=True,
                     name="po_4_race.duplicates_in_field",
                     description=(
@@ -2974,6 +3142,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
+                    id="W0942",
                     warning=True,
                     name="po_4_race.multi_value_field_restriction",
                     description=(
@@ -2994,6 +3163,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E0960",
                     name="po_4_race_anai_ff.invalid_text_length",
                     description=(
                         "'Race of principal owner 4: free-form"
@@ -3006,6 +3176,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2030",
                     name="po_4_race_anai_ff.conditional_field_conflict",
                     description=(
                         "When 'race of principal owner 4' does not"
@@ -3030,6 +3201,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E0980",
                     name="po_4_race_asian_ff.invalid_text_length",
                     description=(
                         "'Race of principal owner 4: free-form text"
@@ -3041,6 +3213,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2031",
                     name="po_4_race_asian_ff.conditional_field_conflict",
                     description=(
                         "When 'race of principal owner 4' does not contain"
@@ -3061,6 +3234,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E1000",
                     name="po_4_race_baa_ff.invalid_text_length",
                     description=(
                         "'Race of principal owner 4: free-form text"
@@ -3072,6 +3246,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2032",
                     name="po_4_race_baa_ff.conditional_field_conflict",
                     description=(
                         "When 'race of principal owner 4' does not contain 973"
@@ -3092,6 +3267,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E1020",
                     name="po_4_race_pi_ff.invalid_text_length",
                     description=(
                         "'Race of principal owner 4: free-form text"
@@ -3103,6 +3279,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2003",
                     name="po_4_race_pi_ff.conditional_field_conflict",
                     description=(
                         "When 'race of principal owner 4' does not contain 974"
@@ -3122,6 +3299,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
+                    id="E1040",
                     name="po_4_gender_flag.invalid_enum_value",
                     description=(
                         "When present, 'sex/gender of principal"
@@ -3143,6 +3321,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
+                    id="E1060",
                     name="po_4_gender_ff.invalid_text_length",
                     description=(
                         "'Sex/gender of principal owner 4: free-form"
@@ -3154,6 +3333,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_2": [
                 SBLCheck(
                     has_no_conditional_field_conflict,
+                    id="E2034",
                     name="po_4_gender_ff.conditional_field_conflict",
                     description=(
                         "When 'sex/gender of principal owner 4: NP flag'"
