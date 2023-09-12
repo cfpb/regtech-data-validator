@@ -1,14 +1,12 @@
 FROM python:3.11-alpine
 
-LABEL maintainer="Ethan Bienstock"
+LABEL maintainer="CFPB RegTech Team"
 
 COPY ../pyproject.toml .
 COPY ../poetry.lock .
 
-ENV PATH /opt/conda/bin:$PATH
-
 # install git and alpine sdk for c compiler extensions
-RUN apk add --update git curl alpine-sdk
+RUN apk add --update git curl
 
 # install pip dependencies
 RUN pip install --upgrade pip & \
