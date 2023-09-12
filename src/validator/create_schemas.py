@@ -25,11 +25,13 @@ def print_schema_errors(errors: SchemaErrors, phase: str):
         # Name of the column in the dataframe being checked
         schema_error = error["error"]
         column_name = schema_error.schema.name
+        check_id = "n/a"
 
         # built in checks such as unique=True are different than custom
         # checks unfortunately so the name needs to be accessed differently
         try:
             check_name = schema_error.check.name
+            check_id = schema_error.check.id
             # This will either be a boolean series or a single bool
             check_output = schema_error.check_output
         except AttributeError:
@@ -37,7 +39,8 @@ def print_schema_errors(errors: SchemaErrors, phase: str):
             # this is just a string that we'd need to parse manually
             check_output = schema_error.args[0]
 
-        print(f"{phase} Validation `{check_name}` failed for column `{column_name}`")
+        f"{phase} Validation `{check_name}` with id: `{check_id}` \
+            failed for column `{column_name}`"
         print(check_output)
         print("")
 
