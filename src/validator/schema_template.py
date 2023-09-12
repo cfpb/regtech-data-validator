@@ -253,7 +253,7 @@ _schema_template = {
     ),
     "po_1_ethnicity_ff": Column(
         str,
-        title="Field 47: Ethnicity of principal owner 1: free-form text field forother Hispanic or Latino ethnicity",
+        title="Field 47: Ethnicity of principal owner 1: free-form text field for other Hispanic or Latino ethnicity",
         checks=[],
     ),
     "po_1_race": Column(
@@ -271,17 +271,17 @@ _schema_template = {
     ),
     "po_1_race_asian_ff": Column(
         str,
-        title="Field 50: Race of principal owner 1: free-form text field for otherAsian race",
+        title="Field 50: Race of principal owner 1: free-form text field for other Asian race",
         checks=[],
     ),
     "po_1_race_baa_ff": Column(
         str,
-        title="Field 51: Race of principal owner 1: free-form text field for otherBlack or African American race",
+        title="Field 51: Race of principal owner 1: free-form text field for other Black or African American race",
         checks=[],
     ),
     "po_1_race_pi_ff": Column(
         str,
-        title="Field 52: Race of principal owner 1: free-form text field for otherPacific Islander race",
+        title="Field 52: Race of principal owner 1: free-form text field for other Pacific Islander race",
         checks=[],
     ),
     "po_1_gender_flag": Column(
@@ -291,7 +291,7 @@ _schema_template = {
     ),
     "po_1_gender_ff": Column(
         str,
-        title="Field 54: Sex/gender of principal owner 1: free-form text field forself-identified sex/gender",
+        title="Field 54: Sex/gender of principal owner 1: free-form text field for self-identified sex/gender",
         checks=[],
     ),
     "po_2_ethnicity": Column(
@@ -301,7 +301,7 @@ _schema_template = {
     ),
     "po_2_ethnicity_ff": Column(
         str,
-        title="Field 56: Ethnicity of principal owner 2: free-form text field forother Hispanic or Latino ethnicity",
+        title="Field 56: Ethnicity of principal owner 2: free-form text field for other Hispanic or Latino ethnicity",
         checks=[],
     ),
     "po_2_race": Column(
@@ -319,17 +319,17 @@ _schema_template = {
     ),
     "po_2_race_asian_ff": Column(
         str,
-        title="Field 59: Race of principal owner 2: free-form text field for otherAsian race",
+        title="Field 59: Race of principal owner 2: free-form text field for other Asian race",
         checks=[],
     ),
     "po_2_race_baa_ff": Column(
         str,
-        title="Field 60: Race of principal owner 2: free-form text field for otherBlack or African American race",
+        title="Field 60: Race of principal owner 2: free-form text field for other Black or African American race",
         checks=[],
     ),
     "po_2_race_pi_ff": Column(
         str,
-        title="Field 61: Race of principal owner 2: free-form text field for otherPacific Islander race",
+        title="Field 61: Race of principal owner 2: free-form text field for other Pacific Islander race",
         checks=[],
     ),
     "po_2_gender_flag": Column(
@@ -339,7 +339,7 @@ _schema_template = {
     ),
     "po_2_gender_ff": Column(
         str,
-        title="Field 63: Sex/gender of principal owner 2: free-form text field forself-identified sex/gender",
+        title="Field 63: Sex/gender of principal owner 2: free-form text field for self-identified sex/gender",
         checks=[],
     ),
     "po_3_ethnicity": Column(
@@ -349,7 +349,7 @@ _schema_template = {
     ),
     "po_3_ethnicity_ff": Column(
         str,
-        title="Field 65: Ethnicity of principal owner 3: free-form text field forother Hispanic or Latino ethnicity",
+        title="Field 65: Ethnicity of principal owner 3: free-form text field for other Hispanic or Latino ethnicity",
         checks=[],
     ),
     "po_3_race": Column(
@@ -367,17 +367,17 @@ _schema_template = {
     ),
     "po_3_race_asian_ff": Column(
         str,
-        title="Field 68: Race of principal owner 3: free-form text field for otherAsian race",
+        title="Field 68: Race of principal owner 3: free-form text field for other Asian race",
         checks=[],
     ),
     "po_3_race_baa_ff": Column(
         str,
-        title="Field 69: Race of principal owner 3: free-form text field for otherBlack or African American race",
+        title="Field 69: Race of principal owner 3: free-form text field for other Black or African American race",
         checks=[],
     ),
     "po_3_race_pi_ff": Column(
         str,
-        title="Field 70: Race of principal owner 3: free-form text field for otherPacific Islander race",
+        title="Field 70: Race of principal owner 3: free-form text field for other Pacific Islander race",
         checks=[],
     ),
     "po_3_gender_flag": Column(
@@ -387,7 +387,7 @@ _schema_template = {
     ),
     "po_3_gender_ff": Column(
         str,
-        title="Field 72: Sex/gender of principal owner 3: free-form text field forself-identified sex/gender",
+        title="Field 72: Sex/gender of principal owner 3: free-form text field for self-identified sex/gender",
         checks=[],
     ),
     "po_4_ethnicity": Column(
@@ -397,7 +397,7 @@ _schema_template = {
     ),
     "po_4_ethnicity_ff": Column(
         str,
-        title="Field 74: Ethnicity of principal owner 4: free-form text field forother Hispanic or Latino ethnicity",
+        title="Field 74: Ethnicity of principal owner 4: free-form text field for other Hispanic or Latino ethnicity",
         checks=[],
     ),
     "po_4_race": Column(
@@ -415,17 +415,17 @@ _schema_template = {
     ),
     "po_4_race_asian_ff": Column(
         str,
-        title="Field 77: Race of principal owner 4: free-form text field for otherAsian race",
+        title="Field 77: Race of principal owner 4: free-form text field for other Asian race",
         checks=[],
     ),
     "po_4_race_baa_ff": Column(
         str,
-        title="Field 78: Race of principal owner 4: free-form text field for otherBlack or African American race",
+        title="Field 78: Race of principal owner 4: free-form text field for other Black or African American race",
         checks=[],
     ),
     "po_4_race_pi_ff": Column(
         str,
-        title="Field 79: Race of principal owner 4: free-form text field for otherPacific Islander race",
+        title="Field 79: Race of principal owner 4: free-form text field for other Pacific Islander race",
         checks=[],
     ),
     "po_4_gender_flag": Column(
@@ -435,7 +435,7 @@ _schema_template = {
     ),
     "po_4_gender_ff": Column(
         str,
-        title="Field 81: Sex/gender of principal owner 4: free-form text field forself-identified sex/gender",
+        title="Field 81: Sex/gender of principal owner 4: free-form text field for self-identified sex/gender",
         checks=[],
     ),
 }
