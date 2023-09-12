@@ -73,4 +73,3 @@ class SBLCheck(Check):
     def get_backend(cls, check_obj: Any) -> Type[BaseCheckBackend]:
         """Assume Pandas DataFrame and return PandasCheckBackend"""
         return PandasCheckBackend
-
