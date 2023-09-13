@@ -108,13 +108,9 @@ class TestMultiInvalidNumberOfValues:
 
     multiple_values_series = pd.Series(["1;2;3"], name="test_name", index=[2])
 
-    multiple_values_series_with_977 = pd.Series(
-        ["1;2;3;977"], name="test_name", index=[2]
-    )
+    multiple_values_series_with_977 = pd.Series(["1;2;3;977"], name="test_name", index=[2])
 
-    multiple_values_series_with_blanks = pd.Series(
-        ["1;2;; ;3"], name="test_name", index=[2]
-    )
+    multiple_values_series_with_blanks = pd.Series(["1;2;; ;3"], name="test_name", index=[2])
 
     def test_inside_maxlength(self):
         result = has_valid_multi_field_value_count({"4": self.series}, 5)
@@ -133,15 +129,11 @@ class TestMultiInvalidNumberOfValues:
         assert result.values == [False]
 
     def test_invalid_length_with_blank_and_ignored_values(self):
-        result = has_valid_multi_field_value_count(
-            {"4;1;977": self.blank_series}, 1, ignored_values={"977"}
-        )
+        result = has_valid_multi_field_value_count({"4;1;977": self.blank_series}, 1, ignored_values={"977"})
         assert result.values == [False]
 
     def test_valid_length_with_blank_and_ignored_values(self):
-        result = has_valid_multi_field_value_count(
-            {"4;1;977": self.blank_series}, 2, ignored_values={"977"}
-        )
+        result = has_valid_multi_field_value_count({"4;1;977": self.blank_series}, 2, ignored_values={"977"})
         assert result.values == [True]
 
     def test_outside_maxlength(self):
@@ -149,15 +141,11 @@ class TestMultiInvalidNumberOfValues:
         assert result.values == [False]
 
     def test_valid_length_with_non_blank(self):
-        result = has_valid_multi_field_value_count(
-            {"4;1": self.multiple_values_series}, 5
-        )
+        result = has_valid_multi_field_value_count({"4;1": self.multiple_values_series}, 5)
         assert result.values == [True]
 
     def test_invalid_length_with_non_blank(self):
-        result = has_valid_multi_field_value_count(
-            {"4;1": self.multiple_values_series}, 4
-        )
+        result = has_valid_multi_field_value_count({"4;1": self.multiple_values_series}, 4)
         assert result.values == [False]
 
     def test_valid_length_with_ignored_values(self):
@@ -190,9 +178,7 @@ class TestMultiInvalidNumberOfValues:
         )
         assert result.values == [True]
 
-        result = has_valid_multi_field_value_count(
-            {"4;1;977": self.multiple_values_series_with_blanks}, 6
-        )
+        result = has_valid_multi_field_value_count({"4;1;977": self.multiple_values_series_with_blanks}, 6)
         assert result.values == [True]
 
     def test_invalid_length_with_blank_values(self):
@@ -203,9 +189,7 @@ class TestMultiInvalidNumberOfValues:
         )
         assert result.values == [False]
 
-        result = has_valid_multi_field_value_count(
-            {"4;1;977": self.multiple_values_series_with_blanks}, 5
-        )
+        result = has_valid_multi_field_value_count({"4;1;977": self.multiple_values_series_with_blanks}, 5)
         assert result.values == [False]
 
 
@@ -336,9 +320,7 @@ class TestEnumValueConflict:
         ]
 
         # If ct_credit_product == 1, 2 then pricing_mca_addcost_flag must not equal 999
-        pricing_mca_addcost_flag_series_1 = pd.Series(
-            ["900"], name="pricing_mca_addcost_flag", index=[2]
-        )
+        pricing_mca_addcost_flag_series_1 = pd.Series(["900"], name="pricing_mca_addcost_flag", index=[2])
 
         ct_credit_product_1 = "1"
 
@@ -351,9 +333,7 @@ class TestEnumValueConflict:
         # If ct_credit_product == 988 then pricing_mca_addcost_flag must equal 999
         ct_credit_product_2 = "988"
         # Case when pricing_mca_addcost_flag = 999
-        pricing_mca_addcost_flag_series_2 = pd.Series(
-            ["999"], name="pricing_mca_addcost_flag", index=[2]
-        )
+        pricing_mca_addcost_flag_series_2 = pd.Series(["999"], name="pricing_mca_addcost_flag", index=[2])
         pricing_mca_addcost_flag_result_2 = has_valid_enum_pair(
             {ct_credit_product_2: pricing_mca_addcost_flag_series_2},
             pricing_mca_addcost_flag_conditions,
@@ -389,17 +369,13 @@ class TestEnumValueConflict:
         denial_reasons_1 = pd.Series(["988"], name="denial_reasons", index=[2])
         action_taken_1 = "3"
 
-        denial_reason_result_1 = has_valid_enum_pair(
-            {action_taken_1: denial_reasons_1}, denial_reasons_conditions
-        )
+        denial_reason_result_1 = has_valid_enum_pair({action_taken_1: denial_reasons_1}, denial_reasons_conditions)
         assert denial_reason_result_1.values == [True]
 
         # If action_taken is NOT 3, and denial_reasons must equal 999
         denial_reasons_2 = pd.Series(["999"], name="denial_reasons", index=[2])
         action_taken_2 = "1"
-        denial_reason_result_2 = has_valid_enum_pair(
-            {action_taken_2: denial_reasons_2}, denial_reasons_conditions
-        )
+        denial_reason_result_2 = has_valid_enum_pair({action_taken_2: denial_reasons_2}, denial_reasons_conditions)
         assert denial_reason_result_2.values == [True]
 
     def test_enum_value_confict_incorrect(self):
@@ -419,9 +395,7 @@ class TestEnumValueConflict:
         ]
 
         # If ct_credit_product == 1, 2 then pricing_mca_addcost_flag must not equal 999
-        pricing_mca_addcost_flag_series_1 = pd.Series(
-            ["999"], name="pricing_mca_addcost_flag", index=[2]
-        )
+        pricing_mca_addcost_flag_series_1 = pd.Series(["999"], name="pricing_mca_addcost_flag", index=[2])
 
         ct_credit_product_1 = "1"
 
@@ -434,9 +408,7 @@ class TestEnumValueConflict:
         # If ct_credit_product == 988 then pricing_mca_addcost_flag must equal 999
         ct_credit_product_2 = "988"
         # Case when pricing_mca_addcost_flag = 999
-        pricing_mca_addcost_flag_series_2 = pd.Series(
-            ["900"], name="pricing_mca_addcost_flag", index=[2]
-        )
+        pricing_mca_addcost_flag_series_2 = pd.Series(["900"], name="pricing_mca_addcost_flag", index=[2])
         pricing_mca_addcost_flag_result_2 = has_valid_enum_pair(
             {ct_credit_product_2: pricing_mca_addcost_flag_series_2},
             pricing_mca_addcost_flag_conditions,
@@ -472,17 +444,13 @@ class TestEnumValueConflict:
         denial_reasons_1 = pd.Series(["999"], name="denial_reasons", index=[2])
         action_taken_1 = "3"
 
-        denial_reason_result_1 = has_valid_enum_pair(
-            {action_taken_1: denial_reasons_1}, denial_reasons_conditions
-        )
+        denial_reason_result_1 = has_valid_enum_pair({action_taken_1: denial_reasons_1}, denial_reasons_conditions)
         assert denial_reason_result_1.values == [False]
 
         # If action_taken is NOT 3, and denial_reasons must equal 999
         denial_reasons_2 = pd.Series(["988"], name="denial_reasons", index=[2])
         action_taken_2 = "1"
-        denial_reason_result_2 = has_valid_enum_pair(
-            {action_taken_2: denial_reasons_2}, denial_reasons_conditions
-        )
+        denial_reason_result_2 = has_valid_enum_pair({action_taken_2: denial_reasons_2}, denial_reasons_conditions)
         assert denial_reason_result_2.values == [False]
 
 
@@ -610,41 +578,19 @@ class TestHasValidFormat:
 
     # tests with different regex
     def test_with_valid_data_ip(self):
-        assert (
-            has_valid_format(
-                "192.168.0.1", "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"
-            )
-            is True
-        )
-        assert (
-            has_valid_format(
-                "192.168.120.100", "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"
-            )
-            is True
-        )
+        assert has_valid_format("192.168.0.1", "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$") is True
+        assert has_valid_format("192.168.120.100", "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$") is True
 
     def test_with_invalid_data_ip(self):
-        assert (
-            has_valid_format(
-                "192.168.0.1000", "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"
-            )
-            is False
-        )
-        assert (
-            has_valid_format(
-                "192.168.0", "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"
-            )
-            is False
-        )
+        assert has_valid_format("192.168.0.1000", "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$") is False
+        assert has_valid_format("192.168.0", "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$") is False
 
 
 class TestIsUniqueColumn:
     series = pd.Series(["ABC123"], name="id", index=[1])
     other_series = pd.Series(["DEF456"], name="id", index=[3])
     invalid_series = pd.Series(["ABC123", "ABC123"], name="id", index=[1, 2])
-    multi_invalid_series = pd.Series(
-        ["GHI123", "GHI123", "GHI123"], name="id", index=[3, 4, 5]
-    )
+    multi_invalid_series = pd.Series(["GHI123", "GHI123", "GHI123"], name="id", index=[3, 4, 5])
     blank_value_series = pd.Series([""], name="id", index=[1])
 
     def test_with_valid_series(self):
@@ -664,9 +610,7 @@ class TestIsUniqueColumn:
         assert not result.values.all()
 
     def test_with_multiple_invalid_series(self):
-        result = is_unique_column(
-            {"ABC123": self.invalid_series, "GHI123": self.multi_invalid_series}
-        )
+        result = is_unique_column({"ABC123": self.invalid_series, "GHI123": self.multi_invalid_series})
         # ALL rows should be FALSE
         assert (
             not result.values[0]
@@ -677,9 +621,7 @@ class TestIsUniqueColumn:
         )
 
     def test_with_multiple_mix_series(self):
-        result = is_unique_column(
-            {"ABC123": self.invalid_series, "DEF456": self.other_series}
-        )
+        result = is_unique_column({"ABC123": self.invalid_series, "DEF456": self.other_series})
         # first two rows should be FALSE and last Row should be TRUE
         assert not result.values[0] and not result.values[1] and result.values[2]
 
@@ -698,9 +640,7 @@ class TestHasValidFieldsetPair:
         }
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["", "", ""])
-        result1 = has_valid_fieldset_pair(
-            {groupby_values: series}, condition_values, should_fieldset_key_equal_to
-        )
+        result1 = has_valid_fieldset_pair({groupby_values: series}, condition_values, should_fieldset_key_equal_to)
         assert result1.values == [True]
 
     def test_with_correct_is_equal_condition(self):
@@ -712,9 +652,7 @@ class TestHasValidFieldsetPair:
         }
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["999", "999", "0"])
-        result1 = has_valid_fieldset_pair(
-            {groupby_values: series}, condition_values, should_fieldset_key_equal_to
-        )
+        result1 = has_valid_fieldset_pair({groupby_values: series}, condition_values, should_fieldset_key_equal_to)
         assert result1.values == [True]
 
     def test_with_correct_is_equal_and_not_equal_conditions(self):
@@ -729,9 +667,7 @@ class TestHasValidFieldsetPair:
 
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["999", "999", "0", "1", "2"])
-        result1 = has_valid_fieldset_pair(
-            {groupby_values: series}, condition_values, should_fieldset_key_equal_to
-        )
+        result1 = has_valid_fieldset_pair({groupby_values: series}, condition_values, should_fieldset_key_equal_to)
         assert result1.values == [True]
 
     def test_with_value_not_in_condition_values(self):
@@ -746,9 +682,7 @@ class TestHasValidFieldsetPair:
 
         series = pd.Series(["2"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["999", "999", "0", "1", "2"])
-        result1 = has_valid_fieldset_pair(
-            {groupby_values: series}, condition_values, should_fieldset_key_equal_to
-        )
+        result1 = has_valid_fieldset_pair({groupby_values: series}, condition_values, should_fieldset_key_equal_to)
         assert result1.values == [True]
 
     def test_with_incorrect_is_not_equal_condition(self):
@@ -761,9 +695,7 @@ class TestHasValidFieldsetPair:
 
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["999", "999", "999"])
-        result1 = has_valid_fieldset_pair(
-            {groupby_values: series}, condition_values, should_fieldset_key_equal_to
-        )
+        result1 = has_valid_fieldset_pair({groupby_values: series}, condition_values, should_fieldset_key_equal_to)
         assert result1.values == [False]
 
     def test_with_incorrect_is_equal_condition(self):
@@ -776,9 +708,7 @@ class TestHasValidFieldsetPair:
 
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["", "", ""])
-        result1 = has_valid_fieldset_pair(
-            {groupby_values: series}, condition_values, should_fieldset_key_equal_to
-        )
+        result1 = has_valid_fieldset_pair({groupby_values: series}, condition_values, should_fieldset_key_equal_to)
         assert result1.values == [False]
 
     def test_with_incorrect_is_equal_and_not_equal_conditions(self):
@@ -793,9 +723,7 @@ class TestHasValidFieldsetPair:
 
         series = pd.Series(["0"], name="num_principal_owners", index=[1])
         groupby_values = tuple(["", "", "3", "4", "5"])
-        result1 = has_valid_fieldset_pair(
-            {groupby_values: series}, condition_values, should_fieldset_key_equal_to
-        )
+        result1 = has_valid_fieldset_pair({groupby_values: series}, condition_values, should_fieldset_key_equal_to)
         assert result1.values == [False]
 
 
@@ -842,12 +770,7 @@ class TestIsValidId:
         assert string_contains("000TESTFIUIDDONOTUSE", "TESTFIUIDDONOTUSE") is False
         """ when start_idx and end_idx are set, 
         if sliced value does not match containing_value, must return false """
-        assert (
-            string_contains(
-                "000FIUIDDONOTUSEXGXVID11XTC1", "TEST", start_idx=4, end_idx=7
-            )
-            is False
-        )
+        assert string_contains("000FIUIDDONOTUSEXGXVID11XTC1", "TEST", start_idx=4, end_idx=7) is False
         """ when only start_idx is set, 
         if sliced value does not match containing_value, must return false """
         assert (
