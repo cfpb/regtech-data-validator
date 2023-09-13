@@ -11,5 +11,9 @@ __pycache__
 .DS_Store
 .ruff_cache/
 
+#pytest
+.coverage
+coverage.xml
+
 # excel artifact
 ~$example_sblar.xlsx

@@ -1,18 +1,20 @@
-FROM continuumio/miniconda3:master-alpine
+FROM python:3.11-alpine
 
-LABEL maintainer="Ethan Bienstock"
+LABEL maintainer="CFPB RegTech Team"
 
-COPY requirements.txt .
-
-ENV PATH /opt/conda/bin:$PATH
+COPY ../pyproject.toml .
+COPY ../poetry.lock .
 
 # install git and alpine sdk for c compiler extensions
-RUN apk add --update git curl alpine-sdk
+RUN apk add --update git curl
 
 # install pip dependencies
-RUN pip install --upgrade pip && \
-    pip install -r requirements.txt && \
-    rm requirements.txt
+RUN pip install --upgrade pip & \
+    pip install poetry
+
+# run poetry install
+RUN poetry config virtualenvs.create false
+RUN poetry install --no-root
 
 # create a non root sbl user
 ARG USER=sbl

@@ -38,10 +38,7 @@ def print_schema_errors(errors: SchemaErrors, phase: str):
             # this is just a string that we'd need to parse manually
             check_output = schema_error.args[0]
 
-        print(
-            f"{phase} Validation `{check_name}` with id: `{check_id}` "
-            "failed for column `{column_name}`"
-        )
+        print(f"{phase} Validation `{check_name}` with id: `{check_id}` failed for column `{{column_name}}`")
         print(check_output)
         print("")
 

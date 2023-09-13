@@ -92,10 +92,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_date,
                     id="E0020",
                     name="app_date.invalid_date_format",
-                    description=(
-                        "'Application date' must be a real calendar "
-                        "date using YYYYMMDD format."
-                    ),
+                    description="'Application date' must be a real calendar date using YYYYMMDD format.",
                     element_wise=True,
                 ),
             ],
@@ -141,10 +138,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_valid_enum,
                     id="E0080",
                     name="ct_credit_product.invalid_enum_value",
-                    description=(
-                        "'Credit product' must equal 1, 2, 3, 4, 5, 6, 7, 8, "
-                        "977, or 988."
-                    ),
+                    description="'Credit product' must equal 1, 2, 3, 4, 5, 6, 7, 8, 977, or 988.",
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -170,8 +164,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0100",
                     name="ct_credit_product_ff.invalid_text_length",
                     description=(
-                        "'Free-form text field for other credit products' "
-                        "must not exceed 300 characters in length."
+                        "'Free-form text field for other credit products' must not exceed 300 characters in length."
                     ),
                 )
             ],
@@ -238,9 +231,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="W0123",
                     warning=True,
                     name="ct_guarantee.duplicates_in_field",
-                    description=(
-                        "'Type of guarantee' should not contain " "duplicated values."
-                    ),
+                    description="'Type of guarantee' should not contain duplicated values.",
                     element_wise=True,
                 ),
                 SBLCheck(
@@ -265,10 +256,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     300,
                     id="E0140",
                     name="ct_guarantee_ff.invalid_text_length",
-                    description=(
-                        "'Free-form text field for other guarantee' must not "
-                        "exceed 300 characters in length"
-                    ),
+                    description="'Free-form text field for other guarantee' must not exceed 300 characters in length",
                 ),
             ],
             "phase_2": [
@@ -310,8 +298,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0160",
                     name="ct_loan_term_flag.invalid_enum_value",
                     description=(
-                        "Each value in 'Loan term: NA/NP flag' (separated by "
-                        " semicolons) must equal 900, 988, or 999."
+                        "Each value in 'Loan term: NA/NP flag' (separated by  semicolons) must equal 900, 988, or 999."
                     ),
                     element_wise=True,
                     accepted_values=[
@@ -380,10 +367,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_greater_than_or_equal_to,
                     id="E0181",
                     name="ct_loan_term.invalid_numeric_value",
-                    description=(
-                        "When present, 'loan term' must be greater than or equal"
-                        "to 1."
-                    ),
+                    description="When present, 'loan term' must be greater than or equal to 1.",
                     element_wise=True,
                     min_value="1",
                     accept_blank=True,
@@ -392,10 +376,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_less_than,
                     id="W0182",
                     name="ct_loan_term.unreasonable_numeric_value",
-                    description=(
-                        "When present, 'loan term' should be less than 1200"
-                        "(100 years)."
-                    ),
+                    description="When present, 'loan term' should be less than 1200 (100 years).",
                     element_wise=True,
                     max_value="1200",
                     accept_blank=True,
@@ -438,8 +419,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0201",
                     name="credit_purpose.invalid_number_of_values",
                     description=(
-                        "'Credit purpose' must contain at least one and at"
-                        " most three values, separated by semicolons."
+                        "'Credit purpose' must contain at least one and at most three values, separated by semicolons."
                     ),
                     element_wise=True,
                     min_length=1,
@@ -466,9 +446,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="W0203",
                     warning=True,
                     name="credit_purpose.duplicates_in_field",
-                    description=(
-                        "'Credit purpose' should not contain " " duplicated values."
-                    ),
+                    description="'Credit purpose' should not contain duplicated values.",
                     element_wise=True,
                 ),
             ],
@@ -481,8 +459,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0220",
                     name="credit_purpose_ff.invalid_text_length",
                     description=(
-                        "'Free-form text field for other credit purpose' "
-                        " must not exceed 300 characters in length"
+                        "'Free-form text field for other credit purpose'  must not exceed 300 characters in length"
                     ),
                 ),
             ],
@@ -504,10 +481,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     has_valid_value_count,
                     id="W2006",
                     name="credit_purpose_ff.invalid_number_of_values",
-                    description=(
-                        "'Other Credit purpose' must not contain more "
-                        " than one other credit purpose."
-                    ),
+                    description="'Other Credit purpose' must not contain more  than one other credit purpose.",
                     element_wise=True,
                     min_length=0,
                     max_length=1,
@@ -520,9 +494,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_valid_enum,
                     id="E0240",
                     name="amount_applied_for_flag.invalid_enum_value",
-                    description=(
-                        "'Amount applied For: NA/NP flag' must equal 900, 988, or 999."
-                    ),
+                    description="'Amount applied For: NA/NP flag' must equal 900, 988, or 999.",
                     element_wise=True,
                     accepted_values=[
                         "900",
@@ -539,9 +511,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_number,
                     id="E0260",
                     name="amount_applied_for.invalid_numeric_format",
-                    description=(
-                        "When present, 'amount applied for' must be a numeric" "value."
-                    ),
+                    description="When present, 'amount applied for' must be a numeric value.",
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -564,9 +534,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_greater_than,
                     id="E0261",
                     name="amount_applied_for.invalid_numeric_value",
-                    description=(
-                        "When present, 'amount applied for' must be greater than 0."
-                    ),
+                    description="When present, 'amount applied for' must be greater than 0.",
                     element_wise=True,
                     min_value="0",
                     accept_blank=True,
@@ -579,10 +547,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_number,
                     id="E0280",
                     name="amount_approved.invalid_numeric_format",
-                    description=(
-                        "When present, 'amount approved or originated' "
-                        "must be a numeric value."
-                    ),
+                    description="When present, 'amount approved or originated' must be a numeric value.",
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -592,10 +557,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_greater_than,
                     id="E0281",
                     name="amount_approved.invalid_numeric_value",
-                    description=(
-                        "When present, 'amount approved or originated' "
-                        "must be greater than 0."
-                    ),
+                    description="When present, 'amount approved or originated' must be greater than 0.",
                     element_wise=True,
                     min_value="0",
                     accept_blank=True,
@@ -711,10 +673,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_date,
                     id="E0320",
                     name="action_taken_date.invalid_date_format",
-                    description=(
-                        "'Action taken date' must be a real calendar"
-                        " date using YYYYMMDD format."
-                    ),
+                    description="'Action taken date' must be a real calendar date using YYYYMMDD format.",
                     element_wise=True,
                 ),
             ],
@@ -736,10 +695,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_date_after,
                     id="E2009",
                     name="action_taken_date.date_value_conflict",
-                    description=(
-                        "The date indicated by 'action taken date'"
-                        " must occur on or after 'application date'."
-                    ),
+                    description="The date indicated by 'action taken date' must occur on or after 'application date'.",
                     groupby="app_date",
                 ),
                 SBLCheck(
@@ -788,8 +744,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0341",
                     name="denial_reasons.invalid_number_of_values",
                     description=(
-                        "'Denial reason(s)' must contain at least one and at most four"
-                        "values, separated by semicolons."
+                        "'Denial reason(s)' must contain at least one and at most fourvalues, separated by semicolons."
                     ),
                     element_wise=True,
                     min_length=1,
@@ -837,9 +792,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="W0341",
                     warning=True,
                     name="denial_reasons.duplicates_in_field",
-                    description=(
-                        "'Denial reason(s)' should not contain duplicated values."
-                    ),
+                    description="'Denial reason(s)' should not contain duplicated values.",
                     element_wise=True,
                 ),
             ],
@@ -852,8 +805,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0360",
                     name="denial_reasons_ff.invalid_text_length",
                     description=(
-                        "'Free-form text field for other denial reason(s)'"
-                        "must not exceed 300 characters in length."
+                        "'Free-form text field for other denial reason(s)'must not exceed 300 characters in length."
                     ),
                 ),
             ],
@@ -903,9 +855,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_number,
                     id="E0400",
                     name="pricing_init_rate_period.invalid_numeric_format",
-                    description=(
-                        "When present, 'initial rate period' must be a whole number.",
-                    ),
+                    description=("When present, 'initial rate period' must be a whole number.",),
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -931,9 +881,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_greater_than,
                     id="E0401",
                     name="pricing_init_rate_period.invalid_numeric_value",
-                    description=(
-                        "When present, 'initial rate period' must be greater than 0",
-                    ),
+                    description=("When present, 'initial rate period' must be greater than 0",),
                     element_wise=True,
                     min_value="0",
                     accept_blank=True,
@@ -946,10 +894,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_number,
                     id="E0420",
                     name="pricing_fixed_rate.invalid_numeric_format",
-                    description=(
-                        "When present, 'fixed rate: interest rate'"
-                        " must be a numeric value."
-                    ),
+                    description="When present, 'fixed rate: interest rate' must be a numeric value.",
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -975,10 +920,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_greater_than,
                     id="W0420",
                     name="pricing_fixed_rate.unreasonable_numeric_value",
-                    description=(
-                        "When present, 'fixed rate: interest rate'"
-                        " should generally be greater than 0.1."
-                    ),
+                    description="When present, 'fixed rate: interest rate' should generally be greater than 0.1.",
                     element_wise=True,
                     min_value="0.1",
                     accept_blank=True,
@@ -991,10 +933,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_number,
                     id="E0440",
                     name="pricing_adj_margin.invalid_numeric_format",
-                    description=(
-                        "When present, 'adjustable rate transaction:"
-                        " margin' must be a numeric value."
-                    ),
+                    description="When present, 'adjustable rate transaction: margin' must be a numeric value.",
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -1021,8 +960,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0001",
                     name="pricing_adj_margin.unreasonable_numeric_value",
                     description=(
-                        "When present, 'adjustable rate transaction:"
-                        " margin' should generally be greater than 0.1."
+                        "When present, 'adjustable rate transaction: margin' should generally be greater than 0.1."
                     ),
                     element_wise=True,
                     min_value="0.1",
@@ -1097,8 +1035,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0480",
                     name="pricing_adj_index_name_ff.invalid_text_length",
                     description=(
-                        "'Adjustable rate transaction: index name: other' must not"
-                        " exceed 300 characters in length."
+                        "'Adjustable rate transaction: index name: other' must not exceed 300 characters in length."
                     ),
                 ),
             ],
@@ -1126,8 +1063,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_number,
                     id="E0500",
                     name="pricing_adj_index_value.invalid_numeric_format",
-                    description="When present, 'adjustable rate transaction:"
-                    " index value' must be a numeric value.",
+                    description="When present, 'adjustable rate transaction: index value' must be a numeric value.",
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -1188,10 +1124,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_number,
                     id="E0560",
                     name="pricing_initial_charges.invalid_numeric_format",
-                    description=(
-                        "When present, 'initial annual charges' must be a"
-                        "numeric value."
-                    ),
+                    description="When present, 'initial annual charges' must be anumeric value.",
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -1282,9 +1215,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_valid_enum,
                     id="E0620",
                     name="pricing_prepenalty_allowed.invalid_enum_value",
-                    description=(
-                        "'Prepayment penalty could be imposed' must equal 1, 2, or 999."
-                    ),
+                    description="'Prepayment penalty could be imposed' must equal 1, 2, or 999.",
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -1318,9 +1249,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_valid_enum,
                     id="E0640",
                     name="census_tract_adr_type.invalid_enum_value",
-                    description=(
-                        "'Census tract: type of address' must equal 1, 2, 3, or 988."
-                    ),
+                    description="'Census tract: type of address' must equal 1, 2, 3, or 988.",
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -1338,10 +1267,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     has_correct_length,
                     id="E0680",
                     name="census_tract_number.invalid_text_length",
-                    description=(
-                        "When present, 'census tract: tract number' must "
-                        "be a GEOID with exactly 11 digits."
-                    ),
+                    description="When present, 'census tract: tract number' must be a GEOID with exactly 11 digits.",
                     element_wise=True,
                     accepted_length=11,
                     accept_blank=True,
@@ -1387,9 +1313,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_valid_enum,
                     id="E0700",
                     name="gross_annual_revenue_flag.invalid_enum_value",
-                    description=(
-                        "'Gross annual revenue: NP flag' must equal 900 or 988."
-                    ),
+                    description="'Gross annual revenue: NP flag' must equal 900 or 988.",
                     element_wise=True,
                     accepted_values=[
                         "900",
@@ -1405,9 +1329,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_number,
                     id="E0720",
                     name="gross_annual_revenue.invalid_numeric_format",
-                    description=(
-                        "When present, 'gross annual revenue' must be a numeric value."
-                    ),
+                    description="When present, 'gross annual revenue' must be a numeric value.",
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -1435,8 +1357,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0720",
                     name="naics_code_flag.invalid_enum_value",
                     description=(
-                        "'North American Industry Classification System (NAICS) "
-                        "code: NP flag' must equal 900 or 988."
+                        "'North American Industry Classification System (NAICS) code: NP flag' must equal 900 or 988."
                     ),
                     element_wise=True,
                     accepted_values=[
@@ -1507,10 +1428,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_valid_enum,
                     id="E0780",
                     name="number_of_workers.invalid_enum_value",
-                    description=(
-                        "'Number of workers' must equal 1, 2, 3, 4, 5, 6, 7, 8, 9,"
-                        " or 988."
-                    ),
+                    description="'Number of workers' must equal 1, 2, 3, 4, 5, 6, 7, 8, 9, or 988.",
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -1534,10 +1452,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_valid_enum,
                     id="E0800",
                     name="time_in_business_type.invalid_enum_value",
-                    description=(
-                        "'Time in business: type of response'"
-                        " must equal 1, 2, 3, or 988."
-                    ),
+                    description="'Time in business: type of response' must equal 1, 2, 3, or 988.",
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -1555,9 +1470,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_number,
                     id="E0820",
                     name="time_in_business.invalid_numeric_format",
-                    description=(
-                        "When present, 'time in business' must be a whole number."
-                    ),
+                    description="When present, 'time in business' must be a whole number.",
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -1567,10 +1480,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_greater_than_or_equal_to,
                     id="E0821",
                     name="time_in_business.invalid_numeric_value",
-                    description=(
-                        "When present, 'time in business'"
-                        " must be greater than or equal to 0.",
-                    ),
+                    description="When present, 'time in business' must be greater than or equal to 0.",
                     element_wise=True,
                     min_value="0",
                     accept_blank=True,
@@ -1619,10 +1529,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     has_valid_value_count,
                     id="E0841",
                     name="business_ownership_status.invalid_number_of_values",
-                    description=(
-                        "'Business ownership status' must"
-                        " contain at least one value."
-                    ),
+                    description="'Business ownership status' must contain at least one value.",
                     element_wise=True,
                     min_length=1,
                 ),
@@ -1631,10 +1538,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="W0842",
                     warning=True,
                     name="business_ownership_status.duplicates_in_field",
-                    description=(
-                        "'Business ownership status' should"
-                        " not contain duplicated values."
-                    ),
+                    description="'Business ownership status' should not contain duplicated values.",
                     element_wise=True,
                 ),
                 SBLCheck(
@@ -1660,9 +1564,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_valid_enum,
                     id="E0860",
                     name="num_principal_owners_flag.invalid_enum_value",
-                    description=(
-                        "'Number of principal owners: NP flag' must equal 900 or 988."
-                    ),
+                    description="'Number of principal owners: NP flag' must equal 900 or 988.",
                     element_wise=True,
                     accepted_values=[
                         "900",
@@ -1881,10 +1783,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_valid_enum,
                     id="E0880",
                     name="num_principal_owners.invalid_enum_value",
-                    description=(
-                        "When present, 'number of principal owners' must equal "
-                        "0, 1, 2, 3, or 4."
-                    ),
+                    description="When present, 'number of principal owners' must equal 0, 1, 2, 3, or 4.",
                     element_wise=True,
                     accepted_values=["0", "1", "2", "3", "4"],
                     accept_blank=True,
@@ -1939,10 +1838,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="W0901",
                     warning=True,
                     name="po_1_ethnicity.duplicates_in_field",
-                    description=(
-                        "'Ethnicity of principal owner 1' should"
-                        " not contain duplicated values."
-                    ),
+                    description="'Ethnicity of principal owner 1' should not contain duplicated values.",
                     element_wise=True,
                 ),
                 SBLCheck(
@@ -2051,10 +1947,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="W0941",
                     warning=True,
                     name="po_1_race.duplicates_in_field",
-                    description=(
-                        "'Race of principal owner 1' should"
-                        " not contain duplicated values."
-                    ),
+                    description="'Race of principal owner 1' should not contain duplicated values.",
                     element_wise=True,
                 ),
                 SBLCheck(
@@ -2218,10 +2111,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_valid_enum,
                     id="E1040",
                     name="po_1_gender_flag.invalid_enum_value",
-                    description=(
-                        "When present, 'sex/gender of principal"
-                        " owner 1: NP flag' must equal 1, 966, or 988."
-                    ),
+                    description="When present, 'sex/gender of principal owner 1: NP flag' must equal 1, 966, or 988.",
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -2300,10 +2190,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="W0901",
                     warning=True,
                     name="po_2_ethnicity.duplicates_in_field",
-                    description=(
-                        "'Ethnicity of principal owner 2' should"
-                        " not contain duplicated values."
-                    ),
+                    description="'Ethnicity of principal owner 2' should not contain duplicated values.",
                     element_wise=True,
                 ),
                 SBLCheck(
@@ -2412,10 +2299,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="W0941",
                     warning=True,
                     name="po_2_race.duplicates_in_field",
-                    description=(
-                        "'Race of principal owner 2' should"
-                        " not contain duplicated values."
-                    ),
+                    description="'Race of principal owner 2' should not contain duplicated values.",
                     element_wise=True,
                 ),
                 SBLCheck(
@@ -2579,10 +2463,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_valid_enum,
                     id="E1040",
                     name="po_2_gender_flag.invalid_enum_value",
-                    description=(
-                        "When present, 'sex/gender of principal"
-                        " owner 2: NP flag' must equal 1, 966, or 988."
-                    ),
+                    description="When present, 'sex/gender of principal owner 2: NP flag' must equal 1, 966, or 988.",
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -2661,10 +2542,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="W0901",
                     warning=True,
                     name="po_3_ethnicity.duplicates_in_field",
-                    description=(
-                        "'Ethnicity of principal owner 3' should"
-                        " not contain duplicated values."
-                    ),
+                    description="'Ethnicity of principal owner 3' should not contain duplicated values.",
                     element_wise=True,
                 ),
                 SBLCheck(
@@ -2773,10 +2651,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="W0941",
                     warning=True,
                     name="po_3_race.duplicates_in_field",
-                    description=(
-                        "'Race of principal owner 3' should"
-                        " not contain duplicated values."
-                    ),
+                    description="'Race of principal owner 3' should not contain duplicated values.",
                     element_wise=True,
                 ),
                 SBLCheck(
@@ -2940,10 +2815,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_valid_enum,
                     id="E1040",
                     name="po_3_gender_flag.invalid_enum_value",
-                    description=(
-                        "When present, 'sex/gender of principal"
-                        " owner 3: NP flag' must equal 1, 966, or 988."
-                    ),
+                    description="When present, 'sex/gender of principal owner 3: NP flag' must equal 1, 966, or 988.",
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -3022,10 +2894,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="W0901",
                     warning=True,
                     name="po_4_ethnicity.duplicates_in_field",
-                    description=(
-                        "'Ethnicity of principal owner 4' should"
-                        " not contain duplicated values."
-                    ),
+                    description="'Ethnicity of principal owner 4' should not contain duplicated values.",
                     element_wise=True,
                 ),
                 SBLCheck(
@@ -3134,10 +3003,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="W0941",
                     warning=True,
                     name="po_4_race.duplicates_in_field",
-                    description=(
-                        "'Race of principal owner 4' should"
-                        " not contain duplicated values."
-                    ),
+                    description="'Race of principal owner 4' should not contain duplicated values.",
                     element_wise=True,
                 ),
                 SBLCheck(
@@ -3301,10 +3167,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_valid_enum,
                     id="E1040",
                     name="po_4_gender_flag.invalid_enum_value",
-                    description=(
-                        "When present, 'sex/gender of principal"
-                        " owner 4: NP flag' must equal 1, 966, or 988."
-                    ),
+                    description="When present, 'sex/gender of principal owner 4: NP flag' must equal 1, 966, or 988.",
                     element_wise=True,
                     accepted_values=[
                         "1",
