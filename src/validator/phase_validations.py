@@ -501,16 +501,20 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     condition_values={"977"},
                 ),
                 SBLCheck(
-                    has_valid_value_count,
+                    has_valid_multi_field_value_count,
                     id="W2006",
-                    name="credit_purpose_ff.invalid_number_of_values",
+                    warning=True,
+                    name="credit_purpose_ff.multi_invalid_number_of_values",
                     description=(
-                        "'Other Credit purpose' must not contain more "
-                        " than one other credit purpose."
+                        "'Credit purpose' and 'free-form text field for other credit purpose'"
+                        "combined should not contain more than three values. "
+                        "Code 977 (other), within 'credit purpose', does not count "
+                        "toward the maximum number of values for the purpose of "
+                        "this validation check."
                     ),
-                    element_wise=True,
-                    min_length=0,
-                    max_length=1,
+                    groupby="credit_purpose",
+                    ignored_values={"977"},
+                    max_length=3,
                 ),
             ],
         },
@@ -870,6 +874,22 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     ),
                     groupby="denial_reasons",
                     condition_values={"977"},
+                ),
+                SBLCheck(
+                    has_valid_multi_field_value_count,
+                    id="W2013",
+                    warning=True,
+                    name="denial_reasons_ff.multi_invalid_number_of_values",
+                    description=(
+                        "'Denial reason(s)' and 'free-form text field for other "
+                        "denial reason(s)' combined should not contain more than "
+                        "four values. Code 977 (other), within 'Denial reason(s)', "
+                        "does not count toward the maximum number of values for "
+                        "the purpose of this validation check."
+                    ),
+                    groupby="denial_reasons",
+                    ignored_values={"977"},
+                    max_length=4,
                 ),
             ],
         },
