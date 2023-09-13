@@ -40,9 +40,7 @@ class SBLCheck(Check):
     Don't use this class directly. Make use of the SBLErrorCheck and
     SBLWarningCheck subclasses below."""
 
-    def __init__(
-        self, check_fn: Callable, id: str = None, warning=False, *args, **kwargs
-    ):
+    def __init__(self, check_fn: Callable, id: str = None, warning=False, *args, **kwargs):
         """Custom init method that verifies the presence of `name` and `id` in
         kwargs creates a custom class attribute called `warning`. All
         other initializaiton is handled by the parent Check class.

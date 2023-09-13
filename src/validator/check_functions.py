@@ -87,9 +87,7 @@ def is_date(date: str) -> bool:
         return False
 
 
-def ct_credit_product_ff_blank_validity(
-    grouped_data: Dict[int, pd.Series]
-) -> pd.Series:
+def ct_credit_product_ff_blank_validity(grouped_data: Dict[int, pd.Series]) -> pd.Series:
     """Checks the validity of the field `ct_credit_product_ff` based on
     the selection of `ct_credit_product`.
 
@@ -130,9 +128,7 @@ def _get_non_blank_values(values: list[str]):
 
 # helper function for has_valid_multi_field_value_count:
 # process series and return validations
-def _get_related_series_validations(
-    value_count: int, series: pd.Series, max_length: int, separator: str = ";"
-) -> dict:
+def _get_related_series_validations(value_count: int, series: pd.Series, max_length: int, separator: str = ";") -> dict:
     series_validations = {}
     for index, value in series.items():
         series_count = len(set(_get_non_blank_values(value.split(separator))))
@@ -166,9 +162,7 @@ def has_valid_multi_field_value_count(
     return pd.concat(validation_holder)
 
 
-def _get_conditional_field_series_validations(
-    series: pd.Series, conditional_func
-) -> dict:
+def _get_conditional_field_series_validations(series: pd.Series, conditional_func) -> dict:
     series_validations = {}
     for index, value in series.items():
         series_validations[index] = conditional_func(value)
@@ -210,9 +204,7 @@ def has_no_conditional_field_conflict(
                 pd.Series(
                     index=other_series.index,
                     name=other_series.name,
-                    data=_get_conditional_field_series_validations(
-                        other_series, lambda v: not v.strip()
-                    ),
+                    data=_get_conditional_field_series_validations(other_series, lambda v: not v.strip()),
                 )
             )
         else:
@@ -222,9 +214,7 @@ def has_no_conditional_field_conflict(
                 pd.Series(
                     index=other_series.index,
                     name=other_series.name,
-                    data=_get_conditional_field_series_validations(
-                        other_series, lambda v: v.strip() != ""
-                    ),
+                    data=_get_conditional_field_series_validations(other_series, lambda v: v.strip() != ""),
                 )
             )
 
@@ -236,13 +226,9 @@ def is_unique_in_field(ct_value: str, separator: str = ";") -> bool:
     return len(set(values)) == len(values)
 
 
-def meets_multi_value_field_restriction(
-    ct_value: str, single_values: set[str], separator: str = ";"
-) -> bool:
+def meets_multi_value_field_restriction(ct_value: str, single_values: set[str], separator: str = ";") -> bool:
     ct_values_set = set(ct_value.split(separator))
-    if (ct_values_set.isdisjoint(single_values)) or (
-        len(ct_values_set) == 1 and ct_values_set.issubset(single_values)
-    ):
+    if (ct_values_set.isdisjoint(single_values)) or (len(ct_values_set) == 1 and ct_values_set.issubset(single_values)):
         return True
     else:
         return False
@@ -262,9 +248,7 @@ def is_valid_enum(
         return enum_check
 
 
-def has_valid_value_count(
-    ct_value: str, min_length: int, max_length: int = None, separator: str = ";"
-) -> bool:
+def has_valid_value_count(ct_value: str, min_length: int, max_length: int = None, separator: str = ";") -> bool:
     values_count = len(ct_value.split(separator))
     if max_length is None:
         return min_length <= values_count
@@ -272,9 +256,7 @@ def has_valid_value_count(
         return min_length <= values_count and values_count <= max_length
 
 
-def is_date_in_range(
-    date_value: str, start_date_value: str, end_date_value: str
-) -> bool:
+def is_date_in_range(date_value: str, start_date_value: str, end_date_value: str) -> bool:
     """Checks that the date_value is within the range of the start_date_value
         and the end_date_value
 
@@ -309,13 +291,9 @@ def is_date_after(
     for value, other_series in grouped_data.items():
         try:
             before_date = datetime.strptime(value, "%Y%m%d")
-            other_series = pd.to_datetime(
-                other_series
-            )  # Convert other series to Date time object
+            other_series = pd.to_datetime(other_series)  # Convert other series to Date time object
 
-            validation_holder.append(
-                other_series.apply(lambda date: date >= before_date)
-            )
+            validation_holder.append(other_series.apply(lambda date: date >= before_date))
         except ValueError:
             validation_holder.append(other_series.apply(lambda v: False))
     return pd.concat(validation_holder)
@@ -332,9 +310,7 @@ def is_number(ct_value: str, accept_blank: bool = False) -> bool:
     Returns:
         bool: True if value is number , False if value is not number
     """
-    value_check = ct_value.isdigit() or bool(
-        re.match(r"^[-+]?[0-9]*\.?[0-9]+$", ct_value)
-    )
+    value_check = ct_value.isdigit() or bool(re.match(r"^[-+]?[0-9]*\.?[0-9]+$", ct_value))
 
     return _check_blank_(ct_value, value_check, accept_blank)
 
@@ -418,15 +394,11 @@ def has_valid_enum_pair(
     validation_holder = []
     for value, other_series in grouped_data.items():
         received_values = set(value.split(separator))
-        validation_holder.append(
-            _has_valid_enum_pair_helper(conditions, received_values, other_series)
-        )
+        validation_holder.append(_has_valid_enum_pair_helper(conditions, received_values, other_series))
     return pd.concat(validation_holder)
 
 
-def is_date_before_in_days(
-    grouped_data: Dict[str, pd.Series], days_value: int = 730
-) -> pd.Series:
+def is_date_before_in_days(grouped_data: Dict[str, pd.Series], days_value: int = 730) -> pd.Series:
     """Checks if the provided date is not beyond
        the grouped column date plus the days_value parameter
     Args:
@@ -442,21 +414,15 @@ def is_date_before_in_days(
         try:
             initial_date = datetime.strptime(value, "%Y%m%d")
             unreasonable_date = initial_date + timedelta(days=days_value)
-            other_series = pd.to_datetime(
-                other_series
-            )  # Convert other series to Date time object
+            other_series = pd.to_datetime(other_series)  # Convert other series to Date time object
 
-            validation_holder.append(
-                other_series.apply(lambda date: date < unreasonable_date)
-            )
+            validation_holder.append(other_series.apply(lambda date: date < unreasonable_date))
         except ValueError:
             validation_holder.append(other_series.apply(lambda v: False))
     return pd.concat(validation_holder)
 
 
-def has_correct_length(
-    ct_value: str, accepted_length: int, accept_blank: bool = False
-) -> bool:
+def has_correct_length(ct_value: str, accepted_length: int, accept_blank: bool = False) -> bool:
     """check text for correct length but allow blank
     Args:
         ct_value (str): value from file
@@ -486,9 +452,7 @@ def is_valid_code(ct_value: str, accept_blank: bool = False, codes: dict = {}) -
     return _check_blank_(ct_value, key_check, accept_blank)
 
 
-def is_greater_than_or_equal_to(
-    value: str, min_value: str, accept_blank: bool = False
-) -> bool:
+def is_greater_than_or_equal_to(value: str, min_value: str, accept_blank: bool = False) -> bool:
     """
     check if value is greater or equal to min_value or blank
     If blank value check is not needed, use built-in 'greater_than_or_equal_to'
@@ -557,9 +521,7 @@ def _is_unique_column_helper(series: pd.Series, count_limit: int):
     return series_validations
 
 
-def is_unique_column(
-    grouped_data: Dict[any, pd.Series], count_limit: int = 1
-) -> pd.Series:
+def is_unique_column(grouped_data: Dict[any, pd.Series], count_limit: int = 1) -> pd.Series:
     """
     verify if the content of a column is unique.
     - To be used with element_wise set to false
@@ -612,10 +574,8 @@ def _has_valid_fieldset_pair_helper(
     for current_index, current_value in series.items():
         """Getting the validation result for comparing current_values to the
         should_fieldset_key_equal_to (target values)"""
-        has_valid_fieldset_pair_eq_neq_validation_value = (
-            _get_has_valid_fieldset_pair_eq_neq_validation_value(
-                current_values, should_fieldset_key_equal_to
-            )
+        has_valid_fieldset_pair_eq_neq_validation_value = _get_has_valid_fieldset_pair_eq_neq_validation_value(
+            current_values, should_fieldset_key_equal_to
         )
         """
         If current_value is in condition_values AND
@@ -627,8 +587,7 @@ def _has_valid_fieldset_pair_helper(
         then fieldset pair is NOT valid (False). 
         """
         validation = (
-            current_value in condition_values
-            and has_valid_fieldset_pair_eq_neq_validation_value
+            current_value in condition_values and has_valid_fieldset_pair_eq_neq_validation_value
         ) or current_value not in condition_values
         series_validations[current_index] = validation
     return series_validations
