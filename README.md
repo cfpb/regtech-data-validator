@@ -8,13 +8,13 @@
 | src/tests/test\_check\_functions.py |      418 |        0 |        0 |        0 |    100% |           |
 | src/tests/test\_checks.py           |       20 |        2 |       10 |        3 |     83% |9->exit, 16->exit, 24->exit, 25-26 |
 | src/validator/\_\_init\_\_.py       |        4 |        0 |        0 |        0 |    100% |           |
-| src/validator/check\_functions.py   |      184 |       36 |       78 |        2 |     79% |55-59, 113-123, 288-294, 308-321, 382, 440-454, 748 |
-| src/validator/checks.py             |       14 |        1 |        4 |        0 |     94% |        75 |
-| src/validator/create\_schemas.py    |       29 |       29 |        4 |        0 |      0% |      4-54 |
-| src/validator/global\_data.py       |       18 |        4 |        4 |        0 |     73% |     35-38 |
+| src/validator/check\_functions.py   |      184 |       36 |       78 |        2 |     79% |55-59, 111-121, 270-276, 290-299, 358, 412-422, 707 |
+| src/validator/checks.py             |       14 |        1 |        4 |        0 |     94% |        73 |
+| src/validator/create\_schemas.py    |       29 |       29 |        4 |        0 |      0% |      4-51 |
+| src/validator/global\_data.py       |       18 |        4 |        4 |        0 |     73% |     33-36 |
 | src/validator/main.py               |       38 |       38 |       10 |        0 |      0% |      8-66 |
 | src/validator/phase\_validations.py |        6 |        6 |        0 |        0 |      0% |      7-38 |
-| src/validator/schema\_template.py   |        6 |        6 |        0 |        0 |      0% |    12-517 |
+| src/validator/schema\_template.py   |        6 |        6 |        0 |        0 |      0% |    12-452 |
 |                           **TOTAL** |  **741** |  **122** |  **110** |    **5** | **81%** |           |
 
 
