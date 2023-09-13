@@ -506,8 +506,8 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     warning=True,
                     name="credit_purpose_ff.multi_invalid_number_of_values",
                     description=(
-                        "'Credit purpose' and 'free-form text field for other credit purpose'"
-                        "combined should not contain more than three values. "
+                        "'Credit purpose' and 'free-form text field for other credit "
+                        "purpose' combined should not contain more than three values. "
                         "Code 977 (other), within 'credit purpose', does not count "
                         "toward the maximum number of values for the purpose of "
                         "this validation check."
