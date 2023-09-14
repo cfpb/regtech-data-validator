@@ -8,7 +8,7 @@ Run from the terminal to see the generated output.
 import sys
 
 import pandas as pd
-from create_schemas import get_phase_1_schema_for_lei, get_phase_2_schema_for_lei, validate_phases
+from create_schemas import validate_phases_by_lei
 
 
 def csv_to_df(path: str) -> pd.DataFrame:
@@ -27,7 +27,7 @@ def run_validation_on_df(df: pd.DataFrame, lei: str) -> None:
     print(df)
     print("")
 
-    print(validate_phases(get_phase_1_schema_for_lei(lei), get_phase_2_schema_for_lei(lei), df))
+    print(validate_phases_by_lei(df, lei))
 
 
 if __name__ == "__main__":
