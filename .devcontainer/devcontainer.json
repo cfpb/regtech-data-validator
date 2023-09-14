@@ -7,6 +7,7 @@
     "vscode": {
       "extensions": [
         "ms-python.python",
+        "ms-python.black-formatter",
         "donjayamanne.python-extension-pack",
         "ms-python.isort",
         "njpwerner.autodocstring",
@@ -16,6 +17,10 @@
         "littlefoxteam.vscode-python-test-adapter"
       ],
       "settings": {
+        "[python]": {
+          "editor.defaultFormatter": "ms-python.black-formatter",
+          "editor.formatOnSave": true
+        },
         "files.exclude": {
           "**/.git": true,
           "**/.svn": true,
@@ -35,7 +40,7 @@
         ],
         "editor.tabSize": 4,
         "editor.formatOnSave": true,
-        "python.formatting.provider": "black",
+        "python.formatting.provider": "none",
         "python.envFile": "${workspaceFolder}/.env",
         "editor.codeActionsOnSave": {
           "source.organizeImports": true
