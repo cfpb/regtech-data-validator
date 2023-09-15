@@ -109,12 +109,12 @@ def validate(schema: DataFrameSchema, df: pd.DataFrame):
     return findings
 
 
-def validate_phases(phase1: DataFrameSchema, phase2: DataFrameSchema, df: pd.DataFrame) -> list:
-    phase1_findings = validate(phase1, df)
+def validate_phases_by_lei(df: pd.DataFrame, lei: str) -> list:
+    phase1_findings = validate(get_phase_1_schema_for_lei(lei), df)
     if phase1_findings:
         return phase1_findings
     else:
-        phase2_findings = validate(phase2, df)
+        phase2_findings = validate(get_phase_2_schema_for_lei((lei)), df)
         if phase2_findings:
             return phase2_findings
         else:
