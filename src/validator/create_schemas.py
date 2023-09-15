@@ -2,6 +2,7 @@
 with validations listed in phase 1 and phase 2."""
 
 import pandas as pd
+from checks import SBLCheck
 from pandera import DataFrameSchema
 from pandera.errors import SchemaErrors
 from phase_validations import get_phase_1_and_2_validations_for_lei

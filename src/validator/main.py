@@ -9,12 +9,8 @@ import sys
 
 import pandas as pd
 from create_schemas import (
-    get_phase_1_schema_for_lei,
-    get_phase_2_schema_for_lei,
-    print_schema_errors,
     validate_phases_by_lei,
 )
-from pandera.errors import SchemaErrors
 
 
 def csv_to_df(path: str) -> pd.DataFrame:
