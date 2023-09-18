@@ -69,8 +69,7 @@ def validate(schema: DataFrameSchema, df: pd.DataFrame):
     try:
         schema(df, lazy=True)
     except SchemaErrors as errors:
-        for schema_error in errors.schema_errors:
-            error = schema_error["error"]
+        for error in errors.schema_errors:
             check: SBLCheck = error.check
             column_name = error.schema.name
             check_id = "n/a"
