@@ -15,34 +15,18 @@ phase_1_template = get_template()
 phase_2_template = get_template()
 
 
+def get_schemas(lei: str = None) -> (DataFrameSchema, DataFrameSchema):
+    phase_1_schema = get_phase_1_schema_for_lei(lei)
+    phase_2_schema = get_phase_2_schema_for_lei(lei)
+
+    return (phase_1_schema, phase_2_schema)
+
+
 def get_schema_by_phase_for_lei(template: dict, phase: str, lei: str = None):
     for column in get_phase_1_and_2_validations_for_lei(lei):
         validations = get_phase_1_and_2_validations_for_lei(lei)[column]
         template[column].checks = validations[phase]
     return DataFrameSchema(template)
-
-
-def print_schema_errors(errors: SchemaErrors, phase: str):
-    for error in errors.schema_errors:
-        # Name of the column in the dataframe being checked
-        schema_error = error["error"]
-        check_id = "n/a"
-
-        # built in checks such as unique=True are different than custom
-        # checks unfortunately so the name needs to be accessed differently
-        try:
-            check_name = schema_error.check.name
-            check_id = schema_error.check.id
-            # This will either be a boolean series or a single bool
-            check_output = schema_error.check_output
-        except AttributeError:
-            check_name = schema_error.check
-            # this is just a string that we'd need to parse manually
-            check_output = schema_error.args[0]
-
-        print(f"{phase} Validation `{check_name}` with id: `{check_id}` failed for column `{{column_name}}`")
-        print(check_output)
-        print("")
 
 
 def get_phase_1_schema_for_lei(lei: str = None):
@@ -131,7 +115,7 @@ def validate(schema: DataFrameSchema, df: pd.DataFrame):
     return findings
 
 
-def validate_phases_by_lei(df: pd.DataFrame, lei: str) -> list:
+def validate_phases(df: pd.DataFrame, lei: str = None) -> list:
     phase1_findings = validate(get_phase_1_schema_for_lei(lei), df)
     if phase1_findings:
         return phase1_findings
