@@ -15,13 +15,6 @@ phase_1_template = get_template()
 phase_2_template = get_template()
 
 
-def get_schemas(lei: str = None) -> (DataFrameSchema, DataFrameSchema):
-    phase_1_schema = get_phase_1_schema_for_lei(lei)
-    phase_2_schema = get_phase_2_schema_for_lei(lei)
-
-    return (phase_1_schema, phase_2_schema)
-
-
 def get_schema_by_phase_for_lei(template: dict, phase: str, lei: str = None):
     for column in get_phase_1_and_2_validations_for_lei(lei):
         validations = get_phase_1_and_2_validations_for_lei(lei)[column]
