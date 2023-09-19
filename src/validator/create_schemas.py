@@ -53,8 +53,9 @@ def validate(schema: DataFrameSchema, df: pd.DataFrame):
 
             fields: list[str] = [column_name]
 
-            if hasattr(check, "name"):
+            if hasattr(check, "name") and hasattr(check, "id"):
                 check_name: str = check.name
+                check_id: str = check.id
 
                 if check.groupby:
                     fields += check.groupby  # type: ignore
@@ -66,9 +67,6 @@ def validate(schema: DataFrameSchema, df: pd.DataFrame):
                 # we shouldn't be using Unique flag as it doesn't return series of
                 # validation result .  it returns just a printout result string/txt
                 raise AttributeError(f"{str(check)}")
-
-            if hasattr(check, "id"):
-                check_id: str = check.id
 
             # Remove duplicates, but keep as `list` for JSON-friendliness
             fields = list(set(fields))

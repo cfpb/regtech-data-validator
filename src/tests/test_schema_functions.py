@@ -106,6 +106,16 @@ class TestValidate:
         assert len(result) == 0
         assert len(ph2_result) == 0
 
+    def test_with_valid_lei(self):
+        lei = "000TESTFIUIDDONOTUSE"
+        phase1_schema_by_lei = get_phase_1_schema_for_lei(lei)
+        phase2_schema_by_lei = get_phase_2_schema_for_lei(lei)
+        df = pd.DataFrame(data=self.util.get_data())
+        result = validate(phase1_schema_by_lei, df)
+        ph2_result = validate(phase2_schema_by_lei, df)
+        assert len(result) == 0
+        assert len(ph2_result) == 0
+
     def test_with_invalid_dataframe(self):
         df = pd.DataFrame(data=self.util.get_data({"ct_credit_product": ["989"]}))
         result = validate(self.phase1_schema, df)
@@ -129,6 +139,16 @@ class TestValidate:
         ph2_result = validate(self.phase2_schema, df)
         assert len(ph2_result) == 3
 
+    def test_with_invalid_lei(self):
+        lei = "000TESTFIUIDDONOTUS1"
+        phase1_schema_by_lei = get_phase_1_schema_for_lei(lei)
+        phase2_schema_by_lei = get_phase_2_schema_for_lei(lei)
+        df = pd.DataFrame(data=self.util.get_data({"ct_credit_product": ["989"]}))
+        result = validate(phase1_schema_by_lei, df)
+        ph2_result = validate(phase2_schema_by_lei, df)
+        assert len(result) == 2
+        assert len(ph2_result) == 0
+
 
 class TestValidatePhases:
     util = TestUtil()
@@ -136,6 +156,13 @@ class TestValidatePhases:
     def test_with_valid_data(self):
         result = validate_phases(pd.DataFrame(data=self.util.get_data()))
 
+        assert len(result) == 1
+        assert result[0] == self.util.valid_response
+
+    def test_with_valid_lei(self):
+        lei = "000TESTFIUIDDONOTUSE"
+        df = pd.DataFrame(data=self.util.get_data())
+        result = validate_phases(df, lei)
         assert len(result) == 1
         assert result[0] == self.util.valid_response
 
@@ -175,4 +202,11 @@ class TestValidatePhases:
         # since the data passed phase 1 validations
         # this should return phase 2 validations
         assert len(result) == 3
+        assert result[0] != self.util.valid_response
+
+    def test_with_invalid_lei(self):
+        lei = "000TESTFIUIDDONOTUS1"
+        df = pd.DataFrame(data=self.util.get_data())
+        result = validate_phases(df, lei)
+        assert len(result) == 1
         assert result[0] != self.util.valid_response
