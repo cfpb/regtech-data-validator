@@ -2,8 +2,8 @@ FROM python:3.11-alpine
 
 LABEL maintainer="CFPB RegTech Team"
 
-COPY ../pyproject.toml .
-COPY ../poetry.lock .
+COPY pyproject.toml .
+COPY poetry.lock .
 
 # install git and alpine sdk for c compiler extensions
 RUN apk add --update git curl
