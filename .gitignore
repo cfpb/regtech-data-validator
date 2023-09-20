@@ -1,6 +1,9 @@
 # environment files
 .env
 
+# idea
+.idea/
+
 # Personal vscode settings 
 .vscode/
 
