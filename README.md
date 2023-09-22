@@ -60,6 +60,10 @@ Development standard practice
 * Check definitions' name should be set to validation ID.
   * Example: "denial_reasons. enum_value_conflict"
     ![Validation ID](validation_id.png)
+
+## Coverage
+[![Coverage badge](https://github.com/cfpb/regtech-data-validator/raw/python-coverage-comment-action-data/badge.svg)](https://github.com/cfpb/regtech-data-validator/tree/python-coverage-comment-action-data)
+
 ## Contributing
 [CFPB](https://www.consumerfinance.gov/) is developing the `RegTech Data Validator` in the open to maximize transparency and encourage third party contributions. If you want to contribute, please read and abide by the terms of the [License](./LICENSE) for this project. Pull Requests are always welcome.
 
