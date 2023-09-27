@@ -3,8 +3,6 @@ import sys
 
 import pandas as pd
 
-from validator.create_schemas import validate_phases
-
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # noqa: E402
 sys.path.append(ROOT_DIR)  # noqa: E402
 

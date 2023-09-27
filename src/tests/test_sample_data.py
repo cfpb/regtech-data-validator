@@ -1,7 +1,5 @@
-import pandas as pd
 import pytest
 
-from validator import main
 from validator.create_schemas import validate_phases
 from validator.sample_data import read_bad_data, read_good_data
 
