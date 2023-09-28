@@ -43,13 +43,11 @@ class TestValidatingSampleData:
         lei = "000TESTFIUIDDONOTUS1"
         validation_result = validate_phases(self.bad_file_df, lei)
 
-        print(validation_result)
         assert len(validation_result) >= 1
         assert validation_result[0] != self.valid_response
 
     def test_run_validation_on_bad_data_valid_lei(self):
         lei = "000TESTFIUIDDONOTUSE"
-
         validation_result = validate_phases(self.bad_file_df, lei)
 
         assert len(validation_result) >= 1
