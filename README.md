@@ -29,10 +29,10 @@ failed validation.
 # Test validating the "good" file
 # If passing lei value, pass lei as first arg and csv_path as second arg
 # else just pass the csv_path as arg
-python src/validator/main.py src/tests/data/SBL_Validations_SampleData_GoodFile_03312023.csv
+python src/validator/main.py src/tests/data/sbl-validations-pass.csv
 
 # Test validating the "bad" file
-python src/validator/main.py src/tests/data/SBL_Validations_SampleData_BadFile_03312023.csv
+python src/validator/main.py src/tests/data/sbl-validations-fail.csv
 ```
 
 ## Development

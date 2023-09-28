@@ -26,6 +26,7 @@ def run_validation_on_df(df: pd.DataFrame, lei: str) -> None:
     print("")
     print(df)
     print("")
+
     print(validate_phases(df, lei))
 
 
