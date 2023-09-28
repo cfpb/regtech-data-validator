@@ -24,7 +24,6 @@ There are few files in `src/validator` that will be of interest.
 - The repo also includes 2 test datasets for manual testing, one with all valid data, and one where each line
 represents a different failed validation, or different permutation of of the same
 failed validation.
-
 - [`sbl-validations-pass.csv`](src/tests/data/sbl-validations-pass.csv)
 - [`sbl-validations-fail.csv`](src/tests/data/sbl-validations-fail.csv)
 
