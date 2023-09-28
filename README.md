@@ -24,22 +24,23 @@ There are few files in `src/validator` that will be of interest.
 - The repo also includes 2 test datasets for manual testing, one with all valid data, and one where each line
 represents a different failed validation, or different permutation of of the same
 failed validation.
-  - [`SBL_Validations_SampleData_GoodFile_03312023.csv`](SBL_Validations_SampleData_GoodFile_03312023.csv)
-  - [`SBL_Validations_SampleData_BadFile_03312023.csv`](SBL_Validations_SampleData_BadFile_03312023.csv)
+- [`sbl-validations-pass.csv`](src/tests/data/sbl-validations-pass.csv)
+- [`sbl-validations-fail.csv`](src/tests/data/sbl-validations-fail.csv)
 
 ### Manual Test
 ```sh
 # Test validating the "good" file
 # If passing lei value, pass lei as first arg and csv_path as second arg
-python src/validator/main.py 000TESTFIUIDDONOTUSE SBL_Validations_SampleData_GoodFile_03312023.csv
+python src/validator/main.py 000TESTFIUIDDONOTUSE src/tests/data/sbl-validations-pass.csv
 # else just pass the csv_path as arg
-python src/validator/main.py SBL_Validations_SampleData_GoodFile_03312023.csv
+python src/validator/main.py src/tests/data/sbl-validations-pass.csv
 
 # Test validating the "bad" file
-python src/validator/main.py 000TESTFIUIDDONOTUSE SBL_Validations_SampleData_BadFile_03312023.csv
+python src/validator/main.py 000TESTFIUIDDONOTUSE src/tests/data/sbl-validations-fail.csv
 # or
-python src/validator/main.py SBL_Validations_SampleData_BadFile_03312023.csv
+python src/validator/main.py src/tests/data/sbl-validations-fail.csv
 ```
+
 
 ## Development
 
