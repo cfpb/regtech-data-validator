@@ -12,26 +12,32 @@ Open this repository within VS Code and press `COMMAND + SHIFT + p` on your keyb
 
 If using VS Code, setup is completed by simply running the code within a Dev Container. If you're not making use of VS Code, make your life easier and use VS Code :sunglasses:. See the instructions above for setting up the Dev Container.
 
-There are 3 files that will be of interest. `schema.py` defines the Pandera schema used for validating the SBLAR data. A custom Pandera Check class called `NamedCheck` exists within this file as well. `check_functions.py` contains a collection of functions to be run against the data that are a bit too complex to be implemented directly within the schema as Lamba functions. Lastly, the file `main.py` pulls everything together and illustrates how the schema can catch the various validation errors present in our mock, invalid dataset.
+There are few files in `src/validator` that will be of interest. 
+- `checks.py` defines custom Pandera Check class called `SBLCheck`. 
+- `global_data.py` defines functions to parse NAICS and GEOIDs.
+- `phase_validations.py` defines phase 1 and phase 2 Pandera schema/checks used for validating the SBLAR data.
+- `check_functions.py` contains a collection of functions to be run against the data that are a bit too complex to be implemented directly within the schema as Lambda functions.
+- Lastly, the file `main.py` pulls everything together and illustrates how the schema can catch the various validation errors present in our mock, invalid dataset and different LEI values.
 
 ## Test data
-
-The repo includes 2 test datasets, one with all valid data, and one where each line
+- The repo includes tests that can be executed using `pytest`.  These tests can be located under `src/tests`.
+- The repo also includes 2 test datasets for manual testing, one with all valid data, and one where each line
 represents a different failed validation, or different permutation of of the same
 failed validation.
+  - [`SBL_Validations_SampleData_GoodFile_03312023.csv`](SBL_Validations_SampleData_GoodFile_03312023.csv)
+  - [`SBL_Validations_SampleData_BadFile_03312023.csv`](SBL_Validations_SampleData_BadFile_03312023.csv)
 
-- [`SBL_Validations_SampleData_GoodFile_03312023.csv`](SBL_Validations_SampleData_GoodFile_03312023.csv)
-- [`SBL_Validations_SampleData_BadFile_03312023.csv`](SBL_Validations_SampleData_BadFile_03312023.csv)
-
-### Usage
-
+### Manual Test
 ```sh
 # Test validating the "good" file
 # If passing lei value, pass lei as first arg and csv_path as second arg
+python src/validator/main.py 000TESTFIUIDDONOTUSE SBL_Validations_SampleData_GoodFile_03312023.csv
 # else just pass the csv_path as arg
 python src/validator/main.py SBL_Validations_SampleData_GoodFile_03312023.csv
 
 # Test validating the "bad" file
+python src/validator/main.py 000TESTFIUIDDONOTUSE SBL_Validations_SampleData_BadFile_03312023.csv
+# or
 python src/validator/main.py SBL_Validations_SampleData_BadFile_03312023.csv
 ```
 
