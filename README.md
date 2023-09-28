@@ -20,8 +20,8 @@ The repo includes 2 test datasets, one with all valid data, and one where each l
 represents a different failed validation, or different permutation of of the same
 failed validation.
 
-- [`SBL_Validations_SampleData_GoodFile_03312023.csv`](SBL_Validations_SampleData_GoodFile_03312023.csv)
-- [`SBL_Validations_SampleData_BadFile_03312023.csv`](SBL_Validations_SampleData_BadFile_03312023.csv)
+- [`sbl-validations-pass.csv`](src/tests/data/sbl-validations-pass.csv)
+- [`sbl-validations-fail.csv`](src/tests/data/sbl-validations-fail.csv)
 
 ### Usage
 
