@@ -4,15 +4,15 @@ This is a RegTech submission data parser and validator which makes use of Pander
 
 ## Pre-requisites
 
-Poetry is used as the package management tool. Once installed, just running poetry install in the root of the project should install all the dependencies needed by the app.
-Docker is used for local development where ancillary services will run.
-(Optional) Visual Studio Code for local development.
+- Poetry is used as the package management tool.
+- (Optional) Visual Studio Code for development.
+- (Optional) Docker is needed when using Visual Studio Code / Dev Container.
 
 ## Dependencies
 
-All packages and libraries used in this repository can be found in`pyproject.toml`
+All packages and libraries used in this repository can be found in `pyproject.toml`
 
-## Dev Container Setup
+## Dev Container and Visual Studio Code Development Setup
 
 The code in this repository is developed and run inside of a dev container within Visual Studio Code. These instructions will not work if using an alternative editor such as Vim or Emacs. To build, run, and attach the container to VS Code you'll need to have Docker installed on your system, and the `Dev Containers` extension installed within VS Code.
 
@@ -28,12 +28,12 @@ There are few files in `src/validator` that will be of interest.
 - `check_functions.py` contains a collection of functions to be run against the data that are a bit too complex to be implemented directly within the schema as Lambda functions.
 - Lastly, the file `main.py` pulls everything together and illustrates how the schema can catch the various validation errors present in our mock, invalid dataset and different LEI values.
 
-## Test data
+## Development Tests
 
-- The repo includes unit tests that can be executed using `pytest`.  These tests can be located under `src/tests`.
+- The repo includes unit tests that can be executed using `pytest` or in Visual Studio Code.  These tests can be located under `src/tests`.
 - The repo also includes 2 test datasets for manual testing, one with all valid data, and one where each line represents a different failed validation, or different permutation of of the same failed validation.
-- [`sbl-validations-pass.csv`](src/tests/data/sbl-validations-pass.csv)
-- [`sbl-validations-fail.csv`](src/tests/data/sbl-validations-fail.csv)
+  - [`sbl-validations-pass.csv`](src/tests/data/sbl-validations-pass.csv)
+  - [`sbl-validations-fail.csv`](src/tests/data/sbl-validations-fail.csv)
 
 ## Development Process and Standard
 
@@ -65,6 +65,14 @@ Development standard practice
 ## Running Validator
 
 `main.py` allows user to test csv file with and without LEI number.
+
+```sh
+# Running validator using LEI and CSV file
+main.py <LEI Number> <Path to CSV file>
+
+# Running validator using just CSV file
+main.py <Path to CSV file>
+```
 
 If using VS Code, validator can be executed by running `main.py` within a Dev Container. To run `main.py`, you can run these commands in VSCode terminal.
 
@@ -101,6 +109,7 @@ poetry run python src/validator/main.py src/tests/data/sbl-validations-fail.csv
 This repository is using `pytest`.  If using VS Code, tests can be completed within a Dev Container.  If using local terminal or console, you can use this command `poetry run pytest` in the root directory
 
 ```sh
+# Run all available unit tests
 poetry run pytest
 ```
 
