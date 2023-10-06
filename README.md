@@ -220,9 +220,9 @@ This repository is using `pytest`.  If using VS Code, tests can be completed wit
 # example of unit tests output
 $ poetry run pytest
 ================================================================================== test session starts ==================================================================================
-platform darwin -- Python 3.11.5, pytest-7.4.0, pluggy-1.3.0 -- /Users/harjatia/Library/Caches/pypoetry/virtualenvs/regtech-data-validator-uJQWmvcM-py3.11/bin/python
+platform darwin -- Python 3.11.5, pytest-7.4.0, pluggy-1.3.0 -- /Library/Caches/pypoetry/virtualenvs/regtech-data-validator-uJQWmvcM-py3.11/bin/python
 cachedir: .pytest_cache
-rootdir: /Users/harjatia/Projects/regtech-data-validator
+rootdir: /Projects/regtech-data-validator
 configfile: pyproject.toml
 testpaths: src/tests
 plugins: cov-4.1.0, typeguard-4.1.3
@@ -384,7 +384,7 @@ Found 1 error.
 
 # Example of black with reformatted line
 $ poetry run black src/               
-reformatted /Users/harjatia/Projects/regtech-data-validator/src/validator/main.py
+reformatted /Projects/regtech-data-validator/src/validator/main.py
 
 All done! ✨ 🍰 ✨
 1 file reformatted, 13 files left unchanged.
