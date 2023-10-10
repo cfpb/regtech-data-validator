@@ -424,6 +424,10 @@ python src/validator/main.py src/tests/data/sbl-validations-fail.csv
 
 [CFPB](https://www.consumerfinance.gov/) is developing the `RegTech Data Validator` in the open to maximize transparency and encourage third party contributions. If you want to contribute, please read and abide by the terms of the [License](./LICENSE) for this project. Pull Requests are always welcome.
 
+## Contact Us
+
+If you have an inquiry or suggestion for the validator or any SBL related code please reach out to us at [sblhelp@cfpb.gov](mailto: sblhelp@cfpb.gov)
+
 ## Open source licensing info
 
 1. [TERMS](./TERMS.md)
