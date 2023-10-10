@@ -54,7 +54,7 @@ Development standard practice
   - [Unit Test](./src/tests/test_check_functions.py)
 - Check definitions' name should be set to validation ID.
   - Example: "denial_reasons. enum_value_conflict"
-    ![Validation ID](validation_id.png)
+    ![Validation ID](images/validation_id.png)
 - Check new added lines are formatted correctly.
 
 ## Installing Dependencies
@@ -398,7 +398,9 @@ All done! ✨ 🍰 ✨
 - Enter `Dev Containers: Rebuild and Reopen in Container`. VS Code will open a new window and you'll see a status message towards the bottom right of your screen that the container is building and attaching.
 - This will take a few minutes the first time because Docker needs to build the container without a build cache.
 - You may receive a notification that VS Code wants to perform a reload because some extensions could not load. Sometimes this happens because extensions are loaded in conflicting orders and dependencies are not satisfied.
-- If using VS Code, validator can be executed by running `main.py` within a Dev Container. To run `main.py`, you can run these commands in VSCode terminal.
+- Unit tests can be run through VS Code Test.
+  ![VS Code Test](images/vscode_test.png)
+- Validator can be executed by running `main.py` within a Dev Container. To run `main.py`, you can run these commands in VSCode terminal.
 
 ```sh
 # Test validating the "good" file
@@ -415,8 +417,8 @@ python src/validator/main.py src/tests/data/sbl-validations-fail.csv
 
 ## Code Coverage
 
-[![Coverage badge](https://github.com/cfpb/regtech-data-validator/raw/python-coverage-comment-action-data/badge.svg)](https://github.com/cfpb/regtech-data-validator/tree/python-coverage-comment-action-data)
-Complete coverage details can be found under [`python-coverage-comment-action-data` branch](https://github.com/cfpb/regtech-data-validator/tree/python-coverage-comment-action-data)
+- Current overall coverage: [![Coverage badge](https://github.com/cfpb/regtech-data-validator/raw/python-coverage-comment-action-data/badge.svg)](https://github.com/cfpb/regtech-data-validator/tree/python-coverage-comment-action-data)
+- Complete coverage details can be found in ( [`python-coverage-comment-action-data` branch](https://github.com/cfpb/regtech-data-validator/tree/python-coverage-comment-action-data) )
 
 ## Contributing
 
