@@ -426,7 +426,7 @@ python src/validator/main.py src/tests/data/sbl-validations-fail.csv
 
 ## Contact Us
 
-If you have an inquiry or suggestion for the validator or any SBL related code please reach out to us at [sblhelp@cfpb.gov](mailto: sblhelp@cfpb.gov)
+If you have an inquiry or suggestion for the validator or any SBL related code please reach out to us at <sblhelp@cfpb.gov>
 
 ## Open source licensing info
 
