@@ -1,16 +1,41 @@
 # RegTech Data Validator
 
-This is a RegTech submission data parser and validator which makes use of Pandera. You can read about Pandera schemas [here](https://pandera.readthedocs.io/en/stable/dataframe_schemas.html).  This library allows users to validate SBL Data and get any failed validations details.
+Current overall coverage: [![Coverage badge](https://github.com/cfpb/regtech-data-validator/raw/python-coverage-comment-action-data/badge.svg)](https://github.com/cfpb/regtech-data-validator/tree/python-coverage-comment-action-data)
+
+Python-based tool for parsing and validating CFPB's RegTech-related data submissions.
+It uses the [Pandera](https://pandera.readthedocs.io/en/stable/) data testing
+framework to define schemas for datasets and to perform all data validations,
+which is in turn based on the [Pandas](http://pandas.pydata.org/docs/getting_started/)
+data analytics tool. It is intended to be used as a library for Python-based apps,
+but can also be used directly via command-line interface.
+
+We are currently focused on implementing the SBL (Small Business Lending) data
+submission. For details on this dataset and its validations, please see:
+[Filing instructions guide for small business lending data collected in 2024](https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/)
 
 ## Pre-requisites
 
-- Poetry is used as the package management tool.
-- (Optional) Visual Studio Code for development.
-- (Optional) Docker is needed when using Visual Studio Code / Dev Container.
+The following software packages are pre-requisites to installing this software.
+
+- [Python](https://www.python.org/downloads/) version 3.11 or greater.
+- [Poetry](https://python-poetry.org/docs/#installation) for Python package management.
 
 ## Dependencies
 
-All packages and libraries used in this repository can be found in `pyproject.toml`
+All packages and libraries used in this repository can be found in [`pyproject.toml`](https://github.com/cfpb/regtech-data-validator/blob/main/pyproject.toml)
+
+## Contributing
+
+[CFPB](https://www.consumerfinance.gov/) is developing the
+`RegTech Data Validator` in the open to maximize transparency and encourage
+third party contributions. If you want to contribute, please read and abide by
+the terms of the [License](./LICENSE) for this project. Pull Requests are always
+welcome.
+
+## Contact Us
+
+If you have an inquiry or suggestion for the validator or any SBL related code
+please reach out to us at <sblhelp@cfpb.gov>
 
 ## Development
 
@@ -18,26 +43,41 @@ There are few files in `src/validator` that will be of interest.
 
 - `checks.py` defines custom Pandera Check class called `SBLCheck`.
 - `global_data.py` defines functions to parse NAICS and GEOIDs.
-- `phase_validations.py` defines phase 1 and phase 2 Pandera schema/checks used for validating the SBLAR data.
-- `check_functions.py` contains a collection of functions to be run against the data that are a bit too complex to be implemented directly within the schema as Lambda functions.
-- Lastly, the file `main.py` pulls everything together and illustrates how the schema can catch the various validation errors present in our mock, invalid dataset and different LEI values.
+- `phase_validations.py` defines phase 1 and phase 2 Pandera schema/checks used
+  for validating the SBLAR data.
+- `check_functions.py` contains a collection of functions to be run against the
+  data that are a bit too complex to be implemented directly within the schema
+  as Lambda functions.
+- Lastly, the file `main.py` pulls everything together and illustrates how the
+  schema can catch the various validation errors present in our mock, invalid
+  dataset and different LEI values.
 
-## Development Tests
+Unit tests that can be located under [`src/tests`](https://github.com/cfpb/regtech-data-validator/tree/main/src/tests).
 
-- The repo includes unit tests that can be executed using `pytest` or in Visual Studio Code.  These tests can be located under `src/tests`.
-- The repo also includes 2 test datasets for manual testing, one with all valid data, and one where each line represents a different failed validation, or different permutation of of the same failed validation.
-  - [`sbl-validations-pass.csv`](src/tests/data/sbl-validations-pass.csv)
-  - [`sbl-validations-fail.csv`](src/tests/data/sbl-validations-fail.csv)
+## Test Data
+
+This repo includes 2 test datasets, one with all valid data, and one where each
+line represents a different failed validation, or different permutation of the same
+failed validation.
+
+- [`sbl-validations-pass.csv`](src/tests/data/sbl-validations-pass.csv)
+- [`sbl-validations-fail.csv`](src/tests/data/sbl-validations-fail.csv)
+
+We use these test files in for automated test, but can also be passed in via the
+CLI for manual testing.
 
 ## Development Process and Standard
 
 Development Process
-Below are the steps the development team follows to fix issues, develop new features, etc.
+Below are the steps the development team follows to fix issues, develop new features,
+etc.
 
 1. Work in a branch
 2. Create a PR to merge into main
-3. The PR is automatically built, tested, and linted using github actions with PyTest, Black, Ruff, and Coverage.
-4. Manual review is performed in addition to ensuring the above automatic scans are positive
+3. The PR is automatically built, tested, and linted using github actions with PyTest,
+   Black, Ruff, and Coverage.
+4. Manual review is performed in addition to ensuring the above automatic scans
+   are positive
 5. The PR is deployed to development servers to be checked
 6. The PR is merged only by a separate member in the dev team
 
@@ -61,13 +101,15 @@ Development standard practice
 
 Run `poetry install` to install dependencies defined in `pyproject.toml`
 
-```sh
-# change to root directory.  In this example, this repo's root is 
-#   ~/Projects/regtech-data-validator
+<details>
+  <summary>See Terminal Output</summary>
+
+```sh  
+
 $ cd ~/Projects/regtech-data-validator
 
-# example of running poetry install
 $ poetry install
+
 Installing dependencies from lock file
 
 Package operations: 25 installs, 0 updates, 0 removals
@@ -126,6 +168,8 @@ Package operations: 25 installs, 0 updates, 0 removals
 
 ```
 
+</details>
+
 ## Running Validator
 
 `main.py` allows user to test csv file with and without LEI number
@@ -148,7 +192,29 @@ When validation(s) failed, it prints out JSON data containing failed validation(
 
 ```sh
 # Example of JSON response containing failed validation
-[{'validation': {'id': 'E3000', 'name': 'uid.duplicates_in_dataset', 'description': "Any 'unique identifier' may not be used in more than one record within a small business lending application register.", 'fields': ['uid'], 'severity': 'error'}, 'records': [{'number': 5, 'field_values': {'uid': '000TESTFIUIDDONOTUSEXBXVID13XTC1'}}, {'number': 6, 'field_values': {'uid': '000TESTFIUIDDONOTUSEXBXVID13XTC1'}}]}]
+[
+  {
+    'validation': 
+      {
+        'id': 'E3000', 
+        'name': 'uid.duplicates_in_dataset', 
+        'description': "Any 'unique identifier' may not be used in more than one
+        record within a small business lending application register.", 
+        'fields': ['uid'], 
+        'severity': 'error'
+      }, 
+      'records': [
+        {
+          'number': 5, 
+          'field_values': {'uid': '000TESTFIUIDDONOTUSEXBXVID13XTC1'}
+        }, 
+        {
+          'number': 6, 
+          'field_values': {'uid': '000TESTFIUIDDONOTUSEXBXVID13XTC1'}
+        }
+      ]
+  }
+]
 
 ```
 
@@ -165,68 +231,800 @@ $ poetry run python src/validator/main.py src/tests/data/sbl-validations-pass.cs
 $ poetry run python src/validator/main.py 000TESTFIUIDDONOTUSE src/tests/data/sbl-validations-fail.csv
 # or
 $ poetry run python src/validator/main.py src/tests/data/sbl-validations-fail.csv
-
-# example of an output when validations passed:
-$ poetry run python src/validator/main.py src/tests/data/sbl-validations-pass.csv
---------------------------------------------------------------------------
-Performing validation on the following DataFrame.
-
-                                       uid  app_date app_method app_recipient ct_credit_product  ... po_4_race_asian_ff po_4_race_baa_ff po_4_race_pi_ff po_4_gender_flag po_4_gender_ff
-0         000TESTFIUIDDONOTUSEXGXVID11XTC1  20241201          1             1               988  ...                                                                                    
-1         000TESTFIUIDDONOTUSEXGXVID12XTC1  20241201          1             1               988  ...                                                                                    
-2         000TESTFIUIDDONOTUSEXGXVID13XTC1  20241201          1             1               988  ...                                                                                    
-3         000TESTFIUIDDONOTUSEXGXVID14XTC1  20241201          1             1               988  ...                                                                                    
-4         000TESTFIUIDDONOTUSEXGXVID21XTC1  20241201          1             1               988  ...                                                                                    
-..                                     ...       ...        ...           ...               ...  ...                ...              ...             ...              ...            ...
-522  000TESTFIUIDDONOTUSEXGXVIDPODEMO0XTC1  20241201          1             1               988  ...                                                                                    
-523  000TESTFIUIDDONOTUSEXGXVIDPODEMO1XTC1  20241201          1             1               988  ...                                                                                    
-524  000TESTFIUIDDONOTUSEXGXVIDPODEMO2XTC1  20241201          1             1               988  ...                                                                                    
-525  000TESTFIUIDDONOTUSEXGXVIDPODEMO3XTC1  20241201          1             1               988  ...                                                                                    
-526  000TESTFIUIDDONOTUSEXGXVIDPODEMO4XTC1  20241201          1             1               988  ...                                                                  988               
-
-[527 rows x 81 columns]
-
-[{'response': 'No validations errors or warnings'}]
-
-
-# example of failed validation(s):
-$ poetry run python src/validator/main.py src/tests/data/sbl-validations-fail.csv
---------------------------------------------------------------------------
-Performing validation on the following DataFrame.
-
-                                                uid  app_date app_method app_recipient  ... po_4_race_baa_ff po_4_race_pi_ff po_4_gender_flag po_4_gender_ff
-0                                                    20241201          1             1  ...                                                                 
-1                                   BXUIDXVID11XTC2  20241201          1             1  ...                                                                 
-2    BXUIDXVID11XTC31234567890123456789012345678901  20241201          1             1  ...                                                                 
-3                             BXUIDXVID12XTC1abcdef  20241201          1             1  ...                                                                 
-4                  000TESTFIUIDDONOTUSEXBXVID13XTC1  20241201          1             1  ...                                                                 
-..                                              ...       ...        ...           ...  ...              ...             ...              ...            ...
-364           000TESTFIUIDDONOTUSEXBXVIDPODEMO4XTC5  20241201          1             1  ...                                               988               
-365           000TESTFIUIDDONOTUSEXBXVIDPODEMO4XTC6  20241201          1             1  ...                                               988               
-366           000TESTFIUIDDONOTUSEXBXVIDPODEMO4XTC7  20241201          1             1  ...                                               988               
-367           000TESTFIUIDDONOTUSEXBXVIDPODEMO4XTC8  20241201          1             1  ...                                               988               
-368           000TESTFIUIDDONOTUSEXBXVIDPODEMO4XTC9  20241201          1             1  ...                                               988               
-
-[369 rows x 81 columns]
-
-[{'validation': {'id': 'E3000', 'name': 'uid.duplicates_in_dataset', 'description': "Any 'unique identifier' may not be used in more than one record within a small business lending application register.", 'fields': ['uid'], 'severity': 'error'}, 'records': [{'number': 5, 'field_values': {'uid': '000TESTFIUIDDONOTUSEXBXVID13XTC1'}}, {'number': 6, 'field_values': {'uid': '000TESTFIUIDDONOTUSEXBXVID13XTC1'}}]}, {'validation': {'id': 'E0001', 'name': 'uid.invalid_text_length', 'description': "'Unique identifier' must be at least 21 characters in length and at most 45 characters in length.", 'fields': ['uid'], 'severity': 'error'}, 'records': [{'number': 1, 'field_values': {'uid': ''}}, {'number': 2, 'field_values': {'uid': 'BXUIDXVID11XTC2'}}, {'number': 3, 'field_values': {'uid': 'BXUIDXVID11XTC31234567890123456789012345678901'}}]}, {'validation': {'id': 'E0002', 'name': 'uid.invalid_text_pattern', 'description': "'Unique identifier' may contain any combination of numbers and/or uppercase letters (i.e., 0-9 and A-Z), and must not contain any other characters.", 'fields': ['uid'], 'severity': 'error'}, 'records': [{'number': 1, 'field_values': {'uid': ''}}, {'number': 4, 'field_values': {'uid': 'BXUIDXVID12XTC1abcdef'}}]}, {'validation': {'id': 'E0020', 'name': 'app_date.invalid_date_format', 'description': "'Application date' must be a real calendar date using YYYYMMDD format.", 'fields': ['app_date'], 'severity': 'error'}, 'records': [{'number': 8, 'field_values': {'app_date': ''}}, {'number': 9, 'field_values': {'app_date': '12012024'}}]}, {'validation': {'id': 'E0040', 'name': 'app_method.invalid_enum_value', 'description': "'Application method' must equal 1, 2, 3, or 4.", 'fields': ['app_method'], 'severity': 'error'}, 'records': [{'number': 10, 'field_values': {'app_method': ''}}, {'number': 11, 'field_values': {'app_method': '9001'}}]}, {'validation': {'id': 'E0060', 'name': 'app_recipient.invalid_enum_value', 'description': "'Application recipient' must equal 1 or 2", 'fields': ['app_recipient'], 'severity': 'error'}, 'records': [{'number': 12, 'field_values': {'app_recipient': ''}}, {'number': 13, 'field_values': {'app_recipient': '9001'}}]}, {'validation': {'id': 'E0080', 'name': 'ct_credit_product.invalid_enum_value', 'description': "'Credit product' must equal 1, 2, 3, 4, 5, 6, 7, 8, 977, or 988.", 'fields': ['ct_credit_product'], 'severity': 'error'}, 'records': [{'number': 14, 'field_values': {'ct_credit_product': ''}}, {'number': 15, 'field_values': {'ct_credit_product': '9001'}}]}, {'validation': {'id': 'E0100', 'name': 'ct_credit_product_ff.invalid_text_length', 'description': "'Free-form text field for other credit products' must not exceed 300 characters in length.", 'fields': ['ct_credit_product_ff'], 'severity': 'error'}, 'records': [{'number': 16, 'field_values': {'ct_credit_product_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E0120', 'name': 'ct_guarantee.invalid_enum_value', 'description': "Each value in 'type of guarantee' (separated by  semicolons) must equal 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 977, or 999.", 'fields': ['ct_guarantee'], 'severity': 'error'}, 'records': [{'number': 19, 'field_values': {'ct_guarantee': '9001'}}, {'number': 20, 'field_values': {'ct_guarantee': ''}}]}, {'validation': {'id': 'E0140', 'name': 'ct_guarantee_ff.invalid_text_length', 'description': "'Free-form text field for other guarantee' must not exceed 300 characters in length", 'fields': ['ct_guarantee_ff'], 'severity': 'error'}, 'records': [{'number': 24, 'field_values': {'ct_guarantee_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E0160', 'name': 'ct_loan_term_flag.invalid_enum_value', 'description': "Each value in 'Loan term: NA/NP flag' (separated by  semicolons) must equal 900, 988, or 999.", 'fields': ['ct_loan_term_flag'], 'severity': 'error'}, 'records': [{'number': 29, 'field_values': {'ct_loan_term_flag': ''}}, {'number': 30, 'field_values': {'ct_loan_term_flag': '9001'}}, {'number': 33, 'field_values': {'ct_loan_term_flag': '1'}}]}, {'validation': {'id': 'E0180', 'name': 'ct_loan_term.invalid_numeric_format', 'description': "When present, 'loan term' must be a whole number.", 'fields': ['ct_loan_term'], 'severity': 'error'}, 'records': [{'number': 36, 'field_values': {'ct_loan_term': 'must be blank'}}]}, {'validation': {'id': 'E0200', 'name': 'credit_purpose.invalid_enum_value', 'description': "Each value in 'credit purpose' (separated by  semicolons) must equal 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 977, 988, or 999.", 'fields': ['credit_purpose'], 'severity': 'error'}, 'records': [{'number': 39, 'field_values': {'credit_purpose': '1;2;9001'}}, {'number': 40, 'field_values': {'credit_purpose': ''}}]}, {'validation': {'id': 'E0220', 'name': 'credit_purpose_ff.invalid_text_length', 'description': "'Free-form text field for other credit purpose'  must not exceed 300 characters in length", 'fields': ['credit_purpose_ff'], 'severity': 'error'}, 'records': [{'number': 45, 'field_values': {'credit_purpose_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E0240', 'name': 'amount_applied_for_flag.invalid_enum_value', 'description': "'Amount applied For: NA/NP flag' must equal 900, 988, or 999.", 'fields': ['amount_applied_for_flag'], 'severity': 'error'}, 'records': [{'number': 50, 'field_values': {'amount_applied_for_flag': ''}}, {'number': 51, 'field_values': {'amount_applied_for_flag': '9001'}}]}, {'validation': {'id': 'E0260', 'name': 'amount_applied_for.invalid_numeric_format', 'description': "When present, 'amount applied for' must be a numeric value.", 'fields': ['amount_applied_for'], 'severity': 'error'}, 'records': [{'number': 52, 'field_values': {'amount_applied_for': 'nonNumericValue'}}, {'number': 55, 'field_values': {'amount_applied_for': 'must be blank'}}]}, {'validation': {'id': 'E0280', 'name': 'amount_approved.invalid_numeric_format', 'description': "When present, 'amount approved or originated' must be a numeric value.", 'fields': ['amount_approved'], 'severity': 'error'}, 'records': [{'number': 56, 'field_values': {'amount_approved': 'nonNumericValue'}}]}, {'validation': {'id': 'E0300', 'name': 'action_taken.invalid_enum_value', 'description': "'Action taken' must equal 1, 2, 3, 4, or 5.", 'fields': ['action_taken'], 'severity': 'error'}, 'records': [{'number': 63, 'field_values': {'action_taken': ''}}, {'number': 64, 'field_values': {'action_taken': '9001'}}]}, {'validation': {'id': 'E0320', 'name': 'action_taken_date.invalid_date_format', 'description': "'Action taken date' must be a real calendar date using YYYYMMDD format.", 'fields': ['action_taken_date'], 'severity': 'error'}, 'records': [{'number': 65, 'field_values': {'action_taken_date': '12312024'}}]}, {'validation': {'id': 'E0001', 'name': 'denial_reasons.invalid_enum_value', 'description': "Each value in 'denial reason(s)' (separated by semicolons)must equal 1, 2, 3, 4, 5, 6, 7, 8, 9, 977, or 999.", 'fields': ['denial_reasons'], 'severity': 'error'}, 'records': [{'number': 70, 'field_values': {'denial_reasons': '9001'}}, {'number': 71, 'field_values': {'denial_reasons': ''}}, {'number': 78, 'field_values': {'denial_reasons': '999;1; 2'}}]}, {'validation': {'id': 'E0360', 'name': 'denial_reasons_ff.invalid_text_length', 'description': "'Free-form text field for other denial reason(s)'must not exceed 300 characters in length.", 'fields': ['denial_reasons_ff'], 'severity': 'error'}, 'records': [{'number': 80, 'field_values': {'denial_reasons_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E0380', 'name': 'pricing_interest_rate_type.invalid_enum_value', 'description': "Each value in 'Interest rate type' (separated by  semicolons) Must equal 1, 2, 3, 4, 5, 6, or 999", 'fields': ['pricing_interest_rate_type'], 'severity': 'error'}, 'records': [{'number': 85, 'field_values': {'pricing_interest_rate_type': ''}}, {'number': 86, 'field_values': {'pricing_interest_rate_type': '9001'}}, {'number': 87, 'field_values': {'pricing_interest_rate_type': '900'}}, {'number': 94, 'field_values': {'pricing_interest_rate_type': '900'}}, {'number': 101, 'field_values': {'pricing_interest_rate_type': '900'}}]}, {'validation': {'id': 'E0400', 'name': 'pricing_init_rate_period.invalid_numeric_format', 'description': ("When present, 'initial rate period' must be a whole number.",), 'fields': ['pricing_init_rate_period'], 'severity': 'error'}, 'records': [{'number': 118, 'field_values': {'pricing_init_rate_period': 'nonNumericValue'}}]}, {'validation': {'id': 'E0420', 'name': 'pricing_fixed_rate.invalid_numeric_format', 'description': "When present, 'fixed rate: interest rate' must be a numeric value.", 'fields': ['pricing_fixed_rate'], 'severity': 'error'}, 'records': [{'number': 127, 'field_values': {'pricing_fixed_rate': 'nonNumericValue'}}]}, {'validation': {'id': 'E0460', 'name': 'pricing_adj_index_name.invalid_enum_value', 'description': "'Adjustable rate transaction: index name' must equal 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 977, or 999.", 'fields': ['pricing_adj_index_name'], 'severity': 'error'}, 'records': [{'number': 145, 'field_values': {'pricing_adj_index_name': ''}}, {'number': 146, 'field_values': {'pricing_adj_index_name': '9001'}}]}, {'validation': {'id': 'E0480', 'name': 'pricing_adj_index_name_ff.invalid_text_length', 'description': "'Adjustable rate transaction: index name: other' must not exceed 300 characters in length.", 'fields': ['pricing_adj_index_name_ff'], 'severity': 'error'}, 'records': [{'number': 154, 'field_values': {'pricing_adj_index_name_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E0500', 'name': 'pricing_adj_index_value.invalid_numeric_format', 'description': "When present, 'adjustable rate transaction: index value' must be a numeric value.", 'fields': ['pricing_adj_index_value'], 'severity': 'error'}, 'records': [{'number': 157, 'field_values': {'pricing_adj_index_value': 'nonNumericValue'}}]}, {'validation': {'id': 'E0520', 'name': 'pricing_origination_charges.invalid_numeric_format', 'description': ("When present, 'total origination charges' must be a numeric", 'value.'), 'fields': ['pricing_origination_charges'], 'severity': 'error'}, 'records': [{'number': 165, 'field_values': {'pricing_origination_charges': 'nonNumericValue'}}]}, {'validation': {'id': 'E0540', 'name': 'pricing_broker_fees.invalid_numeric_format', 'description': ("When present, 'amount of total broker fees' must be a", 'numeric value.'), 'fields': ['pricing_broker_fees'], 'severity': 'error'}, 'records': [{'number': 166, 'field_values': {'pricing_broker_fees': 'nonNumericValue'}}]}, {'validation': {'id': 'E0560', 'name': 'pricing_initial_charges.invalid_numeric_format', 'description': "When present, 'initial annual charges' must be anumeric value.", 'fields': ['pricing_initial_charges'], 'severity': 'error'}, 'records': [{'number': 167, 'field_values': {'pricing_initial_charges': 'nonNumericValue'}}]}, {'validation': {'id': 'E0580', 'name': 'pricing_mca_addcost_flag.invalid_enum_value', 'description': "'MCA/sales-based: additional cost for merchant cash advances or other sales-based financing: NA flag' must equal 900 or 999.", 'fields': ['pricing_mca_addcost_flag'], 'severity': 'error'}, 'records': [{'number': 168, 'field_values': {'pricing_mca_addcost_flag': ''}}, {'number': 169, 'field_values': {'pricing_mca_addcost_flag': '99009001'}}]}, {'validation': {'id': 'E0600', 'name': 'pricing_mca_addcost.invalid_numeric_format', 'description': "When present, 'MCA/sales-based: additional cost for merchant cash advances or other sales-based financing' must be a numeric value", 'fields': ['pricing_mca_addcost'], 'severity': 'error'}, 'records': [{'number': 171, 'field_values': {'pricing_mca_addcost': 'nonNumericValue'}}, {'number': 172, 'field_values': {'pricing_mca_addcost': 'must be blank'}}]}, {'validation': {'id': 'E0620', 'name': 'pricing_prepenalty_allowed.invalid_enum_value', 'description': "'Prepayment penalty could be imposed' must equal 1, 2, or 999.", 'fields': ['pricing_prepenalty_allowed'], 'severity': 'error'}, 'records': [{'number': 174, 'field_values': {'pricing_prepenalty_allowed': ''}}, {'number': 175, 'field_values': {'pricing_prepenalty_allowed': '9001'}}]}, {'validation': {'id': 'E0640', 'name': 'pricing_prepenalty_exists.invalid_enum_value', 'description': "'Prepayment penalty exists' must equal 1, 2, or 999.", 'fields': ['pricing_prepenalty_exists'], 'severity': 'error'}, 'records': [{'number': 176, 'field_values': {'pricing_prepenalty_exists': ''}}, {'number': 177, 'field_values': {'pricing_prepenalty_exists': '9001'}}]}, {'validation': {'id': 'E0640', 'name': 'census_tract_adr_type.invalid_enum_value', 'description': "'Census tract: type of address' must equal 1, 2, 3, or 988.", 'fields': ['census_tract_adr_type'], 'severity': 'error'}, 'records': [{'number': 178, 'field_values': {'census_tract_adr_type': ''}}, {'number': 179, 'field_values': {'census_tract_adr_type': '9001'}}]}, {'validation': {'id': 'E0680', 'name': 'census_tract_number.invalid_text_length', 'description': "When present, 'census tract: tract number' must be a GEOID with exactly 11 digits.", 'fields': ['census_tract_number'], 'severity': 'error'}, 'records': [{'number': 181, 'field_values': {'census_tract_number': '1234567890'}}, {'number': 182, 'field_values': {'census_tract_number': 'must be blank'}}]}, {'validation': {'id': 'E0700', 'name': 'gross_annual_revenue_flag.invalid_enum_value', 'description': "'Gross annual revenue: NP flag' must equal 900 or 988.", 'fields': ['gross_annual_revenue_flag'], 'severity': 'error'}, 'records': [{'number': 187, 'field_values': {'gross_annual_revenue_flag': ''}}, {'number': 188, 'field_values': {'gross_annual_revenue_flag': '99009001'}}]}, {'validation': {'id': 'E0720', 'name': 'gross_annual_revenue.invalid_numeric_format', 'description': "When present, 'gross annual revenue' must be a numeric value.", 'fields': ['gross_annual_revenue'], 'severity': 'error'}, 'records': [{'number': 189, 'field_values': {'gross_annual_revenue': 'nonNumericValue'}}, {'number': 190, 'field_values': {'gross_annual_revenue': 'must be blank'}}]}, {'validation': {'id': 'E0720', 'name': 'naics_code_flag.invalid_enum_value', 'description': "'North American Industry Classification System (NAICS) code: NP flag' must equal 900 or 988.", 'fields': ['naics_code_flag'], 'severity': 'error'}, 'records': [{'number': 192, 'field_values': {'naics_code_flag': ''}}, {'number': 193, 'field_values': {'naics_code_flag': '9001'}}]}, {'validation': {'id': 'E0761', 'name': 'naics_code.invalid_naics_format', 'description': "'North American Industry Classification System (NAICS) code' may only contain numeric characters.", 'fields': ['naics_code'], 'severity': 'error'}, 'records': [{'number': 196, 'field_values': {'naics_code': 'notDigits'}}]}, {'validation': {'id': 'E0780', 'name': 'number_of_workers.invalid_enum_value', 'description': "'Number of workers' must equal 1, 2, 3, 4, 5, 6, 7, 8, 9, or 988.", 'fields': ['number_of_workers'], 'severity': 'error'}, 'records': [{'number': 199, 'field_values': {'number_of_workers': ''}}, {'number': 200, 'field_values': {'number_of_workers': '9001'}}]}, {'validation': {'id': 'E0800', 'name': 'time_in_business_type.invalid_enum_value', 'description': "'Time in business: type of response' must equal 1, 2, 3, or 988.", 'fields': ['time_in_business_type'], 'severity': 'error'}, 'records': [{'number': 201, 'field_values': {'time_in_business_type': ''}}, {'number': 202, 'field_values': {'time_in_business_type': '9001'}}]}, {'validation': {'id': 'E0820', 'name': 'time_in_business.invalid_numeric_format', 'description': "When present, 'time in business' must be a whole number.", 'fields': ['time_in_business'], 'severity': 'error'}, 'records': [{'number': 205, 'field_values': {'time_in_business': 'must be blank'}}]}, {'validation': {'id': 'E0840', 'name': 'business_ownership_status.invalid_enum_value', 'description': "Each value in 'business ownership status' (separated by semicolons) must equal 1, 2, 3, 955, 966, or 988.", 'fields': ['business_ownership_status'], 'severity': 'error'}, 'records': [{'number': 207, 'field_values': {'business_ownership_status': '1;2; 9001'}}, {'number': 208, 'field_values': {'business_ownership_status': ''}}]}, {'validation': {'id': 'E0860', 'name': 'num_principal_owners_flag.invalid_enum_value', 'description': "'Number of principal owners: NP flag' must equal 900 or 988.", 'fields': ['num_principal_owners_flag'], 'severity': 'error'}, 'records': [{'number': 211, 'field_values': {'num_principal_owners_flag': ''}}, {'number': 212, 'field_values': {'num_principal_owners_flag': '9001'}}]}, {'validation': {'id': 'E0880', 'name': 'num_principal_owners.invalid_enum_value', 'description': "When present, 'number of principal owners' must equal 0, 1, 2, 3, or 4.", 'fields': ['num_principal_owners'], 'severity': 'error'}, 'records': [{'number': 213, 'field_values': {'num_principal_owners': '9001'}}, {'number': 214, 'field_values': {'num_principal_owners': 'must be blank'}}]}, {'validation': {'id': 'E0900', 'name': 'po_1_ethnicity.invalid_enum_value', 'description': "When present, each value in 'ethnicity of principal owner 1' (separated by semicolons) must equal 1, 11, 12, 13, 14, 2, 966, 977, or 988.", 'fields': ['po_1_ethnicity'], 'severity': 'error'}, 'records': [{'number': 216, 'field_values': {'po_1_ethnicity': '9001;1'}}]}, {'validation': {'id': 'E0920', 'name': 'po_1_ethnicity_ff.invalid_text_length', 'description': "'Ethnicity of principal owner 1: free-form text field for other Hispanic or Latino' must not exceed 300 characters in length.", 'fields': ['po_1_ethnicity_ff'], 'severity': 'error'}, 'records': [{'number': 228, 'field_values': {'po_1_ethnicity_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E0940', 'name': 'po_1_race.invalid_enum_value', 'description': "When present, each value in 'race of principal owner 1' (separated by semicolons) must equal 1, 2, 21, 22, 23, 24, 25, 26, 27, 3, 31, 32, 33, 34, 35, 36, 37, 4, 41, 42, 43, 44, 5, 966, 971, 972, 973, 974, or 988.", 'fields': ['po_1_race'], 'severity': 'error'}, 'records': [{'number': 240, 'field_values': {'po_1_race': '9001;1'}}]}, {'validation': {'id': 'E0960', 'name': 'po_1_race_anai_ff.invalid_text_length', 'description': "'Race of principal owner 1: free-form text field for American Indian or Alaska Native Enrolled or Principal Tribe' must not exceed 300 characters in length.", 'fields': ['po_1_race_anai_ff'], 'severity': 'error'}, 'records': [{'number': 252, 'field_values': {'po_1_race_anai_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E0980', 'name': 'po_1_race_asian_ff.invalid_text_length', 'description': "'Race of principal owner 1: free-form text field for other Asian' must not exceed 300 characters in length.", 'fields': ['po_1_race_asian_ff'], 'severity': 'error'}, 'records': [{'number': 264, 'field_values': {'po_1_race_asian_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E1000', 'name': 'po_1_race_baa_ff.invalid_text_length', 'description': "'Race of principal owner 1: free-form text field for other Black or African American' must not exceed 300 characters in length.", 'fields': ['po_1_race_baa_ff'], 'severity': 'error'}, 'records': [{'number': 276, 'field_values': {'po_1_race_baa_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E1020', 'name': 'po_1_race_pi_ff.invalid_text_length', 'description': "'Race of principal owner 1: free-form text field for other Pacific Islander race' must not exceed 300 characters in length.", 'fields': ['po_1_race_pi_ff'], 'severity': 'error'}, 'records': [{'number': 288, 'field_values': {'po_1_race_pi_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E1040', 'name': 'po_1_gender_flag.invalid_enum_value', 'description': "When present, 'sex/gender of principal owner 1: NP flag' must equal 1, 966, or 988.", 'fields': ['po_1_gender_flag'], 'severity': 'error'}, 'records': [{'number': 300, 'field_values': {'po_1_gender_flag': '9001'}}]}, {'validation': {'id': 'E1060', 'name': 'po_1_gender_ff.invalid_text_length', 'description': "'Sex/gender of principal owner 1: free-form text field for self-identified sex/gender' must not exceed 300 characters in length.", 'fields': ['po_1_gender_ff'], 'severity': 'error'}, 'records': [{'number': 304, 'field_values': {'po_1_gender_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E0900', 'name': 'po_2_ethnicity.invalid_enum_value', 'description': "When present, each value in 'ethnicity of principal owner 2' (separated by semicolons) must equal 1, 11, 12, 13, 14, 2, 966, 977, or 988.", 'fields': ['po_2_ethnicity'], 'severity': 'error'}, 'records': [{'number': 217, 'field_values': {'po_2_ethnicity': '9001;1'}}]}, {'validation': {'id': 'E0920', 'name': 'po_2_ethnicity_ff.invalid_text_length', 'description': "'Ethnicity of principal owner 2: free-form text field for other Hispanic or Latino' must not exceed 300 characters in length.", 'fields': ['po_2_ethnicity_ff'], 'severity': 'error'}, 'records': [{'number': 229, 'field_values': {'po_2_ethnicity_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E0940', 'name': 'po_2_race.invalid_enum_value', 'description': "When present, each value in 'race of principal owner 2' (separated by semicolons) must equal 1, 2, 21, 22, 23, 24, 25, 26, 27, 3, 31, 32, 33, 34, 35, 36, 37, 4, 41, 42, 43, 44, 5, 966, 971, 972, 973, 974, or 988.", 'fields': ['po_2_race'], 'severity': 'error'}, 'records': [{'number': 241, 'field_values': {'po_2_race': '9001;1'}}]}, {'validation': {'id': 'E0960', 'name': 'po_2_race_anai_ff.invalid_text_length', 'description': "'Race of principal owner 2: free-form text field for American Indian or Alaska Native Enrolled or Principal Tribe' must not exceed 300 characters in length.", 'fields': ['po_2_race_anai_ff'], 'severity': 'error'}, 'records': [{'number': 253, 'field_values': {'po_2_race_anai_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E0980', 'name': 'po_2_race_asian_ff.invalid_text_length', 'description': "'Race of principal owner 2: free-form text field for other Asian' must not exceed 300 characters in length.", 'fields': ['po_2_race_asian_ff'], 'severity': 'error'}, 'records': [{'number': 265, 'field_values': {'po_2_race_asian_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E1000', 'name': 'po_2_race_baa_ff.invalid_text_length', 'description': "'Race of principal owner 2: free-form text field for other Black or African American' must not exceed 300 characters in length.", 'fields': ['po_2_race_baa_ff'], 'severity': 'error'}, 'records': [{'number': 277, 'field_values': {'po_2_race_baa_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E1020', 'name': 'po_2_race_pi_ff.invalid_text_length', 'description': "'Race of principal owner 2: free-form text field for other Pacific Islander race' must not exceed 300 characters in length.", 'fields': ['po_2_race_pi_ff'], 'severity': 'error'}, 'records': [{'number': 289, 'field_values': {'po_2_race_pi_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E1040', 'name': 'po_2_gender_flag.invalid_enum_value', 'description': "When present, 'sex/gender of principal owner 2: NP flag' must equal 1, 966, or 988.", 'fields': ['po_2_gender_flag'], 'severity': 'error'}, 'records': [{'number': 301, 'field_values': {'po_2_gender_flag': '9001'}}]}, {'validation': {'id': 'E1060', 'name': 'po_2_gender_ff.invalid_text_length', 'description': "'Sex/gender of principal owner 2: free-form text field for self-identified sex/gender' must not exceed 300 characters in length.", 'fields': ['po_2_gender_ff'], 'severity': 'error'}, 'records': [{'number': 305, 'field_values': {'po_2_gender_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E0900', 'name': 'po_3_ethnicity.invalid_enum_value', 'description': "When present, each value in 'ethnicity of principal owner 3' (separated by semicolons) must equal 1, 11, 12, 13, 14, 2, 966, 977, or 988.", 'fields': ['po_3_ethnicity'], 'severity': 'error'}, 'records': [{'number': 218, 'field_values': {'po_3_ethnicity': '9001;1'}}]}, {'validation': {'id': 'E0920', 'name': 'po_3_ethnicity_ff.invalid_text_length', 'description': "'Ethnicity of principal owner 3: free-form text field for other Hispanic or Latino' must not exceed 300 characters in length.", 'fields': ['po_3_ethnicity_ff'], 'severity': 'error'}, 'records': [{'number': 230, 'field_values': {'po_3_ethnicity_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E0940', 'name': 'po_3_race.invalid_enum_value', 'description': "When present, each value in 'race of principal owner 3' (separated by semicolons) must equal 1, 2, 21, 22, 23, 24, 25, 26, 27, 3, 31, 32, 33, 34, 35, 36, 37, 4, 41, 42, 43, 44, 5, 966, 971, 972, 973, 974, or 988.", 'fields': ['po_3_race'], 'severity': 'error'}, 'records': [{'number': 242, 'field_values': {'po_3_race': '9001;1'}}]}, {'validation': {'id': 'E0960', 'name': 'po_3_race_anai_ff.invalid_text_length', 'description': "'Race of principal owner 3: free-form text field for American Indian or Alaska Native Enrolled or Principal Tribe' must not exceed 300 characters in length.", 'fields': ['po_3_race_anai_ff'], 'severity': 'error'}, 'records': [{'number': 254, 'field_values': {'po_3_race_anai_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E0980', 'name': 'po_3_race_asian_ff.invalid_text_length', 'description': "'Race of principal owner 3: free-form text field for other Asian' must not exceed 300 characters in length.", 'fields': ['po_3_race_asian_ff'], 'severity': 'error'}, 'records': [{'number': 266, 'field_values': {'po_3_race_asian_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E1000', 'name': 'po_3_race_baa_ff.invalid_text_length', 'description': "'Race of principal owner 3: free-form text field for other Black or African American' must not exceed 300 characters in length.", 'fields': ['po_3_race_baa_ff'], 'severity': 'error'}, 'records': [{'number': 278, 'field_values': {'po_3_race_baa_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E1020', 'name': 'po_3_race_pi_ff.invalid_text_length', 'description': "'Race of principal owner 3: free-form text field for other Pacific Islander race' must not exceed 300 characters in length.", 'fields': ['po_3_race_pi_ff'], 'severity': 'error'}, 'records': [{'number': 290, 'field_values': {'po_3_race_pi_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E1040', 'name': 'po_3_gender_flag.invalid_enum_value', 'description': "When present, 'sex/gender of principal owner 3: NP flag' must equal 1, 966, or 988.", 'fields': ['po_3_gender_flag'], 'severity': 'error'}, 'records': [{'number': 302, 'field_values': {'po_3_gender_flag': '9001'}}]}, {'validation': {'id': 'E1060', 'name': 'po_3_gender_ff.invalid_text_length', 'description': "'Sex/gender of principal owner 3: free-form text field for self-identified sex/gender' must not exceed 300 characters in length.", 'fields': ['po_3_gender_ff'], 'severity': 'error'}, 'records': [{'number': 306, 'field_values': {'po_3_gender_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E0900', 'name': 'po_4_ethnicity.invalid_enum_value', 'description': "When present, each value in 'ethnicity of principal owner 4' (separated by semicolons) must equal 1, 11, 12, 13, 14, 2, 966, 977, or 988.", 'fields': ['po_4_ethnicity'], 'severity': 'error'}, 'records': [{'number': 219, 'field_values': {'po_4_ethnicity': '9001;1'}}]}, {'validation': {'id': 'E0920', 'name': 'po_4_ethnicity_ff.invalid_text_length', 'description': "'Ethnicity of principal owner 4: free-form text field for other Hispanic or Latino' must not exceed 300 characters in length.", 'fields': ['po_4_ethnicity_ff'], 'severity': 'error'}, 'records': [{'number': 231, 'field_values': {'po_4_ethnicity_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E0940', 'name': 'po_4_race.invalid_enum_value', 'description': "When present, each value in 'race of principal owner 4' (separated by semicolons) must equal 1, 2, 21, 22, 23, 24, 25, 26, 27, 3, 31, 32, 33, 34, 35, 36, 37, 4, 41, 42, 43, 44, 5, 966, 971, 972, 973, 974, or 988.", 'fields': ['po_4_race'], 'severity': 'error'}, 'records': [{'number': 243, 'field_values': {'po_4_race': '9001;1'}}]}, {'validation': {'id': 'E0960', 'name': 'po_4_race_anai_ff.invalid_text_length', 'description': "'Race of principal owner 4: free-form text field for American Indian or Alaska Native Enrolled or Principal Tribe' must not exceed 300 characters in length.", 'fields': ['po_4_race_anai_ff'], 'severity': 'error'}, 'records': [{'number': 255, 'field_values': {'po_4_race_anai_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E0980', 'name': 'po_4_race_asian_ff.invalid_text_length', 'description': "'Race of principal owner 4: free-form text field for other Asian' must not exceed 300 characters in length.", 'fields': ['po_4_race_asian_ff'], 'severity': 'error'}, 'records': [{'number': 267, 'field_values': {'po_4_race_asian_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E1000', 'name': 'po_4_race_baa_ff.invalid_text_length', 'description': "'Race of principal owner 4: free-form text field for other Black or African American' must not exceed 300 characters in length.", 'fields': ['po_4_race_baa_ff'], 'severity': 'error'}, 'records': [{'number': 279, 'field_values': {'po_4_race_baa_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E1020', 'name': 'po_4_race_pi_ff.invalid_text_length', 'description': "'Race of principal owner 4: free-form text field for other Pacific Islander race' must not exceed 300 characters in length.", 'fields': ['po_4_race_pi_ff'], 'severity': 'error'}, 'records': [{'number': 291, 'field_values': {'po_4_race_pi_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}, {'validation': {'id': 'E1040', 'name': 'po_4_gender_flag.invalid_enum_value', 'description': "When present, 'sex/gender of principal owner 4: NP flag' must equal 1, 966, or 988.", 'fields': ['po_4_gender_flag'], 'severity': 'error'}, 'records': [{'number': 303, 'field_values': {'po_4_gender_flag': '9001'}}]}, {'validation': {'id': 'E1060', 'name': 'po_4_gender_ff.invalid_text_length', 'description': "'Sex/gender of principal owner 4: free-form text field for self-identified sex/gender' must not exceed 300 characters in length.", 'fields': ['po_4_gender_ff'], 'severity': 'error'}, 'records': [{'number': 307, 'field_values': {'po_4_gender_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'}}]}]
 ```
+
+<details>
+  <summary>Example of Validator with Valid Data</summary>
+
+```sh  
+$ poetry run python src/validator/main.py src/tests/data/sbl-validations-pass.csv
+[{'response': 'No validations errors or warnings'}]
+```
+
+
+</details>
+
+<details>
+  <summary>Example of Validator with Incorrect Data</summary>
+
+```sh  
+
+$ poetry run python src/validator/main.py src/tests/data/sbl-validations-fail.csv
+[{'records': [{'field_values': {'uid': '000TESTFIUIDDONOTUSEXBXVID13XTC1'},
+               'number': 5},
+              {'field_values': {'uid': '000TESTFIUIDDONOTUSEXBXVID13XTC1'},
+               'number': 6}],
+  'validation': {'description': "Any 'unique identifier' may not be used in "
+                                'more than one record within a small business '
+                                'lending application register.',
+                 'fields': ['uid'],
+                 'id': 'E3000',
+                 'name': 'uid.duplicates_in_dataset',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'uid': ''}, 'number': 1},
+              {'field_values': {'uid': 'BXUIDXVID11XTC2'}, 'number': 2},
+              {'field_values': {'uid': 'BXUIDXVID11XTC31234567890123456789012345678901'},
+               'number': 3}],
+  'validation': {'description': "'Unique identifier' must be at least 21 "
+                                'characters in length and at most 45 '
+                                'characters in length.',
+                 'fields': ['uid'],
+                 'id': 'E0001',
+                 'name': 'uid.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'uid': ''}, 'number': 1},
+              {'field_values': {'uid': 'BXUIDXVID12XTC1abcdef'}, 'number': 4}],
+  'validation': {'description': "'Unique identifier' may contain any "
+                                'combination of numbers and/or uppercase '
+                                'letters (i.e., 0-9 and A-Z), and must not '
+                                'contain any other characters.',
+                 'fields': ['uid'],
+                 'id': 'E0002',
+                 'name': 'uid.invalid_text_pattern',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'app_date': ''}, 'number': 8},
+              {'field_values': {'app_date': '12012024'}, 'number': 9}],
+  'validation': {'description': "'Application date' must be a real calendar "
+                                'date using YYYYMMDD format.',
+                 'fields': ['app_date'],
+                 'id': 'E0020',
+                 'name': 'app_date.invalid_date_format',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'app_method': ''}, 'number': 10},
+              {'field_values': {'app_method': '9001'}, 'number': 11}],
+  'validation': {'description': "'Application method' must equal 1, 2, 3, or "
+                                '4.',
+                 'fields': ['app_method'],
+                 'id': 'E0040',
+                 'name': 'app_method.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'app_recipient': ''}, 'number': 12},
+              {'field_values': {'app_recipient': '9001'}, 'number': 13}],
+  'validation': {'description': "'Application recipient' must equal 1 or 2",
+                 'fields': ['app_recipient'],
+                 'id': 'E0060',
+                 'name': 'app_recipient.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'ct_credit_product': ''}, 'number': 14},
+              {'field_values': {'ct_credit_product': '9001'}, 'number': 15}],
+  'validation': {'description': "'Credit product' must equal 1, 2, 3, 4, 5, 6, "
+                                '7, 8, 977, or 988.',
+                 'fields': ['ct_credit_product'],
+                 'id': 'E0080',
+                 'name': 'ct_credit_product.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'ct_credit_product_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 16}],
+  'validation': {'description': "'Free-form text field for other credit "
+                                "products' must not exceed 300 characters in "
+                                'length.',
+                 'fields': ['ct_credit_product_ff'],
+                 'id': 'E0100',
+                 'name': 'ct_credit_product_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'ct_guarantee': '9001'}, 'number': 19},
+              {'field_values': {'ct_guarantee': ''}, 'number': 20}],
+  'validation': {'description': "Each value in 'type of guarantee' (separated "
+                                'by  semicolons) must equal 1, 2, 3, 4, 5, 6, '
+                                '7, 8, 9, 10, 11, 977, or 999.',
+                 'fields': ['ct_guarantee'],
+                 'id': 'E0120',
+                 'name': 'ct_guarantee.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'ct_guarantee_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 24}],
+  'validation': {'description': "'Free-form text field for other guarantee' "
+                                'must not exceed 300 characters in length',
+                 'fields': ['ct_guarantee_ff'],
+                 'id': 'E0140',
+                 'name': 'ct_guarantee_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'ct_loan_term_flag': ''}, 'number': 29},
+              {'field_values': {'ct_loan_term_flag': '9001'}, 'number': 30},
+              {'field_values': {'ct_loan_term_flag': '1'}, 'number': 33}],
+  'validation': {'description': "Each value in 'Loan term: NA/NP flag' "
+                                '(separated by  semicolons) must equal 900, '
+                                '988, or 999.',
+                 'fields': ['ct_loan_term_flag'],
+                 'id': 'E0160',
+                 'name': 'ct_loan_term_flag.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'ct_loan_term': 'must be blank'},
+               'number': 36}],
+  'validation': {'description': "When present, 'loan term' must be a whole "
+                                'number.',
+                 'fields': ['ct_loan_term'],
+                 'id': 'E0180',
+                 'name': 'ct_loan_term.invalid_numeric_format',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'credit_purpose': '1;2;9001'}, 'number': 39},
+              {'field_values': {'credit_purpose': ''}, 'number': 40}],
+  'validation': {'description': "Each value in 'credit purpose' (separated by  "
+                                'semicolons) must equal 1, 2, 3, 4, 5, 6, 7, '
+                                '8, 9, 10, 11, 977, 988, or 999.',
+                 'fields': ['credit_purpose'],
+                 'id': 'E0200',
+                 'name': 'credit_purpose.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'credit_purpose_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 45}],
+  'validation': {'description': "'Free-form text field for other credit "
+                                "purpose'  must not exceed 300 characters in "
+                                'length',
+                 'fields': ['credit_purpose_ff'],
+                 'id': 'E0220',
+                 'name': 'credit_purpose_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'amount_applied_for_flag': ''}, 'number': 50},
+              {'field_values': {'amount_applied_for_flag': '9001'},
+               'number': 51}],
+  'validation': {'description': "'Amount applied For: NA/NP flag' must equal "
+                                '900, 988, or 999.',
+                 'fields': ['amount_applied_for_flag'],
+                 'id': 'E0240',
+                 'name': 'amount_applied_for_flag.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'amount_applied_for': 'nonNumericValue'},
+               'number': 52},
+              {'field_values': {'amount_applied_for': 'must be blank'},
+               'number': 55}],
+  'validation': {'description': "When present, 'amount applied for' must be a "
+                                'numeric value.',
+                 'fields': ['amount_applied_for'],
+                 'id': 'E0260',
+                 'name': 'amount_applied_for.invalid_numeric_format',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'amount_approved': 'nonNumericValue'},
+               'number': 56}],
+  'validation': {'description': "When present, 'amount approved or originated' "
+                                'must be a numeric value.',
+                 'fields': ['amount_approved'],
+                 'id': 'E0280',
+                 'name': 'amount_approved.invalid_numeric_format',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'action_taken': ''}, 'number': 63},
+              {'field_values': {'action_taken': '9001'}, 'number': 64}],
+  'validation': {'description': "'Action taken' must equal 1, 2, 3, 4, or 5.",
+                 'fields': ['action_taken'],
+                 'id': 'E0300',
+                 'name': 'action_taken.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'action_taken_date': '12312024'},
+               'number': 65}],
+  'validation': {'description': "'Action taken date' must be a real calendar "
+                                'date using YYYYMMDD format.',
+                 'fields': ['action_taken_date'],
+                 'id': 'E0320',
+                 'name': 'action_taken_date.invalid_date_format',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'denial_reasons': '9001'}, 'number': 70},
+              {'field_values': {'denial_reasons': ''}, 'number': 71},
+              {'field_values': {'denial_reasons': '999;1; 2'}, 'number': 78}],
+  'validation': {'description': "Each value in 'denial reason(s)' (separated "
+                                'by semicolons)must equal 1, 2, 3, 4, 5, 6, 7, '
+                                '8, 9, 977, or 999.',
+                 'fields': ['denial_reasons'],
+                 'id': 'E0001',
+                 'name': 'denial_reasons.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'denial_reasons_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 80}],
+  'validation': {'description': "'Free-form text field for other denial "
+                                "reason(s)'must not exceed 300 characters in "
+                                'length.',
+                 'fields': ['denial_reasons_ff'],
+                 'id': 'E0360',
+                 'name': 'denial_reasons_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'pricing_interest_rate_type': ''},
+               'number': 85},
+              {'field_values': {'pricing_interest_rate_type': '9001'},
+               'number': 86},
+              {'field_values': {'pricing_interest_rate_type': '900'},
+               'number': 87},
+              {'field_values': {'pricing_interest_rate_type': '900'},
+               'number': 94},
+              {'field_values': {'pricing_interest_rate_type': '900'},
+               'number': 101}],
+  'validation': {'description': "Each value in 'Interest rate type' (separated "
+                                'by  semicolons) Must equal 1, 2, 3, 4, 5, 6, '
+                                'or 999',
+                 'fields': ['pricing_interest_rate_type'],
+                 'id': 'E0380',
+                 'name': 'pricing_interest_rate_type.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'pricing_init_rate_period': 'nonNumericValue'},
+               'number': 118}],
+  'validation': {'description': ("When present, 'initial rate period' must be "
+                                 'a whole number.',),
+                 'fields': ['pricing_init_rate_period'],
+                 'id': 'E0400',
+                 'name': 'pricing_init_rate_period.invalid_numeric_format',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'pricing_fixed_rate': 'nonNumericValue'},
+               'number': 127}],
+  'validation': {'description': "When present, 'fixed rate: interest rate' "
+                                'must be a numeric value.',
+                 'fields': ['pricing_fixed_rate'],
+                 'id': 'E0420',
+                 'name': 'pricing_fixed_rate.invalid_numeric_format',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'pricing_adj_index_name': ''}, 'number': 145},
+              {'field_values': {'pricing_adj_index_name': '9001'},
+               'number': 146}],
+  'validation': {'description': "'Adjustable rate transaction: index name' "
+                                'must equal 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, '
+                                '977, or 999.',
+                 'fields': ['pricing_adj_index_name'],
+                 'id': 'E0460',
+                 'name': 'pricing_adj_index_name.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'pricing_adj_index_name_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 154}],
+  'validation': {'description': "'Adjustable rate transaction: index name: "
+                                "other' must not exceed 300 characters in "
+                                'length.',
+                 'fields': ['pricing_adj_index_name_ff'],
+                 'id': 'E0480',
+                 'name': 'pricing_adj_index_name_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'pricing_adj_index_value': 'nonNumericValue'},
+               'number': 157}],
+  'validation': {'description': "When present, 'adjustable rate transaction: "
+                                "index value' must be a numeric value.",
+                 'fields': ['pricing_adj_index_value'],
+                 'id': 'E0500',
+                 'name': 'pricing_adj_index_value.invalid_numeric_format',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'pricing_origination_charges': 'nonNumericValue'},
+               'number': 165}],
+  'validation': {'description': ("When present, 'total origination charges' "
+                                 'must be a numeric',
+                                 'value.'),
+                 'fields': ['pricing_origination_charges'],
+                 'id': 'E0520',
+                 'name': 'pricing_origination_charges.invalid_numeric_format',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'pricing_broker_fees': 'nonNumericValue'},
+               'number': 166}],
+  'validation': {'description': ("When present, 'amount of total broker fees' "
+                                 'must be a',
+                                 'numeric value.'),
+                 'fields': ['pricing_broker_fees'],
+                 'id': 'E0540',
+                 'name': 'pricing_broker_fees.invalid_numeric_format',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'pricing_initial_charges': 'nonNumericValue'},
+               'number': 167}],
+  'validation': {'description': "When present, 'initial annual charges' must "
+                                'be anumeric value.',
+                 'fields': ['pricing_initial_charges'],
+                 'id': 'E0560',
+                 'name': 'pricing_initial_charges.invalid_numeric_format',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'pricing_mca_addcost_flag': ''}, 'number': 168},
+              {'field_values': {'pricing_mca_addcost_flag': '99009001'},
+               'number': 169}],
+  'validation': {'description': "'MCA/sales-based: additional cost for "
+                                'merchant cash advances or other sales-based '
+                                "financing: NA flag' must equal 900 or 999.",
+                 'fields': ['pricing_mca_addcost_flag'],
+                 'id': 'E0580',
+                 'name': 'pricing_mca_addcost_flag.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'pricing_mca_addcost': 'nonNumericValue'},
+               'number': 171},
+              {'field_values': {'pricing_mca_addcost': 'must be blank'},
+               'number': 172}],
+  'validation': {'description': "When present, 'MCA/sales-based: additional "
+                                'cost for merchant cash advances or other '
+                                "sales-based financing' must be a numeric "
+                                'value',
+                 'fields': ['pricing_mca_addcost'],
+                 'id': 'E0600',
+                 'name': 'pricing_mca_addcost.invalid_numeric_format',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'pricing_prepenalty_allowed': ''},
+               'number': 174},
+              {'field_values': {'pricing_prepenalty_allowed': '9001'},
+               'number': 175}],
+  'validation': {'description': "'Prepayment penalty could be imposed' must "
+                                'equal 1, 2, or 999.',
+                 'fields': ['pricing_prepenalty_allowed'],
+                 'id': 'E0620',
+                 'name': 'pricing_prepenalty_allowed.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'pricing_prepenalty_exists': ''},
+               'number': 176},
+              {'field_values': {'pricing_prepenalty_exists': '9001'},
+               'number': 177}],
+  'validation': {'description': "'Prepayment penalty exists' must equal 1, 2, "
+                                'or 999.',
+                 'fields': ['pricing_prepenalty_exists'],
+                 'id': 'E0640',
+                 'name': 'pricing_prepenalty_exists.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'census_tract_adr_type': ''}, 'number': 178},
+              {'field_values': {'census_tract_adr_type': '9001'},
+               'number': 179}],
+  'validation': {'description': "'Census tract: type of address' must equal 1, "
+                                '2, 3, or 988.',
+                 'fields': ['census_tract_adr_type'],
+                 'id': 'E0640',
+                 'name': 'census_tract_adr_type.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'census_tract_number': '1234567890'},
+               'number': 181},
+              {'field_values': {'census_tract_number': 'must be blank'},
+               'number': 182}],
+  'validation': {'description': "When present, 'census tract: tract number' "
+                                'must be a GEOID with exactly 11 digits.',
+                 'fields': ['census_tract_number'],
+                 'id': 'E0680',
+                 'name': 'census_tract_number.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'gross_annual_revenue_flag': ''},
+               'number': 187},
+              {'field_values': {'gross_annual_revenue_flag': '99009001'},
+               'number': 188}],
+  'validation': {'description': "'Gross annual revenue: NP flag' must equal "
+                                '900 or 988.',
+                 'fields': ['gross_annual_revenue_flag'],
+                 'id': 'E0700',
+                 'name': 'gross_annual_revenue_flag.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'gross_annual_revenue': 'nonNumericValue'},
+               'number': 189},
+              {'field_values': {'gross_annual_revenue': 'must be blank'},
+               'number': 190}],
+  'validation': {'description': "When present, 'gross annual revenue' must be "
+                                'a numeric value.',
+                 'fields': ['gross_annual_revenue'],
+                 'id': 'E0720',
+                 'name': 'gross_annual_revenue.invalid_numeric_format',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'naics_code_flag': ''}, 'number': 192},
+              {'field_values': {'naics_code_flag': '9001'}, 'number': 193}],
+  'validation': {'description': "'North American Industry Classification "
+                                "System (NAICS) code: NP flag' must equal 900 "
+                                'or 988.',
+                 'fields': ['naics_code_flag'],
+                 'id': 'E0720',
+                 'name': 'naics_code_flag.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'naics_code': 'notDigits'}, 'number': 196}],
+  'validation': {'description': "'North American Industry Classification "
+                                "System (NAICS) code' may only contain numeric "
+                                'characters.',
+                 'fields': ['naics_code'],
+                 'id': 'E0761',
+                 'name': 'naics_code.invalid_naics_format',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'number_of_workers': ''}, 'number': 199},
+              {'field_values': {'number_of_workers': '9001'}, 'number': 200}],
+  'validation': {'description': "'Number of workers' must equal 1, 2, 3, 4, 5, "
+                                '6, 7, 8, 9, or 988.',
+                 'fields': ['number_of_workers'],
+                 'id': 'E0780',
+                 'name': 'number_of_workers.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'time_in_business_type': ''}, 'number': 201},
+              {'field_values': {'time_in_business_type': '9001'},
+               'number': 202}],
+  'validation': {'description': "'Time in business: type of response' must "
+                                'equal 1, 2, 3, or 988.',
+                 'fields': ['time_in_business_type'],
+                 'id': 'E0800',
+                 'name': 'time_in_business_type.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'time_in_business': 'must be blank'},
+               'number': 205}],
+  'validation': {'description': "When present, 'time in business' must be a "
+                                'whole number.',
+                 'fields': ['time_in_business'],
+                 'id': 'E0820',
+                 'name': 'time_in_business.invalid_numeric_format',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'business_ownership_status': '1;2; 9001'},
+               'number': 207},
+              {'field_values': {'business_ownership_status': ''},
+               'number': 208}],
+  'validation': {'description': "Each value in 'business ownership status' "
+                                '(separated by semicolons) must equal 1, 2, 3, '
+                                '955, 966, or 988.',
+                 'fields': ['business_ownership_status'],
+                 'id': 'E0840',
+                 'name': 'business_ownership_status.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'num_principal_owners_flag': ''},
+               'number': 211},
+              {'field_values': {'num_principal_owners_flag': '9001'},
+               'number': 212}],
+  'validation': {'description': "'Number of principal owners: NP flag' must "
+                                'equal 900 or 988.',
+                 'fields': ['num_principal_owners_flag'],
+                 'id': 'E0860',
+                 'name': 'num_principal_owners_flag.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'num_principal_owners': '9001'}, 'number': 213},
+              {'field_values': {'num_principal_owners': 'must be blank'},
+               'number': 214}],
+  'validation': {'description': "When present, 'number of principal owners' "
+                                'must equal 0, 1, 2, 3, or 4.',
+                 'fields': ['num_principal_owners'],
+                 'id': 'E0880',
+                 'name': 'num_principal_owners.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_1_ethnicity': '9001;1'}, 'number': 216}],
+  'validation': {'description': "When present, each value in 'ethnicity of "
+                                "principal owner 1' (separated by semicolons) "
+                                'must equal 1, 11, 12, 13, 14, 2, 966, 977, or '
+                                '988.',
+                 'fields': ['po_1_ethnicity'],
+                 'id': 'E0900',
+                 'name': 'po_1_ethnicity.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_1_ethnicity_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 228}],
+  'validation': {'description': "'Ethnicity of principal owner 1: free-form "
+                                "text field for other Hispanic or Latino' must "
+                                'not exceed 300 characters in length.',
+                 'fields': ['po_1_ethnicity_ff'],
+                 'id': 'E0920',
+                 'name': 'po_1_ethnicity_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_1_race': '9001;1'}, 'number': 240}],
+  'validation': {'description': "When present, each value in 'race of "
+                                "principal owner 1' (separated by semicolons) "
+                                'must equal 1, 2, 21, 22, 23, 24, 25, 26, 27, '
+                                '3, 31, 32, 33, 34, 35, 36, 37, 4, 41, 42, 43, '
+                                '44, 5, 966, 971, 972, 973, 974, or 988.',
+                 'fields': ['po_1_race'],
+                 'id': 'E0940',
+                 'name': 'po_1_race.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_1_race_anai_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 252}],
+  'validation': {'description': "'Race of principal owner 1: free-form text "
+                                'field for American Indian or Alaska Native '
+                                "Enrolled or Principal Tribe' must not exceed "
+                                '300 characters in length.',
+                 'fields': ['po_1_race_anai_ff'],
+                 'id': 'E0960',
+                 'name': 'po_1_race_anai_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_1_race_asian_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 264}],
+  'validation': {'description': "'Race of principal owner 1: free-form text "
+                                "field for other Asian' must not exceed 300 "
+                                'characters in length.',
+                 'fields': ['po_1_race_asian_ff'],
+                 'id': 'E0980',
+                 'name': 'po_1_race_asian_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_1_race_baa_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 276}],
+  'validation': {'description': "'Race of principal owner 1: free-form text "
+                                "field for other Black or African American' "
+                                'must not exceed 300 characters in length.',
+                 'fields': ['po_1_race_baa_ff'],
+                 'id': 'E1000',
+                 'name': 'po_1_race_baa_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_1_race_pi_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 288}],
+  'validation': {'description': "'Race of principal owner 1: free-form text "
+                                "field for other Pacific Islander race' must "
+                                'not exceed 300 characters in length.',
+                 'fields': ['po_1_race_pi_ff'],
+                 'id': 'E1020',
+                 'name': 'po_1_race_pi_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_1_gender_flag': '9001'}, 'number': 300}],
+  'validation': {'description': "When present, 'sex/gender of principal owner "
+                                "1: NP flag' must equal 1, 966, or 988.",
+                 'fields': ['po_1_gender_flag'],
+                 'id': 'E1040',
+                 'name': 'po_1_gender_flag.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_1_gender_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 304}],
+  'validation': {'description': "'Sex/gender of principal owner 1: free-form "
+                                "text field for self-identified sex/gender' "
+                                'must not exceed 300 characters in length.',
+                 'fields': ['po_1_gender_ff'],
+                 'id': 'E1060',
+                 'name': 'po_1_gender_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_2_ethnicity': '9001;1'}, 'number': 217}],
+  'validation': {'description': "When present, each value in 'ethnicity of "
+                                "principal owner 2' (separated by semicolons) "
+                                'must equal 1, 11, 12, 13, 14, 2, 966, 977, or '
+                                '988.',
+                 'fields': ['po_2_ethnicity'],
+                 'id': 'E0900',
+                 'name': 'po_2_ethnicity.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_2_ethnicity_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 229}],
+  'validation': {'description': "'Ethnicity of principal owner 2: free-form "
+                                "text field for other Hispanic or Latino' must "
+                                'not exceed 300 characters in length.',
+                 'fields': ['po_2_ethnicity_ff'],
+                 'id': 'E0920',
+                 'name': 'po_2_ethnicity_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_2_race': '9001;1'}, 'number': 241}],
+  'validation': {'description': "When present, each value in 'race of "
+                                "principal owner 2' (separated by semicolons) "
+                                'must equal 1, 2, 21, 22, 23, 24, 25, 26, 27, '
+                                '3, 31, 32, 33, 34, 35, 36, 37, 4, 41, 42, 43, '
+                                '44, 5, 966, 971, 972, 973, 974, or 988.',
+                 'fields': ['po_2_race'],
+                 'id': 'E0940',
+                 'name': 'po_2_race.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_2_race_anai_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 253}],
+  'validation': {'description': "'Race of principal owner 2: free-form text "
+                                'field for American Indian or Alaska Native '
+                                "Enrolled or Principal Tribe' must not exceed "
+                                '300 characters in length.',
+                 'fields': ['po_2_race_anai_ff'],
+                 'id': 'E0960',
+                 'name': 'po_2_race_anai_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_2_race_asian_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 265}],
+  'validation': {'description': "'Race of principal owner 2: free-form text "
+                                "field for other Asian' must not exceed 300 "
+                                'characters in length.',
+                 'fields': ['po_2_race_asian_ff'],
+                 'id': 'E0980',
+                 'name': 'po_2_race_asian_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_2_race_baa_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 277}],
+  'validation': {'description': "'Race of principal owner 2: free-form text "
+                                "field for other Black or African American' "
+                                'must not exceed 300 characters in length.',
+                 'fields': ['po_2_race_baa_ff'],
+                 'id': 'E1000',
+                 'name': 'po_2_race_baa_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_2_race_pi_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 289}],
+  'validation': {'description': "'Race of principal owner 2: free-form text "
+                                "field for other Pacific Islander race' must "
+                                'not exceed 300 characters in length.',
+                 'fields': ['po_2_race_pi_ff'],
+                 'id': 'E1020',
+                 'name': 'po_2_race_pi_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_2_gender_flag': '9001'}, 'number': 301}],
+  'validation': {'description': "When present, 'sex/gender of principal owner "
+                                "2: NP flag' must equal 1, 966, or 988.",
+                 'fields': ['po_2_gender_flag'],
+                 'id': 'E1040',
+                 'name': 'po_2_gender_flag.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_2_gender_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 305}],
+  'validation': {'description': "'Sex/gender of principal owner 2: free-form "
+                                "text field for self-identified sex/gender' "
+                                'must not exceed 300 characters in length.',
+                 'fields': ['po_2_gender_ff'],
+                 'id': 'E1060',
+                 'name': 'po_2_gender_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_3_ethnicity': '9001;1'}, 'number': 218}],
+  'validation': {'description': "When present, each value in 'ethnicity of "
+                                "principal owner 3' (separated by semicolons) "
+                                'must equal 1, 11, 12, 13, 14, 2, 966, 977, or '
+                                '988.',
+                 'fields': ['po_3_ethnicity'],
+                 'id': 'E0900',
+                 'name': 'po_3_ethnicity.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_3_ethnicity_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 230}],
+  'validation': {'description': "'Ethnicity of principal owner 3: free-form "
+                                "text field for other Hispanic or Latino' must "
+                                'not exceed 300 characters in length.',
+                 'fields': ['po_3_ethnicity_ff'],
+                 'id': 'E0920',
+                 'name': 'po_3_ethnicity_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_3_race': '9001;1'}, 'number': 242}],
+  'validation': {'description': "When present, each value in 'race of "
+                                "principal owner 3' (separated by semicolons) "
+                                'must equal 1, 2, 21, 22, 23, 24, 25, 26, 27, '
+                                '3, 31, 32, 33, 34, 35, 36, 37, 4, 41, 42, 43, '
+                                '44, 5, 966, 971, 972, 973, 974, or 988.',
+                 'fields': ['po_3_race'],
+                 'id': 'E0940',
+                 'name': 'po_3_race.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_3_race_anai_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 254}],
+  'validation': {'description': "'Race of principal owner 3: free-form text "
+                                'field for American Indian or Alaska Native '
+                                "Enrolled or Principal Tribe' must not exceed "
+                                '300 characters in length.',
+                 'fields': ['po_3_race_anai_ff'],
+                 'id': 'E0960',
+                 'name': 'po_3_race_anai_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_3_race_asian_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 266}],
+  'validation': {'description': "'Race of principal owner 3: free-form text "
+                                "field for other Asian' must not exceed 300 "
+                                'characters in length.',
+                 'fields': ['po_3_race_asian_ff'],
+                 'id': 'E0980',
+                 'name': 'po_3_race_asian_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_3_race_baa_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 278}],
+  'validation': {'description': "'Race of principal owner 3: free-form text "
+                                "field for other Black or African American' "
+                                'must not exceed 300 characters in length.',
+                 'fields': ['po_3_race_baa_ff'],
+                 'id': 'E1000',
+                 'name': 'po_3_race_baa_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_3_race_pi_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 290}],
+  'validation': {'description': "'Race of principal owner 3: free-form text "
+                                "field for other Pacific Islander race' must "
+                                'not exceed 300 characters in length.',
+                 'fields': ['po_3_race_pi_ff'],
+                 'id': 'E1020',
+                 'name': 'po_3_race_pi_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_3_gender_flag': '9001'}, 'number': 302}],
+  'validation': {'description': "When present, 'sex/gender of principal owner "
+                                "3: NP flag' must equal 1, 966, or 988.",
+                 'fields': ['po_3_gender_flag'],
+                 'id': 'E1040',
+                 'name': 'po_3_gender_flag.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_3_gender_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 306}],
+  'validation': {'description': "'Sex/gender of principal owner 3: free-form "
+                                "text field for self-identified sex/gender' "
+                                'must not exceed 300 characters in length.',
+                 'fields': ['po_3_gender_ff'],
+                 'id': 'E1060',
+                 'name': 'po_3_gender_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_4_ethnicity': '9001;1'}, 'number': 219}],
+  'validation': {'description': "When present, each value in 'ethnicity of "
+                                "principal owner 4' (separated by semicolons) "
+                                'must equal 1, 11, 12, 13, 14, 2, 966, 977, or '
+                                '988.',
+                 'fields': ['po_4_ethnicity'],
+                 'id': 'E0900',
+                 'name': 'po_4_ethnicity.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_4_ethnicity_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 231}],
+  'validation': {'description': "'Ethnicity of principal owner 4: free-form "
+                                "text field for other Hispanic or Latino' must "
+                                'not exceed 300 characters in length.',
+                 'fields': ['po_4_ethnicity_ff'],
+                 'id': 'E0920',
+                 'name': 'po_4_ethnicity_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_4_race': '9001;1'}, 'number': 243}],
+  'validation': {'description': "When present, each value in 'race of "
+                                "principal owner 4' (separated by semicolons) "
+                                'must equal 1, 2, 21, 22, 23, 24, 25, 26, 27, '
+                                '3, 31, 32, 33, 34, 35, 36, 37, 4, 41, 42, 43, '
+                                '44, 5, 966, 971, 972, 973, 974, or 988.',
+                 'fields': ['po_4_race'],
+                 'id': 'E0940',
+                 'name': 'po_4_race.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_4_race_anai_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 255}],
+  'validation': {'description': "'Race of principal owner 4: free-form text "
+                                'field for American Indian or Alaska Native '
+                                "Enrolled or Principal Tribe' must not exceed "
+                                '300 characters in length.',
+                 'fields': ['po_4_race_anai_ff'],
+                 'id': 'E0960',
+                 'name': 'po_4_race_anai_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_4_race_asian_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 267}],
+  'validation': {'description': "'Race of principal owner 4: free-form text "
+                                "field for other Asian' must not exceed 300 "
+                                'characters in length.',
+                 'fields': ['po_4_race_asian_ff'],
+                 'id': 'E0980',
+                 'name': 'po_4_race_asian_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_4_race_baa_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 279}],
+  'validation': {'description': "'Race of principal owner 4: free-form text "
+                                "field for other Black or African American' "
+                                'must not exceed 300 characters in length.',
+                 'fields': ['po_4_race_baa_ff'],
+                 'id': 'E1000',
+                 'name': 'po_4_race_baa_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_4_race_pi_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 291}],
+  'validation': {'description': "'Race of principal owner 4: free-form text "
+                                "field for other Pacific Islander race' must "
+                                'not exceed 300 characters in length.',
+                 'fields': ['po_4_race_pi_ff'],
+                 'id': 'E1020',
+                 'name': 'po_4_race_pi_ff.invalid_text_length',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_4_gender_flag': '9001'}, 'number': 303}],
+  'validation': {'description': "When present, 'sex/gender of principal owner "
+                                "4: NP flag' must equal 1, 966, or 988.",
+                 'fields': ['po_4_gender_flag'],
+                 'id': 'E1040',
+                 'name': 'po_4_gender_flag.invalid_enum_value',
+                 'severity': 'error'}},
+ {'records': [{'field_values': {'po_4_gender_ff': '123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890XXX'},
+               'number': 307}],
+  'validation': {'description': "'Sex/gender of principal owner 4: free-form "
+                                "text field for self-identified sex/gender' "
+                                'must not exceed 300 characters in length.',
+                 'fields': ['po_4_gender_ff'],
+                 'id': 'E1060',
+                 'name': 'po_4_gender_ff.invalid_text_length',
+                 'severity': 'error'}}]
+
+```
+
+</details>
 
 ## Running Test
 
-This repository is using `pytest`.  If using VS Code, tests can be completed within a Dev Container.  If using local terminal or console, you can use this command `poetry run pytest` in the root directory
+This repository is using `pytest`.  If using VS Code, tests can be completed within
+a Dev Container.  If using local terminal or console, you can use this command
+`poetry run pytest` in the root directory
 
+<details>
+  <summary>See Example of Pytest Output</summary>
+  
 ```sh
-# example of unit tests output
+
 $ poetry run pytest
-================================================================================== test session starts ==================================================================================
+==================================================================================
+test session starts ==================================================================================
 platform darwin -- Python 3.11.5, pytest-7.4.0, pluggy-1.3.0 -- /Library/Caches/pypoetry/virtualenvs/regtech-data-validator-uJQWmvcM-py3.11/bin/python
 cachedir: .pytest_cache
 rootdir: /Projects/regtech-data-validator
 configfile: pyproject.toml
 testpaths: src/tests
 plugins: cov-4.1.0, typeguard-4.1.3
-collected 117 items                                                                                                                                                                     
+collected 117 items
 
 src/tests/test_check_functions.py::TestInvalidDateFormat::test_with_valid_date <- ../../../../workspaces/regtech-data-validator/src/tests/test_check_functions.py PASSED          [  0%]
 src/tests/test_check_functions.py::TestInvalidDateFormat::test_with_invalid_date <- ../../../../workspaces/regtech-data-validator/src/tests/test_check_functions.py PASSED        [  1%]
@@ -371,9 +1169,12 @@ Coverage XML written to file coverage.xml
 ================================================================================= 117 passed in 25.14s ==================================================================================
 ```
 
+</details>
+
 ## Running Linter
 
-This repository utilizing `black` and `ruff` libraries to check and fix any formatting issues
+This repository utilizing `black` and `ruff` libraries to check and fix any
+formatting issues
 
 ```sh
 # Example of Ruff with an error
@@ -392,15 +1193,28 @@ All done! ✨ 🍰 ✨
 
 ## (Optional) Using Dev Container and Visual Studio Code Development Setup
 
-- These instructions will not work if using an alternative editor such as Vim or Emacs.
-- To build, run, and attach the container to VS Code you'll need to have Docker installed on your system, and the `Dev Containers` extension installed within VS Code.
-- Open this repository within VS Code and press `COMMAND + SHIFT + p` on your keyboard. This will open the command bar at the top of your window.
-- Enter `Dev Containers: Rebuild and Reopen in Container`. VS Code will open a new window and you'll see a status message towards the bottom right of your screen that the container is building and attaching.
-- This will take a few minutes the first time because Docker needs to build the container without a build cache.
-- You may receive a notification that VS Code wants to perform a reload because some extensions could not load. Sometimes this happens because extensions are loaded in conflicting orders and dependencies are not satisfied.
+Requirements when using Visual Studio Code for Development:
+
+- Visual Studio Code with Dev Containers extension
+- Docker.
+
+These instructions will not work if using an alternative editor such as Vim or
+  Emacs:
+
+- Open this repository within VS Code and press `COMMAND + SHIFT + p` on your
+  keyboard. This will open the command bar at the top of your window.
+- Enter `Dev Containers: Rebuild and Reopen in Container`. VS Code will open a
+  new window and you'll see a status message towards the bottom right of your
+  screen that the container is building and attaching.
+- This will take a few minutes the first time because Docker needs to build the
+  container without a build cache.
+- You may receive a notification that VS Code wants to perform a reload because
+  some extensions could not load. Sometimes this happens because extensions are
+  loaded in conflicting orders and dependencies are not satisfied.
 - Unit tests can be run through VS Code Test.
   ![VS Code Test](images/vscode_test.png)
-- Validator can be executed by running `main.py` within a Dev Container. To run `main.py`, you can run these commands in VSCode terminal.
+- Validator can be executed by running `main.py` within a Dev Container. To run
+  `main.py`, you can run these commands in VSCode terminal.
 
 ```sh
 # Test validating the "good" file
@@ -417,16 +1231,7 @@ python src/validator/main.py src/tests/data/sbl-validations-fail.csv
 
 ## Code Coverage
 
-- Current overall coverage: [![Coverage badge](https://github.com/cfpb/regtech-data-validator/raw/python-coverage-comment-action-data/badge.svg)](https://github.com/cfpb/regtech-data-validator/tree/python-coverage-comment-action-data)
-- Complete coverage details can be found in ( [`python-coverage-comment-action-data` branch](https://github.com/cfpb/regtech-data-validator/tree/python-coverage-comment-action-data) )
-
-## Contributing
-
-[CFPB](https://www.consumerfinance.gov/) is developing the `RegTech Data Validator` in the open to maximize transparency and encourage third party contributions. If you want to contribute, please read and abide by the terms of the [License](./LICENSE) for this project. Pull Requests are always welcome.
-
-## Contact Us
-
-If you have an inquiry or suggestion for the validator or any SBL related code please reach out to us at <sblhelp@cfpb.gov>
+Complete coverage details can be found in [(`python-coverage-comment-action-data`)](https://github.com/cfpb/regtech-data-validator/tree/python-coverage-comment-action-data)
 
 ## Open source licensing info
 
