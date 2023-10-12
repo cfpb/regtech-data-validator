@@ -5,6 +5,7 @@ the SBL Pandera schema.
 Run from the terminal to see the generated output.
 """
 
+import pprint
 import sys
 
 import pandas as pd
@@ -17,17 +18,11 @@ def csv_to_df(path: str) -> pd.DataFrame:
 
 def run_validation_on_df(df: pd.DataFrame, lei: str) -> None:
     """
-    Run validaition on the supplied dataframe and print a report to
+    Run validation on the supplied dataframe and print a report to
     the terminal.
     """
 
-    print("--------------------------------------------------------------------------")
-    print("Performing validation on the following DataFrame.")
-    print("")
-    print(df)
-    print("")
-
-    print(validate_phases(df, lei))
+    pprint.pprint(validate_phases(df, lei))
 
 
 if __name__ == "__main__":
