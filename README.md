@@ -15,10 +15,10 @@
 | src/validator/checks.py              |       14 |        0 |        4 |        0 |    100% |           |
 | src/validator/create\_schemas.py     |       55 |        1 |       18 |        2 |     96% |69, 74->49 |
 | src/validator/global\_data.py        |       18 |        0 |        4 |        0 |    100% |           |
-| src/validator/main.py                |       25 |       25 |        8 |        0 |      0% |      8-47 |
+| src/validator/main.py                |       21 |       21 |        8 |        0 |      0% |      8-42 |
 | src/validator/phase\_validations.py  |        6 |        0 |        0 |        0 |    100% |           |
 | src/validator/schema\_template.py    |        6 |        0 |        0 |        0 |    100% |           |
-|                            **TOTAL** |  **889** |   **42** |  **128** |    **5** | **94%** |           |
+|                            **TOTAL** |  **885** |   **38** |  **128** |    **5** | **94%** |           |
 
 
 ## Setup coverage badge
