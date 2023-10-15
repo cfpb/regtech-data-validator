@@ -3,7 +3,7 @@ import sys
 
 import pandas as pd
 
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # noqa: E402
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # noqa: E402
 sys.path.append(ROOT_DIR)  # noqa: E402
 
 from config import CENSUS_PROCESSED_CSV_PATH, NAICS_CSV_PATH  # noqa: E402

@@ -1,7 +1,7 @@
 import pandas as pd
 
-from validator import global_data
-from validator.check_functions import (
+from regtech_data_validator import global_data
+from regtech_data_validator.check_functions import (
     has_correct_length,
     has_no_conditional_field_conflict,
     has_valid_enum_pair,

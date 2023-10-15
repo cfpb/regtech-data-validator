@@ -9,7 +9,7 @@ import pprint
 import sys
 
 import pandas as pd
-from create_schemas import validate_phases
+from regtech_data_validator.create_schemas import validate_phases
 
 
 def csv_to_df(path: str) -> pd.DataFrame:

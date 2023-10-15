@@ -4,8 +4,8 @@ This mapping is used to populate the schema template object and create
 an instance of a PanderaSchema object for phase 1 and phase 2."""
 
 
-import global_data
-from check_functions import (
+from regtech_data_validator import global_data
+from regtech_data_validator.check_functions import (
     has_correct_length,
     has_no_conditional_field_conflict,
     has_valid_enum_pair,
@@ -28,7 +28,7 @@ from check_functions import (
     meets_multi_value_field_restriction,
     string_contains,
 )
-from checks import SBLCheck
+from regtech_data_validator.checks import SBLCheck
 
 # read and populate global naics code (this should be called only once)
 global_data.read_naics_codes()

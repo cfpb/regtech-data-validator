@@ -1,6 +1,6 @@
 import pytest
 
-from validator import global_data
+from regtech_data_validator import global_data
 
 
 class TestGlobalData:
