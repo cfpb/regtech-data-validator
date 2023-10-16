@@ -16,8 +16,8 @@ pytest-cov = "4.1.0"
 black = "23.3.0"
 ruff = "0.0.259"
 
-#[tool.poetry.scripts]
-#cfpb-rdv = 'regtech_data_validator.main:main'
+[tool.poetry.scripts]
+regtech-validator = 'regtech_data_validator.main:main'
 
 [build-system]
 requires = ["poetry-core"]
