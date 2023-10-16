@@ -28,13 +28,13 @@ from regtech_data_validator.check_functions import (
     meets_multi_value_field_restriction,
     string_contains,
 )
-from regtech_data_validator.checks import SBLCheck
+from regtech_data_validator.checks import SBLCheck, Severity
 
 # read and populate global naics code (this should be called only once)
 global_data.read_naics_codes()
 
 
-def get_phase_1_and_2_validations_for_lei(lei: str = None):
+def get_phase_1_and_2_validations_for_lei(lei: str|None = None):
     return {
         "uid": {
             "phase_1": [
@@ -46,6 +46,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "Any 'unique identifier' may not be used in more than one "
                         "record within a small business lending application register."
                     ),
+                    severity=Severity.ERROR,
                     groupby="uid",
                 ),
                 SBLCheck.str_length(
@@ -57,6 +58,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "'Unique identifier' must be at least 21 characters "
                         "in length and at most 45 characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
                 SBLCheck(
                     has_valid_format,
@@ -67,6 +69,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "numbers and/or uppercase letters (i.e., 0-9 and A-Z), "
                         "and must not contain any other characters."
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     regex="^[A-Z0-9]+$",
                 ),
@@ -79,6 +82,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " match the Legal Entity Identifier (LEI) for the financial"
                         " institution."
                     ),
+                    severity=Severity.WARNING,
                     element_wise=True,
                     containing_value=lei,
                     end_idx=20,
@@ -93,6 +97,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0020",
                     name="app_date.invalid_date_format",
                     description="'Application date' must be a real calendar date using YYYYMMDD format.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                 ),
             ],
@@ -105,6 +110,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0040",
                     name="app_method.invalid_enum_value",
                     description="'Application method' must equal 1, 2, 3, or 4.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -123,6 +129,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0060",
                     name="app_recipient.invalid_enum_value",
                     description="'Application recipient' must equal 1 or 2",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -139,6 +146,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0080",
                     name="ct_credit_product.invalid_enum_value",
                     description="'Credit product' must equal 1, 2, 3, 4, 5, 6, 7, 8, 977, or 988.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -158,6 +166,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
         },
         "ct_credit_product_ff": {
             "phase_1": [
+                # FIXME: built-in Pandera checks do not support add'l params like `severity`
                 SBLCheck.str_length(
                     0,
                     300,
@@ -166,6 +175,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     description=(
                         "'Free-form text field for other credit products' must not exceed 300 characters in length."
                     ),
+                    severity=Severity.ERROR,
                 )
             ],
             "phase_2": [
@@ -179,6 +189,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "When 'credit product' equals 977, 'free-form text field "
                         "for other credit products' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="ct_credit_product",
                     condition_values={"977"},
                 ),
@@ -195,6 +206,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " semicolons) must equal 1, 2, 3, 4, 5, 6, 7, 8,"
                         " 9, 10, 11, 977, or 999."
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -222,6 +234,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "'Type of guarantee' must contain at least one and at"
                         " most five values, separated by semicolons."
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     min_length=1,
                     max_length=5,
@@ -229,21 +242,21 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck(
                     is_unique_in_field,
                     id="W0123",
-                    warning=True,
                     name="ct_guarantee.duplicates_in_field",
                     description="'Type of guarantee' should not contain duplicated values.",
+                    severity=Severity.WARNING,
                     element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
                     id="W0122",
-                    warning=True,
                     name="ct_guarantee.multi_value_field_restriction",
                     description=(
                         "When 'type of guarantee' contains 999 (no guarantee),"
                         " 'type of guarantee' should not contain more than one"
                         " value."
                     ),
+                    severity=Severity.WARNING,
                     element_wise=True,
                     single_values={"999"},
                 ),
@@ -257,6 +270,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0140",
                     name="ct_guarantee_ff.invalid_text_length",
                     description="'Free-form text field for other guarantee' must not exceed 300 characters in length",
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -270,13 +284,13 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "When 'type of guarantee' contains 977, 'free-form text field"
                         " for other guarantee' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="ct_guarantee",
                     condition_values={"977"},
                 ),
                 SBLCheck(
                     has_valid_multi_field_value_count,
                     id="W2006",
-                    warning=True,
                     name="ct_guarantee_ff.multi_invalid_number_of_values",
                     description=(
                         "'Type of guarantee' and 'free-form text field for other "
@@ -285,6 +299,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "toward the maximum number of values for the purpose of this "
                         "validation check."
                     ),
+                    severity=Severity.WARNING,
                     groupby="ct_guarantee",
                     ignored_values={"977"},
                     max_length=5,
@@ -300,6 +315,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     description=(
                         "Each value in 'Loan term: NA/NP flag' (separated by  semicolons) must equal 900, 988, or 999."
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "900",
@@ -321,6 +337,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "and otherwise undetermined), 'loan term: NA/NP flag' must"
                         "equal 999."
                     ),
+                    severity=Severity.ERROR,
                     groupby="ct_credit_product",
                     conditions=[
                         {
@@ -346,6 +363,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0180",
                     name="ct_loan_term.invalid_numeric_format",
                     description="When present, 'loan term' must be a whole number.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -360,6 +378,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "and reported), 'loan term' must be blank. When 'loan term:"
                         "NA/NP flag' equals 900, 'loan term' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="ct_loan_term_flag",
                     condition_values={"900"},
                 ),
@@ -368,6 +387,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0181",
                     name="ct_loan_term.invalid_numeric_value",
                     description="When present, 'loan term' must be greater than or equal to 1.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     min_value="1",
                     accept_blank=True,
@@ -377,6 +397,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="W0182",
                     name="ct_loan_term.unreasonable_numeric_value",
                     description="When present, 'loan term' should be less than 1200 (100 years).",
+                    severity=Severity.WARNING,
                     element_wise=True,
                     max_value="1200",
                     accept_blank=True,
@@ -394,6 +415,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " semicolons) must equal 1, 2, 3, 4, 5, 6, 7, 8,"
                         " 9, 10, 11, 977, 988, or 999."
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -421,6 +443,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     description=(
                         "'Credit purpose' must contain at least one and at most three values, separated by semicolons."
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     min_length=1,
                     max_length=3,
@@ -428,13 +451,13 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck(
                     meets_multi_value_field_restriction,
                     id="W0202",
-                    warning=True,
                     name="credit_purpose.multi_value_field_restriction",
                     description=(
                         "When 'credit purpose' contains 988 or 999,"
                         " 'credit purpose' should not contain more than one"
                         " value."
                     ),
+                    severity=Severity.WARNING,
                     element_wise=True,
                     single_values={
                         "988",
@@ -444,9 +467,9 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck(
                     is_unique_in_field,
                     id="W0203",
-                    warning=True,
                     name="credit_purpose.duplicates_in_field",
                     description="'Credit purpose' should not contain duplicated values.",
+                    severity=Severity.WARNING,
                     element_wise=True,
                 ),
             ],
@@ -461,6 +484,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     description=(
                         "'Free-form text field for other credit purpose'  must not exceed 300 characters in length"
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -474,13 +498,13 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "When 'credit purpose' contains 977, 'free-form text field for"
                         "other credit purpose' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="credit_purpose",
                     condition_values={"977"},
                 ),
                 SBLCheck(
                     has_valid_multi_field_value_count,
                     id="W2006",
-                    warning=True,
                     name="credit_purpose_ff.multi_invalid_number_of_values",
                     description=(
                         "'Credit purpose' and 'free-form text field for other credit "
@@ -489,6 +513,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "toward the maximum number of values for the purpose of "
                         "this validation check."
                     ),
+                    severity=Severity.WARNING,
                     groupby="credit_purpose",
                     ignored_values={"977"},
                     max_length=3,
@@ -502,6 +527,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0240",
                     name="amount_applied_for_flag.invalid_enum_value",
                     description="'Amount applied For: NA/NP flag' must equal 900, 988, or 999.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "900",
@@ -519,6 +545,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0260",
                     name="amount_applied_for.invalid_numeric_format",
                     description="When present, 'amount applied for' must be a numeric value.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -534,6 +561,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "When 'amount applied for: NA/NP flag' equals 900, "
                         "'amount applied for' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="amount_applied_for_flag",
                     condition_values={"900"},
                 ),
@@ -542,6 +570,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0261",
                     name="amount_applied_for.invalid_numeric_value",
                     description="When present, 'amount applied for' must be greater than 0.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     min_value="0",
                     accept_blank=True,
@@ -555,6 +584,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0280",
                     name="amount_approved.invalid_numeric_format",
                     description="When present, 'amount approved or originated' must be a numeric value.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -565,6 +595,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0281",
                     name="amount_approved.invalid_numeric_value",
                     description="When present, 'amount approved or originated' must be greater than 0.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     min_value="0",
                     accept_blank=True,
@@ -580,6 +611,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "equals 1 or 2, 'amount approved or originated' must "
                         "not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="action_taken",
                     condition_values={"1", "2"},
                 ),
@@ -592,6 +624,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0300",
                     name="action_taken.invalid_enum_value",
                     description="'Action taken' must equal 1, 2, 3, 4, or 5.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -621,6 +654,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "'Total origination charges', 'Amount of "
                         "total broker fees', 'Initial annual charges'"
                     ),
+                    severity=Severity.ERROR,
                     groupby=[
                         "pricing_interest_rate_type",
                         "pricing_mca_addcost_flag",
@@ -656,6 +690,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "penalty could be imposed', 'Prepayment "
                         "penalty exists'"
                     ),
+                    severity=Severity.ERROR,
                     groupby=[
                         "pricing_origination_charges",
                         "pricing_broker_fees",
@@ -681,6 +716,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0320",
                     name="action_taken_date.invalid_date_format",
                     description="'Action taken date' must be a real calendar date using YYYYMMDD format.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                 ),
             ],
@@ -694,6 +730,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " within the current reporting period:"
                         " October 1, 2024 to December 31, 2024."
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     start_date_value="20241001",
                     end_date_value="20241231",
@@ -703,6 +740,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E2009",
                     name="action_taken_date.date_value_conflict",
                     description="The date indicated by 'action taken date' must occur on or after 'application date'.",
+                    severity=Severity.ERROR,
                     groupby="app_date",
                 ),
                 SBLCheck(
@@ -714,6 +752,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " generally be less than two years (730 days) before"
                         " 'action taken date'."
                     ),
+                    severity=Severity.WARNING,
                     groupby="app_date",
                     days_value=730,
                 ),
@@ -729,6 +768,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "Each value in 'denial reason(s)' (separated by semicolons)"
                         "must equal 1, 2, 3, 4, 5, 6, 7, 8, 9, 977, or 999."
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -753,6 +793,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     description=(
                         "'Denial reason(s)' must contain at least one and at most fourvalues, separated by semicolons."
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     min_length=1,
                     max_length=4,
@@ -766,6 +807,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "contain 999. When 'action taken' does not equal 3, 'denial"
                         "reason(s)' must equal 999."
                     ),
+                    severity=Severity.ERROR,
                     groupby="action_taken",
                     conditions=[
                         {
@@ -785,21 +827,21 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck(
                     meets_multi_value_field_restriction,
                     id="W0340",
-                    warning=True,
                     name="denial_reasons.multi_value_field_restriction",
                     description=(
                         "When 'denial reason(s)' contains 999 (not applicable),"
                         "'denial reason(s)' should not contain more than one value."
                     ),
+                    severity=Severity.WARNING,
                     element_wise=True,
                     single_values={"999"},
                 ),
                 SBLCheck(
                     is_unique_in_field,
                     id="W0341",
-                    warning=True,
                     name="denial_reasons.duplicates_in_field",
                     description="'Denial reason(s)' should not contain duplicated values.",
+                    severity=Severity.WARNING,
                     element_wise=True,
                 ),
             ],
@@ -814,6 +856,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     description=(
                         "'Free-form text field for other denial reason(s)'must not exceed 300 characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -827,13 +870,13 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "blank. When 'denial reason(s)' contains 977, 'free-form text"
                         "field for other denial reason(s)' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="denial_reasons",
                     condition_values={"977"},
                 ),
                 SBLCheck(
                     has_valid_multi_field_value_count,
                     id="W2013",
-                    warning=True,
                     name="denial_reasons_ff.multi_invalid_number_of_values",
                     description=(
                         "'Denial reason(s)' and 'free-form text field for other "
@@ -842,6 +885,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "does not count toward the maximum number of values for "
                         "the purpose of this validation check."
                     ),
+                    severity=Severity.WARNING,
                     groupby="denial_reasons",
                     ignored_values={"977"},
                     max_length=4,
@@ -858,6 +902,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "Each value in 'Interest rate type' (separated by "
                         " semicolons) Must equal 1, 2, 3, 4, 5, 6, or 999"
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -878,7 +923,8 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_number,
                     id="E0400",
                     name="pricing_init_rate_period.invalid_numeric_format",
-                    description=("When present, 'initial rate period' must be a whole number.",),
+                    description="When present, 'initial rate period' must be a whole number.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -897,6 +943,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "be blank. When 'interest rate type' equals 3, 4, 5, or 6, "
                         "'initial rate period' must not be blank"
                     ),
+                    severity=Severity.ERROR,
                     groupby="pricing_interest_rate_type",
                     condition_values={"3", "4", "5", "6"},
                 ),
@@ -904,7 +951,8 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_greater_than,
                     id="E0401",
                     name="pricing_init_rate_period.invalid_numeric_value",
-                    description=("When present, 'initial rate period' must be greater than 0",),
+                    description="When present, 'initial rate period' must be greater than 0",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     min_value="0",
                     accept_blank=True,
@@ -918,6 +966,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0420",
                     name="pricing_fixed_rate.invalid_numeric_format",
                     description="When present, 'fixed rate: interest rate' must be a numeric value.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -936,6 +985,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " blank. When 'interest rate type' equals 2, 4, or 6,"
                         " 'fixed rate: interest rate' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="pricing_interest_rate_type",
                     condition_values={"2", "4", "6"},
                 ),
@@ -944,6 +994,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="W0420",
                     name="pricing_fixed_rate.unreasonable_numeric_value",
                     description="When present, 'fixed rate: interest rate' should generally be greater than 0.1.",
+                    severity=Severity.WARNING,
                     element_wise=True,
                     min_value="0.1",
                     accept_blank=True,
@@ -957,6 +1008,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0440",
                     name="pricing_adj_margin.invalid_numeric_format",
                     description="When present, 'adjustable rate transaction: margin' must be a numeric value.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -975,6 +1027,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "be blank. When 'interest rate type' equals 1, 3, or 5, "
                         "'variable rate transaction: margin' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="pricing_interest_rate_type",
                     condition_values={"1", "3", "5"},
                 ),
@@ -985,6 +1038,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     description=(
                         "When present, 'adjustable rate transaction: margin' should generally be greater than 0.1."
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     min_value="0.1",
                     accept_blank=True,
@@ -1001,6 +1055,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "'Adjustable rate transaction: index name' must equal "
                         "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 977, or 999."
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -1032,6 +1087,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "When 'interest rate type' equals 1, 3, or 5, 'adjustable rate"
                         "transaction: index name' must not equal 999."
                     ),
+                    severity=Severity.ERROR,
                     groupby="pricing_interest_rate_type",
                     conditions=[
                         {
@@ -1060,6 +1116,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     description=(
                         "'Adjustable rate transaction: index name: other' must not exceed 300 characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -1075,6 +1132,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "'adjustable rate transaction: index name: other' must not be"
                         "blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="pricing_adj_index_name",
                     condition_values={"977"},
                 ),
@@ -1087,6 +1145,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0500",
                     name="pricing_adj_index_value.invalid_numeric_format",
                     description="When present, 'adjustable rate transaction: index value' must be a numeric value.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -1104,6 +1163,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " blank. When 'interest rate type' equals 1 or 3,"
                         " 'adjustable rate transaction: index value' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="pricing_interest_rate_type",
                     condition_values={"1", "3"},
                 ),
@@ -1115,10 +1175,8 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_number,
                     id="E0520",
                     name="pricing_origination_charges.invalid_numeric_format",
-                    description=(
-                        "When present, 'total origination charges' must be a numeric",
-                        "value.",
-                    ),
+                    description="When present, 'total origination charges' must be a numeric value.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -1131,10 +1189,8 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     is_number,
                     id="E0540",
                     name="pricing_broker_fees.invalid_numeric_format",
-                    description=(
-                        "When present, 'amount of total broker fees' must be a",
-                        "numeric value.",
-                    ),
+                    description="When present, 'amount of total broker fees' must be a numeric value.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -1148,6 +1204,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0560",
                     name="pricing_initial_charges.invalid_numeric_format",
                     description="When present, 'initial annual charges' must be anumeric value.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -1165,6 +1222,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "advances or other sales-based financing: NA flag' "
                         "must equal 900 or 999."
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "900",
@@ -1184,6 +1242,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "merchant cash advances or other sales-based financing: "
                         "NA flag' must be 999 (not applicable)."
                     ),
+                    severity=Severity.ERROR,
                     groupby="ct_credit_product",
                     conditions=[
                         {
@@ -1207,6 +1266,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "merchant cash advances or other sales-based financing' "
                         "must be a numeric value"
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -1227,6 +1287,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "additional cost for merchant cash advances or other "
                         "sales-based financing’ must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="pricing_mca_addcost_flag",
                     condition_values={"900"},
                 ),
@@ -1239,6 +1300,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0620",
                     name="pricing_prepenalty_allowed.invalid_enum_value",
                     description="'Prepayment penalty could be imposed' must equal 1, 2, or 999.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -1256,6 +1318,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0640",
                     name="pricing_prepenalty_exists.invalid_enum_value",
                     description="'Prepayment penalty exists' must equal 1, 2, or 999.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -1273,6 +1336,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0640",
                     name="census_tract_adr_type.invalid_enum_value",
                     description="'Census tract: type of address' must equal 1, 2, 3, or 988.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -1291,6 +1355,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0680",
                     name="census_tract_number.invalid_text_length",
                     description="When present, 'census tract: tract number' must be a GEOID with exactly 11 digits.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_length=11,
                     accept_blank=True,
@@ -1312,6 +1377,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "location associated with the applicant), 'census tract:"
                         " tract number' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="census_tract_adr_type",
                     conditions=[
                         {
@@ -1337,6 +1403,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0700",
                     name="gross_annual_revenue_flag.invalid_enum_value",
                     description="'Gross annual revenue: NP flag' must equal 900 or 988.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "900",
@@ -1353,6 +1420,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0720",
                     name="gross_annual_revenue.invalid_numeric_format",
                     description="When present, 'gross annual revenue' must be a numeric value.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -1368,6 +1436,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "'gross annual revenue: NP flag' equals 900, "
                         "'gross annual revenue' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="gross_annual_revenue_flag",
                     condition_values={"900"},
                 ),
@@ -1380,8 +1449,10 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0720",
                     name="naics_code_flag.invalid_enum_value",
                     description=(
-                        "'North American Industry Classification System (NAICS) code: NP flag' must equal 900 or 988."
+                        "'North American Industry Classification System (NAICS) code: NP flag'"
+                        "must equal 900 or 988."
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "900",
@@ -1401,6 +1472,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "'North American Industry Classification System "
                         "(NAICS) code' may only contain numeric characters."
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -1414,6 +1486,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "When present, 'North American Industry Classification System "
                         "(NAICS) code' must be three digits in length."
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_length=3,
                     accept_blank=True,
@@ -1426,6 +1499,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "When present, 'North American Industry Classification System "
                         "(NAICS) code' should be a valid NAICS code."
                     ),
+                    severity=Severity.WARNING,
                     element_wise=True,
                     accept_blank=True,
                     codes=global_data.naics_codes,
@@ -1440,6 +1514,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "When 'type of guarantee' contains 977, 'free-form text field"
                         " for other guarantee' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="naics_code_flag",
                     condition_values={"900"},
                 ),
@@ -1452,6 +1527,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0780",
                     name="number_of_workers.invalid_enum_value",
                     description="'Number of workers' must equal 1, 2, 3, 4, 5, 6, 7, 8, 9, or 988.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -1476,6 +1552,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0800",
                     name="time_in_business_type.invalid_enum_value",
                     description="'Time in business: type of response' must equal 1, 2, 3, or 988.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -1494,6 +1571,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0820",
                     name="time_in_business.invalid_numeric_format",
                     description="When present, 'time in business' must be a whole number.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accept_blank=True,
                 ),
@@ -1504,6 +1582,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0821",
                     name="time_in_business.invalid_numeric_value",
                     description="When present, 'time in business' must be greater than or equal to 0.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     min_value="0",
                     accept_blank=True,
@@ -1520,6 +1599,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " 'time in business: type of response' equals 1,"
                         " 'time in business' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="time_in_business_type",
                     condition_values={"1"},
                 ),
@@ -1536,6 +1616,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " (separated by semicolons) must equal 1, 2, 3,"
                         " 955, 966, or 988."
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -1553,21 +1634,21 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0841",
                     name="business_ownership_status.invalid_number_of_values",
                     description="'Business ownership status' must contain at least one value.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     min_length=1,
                 ),
                 SBLCheck(
                     is_unique_in_field,
                     id="W0842",
-                    warning=True,
                     name="business_ownership_status.duplicates_in_field",
                     description="'Business ownership status' should not contain duplicated values.",
+                    severity=Severity.WARNING,
                     element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
                     id="W0843",
-                    warning=True,
                     name="business_ownership_status.multi_value_field_restriction",
                     description=(
                         "When 'business ownership status' contains 966"
@@ -1576,6 +1657,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " by applicant), 'business ownership status' should"
                         " not contain more than one value."
                     ),
+                    severity=Severity.WARNING,
                     element_wise=True,
                     single_values={"966", "988"},
                 ),
@@ -1588,6 +1670,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0860",
                     name="num_principal_owners_flag.invalid_enum_value",
                     description="'Number of principal owners: NP flag' must equal 900 or 988.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "900",
@@ -1605,6 +1688,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "demographic fields for principal owners 1, 2, 3, and 4 "
                         "should be blank."
                     ),
+                    severity=Severity.WARNING,
                     groupby=[
                         "po_1_ethnicity",
                         "po_1_race",
@@ -1646,6 +1730,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " blank. Demographic fields for principal owners 2, 3, and 4 "
                         "should be blank."
                     ),
+                    severity=Severity.WARNING,
                     groupby=[
                         "po_1_ethnicity",
                         "po_1_race",
@@ -1686,6 +1771,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "owner 1 and 2', and 'sex/gender of principal owner 1 and 2: "
                         "NP flag' should not be blank."
                     ),
+                    severity=Severity.WARNING,
                     groupby=[
                         "po_1_ethnicity",
                         "po_1_race",
@@ -1727,6 +1813,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "and 3: NP flag' should not be blank. Demographic fields for "
                         "principal owner 4 should be blank."
                     ),
+                    severity=Severity.WARNING,
                     groupby=[
                         "po_1_ethnicity",
                         "po_1_race",
@@ -1768,6 +1855,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "and 'sex/gender of principal owner 1, 2, 3, and 4: NP flag'"
                         " should not be blank."
                     ),
+                    severity=Severity.WARNING,
                     groupby=[
                         "po_1_ethnicity",
                         "po_1_race",
@@ -1807,6 +1895,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E0880",
                     name="num_principal_owners.invalid_enum_value",
                     description="When present, 'number of principal owners' must equal 0, 1, 2, 3, or 4.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=["0", "1", "2", "3", "4"],
                     accept_blank=True,
@@ -1823,6 +1912,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         "When 'number of principal owners: NP flag' equals 900, "
                         "'number of principal owners' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="num_principal_owners_flag",
                     condition_values={"900"},
                 ),
@@ -1840,6 +1930,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " semicolons) must equal 1, 11, 12,"
                         " 13, 14, 2, 966, 977, or 988."
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -1859,15 +1950,14 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck(
                     is_unique_in_field,
                     id="W0901",
-                    warning=True,
                     name="po_1_ethnicity.duplicates_in_field",
                     description="'Ethnicity of principal owner 1' should not contain duplicated values.",
+                    severity=Severity.WARNING,
                     element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
                     id="W0902",
-                    warning=True,
                     name="po_1_ethnicity.multi_value_field_restriction",
                     description=(
                         "When 'ethnicity of principal owner 1' contains"
@@ -1876,6 +1966,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " (not provided by applicant), 'ethnicity of"
                         " principal owner 1' should not contain more than one value."
                     ),
+                    severity=Severity.WARNING,
                     element_wise=True,
                     single_values={"966", "988"},
                 ),
@@ -1893,6 +1984,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " text field for other Hispanic or Latino'"
                         " must not exceed 300 characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -1910,6 +2002,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " owner 1: free-form text field for other Hispanic"
                         " or Latino' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="po_1_ethnicity",
                     condition_values={"977"},
                 ),
@@ -1929,6 +2022,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " 34, 35, 36, 37, 4, 41, 42, 43, 44,"
                         " 5, 966, 971, 972, 973, 974, or 988."
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -1968,15 +2062,14 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck(
                     is_unique_in_field,
                     id="W0941",
-                    warning=True,
                     name="po_1_race.duplicates_in_field",
                     description="'Race of principal owner 1' should not contain duplicated values.",
+                    severity=Severity.WARNING,
                     element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
                     id="W0942",
-                    warning=True,
                     name="po_1_race.multi_value_field_restriction",
                     description=(
                         "When 'race of principal owner 1' contains"
@@ -1986,6 +2079,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " 'race of principal owner 1' should not"
                         " contain more than one value."
                     ),
+                    severity=Severity.WARNING,
                     element_wise=True,
                     single_values={"966", "988"},
                 ),
@@ -2004,6 +2098,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " Native Enrolled or Principal Tribe' must"
                         " not exceed 300 characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -2024,6 +2119,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " for American Indian or Alaska Native Enrolled or"
                         " Principal Tribe' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="po_1_race",
                     condition_values={"971"},
                 ),
@@ -2041,6 +2137,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " field for other Asian' must not exceed 300"
                         " characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -2057,6 +2154,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " 972, 'race of principal owner 1: free-form text field"
                         " for other Asian' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="po_1_race",
                     condition_values={"972"},
                 ),
@@ -2074,6 +2172,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " field for other Black or African American'"
                         " must not exceed 300 characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -2090,6 +2189,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " contains 973, 'race of principal owner 1: free-form text"
                         " field for other Black or African American' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="po_1_race",
                     condition_values={"973"},
                 ),
@@ -2107,6 +2207,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " field for other Pacific Islander race' must"
                         " not exceed 300 characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -2123,6 +2224,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " contains 974, 'race of principal owner 1: free-form text"
                         " field for other Pacific Islander race' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="po_1_race",
                     condition_values={"974"},
                 ),
@@ -2135,6 +2237,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E1040",
                     name="po_1_gender_flag.invalid_enum_value",
                     description="When present, 'sex/gender of principal owner 1: NP flag' must equal 1, 966, or 988.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -2158,6 +2261,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " text field for self-identified sex/gender'"
                         " must not exceed 300 characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -2175,6 +2279,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " of principal owner 1: free-form text field for"
                         " self-identified sex/gender' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="po_1_gender_flag",
                     condition_values={"1"},
                 ),
@@ -2192,6 +2297,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " semicolons) must equal 1, 11, 12,"
                         " 13, 14, 2, 966, 977, or 988."
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -2211,15 +2317,14 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck(
                     is_unique_in_field,
                     id="W0901",
-                    warning=True,
                     name="po_2_ethnicity.duplicates_in_field",
                     description="'Ethnicity of principal owner 2' should not contain duplicated values.",
+                    severity=Severity.WARNING,
                     element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
                     id="W0902",
-                    warning=True,
                     name="po_2_ethnicity.multi_value_field_restriction",
                     description=(
                         "When 'ethnicity of principal owner 2' contains"
@@ -2228,6 +2333,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " (not provided by applicant), 'ethnicity of"
                         " principal owner 2' should not contain more than one value."
                     ),
+                    severity=Severity.WARNING,
                     element_wise=True,
                     single_values={"966", "988"},
                 ),
@@ -2245,6 +2351,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " text field for other Hispanic or Latino'"
                         " must not exceed 300 characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -2262,6 +2369,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " owner 2: free-form text field for other Hispanic"
                         " or Latino' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="po_2_ethnicity",
                     condition_values={"977"},
                 ),
@@ -2281,6 +2389,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " 34, 35, 36, 37, 4, 41, 42, 43, 44,"
                         " 5, 966, 971, 972, 973, 974, or 988."
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -2320,15 +2429,14 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck(
                     is_unique_in_field,
                     id="W0941",
-                    warning=True,
                     name="po_2_race.duplicates_in_field",
                     description="'Race of principal owner 2' should not contain duplicated values.",
+                    severity=Severity.WARNING,
                     element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
                     id="W0942",
-                    warning=True,
                     name="po_2_race.multi_value_field_restriction",
                     description=(
                         "When 'race of principal owner 2' contains"
@@ -2338,6 +2446,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " 'race of principal owner 2' should not"
                         " contain more than one value."
                     ),
+                    severity=Severity.WARNING,
                     element_wise=True,
                     single_values={"966", "988"},
                 ),
@@ -2356,6 +2465,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " Native Enrolled or Principal Tribe' must"
                         " not exceed 300 characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -2376,6 +2486,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " for American Indian or Alaska Native Enrolled or"
                         " Principal Tribe' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="po_2_race",
                     condition_values={"971"},
                 ),
@@ -2393,6 +2504,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " field for other Asian' must not exceed 300"
                         " characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -2409,6 +2521,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " 972, 'race of principal owner 2: free-form text field"
                         " for other Asian' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="po_2_race",
                     condition_values={"972"},
                 ),
@@ -2426,6 +2539,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " field for other Black or African American'"
                         " must not exceed 300 characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -2442,6 +2556,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " contains 973, 'race of principal owner 2: free-form text"
                         " field for other Black or African American' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="po_2_race",
                     condition_values={"973"},
                 ),
@@ -2459,6 +2574,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " field for other Pacific Islander race' must"
                         " not exceed 300 characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -2475,6 +2591,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " contains 974, 'race of principal owner 2: free-form text"
                         " field for other Pacific Islander race' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="po_2_race",
                     condition_values={"974"},
                 ),
@@ -2487,6 +2604,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E1040",
                     name="po_2_gender_flag.invalid_enum_value",
                     description="When present, 'sex/gender of principal owner 2: NP flag' must equal 1, 966, or 988.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -2510,6 +2628,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " text field for self-identified sex/gender'"
                         " must not exceed 300 characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -2527,6 +2646,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " of principal owner 2: free-form text field for"
                         " self-identified sex/gender' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="po_2_gender_flag",
                     condition_values={"1"},
                 ),
@@ -2544,6 +2664,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " semicolons) must equal 1, 11, 12,"
                         " 13, 14, 2, 966, 977, or 988."
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -2563,15 +2684,14 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck(
                     is_unique_in_field,
                     id="W0901",
-                    warning=True,
                     name="po_3_ethnicity.duplicates_in_field",
                     description="'Ethnicity of principal owner 3' should not contain duplicated values.",
+                    severity=Severity.WARNING,
                     element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
                     id="W0902",
-                    warning=True,
                     name="po_3_ethnicity.multi_value_field_restriction",
                     description=(
                         "When 'ethnicity of principal owner 3' contains"
@@ -2580,6 +2700,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " (not provided by applicant), 'ethnicity of"
                         " principal owner 3' should not contain more than one value."
                     ),
+                    severity=Severity.WARNING,
                     element_wise=True,
                     single_values={"966", "988"},
                 ),
@@ -2597,6 +2718,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " text field for other Hispanic or Latino'"
                         " must not exceed 300 characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -2614,6 +2736,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " owner 3: free-form text field for other Hispanic"
                         " or Latino' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="po_3_ethnicity",
                     condition_values={"977"},
                 ),
@@ -2633,6 +2756,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " 34, 35, 36, 37, 4, 41, 42, 43, 44,"
                         " 5, 966, 971, 972, 973, 974, or 988."
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -2672,15 +2796,14 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck(
                     is_unique_in_field,
                     id="W0941",
-                    warning=True,
                     name="po_3_race.duplicates_in_field",
                     description="'Race of principal owner 3' should not contain duplicated values.",
+                    severity=Severity.WARNING,
                     element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
                     id="W0942",
-                    warning=True,
                     name="po_3_race.multi_value_field_restriction",
                     description=(
                         "When 'race of principal owner 3' contains"
@@ -2690,6 +2813,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " 'race of principal owner 3' should not"
                         " contain more than one value."
                     ),
+                    severity=Severity.WARNING,
                     element_wise=True,
                     single_values={"966", "988"},
                 ),
@@ -2708,6 +2832,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " Native Enrolled or Principal Tribe' must"
                         " not exceed 300 characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -2728,6 +2853,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " for American Indian or Alaska Native Enrolled or"
                         " Principal Tribe' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="po_3_race",
                     condition_values={"971"},
                 ),
@@ -2745,6 +2871,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " field for other Asian' must not exceed 300"
                         " characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -2761,6 +2888,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " 972, 'race of principal owner 3: free-form text field"
                         " for other Asian' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="po_3_race",
                     condition_values={"972"},
                 ),
@@ -2778,6 +2906,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " field for other Black or African American'"
                         " must not exceed 300 characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -2794,6 +2923,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " contains 973, 'race of principal owner 3: free-form text"
                         " field for other Black or African American' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="po_3_race",
                     condition_values={"973"},
                 ),
@@ -2811,6 +2941,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " field for other Pacific Islander race' must"
                         " not exceed 300 characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -2827,6 +2958,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " contains 974, 'race of principal owner 3: free-form text"
                         " field for other Pacific Islander race' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="po_3_race",
                     condition_values={"974"},
                 ),
@@ -2839,6 +2971,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E1040",
                     name="po_3_gender_flag.invalid_enum_value",
                     description="When present, 'sex/gender of principal owner 3: NP flag' must equal 1, 966, or 988.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -2862,6 +2995,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " text field for self-identified sex/gender'"
                         " must not exceed 300 characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -2879,6 +3013,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " of principal owner 3: free-form text field for"
                         " self-identified sex/gender' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="po_3_gender_flag",
                     condition_values={"1"},
                 ),
@@ -2896,6 +3031,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " semicolons) must equal 1, 11, 12,"
                         " 13, 14, 2, 966, 977, or 988."
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -2915,15 +3051,14 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck(
                     is_unique_in_field,
                     id="W0901",
-                    warning=True,
                     name="po_4_ethnicity.duplicates_in_field",
                     description="'Ethnicity of principal owner 4' should not contain duplicated values.",
+                    severity=Severity.WARNING,
                     element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
                     id="W0902",
-                    warning=True,
                     name="po_4_ethnicity.multi_value_field_restriction",
                     description=(
                         "When 'ethnicity of principal owner 4' contains"
@@ -2932,6 +3067,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " (not provided by applicant), 'ethnicity of"
                         " principal owner 4' should not contain more than one value."
                     ),
+                    severity=Severity.WARNING,
                     element_wise=True,
                     single_values={"966", "988"},
                 ),
@@ -2949,6 +3085,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " text field for other Hispanic or Latino'"
                         " must not exceed 300 characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -2966,6 +3103,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " owner 4: free-form text field for other Hispanic"
                         " or Latino' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="po_4_ethnicity",
                     condition_values={"977"},
                 ),
@@ -2985,6 +3123,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " 34, 35, 36, 37, 4, 41, 42, 43, 44,"
                         " 5, 966, 971, 972, 973, 974, or 988."
                     ),
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -3024,15 +3163,14 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck(
                     is_unique_in_field,
                     id="W0941",
-                    warning=True,
                     name="po_4_race.duplicates_in_field",
                     description="'Race of principal owner 4' should not contain duplicated values.",
+                    severity=Severity.WARNING,
                     element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
                     id="W0942",
-                    warning=True,
                     name="po_4_race.multi_value_field_restriction",
                     description=(
                         "When 'race of principal owner 4' contains"
@@ -3042,6 +3180,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " 'race of principal owner 4' should not"
                         " contain more than one value."
                     ),
+                    severity=Severity.WARNING,
                     element_wise=True,
                     single_values={"966", "988"},
                 ),
@@ -3060,6 +3199,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " Native Enrolled or Principal Tribe' must"
                         " not exceed 300 characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -3080,6 +3220,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " for American Indian or Alaska Native Enrolled or"
                         " Principal Tribe' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="po_4_race",
                     condition_values={"971"},
                 ),
@@ -3097,6 +3238,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " field for other Asian' must not exceed 300"
                         " characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -3113,6 +3255,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " 972, 'race of principal owner 4: free-form text field"
                         " for other Asian' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="po_4_race",
                     condition_values={"972"},
                 ),
@@ -3130,6 +3273,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " field for other Black or African American'"
                         " must not exceed 300 characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -3146,6 +3290,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " contains 973, 'race of principal owner 4: free-form text"
                         " field for other Black or African American' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="po_4_race",
                     condition_values={"973"},
                 ),
@@ -3163,6 +3308,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " field for other Pacific Islander race' must"
                         " not exceed 300 characters in length."
                     ),
+                    severity=Severity.ERROR
                 ),
             ],
             "phase_2": [
@@ -3179,6 +3325,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " contains 974, 'race of principal owner 4: free-form text"
                         " field for other Pacific Islander race' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="po_4_race",
                     condition_values={"974"},
                 ),
@@ -3191,6 +3338,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                     id="E1040",
                     name="po_4_gender_flag.invalid_enum_value",
                     description="When present, 'sex/gender of principal owner 4: NP flag' must equal 1, 966, or 988.",
+                    severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
                         "1",
@@ -3214,6 +3362,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " text field for self-identified sex/gender'"
                         " must not exceed 300 characters in length."
                     ),
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [
@@ -3231,6 +3380,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                         " of principal owner 4: free-form text field for"
                         " self-identified sex/gender' must not be blank."
                     ),
+                    severity=Severity.ERROR,
                     groupby="po_4_gender_flag",
                     condition_values={"1"},
                 ),
