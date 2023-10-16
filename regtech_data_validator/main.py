@@ -5,10 +5,11 @@ the SBL Pandera schema.
 Run from the terminal to see the generated output.
 """
 
-import pprint
+import json
 import sys
 
 import pandas as pd
+
 from regtech_data_validator.create_schemas import validate_phases
 
 
@@ -22,10 +23,13 @@ def run_validation_on_df(df: pd.DataFrame, lei: str|None) -> None:
     the terminal.
     """
 
-    pprint.pprint(validate_phases(df, lei))
+    validation_dict = validate_phases(df, lei)
+    validation_json = json.dumps(validation_dict, indent=4)
+
+    print(validation_json)
 
 
-if __name__ == "__main__":
+def main():
     csv_path = None
     lei: str|None = None
     if len(sys.argv) == 1:
@@ -40,3 +44,6 @@ if __name__ == "__main__":
 
     df = csv_to_df(csv_path)
     run_validation_on_df(df, lei)
+
+if __name__ == "__main__":
+    main()

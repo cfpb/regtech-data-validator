@@ -2,16 +2,16 @@
 Subclasses of Pandera's `Check` class
 """
 
-from enum import Enum, auto
+from enum import StrEnum
 from typing import Any, Callable, Type
 
 from pandera import Check
 from pandera.backends.base import BaseCheckBackend
 from pandera.backends.pandas.checks import PandasCheckBackend
 
-class Severity(Enum):
-    ERROR = auto()
-    WARNING = auto()
+class Severity(StrEnum):
+    ERROR = 'error'
+    WARNING = 'warning'
 
 class SBLCheck(Check):
     """
