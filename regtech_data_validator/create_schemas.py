@@ -3,11 +3,12 @@ with validations listed in phase 1 and phase 2."""
 
 import pandas as pd
 from pandera import DataFrameSchema
-from pandera.errors import SchemaErrors
+from pandera.errors import SchemaErrors, SchemaError
 
 from regtech_data_validator.checks import SBLCheck
 from regtech_data_validator.phase_validations import get_phase_1_and_2_validations_for_lei
 from regtech_data_validator.schema_template import get_template
+
 
 # Get separate schema templates for phase 1 and 2
 
@@ -16,58 +17,60 @@ phase_1_template = get_template()
 phase_2_template = get_template()
 
 
-def get_schema_by_phase_for_lei(template: dict, phase: str, lei: str = None):
+def get_schema_by_phase_for_lei(template: dict, phase: str, lei: str|None = None):
     for column in get_phase_1_and_2_validations_for_lei(lei):
         validations = get_phase_1_and_2_validations_for_lei(lei)[column]
         template[column].checks = validations[phase]
     return DataFrameSchema(template)
 
 
-def get_phase_1_schema_for_lei(lei: str = None):
+def get_phase_1_schema_for_lei(lei: str|None = None):
     return get_schema_by_phase_for_lei(phase_1_template, "phase_1", lei)
 
 
-def get_phase_2_schema_for_lei(lei: str = None):
+def get_phase_2_schema_for_lei(lei: str|None = None):
     return get_schema_by_phase_for_lei(phase_2_template, "phase_2", lei)
 
 
-def validate(schema: DataFrameSchema, df: pd.DataFrame):
+def validate(schema: DataFrameSchema, df: pd.DataFrame) -> list[dict]:
     """
     validate received dataframe with schema and return list of
     schema errors
-
     Args:
         schema (DataFrameSchema): schema to be used for validation
         df (pd.DataFrame): data parsed into dataframe
-
     Returns:
-        list of schema error
+        list of validation findings (warnings and errors)
     """
     findings = []
     try:
         schema(df, lazy=True)
-    except SchemaErrors as errors:
-        for error in errors.schema_errors:
-            check: SBLCheck = error.check
-            column_name = error.schema.name
-            check_id = "n/a"
+    except SchemaErrors as err:
 
+        # WARN: SchemaErrors.schema_errors is supposed to be of type
+        #       list[dict[str,Any]], but it's actually of type SchemaError
+        schema_error: SchemaError
+        for schema_error in err.schema_errors: # type: ignore
+            check = schema_error.check
+            column_name = schema_error.schema.name
+
+            if not check:
+                raise RuntimeError(
+                    f'SchemaError occurred with no associated Check for {column_name} column'
+                ) from schema_error
+
+            if not isinstance(check, SBLCheck):
+                raise RuntimeError(
+                    f'Check {check} type on {column_name} column not supported. Must be of type {SBLCheck}'
+                ) from schema_error
+            
             fields: list[str] = [column_name]
 
-            if hasattr(check, "name") and hasattr(check, "id"):
-                check_name: str = check.name
-                check_id: str = check.id
+            if check.groupby:
+                fields += check.groupby  # type: ignore
 
-                if check.groupby:
-                    fields += check.groupby  # type: ignore
-
-                # This will either be a boolean series or a single bool
-                check_output = error.check_output
-            else:
-                # This means this check's column has unique set to True.
-                # we shouldn't be using Unique flag as it doesn't return series of
-                # validation result .  it returns just a printout result string/txt
-                raise AttributeError(f"{str(check)}")
+            # This will either be a boolean series or a single bool
+            check_output = schema_error.check_output
 
             # Remove duplicates, but keep as `list` for JSON-friendliness
             fields = list(set(fields))
@@ -93,11 +96,11 @@ def validate(schema: DataFrameSchema, df: pd.DataFrame):
 
                 validation_findings = {
                     "validation": {
-                        "id": check_id,
-                        "name": check_name,
+                        "id": check.title,
+                        "name": check.name,
                         "description": check.description,
+                        "severity": check.severity,
                         "fields": fields,
-                        "severity": "warning" if check.warning else "error",
                     },
                     "records": records,
                 }
@@ -107,7 +110,7 @@ def validate(schema: DataFrameSchema, df: pd.DataFrame):
     return findings
 
 
-def validate_phases(df: pd.DataFrame, lei: str = None) -> list:
+def validate_phases(df: pd.DataFrame, lei: str|None = None) -> list:
     phase1_findings = validate(get_phase_1_schema_for_lei(lei), df)
     if phase1_findings:
         return phase1_findings
