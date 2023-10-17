@@ -1,6 +1,6 @@
 import pytest
 
-from validator.checks import SBLCheck
+from regtech_data_validator.checks import SBLCheck
 
 
 class TestSBLCheck:

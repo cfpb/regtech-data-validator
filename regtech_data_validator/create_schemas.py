@@ -2,11 +2,12 @@
 with validations listed in phase 1 and phase 2."""
 
 import pandas as pd
-from checks import SBLCheck
 from pandera import DataFrameSchema
 from pandera.errors import SchemaErrors
-from phase_validations import get_phase_1_and_2_validations_for_lei
-from schema_template import get_template
+
+from regtech_data_validator.checks import SBLCheck
+from regtech_data_validator.phase_validations import get_phase_1_and_2_validations_for_lei
+from regtech_data_validator.schema_template import get_template
 
 # Get separate schema templates for phase 1 and 2
 
