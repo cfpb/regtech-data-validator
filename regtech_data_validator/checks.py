@@ -9,9 +9,11 @@ from pandera import Check
 from pandera.backends.base import BaseCheckBackend
 from pandera.backends.pandas.checks import PandasCheckBackend
 
+
 class Severity(StrEnum):
     ERROR = 'error'
     WARNING = 'warning'
+
 
 class SBLCheck(Check):
     """
@@ -23,13 +25,7 @@ class SBLCheck(Check):
     SBLWarningCheck subclasses below.
     """
 
-    def __init__(self, 
-                 check_fn: Callable,
-                 id: str,
-                 name: str,
-                 description: str,
-                 severity: Severity,
-                 **check_kwargs):
+    def __init__(self, check_fn: Callable, id: str, name: str, description: str, severity: Severity, **check_kwargs):
         """
         Subclass of Pandera's `Check`, with special handling for severity level
         Args:
@@ -43,13 +39,7 @@ class SBLCheck(Check):
 
         self.severity = severity
 
-        super().__init__(
-            check_fn,
-            title=id,
-            name=name,
-            description=description,
-            **check_kwargs
-        )
+        super().__init__(check_fn, title=id, name=name, description=description, **check_kwargs)
 
     @classmethod
     def get_backend(cls, check_obj: Any) -> Type[BaseCheckBackend]:

@@ -170,10 +170,7 @@ _schema_template = {
     ),
     "pricing_mca_addcost": Column(
         str,
-        title=(
-            "Field 31: MCA/sales-based: additional cost for merchant cash "
-            "advances or other sales-based financing"
-        ),
+        title="Field 31: MCA/sales-based: additional cost for merchant cash advances or other sales-based financing",
         checks=[],
     ),
     "pricing_prepenalty_allowed": Column(

@@ -17,7 +17,7 @@ def csv_to_df(path: str) -> pd.DataFrame:
     return pd.read_csv(path, dtype=str, na_filter=False)
 
 
-def run_validation_on_df(df: pd.DataFrame, lei: str|None) -> None:
+def run_validation_on_df(df: pd.DataFrame, lei: str | None) -> None:
     """
     Run validation on the supplied dataframe and print a report to
     the terminal.
@@ -31,7 +31,7 @@ def run_validation_on_df(df: pd.DataFrame, lei: str|None) -> None:
 
 def main():
     csv_path = None
-    lei: str|None = None
+    lei: str | None = None
     if len(sys.argv) == 1:
         raise ValueError("csv_path arg not provided")
     elif len(sys.argv) == 2:
@@ -44,6 +44,7 @@ def main():
 
     df = csv_to_df(csv_path)
     run_validation_on_df(df, lei)
+
 
 if __name__ == "__main__":
     main()

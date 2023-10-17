@@ -3,7 +3,7 @@ from importlib.resources import files
 
 
 # global variable for NAICS codes
-naics_codes: dict[str,str] = {}
+naics_codes: dict[str, str] = {}
 naics_file_path = files('regtech_data_validator.data.naics').joinpath('2022_codes.csv')
 
 with naics_file_path.open('r') as f:

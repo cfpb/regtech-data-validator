@@ -3,7 +3,8 @@ import pandas as pd
 from regtech_data_validator.create_schemas import (
     get_phase_1_schema_for_lei,
     get_phase_2_schema_for_lei,
-    validate, validate_phases
+    validate,
+    validate_phases,
 )
 
 

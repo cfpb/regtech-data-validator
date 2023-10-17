@@ -17,18 +17,18 @@ phase_1_template = get_template()
 phase_2_template = get_template()
 
 
-def get_schema_by_phase_for_lei(template: dict, phase: str, lei: str|None = None):
+def get_schema_by_phase_for_lei(template: dict, phase: str, lei: str | None = None):
     for column in get_phase_1_and_2_validations_for_lei(lei):
         validations = get_phase_1_and_2_validations_for_lei(lei)[column]
         template[column].checks = validations[phase]
     return DataFrameSchema(template)
 
 
-def get_phase_1_schema_for_lei(lei: str|None = None):
+def get_phase_1_schema_for_lei(lei: str | None = None):
     return get_schema_by_phase_for_lei(phase_1_template, "phase_1", lei)
 
 
-def get_phase_2_schema_for_lei(lei: str|None = None):
+def get_phase_2_schema_for_lei(lei: str | None = None):
     return get_schema_by_phase_for_lei(phase_2_template, "phase_2", lei)
 
 
@@ -46,11 +46,10 @@ def validate(schema: DataFrameSchema, df: pd.DataFrame) -> list[dict]:
     try:
         schema(df, lazy=True)
     except SchemaErrors as err:
-
         # WARN: SchemaErrors.schema_errors is supposed to be of type
         #       list[dict[str,Any]], but it's actually of type SchemaError
         schema_error: SchemaError
-        for schema_error in err.schema_errors: # type: ignore
+        for schema_error in err.schema_errors:  # type: ignore
             check = schema_error.check
             column_name = schema_error.schema.name
 
@@ -63,7 +62,7 @@ def validate(schema: DataFrameSchema, df: pd.DataFrame) -> list[dict]:
                 raise RuntimeError(
                     f'Check {check} type on {column_name} column not supported. Must be of type {SBLCheck}'
                 ) from schema_error
-            
+
             fields: list[str] = [column_name]
 
             if check.groupby:
@@ -110,7 +109,7 @@ def validate(schema: DataFrameSchema, df: pd.DataFrame) -> list[dict]:
     return findings
 
 
-def validate_phases(df: pd.DataFrame, lei: str|None = None) -> list:
+def validate_phases(df: pd.DataFrame, lei: str | None = None) -> list:
     phase1_findings = validate(get_phase_1_schema_for_lei(lei), df)
     if phase1_findings:
         return phase1_findings

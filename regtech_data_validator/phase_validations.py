@@ -31,7 +31,7 @@ from regtech_data_validator.check_functions import (
 from regtech_data_validator.checks import SBLCheck, Severity
 
 
-def get_phase_1_and_2_validations_for_lei(lei: str|None = None):
+def get_phase_1_and_2_validations_for_lei(lei: str | None = None):
     return {
         "uid": {
             "phase_1": [
@@ -1446,8 +1446,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str|None = None):
                     id="E0720",
                     name="naics_code_flag.invalid_enum_value",
                     description=(
-                        "'North American Industry Classification System (NAICS) code: NP flag'"
-                        "must equal 900 or 988."
+                        "'North American Industry Classification System (NAICS) code: NP flag'must equal 900 or 988."
                     ),
                     severity=Severity.ERROR,
                     element_wise=True,
@@ -3305,7 +3304,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str|None = None):
                         " field for other Pacific Islander race' must"
                         " not exceed 300 characters in length."
                     ),
-                    severity=Severity.ERROR
+                    severity=Severity.ERROR,
                 ),
             ],
             "phase_2": [

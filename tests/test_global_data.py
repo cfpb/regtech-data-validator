@@ -1,5 +1,3 @@
-import pytest
-
 from regtech_data_validator import global_data
 
 
