@@ -5,10 +5,12 @@ import zipfile
 
 import pandas as pd
 
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # noqa: E402
-sys.path.append(ROOT_DIR)  # noqa: E402
+# census file col indexes
+CENSUS_STATE_COL_INDEX = 2
+CENSUS_COUNTY_COL_INDEX = 3
+CENSUS_TRACT_COL_INDEX = 4
 
-import config  # noqa: E402
+CENSUS_GEOID_COL = "geoid"
 
 
 # helper function to check number (float/int/negative)
@@ -21,24 +23,22 @@ def _is_number(s):
 
 
 # helper function to unzip census file and extract CSV file
-def _extract_census_zip_file():
-    CENSUS_TMP_CSV_PATH = config.CENSUS_RAW_ZIP_PATH + ".tmp.csv"
+def _extract_census_zip_file(raw_src):
+    census_tmp_csv_path = raw_src + ".tmp.csv"
     # unzip and extract csv files
-    with zipfile.ZipFile(config.CENSUS_RAW_ZIP_PATH, "r") as zip_ref:
+    with zipfile.ZipFile(raw_src, "r") as zip_ref:
         for file in zip_ref.namelist():  # iterate over files in archive
             if file[-4:] == ".csv":
-                print("Extracting CSV to {}".format(CENSUS_TMP_CSV_PATH))
-                with open(CENSUS_TMP_CSV_PATH, "wb") as outfile:
+                print("Extracting CSV to {}".format(census_tmp_csv_path))
+                with open(census_tmp_csv_path, "wb") as outfile:
                     outfile.write(zip_ref.read(file))
-                # it should only have one csv file
-                return CENSUS_TMP_CSV_PATH
+                    # it should only have one csv file
+
+    return census_tmp_csv_path
 
 
 # helper function to read extracted csv file and filter only geo-tract-id
-def _read_census_csv(src_path: str, csv_path: str):
-    STATE_COL = config.CENSUS_STATE_COL_INDEX
-    COUNTY_COL = config.CENSUS_COUNTY_COL_INDEX
-    TRACT_COL = config.CENSUS_TRACT_COL_INDEX
+def _process_census_csv(src_path: str, csv_path: str):
 
     # check paths
     if not os.path.isfile(src_path):
@@ -52,14 +52,14 @@ def _read_census_csv(src_path: str, csv_path: str):
     )
 
     # add header
-    result = [[config.CENSUS_GEOID_COL]]
+    result = [[CENSUS_GEOID_COL]]
 
     # read excel file
     # and create csv data list
     for index, row in df.iterrows():
-        state_value = str(row[STATE_COL])
-        county_value = str(row[COUNTY_COL])
-        tract_value = str(row[TRACT_COL])
+        state_value = str(row[CENSUS_STATE_COL_INDEX])
+        county_value = str(row[CENSUS_COUNTY_COL_INDEX])
+        tract_value = str(row[CENSUS_TRACT_COL_INDEX])
         if (
             _is_number(state_value)
             and _is_number(county_value)
@@ -84,14 +84,23 @@ filter Census data.
 - output to defined output file
 """
 if __name__ == "__main__":
-    CSV_PATH = config.CENSUS_PROCESSED_CSV_PATH
+    if len(sys.argv) != 3:
+        print(f"Usage: {sys.argv[0]} <raw-src> <csv-dest>")
+        exit(1)
+    
+    raw_src = sys.argv[1]
+    csv_dest = sys.argv[2]
 
-    if os.path.isfile(CSV_PATH):
-        error_msg = "Output {} csv file existed".format(CSV_PATH)
-        raise FileExistsError(error_msg)
+    if not os.path.isfile(raw_src):
+        print(f"source file not existed: {raw_src}")
+        exit(2)
 
-    tmp_census_csv_file = _extract_census_zip_file()
-    print("Reading extracted CSV File . {}".format(tmp_census_csv_file))
-    _read_census_csv(tmp_census_csv_file, CSV_PATH)
-    print("Removing extracted CSV File")
+    if os.path.isfile(csv_dest):
+        print("destination file already existed: {csv_dest}")
+        exit(3)
+
+    tmp_census_csv_file = _extract_census_zip_file(raw_src)
+    print(f"Reading extracted CSV file: {tmp_census_csv_file}")
+    _process_census_csv(tmp_census_csv_file, csv_dest)
+    print("Removing extracted CSV file")
     os.remove(tmp_census_csv_file)
