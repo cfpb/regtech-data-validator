@@ -49,7 +49,7 @@
         "python.testing.unittestEnabled": false,
         "python.testing.pytestArgs": [
           "--rootdir",
-          "${workspaceFolder}/src/tests"
+          "${workspaceFolder}/tests"
         ]
       }
     }
