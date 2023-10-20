@@ -1832,7 +1832,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
-                    id="E0900",
+                    id="E0901",
                     name="po_1_ethnicity.invalid_enum_value",
                     description=(
                         "When present, each value in 'ethnicity"
@@ -1886,7 +1886,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
                 SBLCheck.str_length(
                     0,
                     300,
-                    id="E0920",
+                    id="E0921",
                     name="po_1_ethnicity_ff.invalid_text_length",
                     description=(
                         "'Ethnicity of principal owner 1: free-form"
@@ -2184,7 +2184,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
-                    id="E0900",
+                    id="E0902",
                     name="po_2_ethnicity.invalid_enum_value",
                     description=(
                         "When present, each value in 'ethnicity"
@@ -2536,7 +2536,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
-                    id="E0900",
+                    id="E0903",
                     name="po_3_ethnicity.invalid_enum_value",
                     description=(
                         "When present, each value in 'ethnicity"
@@ -2888,7 +2888,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
-                    id="E0900",
+                    id="E0904",
                     name="po_4_ethnicity.invalid_enum_value",
                     description=(
                         "When present, each value in 'ethnicity"
