@@ -26,7 +26,7 @@ def run_validation_on_df(df: pd.DataFrame, lei: str | None) -> None:
     validation_dict = validate_phases(df, lei)
     validation_json = json.dumps(validation_dict, indent=4)
 
-    print(validation_json)
+    #print(validation_json)
 
 
 def main():

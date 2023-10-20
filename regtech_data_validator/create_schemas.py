@@ -32,7 +32,7 @@ def get_phase_2_schema_for_lei(lei: str | None = None):
     return get_schema_by_phase_for_lei(phase_2_template, "phase_2", lei)
 
 
-def validate(schema: DataFrameSchema, df: pd.DataFrame) -> list[dict]:
+def validate(schema: DataFrameSchema, df: pd.DataFrame) -> pd.DataFrame:
     """
     validate received dataframe with schema and return list of
     schema errors
@@ -40,9 +40,10 @@ def validate(schema: DataFrameSchema, df: pd.DataFrame) -> list[dict]:
         schema (DataFrameSchema): schema to be used for validation
         df (pd.DataFrame): data parsed into dataframe
     Returns:
-        list of validation findings (warnings and errors)
+        pd.DataFrame containing validation results data
     """
-    findings = []
+    findings_df: pd.DataFrame = pd.DataFrame()
+
     try:
         schema(df, lazy=True)
     except SchemaErrors as err:
@@ -69,12 +70,14 @@ def validate(schema: DataFrameSchema, df: pd.DataFrame) -> list[dict]:
                 fields += check.groupby  # type: ignore
 
             # This will either be a boolean series or a single bool
-            check_output = schema_error.check_output
+            # Q: Is the scenario where it returns a single bool even with the above error checking?
+            check_output: pd.Series = schema_error.check_output  # type: ignore
 
             # Remove duplicates, but keep as `list` for JSON-friendliness
             fields = list(set(fields))
 
-            if check_output is not None:
+            # Q: What's the scenario where `check_output` is empty?
+            if not check_output.empty:
                 # `check_output` must be sorted so its index lines up with `df`'s index
                 check_output.sort_index(inplace=True)
 
@@ -84,29 +87,38 @@ def validate(schema: DataFrameSchema, df: pd.DataFrame) -> list[dict]:
                 # http://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#boolean-indexing
                 failed_check_fields_df = df[~check_output][fields].fillna("")
 
-                # Create list of dicts representing the failed validations and the
-                # associated field data for each invalid record.
-                records = []
-                for idx, row in failed_check_fields_df.iterrows():
-                    record = {"number": idx + 1, "field_values": {}}
-                    for field in fields:
-                        record["field_values"][field] = row[field]
-                    records.append(record)
+                # Melts a DataFrame with the line number as the index columns for the validations's fields' values
+                # into one with the validation_id, line_no, and field_name as a multiindex, and all of the validation
+                # metadata merged in as well.
+                #
+                # from...
+                #
+                #   ct_loan_term_flag ct_credit_product
+                # 0               999                 1
+                # 1               999                 2
+                #
+                # ...to...
+                #                                 field_value  v_sev                                v_name                                            v_desc
+                # v_id  line_no field_name
+                # E2003 0       ct_credit_product           1  error  ct_loan_term_flag.enum_value_conflict  When 'credit product' equals 1 (term loan - un...
+                #               ct_loan_term_flag         999  error  ct_loan_term_flag.enum_value_conflict  When 'credit product' equals 1 (term loan - un...
+                #       1       ct_credit_product           2  error  ct_loan_term_flag.enum_value_conflict  When 'credit product' equals 1 (term loan - un...
+                #               ct_loan_term_flag         999  error  ct_loan_term_flag.enum_value_conflict  When 'credit product' equals 1 (term loan - un...
+                failed_check_fields_melt_df = (
+                    failed_check_fields_df.reset_index(names='line_no')
+                    .melt(var_name='field_name', value_name='field_value', id_vars='line_no')
+                    .assign(v_id=check.title)
+                    .assign(v_sev=check.severity)
+                    .assign(v_name=check.name)
+                    .assign(v_desc=check.description)
+                    .set_index(['v_id', 'line_no', 'field_name'])
+                    .sort_index
+                )
+                print(failed_check_fields_melt_df)
 
-                validation_findings = {
-                    "validation": {
-                        "id": check.title,
-                        "name": check.name,
-                        "description": check.description,
-                        "severity": check.severity,
-                        "fields": fields,
-                    },
-                    "records": records,
-                }
+                findings_df = pd.concat([findings_df, failed_check_fields_melt_df])
 
-                findings.append(validation_findings)
-
-    return findings
+    return findings_df
 
 
 def validate_phases(df: pd.DataFrame, lei: str | None = None) -> list:
