@@ -1,4 +1,4 @@
-"""This is a 'blank' Pandera template for SBLAR. All columns in the fig are present,
+"""This is a 'blank' Pandera template for SBLAR. All columns in the FIG are present,
 but the checks need to be populated.
 
 Do not import _schema_template from this module directly. Instead, make use of the
@@ -170,10 +170,7 @@ _schema_template = {
     ),
     "pricing_mca_addcost": Column(
         str,
-        title=(
-            "Field 31: MCA/sales-based: additional cost for merchant cash ",
-            "advances or other sales-based financing",
-        ),
+        title="Field 31: MCA/sales-based: additional cost for merchant cash advances or other sales-based financing",
         checks=[],
     ),
     "pricing_prepenalty_allowed": Column(

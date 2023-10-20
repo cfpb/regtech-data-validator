@@ -16,6 +16,9 @@ pytest-cov = "4.1.0"
 black = "23.3.0"
 ruff = "0.0.259"
 
+[tool.poetry.group.data.dependencies]
+openpyxl = "^3.1.2"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
@@ -33,7 +36,6 @@ exclude = '''
     | .gitignore
     | .github
     | data
-    | tools
   )/
 '''
 
@@ -49,18 +51,18 @@ addopts = [
     "--cov-branch",
     "--cov-report=xml",
     "--cov-report=term",
-    "--cov=src",
+    "--cov=regtech_data_validator",
     "-vv",
     "--strict-markers",
     "-rfE",
 ]
 testpaths = [
-    "src/tests",
+    "tests",
 ]
 
 [tool.coverage.run]
 relative_files = true
-source = ["src"]
+source = ["regtech_data_validator"]
 
 [tool.coverage.report]
 skip_empty = true
