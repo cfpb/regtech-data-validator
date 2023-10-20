@@ -2,23 +2,18 @@
 
 
 
-| Name                                 |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
-|------------------------------------- | -------: | -------: | -------: | -------: | ------: | --------: |
-| src/tests/\_\_init\_\_.py            |        4 |        0 |        0 |        0 |    100% |           |
-| src/tests/test\_check\_functions.py  |      418 |        0 |        0 |        0 |    100% |           |
-| src/tests/test\_checks.py            |       20 |        2 |       10 |        3 |     83% |9->exit, 16->exit, 24->exit, 25-26 |
-| src/tests/test\_global\_data.py      |       19 |        0 |        4 |        0 |    100% |           |
-| src/tests/test\_sample\_data.py      |       38 |        0 |        2 |        0 |    100% |           |
-| src/tests/test\_schema\_functions.py |       78 |        0 |        0 |        0 |    100% |           |
-| src/validator/\_\_init\_\_.py        |        4 |        0 |        0 |        0 |    100% |           |
-| src/validator/check\_functions.py    |      184 |       14 |       78 |        0 |     91% |55-59, 111-121, 275-276, 297-298, 420-421 |
-| src/validator/checks.py              |       14 |        0 |        4 |        0 |    100% |           |
-| src/validator/create\_schemas.py     |       55 |        1 |       18 |        2 |     96% |69, 74->49 |
-| src/validator/global\_data.py        |       18 |        0 |        4 |        0 |    100% |           |
-| src/validator/main.py                |       21 |       21 |        8 |        0 |      0% |      8-42 |
-| src/validator/phase\_validations.py  |        6 |        0 |        0 |        0 |    100% |           |
-| src/validator/schema\_template.py    |        6 |        0 |        0 |        0 |    100% |           |
-|                            **TOTAL** |  **885** |   **38** |  **128** |    **5** | **94%** |           |
+| Name                                           |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
+|----------------------------------------------- | -------: | -------: | -------: | -------: | ------: | --------: |
+| regtech\_data\_validator/check\_functions.py   |      184 |       14 |       78 |        0 |     91% |55-59, 111-121, 275-276, 297-298, 420-421 |
+| regtech\_data\_validator/checks.py             |       15 |        0 |        2 |        0 |    100% |           |
+| regtech\_data\_validator/create\_schemas.py    |       54 |        2 |       20 |        3 |     93% |57, 62, 77->52 |
+| regtech\_data\_validator/global\_data.py       |       12 |        0 |        8 |        0 |    100% |           |
+| regtech\_data\_validator/main.py               |       25 |       25 |        8 |        0 |      0% |      8-50 |
+| regtech\_data\_validator/phase\_validations.py |        5 |        0 |        0 |        0 |    100% |           |
+| regtech\_data\_validator/schema\_template.py   |        6 |        0 |        0 |        0 |    100% |           |
+|                                      **TOTAL** |  **301** |   **41** |  **116** |    **3** | **85%** |           |
+
+3 empty files skipped.
 
 
 ## Setup coverage badge
