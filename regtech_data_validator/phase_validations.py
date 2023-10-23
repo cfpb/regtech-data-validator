@@ -3157,7 +3157,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str | None = None):
             ],
             "phase_2": [
                 SBLCheck(
-                    is_unique_in_field,e_validations.py
+                    is_unique_in_field,
                     id="W0948",
                     name="po_4_race.duplicates_in_field",
                     description="'Race of principal owner 4' should not contain duplicated values.",
