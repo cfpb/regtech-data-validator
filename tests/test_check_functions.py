@@ -1,7 +1,7 @@
 import pandas as pd
 
-from validator import global_data
-from validator.check_functions import (
+from regtech_data_validator import global_data
+from regtech_data_validator.check_functions import (
     has_correct_length,
     has_no_conditional_field_conflict,
     has_valid_enum_pair,
@@ -474,28 +474,24 @@ class TestHasCorrectLength:
 
 class TestIsValidCode:
     def test_with_valid_code(self):
-        global_data.read_naics_codes()
         result = is_valid_code("111", False, global_data.naics_codes)
         assert result is True
         result = is_valid_code("111", True, global_data.naics_codes)
         assert result is True
 
     def test_with_invalid_code(self):
-        global_data.read_naics_codes()
         result = is_valid_code("101", False, global_data.naics_codes)
         assert result is False
         result = is_valid_code("101", True, global_data.naics_codes)
         assert result is False
 
     def test_with_accepted_blank(self):
-        global_data.read_naics_codes()
         result = is_valid_code("", True, global_data.naics_codes)
         assert result is True
         result = is_valid_code(" ", True, global_data.naics_codes)
         assert result is True
 
     def test_with_invalid_blank(self):
-        global_data.read_naics_codes()
         result = is_valid_code("", False, global_data.naics_codes)
         assert result is False
         result = is_valid_code(" ", False, global_data.naics_codes)

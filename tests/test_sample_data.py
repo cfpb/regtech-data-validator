@@ -1,16 +1,10 @@
-import os
-import sys
-
 import pandas as pd
 import pytest
 
-from validator.create_schemas import validate_phases
+from regtech_data_validator.create_schemas import validate_phases
 
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # noqa: E402
-sys.path.append(ROOT_DIR)  # noqa: E402
-
-GOOD_FILE_PATH = "./src/tests/data/sbl-validations-pass.csv"
-BAD_FILE_PATH = "./src/tests/data/sbl-validations-fail.csv"
+GOOD_FILE_PATH = "./tests/data/sbl-validations-pass.csv"
+BAD_FILE_PATH = "./tests/data/sbl-validations-fail.csv"
 
 
 class TestValidatingSampleData:
