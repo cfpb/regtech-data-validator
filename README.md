@@ -15,12 +15,12 @@ submission. For details on this dataset and its validations, please see:
 
 ## Setup
 
-The following setup must be completed to running the CLI utilities or doing any
+The following setup must be completed prior to running the CLI utilities or doing any
 development on the project.
 
-### Pre-requisites
+### Prerequisites
 
-The following software packages are pre-requisites to installing this software.
+The following software packages are prerequisites to installing this software.
 
 - [Python](https://www.python.org/downloads/) version 3.11 or greater.
 - [Poetry](https://python-poetry.org/docs/#installation) for Python package management.
@@ -79,6 +79,8 @@ $ cfpb-val validate --help
 1. Validate file with no findings
 
         $ cfpb-val validate tests/data/sbl-validations-pass.csv
+
+    **Note:** No output is returned if the file contains no validations errors or warnings.
 
 1. Validate file with findings, passing in LEI as context
 
