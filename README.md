@@ -1,6 +1,6 @@
 # RegTech Data Validator
 
-Current overall coverage: [![Coverage badge](https://github.com/cfpb/regtech-data-validator/raw/python-coverage-comment-action-data/badge.svg)](https://github.com/cfpb/regtech-data-validator/tree/python-coverage-comment-action-data)
+[![Coverage badge](https://github.com/cfpb/regtech-data-validator/raw/python-coverage-comment-action-data/badge.svg)](https://github.com/cfpb/regtech-data-validator/tree/python-coverage-comment-action-data)
 
 Python-based tool for parsing and validating CFPB's RegTech-related data submissions.
 It uses the [Pandera](https://pandera.readthedocs.io/en/stable/) data testing
