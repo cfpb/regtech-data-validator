@@ -31,7 +31,9 @@ from regtech_data_validator.check_functions import (
 from regtech_data_validator.checks import SBLCheck, Severity
 
 
-def get_phase_1_and_2_validations_for_lei(lei: str | None = None):
+def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None):
+    lei: str | None = context.get('lei', None) if context else None
+
     return {
         "uid": {
             "phase_1": [
@@ -70,6 +72,8 @@ def get_phase_1_and_2_validations_for_lei(lei: str | None = None):
                     element_wise=True,
                     regex="^[A-Z0-9]+$",
                 ),
+            ],
+            "phase_2": [
                 SBLCheck(
                     string_contains,
                     id="W0003",
@@ -85,7 +89,6 @@ def get_phase_1_and_2_validations_for_lei(lei: str | None = None):
                     end_idx=20,
                 ),
             ],
-            "phase_2": [],
         },
         "app_date": {
             "phase_1": [
@@ -759,7 +762,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str | None = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
-                    id="E0001",
+                    id="E0340",
                     name="denial_reasons.invalid_enum_value",
                     description=(
                         "Each value in 'denial reason(s)' (separated by semicolons)"
@@ -1030,12 +1033,12 @@ def get_phase_1_and_2_validations_for_lei(lei: str | None = None):
                 ),
                 SBLCheck(
                     is_greater_than,
-                    id="E0001",
+                    id="W0441",
                     name="pricing_adj_margin.unreasonable_numeric_value",
                     description=(
                         "When present, 'adjustable rate transaction: margin' should generally be greater than 0.1."
                     ),
-                    severity=Severity.ERROR,
+                    severity=Severity.WARNING,
                     element_wise=True,
                     min_value="0.1",
                     accept_blank=True,
