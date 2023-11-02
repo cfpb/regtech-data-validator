@@ -2,7 +2,7 @@
 with validations listed in phase 1 and phase 2."""
 
 import pandas as pd
-from pandera import DataFrameSchema
+from pandera import Check, DataFrameSchema
 from pandera.errors import SchemaErrors, SchemaError
 
 from regtech_data_validator.checks import SBLCheck
@@ -11,44 +11,114 @@ from regtech_data_validator.schema_template import get_template
 
 
 # Get separate schema templates for phase 1 and 2
-
-
 phase_1_template = get_template()
 phase_2_template = get_template()
 
 
-def get_schema_by_phase_for_lei(template: dict, phase: str, lei: str | None = None):
-    for column in get_phase_1_and_2_validations_for_lei(lei):
-        validations = get_phase_1_and_2_validations_for_lei(lei)[column]
+def get_schema_by_phase_for_lei(template: dict, phase: str, context: dict[str, str] | None = None):
+    for column in get_phase_1_and_2_validations_for_lei(context):
+        validations = get_phase_1_and_2_validations_for_lei(context)[column]
         template[column].checks = validations[phase]
+
     return DataFrameSchema(template)
 
 
-def get_phase_1_schema_for_lei(lei: str | None = None):
-    return get_schema_by_phase_for_lei(phase_1_template, "phase_1", lei)
+def get_phase_1_schema_for_lei(context: dict[str, str] | None = None):
+    return get_schema_by_phase_for_lei(phase_1_template, "phase_1", context)
 
 
-def get_phase_2_schema_for_lei(lei: str | None = None):
-    return get_schema_by_phase_for_lei(phase_2_template, "phase_2", lei)
+def get_phase_2_schema_for_lei(context: dict[str, str] | None = None):
+    return get_schema_by_phase_for_lei(phase_2_template, "phase_2", context)
 
 
-def validate(schema: DataFrameSchema, df: pd.DataFrame) -> pd.DataFrame:
+@staticmethod
+def _get_check_fields(check: Check, primary_column: str) -> list[str]:
+    """
+    Retrieves unique sorted list of fields associated with a given Check
+    """
+
+    field_set: set[str] = {primary_column}
+
+    if check.groupby:
+        field_set.update(check.groupby)  # type: ignore
+
+    fields = sorted(list(field_set))
+
+    return fields
+
+
+@staticmethod
+def _filter_valid_records(df: pd.DataFrame, check_output: pd.Series, fields: list[str]) -> pd.DataFrame:
+    """
+    Return only records and fields associated with a given `Check`'s
+    """
+
+    # `check_output` must be sorted so its index lines up with `df`'s index
+    sorted_check_output: pd.Series = check_output.sort_index()
+
+    # Filter records using Pandas's boolean indexing, where all False values get filtered out.
+    # The `~` does the inverse since it's actually the False values we want to keep.
+    # http://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#boolean-indexing
+    failed_records_df = df[~sorted_check_output][fields].reset_index(names='record_no')
+    failed_records_df.index.rename('finding_no', inplace=True)
+
+    return failed_records_df
+
+
+@staticmethod
+def _records_to_fields(failed_records_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Transforms a DataFrame with columns per Check field to DataFrame with a row per field
+    """
+
+    # Melts a DataFrame with the line number as the index columns for the validations's fields' values
+    # into one with the validation_id, record_no, and field_name as a multiindex, and all of the validation
+    # metadata merged in as well.
+    failed_record_fields_df = failed_records_df.melt(
+        var_name='field_name', value_name='field_value', id_vars='record_no', ignore_index=False
+    )
+
+    return failed_record_fields_df
+
+
+@staticmethod
+def _add_validation_metadata(failed_check_fields_df: pd.DataFrame, check: SBLCheck):
+    """
+    Add SBLCheck metadata (id, name, description, severity)
+    """
+
+    validation_fields_df = (
+        failed_check_fields_df.assign(validation_severity=check.severity)
+        .assign(validation_id=check.title)
+        .assign(validation_name=check.name)
+        .assign(validation_desc=check.description)
+    )
+
+    return validation_fields_df
+
+
+def validate(schema: DataFrameSchema, submission_df: pd.DataFrame) -> tuple[bool, pd.DataFrame]:
     """
     validate received dataframe with schema and return list of
     schema errors
     Args:
         schema (DataFrameSchema): schema to be used for validation
-        df (pd.DataFrame): data parsed into dataframe
+        submission_df (pd.DataFrame): data to be validated against the schema
     Returns:
+        bool whether the given submission was valid or not
         pd.DataFrame containing validation results data
     """
+    is_valid = True
     findings_df: pd.DataFrame = pd.DataFrame()
+    next_finding_no: int = 1
 
     try:
-        schema(df, lazy=True)
+        schema(submission_df, lazy=True)
     except SchemaErrors as err:
-        # WARN: SchemaErrors.schema_errors is supposed to be of type
-        #       list[dict[str,Any]], but it's actually of type SchemaError
+        is_valid = False
+
+        # NOTE: `type: ignore` because SchemaErrors.schema_errors is supposed to be
+        #       `list[dict[str,Any]]`, but it's actually of type `SchemaError`
         schema_error: SchemaError
         for schema_error in err.schema_errors:  # type: ignore
             check = schema_error.check
@@ -64,70 +134,31 @@ def validate(schema: DataFrameSchema, df: pd.DataFrame) -> pd.DataFrame:
                     f'Check {check} type on {column_name} column not supported. Must be of type {SBLCheck}'
                 ) from schema_error
 
-            fields: list[str] = [column_name]
+            fields = _get_check_fields(check, column_name)
 
-            if check.groupby:
-                fields += check.groupby  # type: ignore
+            check_output: pd.Series | None = schema_error.check_output
 
-            # This will either be a boolean series or a single bool
-            # Q: Is the scenario where it returns a single bool even with the above error checking?
-            check_output: pd.Series = schema_error.check_output  # type: ignore
+            if check_output is not None:
+                # Filter data not associated with failed Check, and update index for merging with findings_df
+                failed_records_df = _filter_valid_records(submission_df, check_output, fields)
+                failed_records_df.index += next_finding_no
+                next_finding_no = failed_records_df.tail(1).index + 1  # type: ignore
 
-            # Remove duplicates, but keep as `list` for JSON-friendliness
-            fields = list(set(fields))
+                failed_record_fields_df = _records_to_fields(failed_records_df)
+                check_findings_df = _add_validation_metadata(failed_record_fields_df, check)
 
-            # Q: What's the scenario where `check_output` is empty?
-            if not check_output.empty:
-                # `check_output` must be sorted so its index lines up with `df`'s index
-                check_output.sort_index(inplace=True)
+                findings_df = pd.concat([findings_df, check_findings_df])
+            else:
+                # The above exception handling _should_ prevent this from ever happenin, but...just in case.
+                raise RuntimeError(f'No check output for "{check.name}" check.  Pandera SchemaError: {schema_error}')
 
-                # Filter records using Pandas's boolean indexing, where all False values
-                # get filtered out. The `~` does the inverse since it's actually the
-                # False values we want to keep.
-                # http://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#boolean-indexing
-                failed_check_fields_df = df[~check_output][fields].fillna("")
-
-                # Melts a DataFrame with the line number as the index columns for the validations's fields' values
-                # into one with the validation_id, line_no, and field_name as a multiindex, and all of the validation
-                # metadata merged in as well.
-                #
-                # from...
-                #
-                #   ct_loan_term_flag ct_credit_product
-                # 0               999                 1
-                # 1               999                 2
-                #
-                # ...to...
-                #                                 field_value  v_sev                                v_name                                            v_desc
-                # v_id  line_no field_name
-                # E2003 0       ct_credit_product           1  error  ct_loan_term_flag.enum_value_conflict  When 'credit product' equals 1 (term loan - un...
-                #               ct_loan_term_flag         999  error  ct_loan_term_flag.enum_value_conflict  When 'credit product' equals 1 (term loan - un...
-                #       1       ct_credit_product           2  error  ct_loan_term_flag.enum_value_conflict  When 'credit product' equals 1 (term loan - un...
-                #               ct_loan_term_flag         999  error  ct_loan_term_flag.enum_value_conflict  When 'credit product' equals 1 (term loan - un...
-                failed_check_fields_melt_df = (
-                    failed_check_fields_df.reset_index(names='line_no')
-                    .melt(var_name='field_name', value_name='field_value', id_vars='line_no')
-                    .assign(v_id=check.title)
-                    .assign(v_sev=check.severity)
-                    .assign(v_name=check.name)
-                    .assign(v_desc=check.description)
-                    .set_index(['v_id', 'line_no', 'field_name'])
-                    .sort_index
-                )
-                print(failed_check_fields_melt_df)
-
-                findings_df = pd.concat([findings_df, failed_check_fields_melt_df])
-
-    return findings_df
+    return is_valid, findings_df.sort_index()
 
 
-def validate_phases(df: pd.DataFrame, lei: str | None = None) -> list:
-    phase1_findings = validate(get_phase_1_schema_for_lei(lei), df)
-    if phase1_findings:
-        return phase1_findings
-    else:
-        phase2_findings = validate(get_phase_2_schema_for_lei((lei)), df)
-        if phase2_findings:
-            return phase2_findings
-        else:
-            return [{"response": "No validations errors or warnings"}]
+def validate_phases(df: pd.DataFrame, context: dict[str, str] | None = None) -> tuple[bool, pd.DataFrame]:
+    p1_is_valid, p1_findings = validate(get_phase_1_schema_for_lei(context), df)
+
+    if not p1_is_valid:
+        return p1_is_valid, p1_findings
+
+    return validate(get_phase_2_schema_for_lei(context), df)
