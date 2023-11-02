@@ -43,7 +43,6 @@ exclude = '''
     | .gitignore
     | .github
     | data
-    | tools
   )/
 '''
 
