@@ -20,6 +20,7 @@ class KeyValueOpt:
     value: str
 
 
+@staticmethod
 def parse_key_value(kv_str: str) -> KeyValueOpt:
     split_str = kv_str.split('=')
 
@@ -41,7 +42,7 @@ def describe() -> None:
     """
     Describe CFPB data submission formats and validations
     """
-    
+
     print('Feature coming soon...')
 
 
