@@ -172,7 +172,7 @@ We use these test files in for automated test, but can also be passed in via the
     - They are harder to test.
 - Check function signatures should reflect the functionality.
 - Check functions should have corresponding unit tests.
-    - [Unit Test](./src/tests/test_check_functions.py)
+    - [Unit Test](.tests/test_check_functions.py)
 - Check definitions' name should be set to validation ID.
     - Example: "denial_reasons. enum_value_conflict"
       ![Validation ID](images/validation_id.png)
@@ -241,14 +241,14 @@ formatting issues.
 
 ```sh
 # Example of Ruff with an error
-$ poetry run ruff src/                
-src/tests/test_check_functions.py:205:26: E712 [*] Comparison to `False` should be `cond is False`
+$ ruff .                
+tests/test_check_functions.py:205:26: E712 [*] Comparison to `False` should be `cond is False`
 Found 1 error.
 [*] 1 potentially fixable with the --fix option.
 
 # Example of black with reformatted line
-$ poetry run black src/               
-reformatted /Projects/regtech-data-validator/src/validator/main.py
+$ black .               
+reformatted regtech_data_validator/cli.py
 
 All done! ✨ 🍰 ✨
 1 file reformatted, 13 files left unchanged.
