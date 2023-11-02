@@ -36,6 +36,15 @@ class OutputFormat(StrEnum):
     TABLE = 'table'
 
 
+@app.command()
+def describe() -> None:
+    """
+    Describe CFPB data submission formats and validations
+    """
+    
+    print('Feature coming soon...')
+
+
 @app.command(no_args_is_help=True)
 def validate(
     path: Annotated[
@@ -61,11 +70,9 @@ def validate(
     output: Annotated[Optional[OutputFormat], typer.Option()] = OutputFormat.TABLE,
 ):
     """
-    CFPB's RegTech data validation utility.
+    Validate CFPB data submission
     """
     context_dict = {x.key: x.value for x in context} if context else {}
-
-    # FIXME: Handle ParserError
     input_df = pd.read_csv(path, dtype=str, na_filter=False)
     is_valid, findings_df = validate_phases(input_df, context_dict)
 
