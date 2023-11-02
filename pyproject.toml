@@ -28,7 +28,7 @@ tabulate = "^0.9.0"
 typer = "^0.9.0"
 
 [tool.poetry.scripts]
-cfpb-comply = 'regtech_data_validator.cli:app'
+cfpb-val = 'regtech_data_validator.cli:app'
 
 # Black formatting
 [tool.black]
