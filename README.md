@@ -172,7 +172,7 @@ We use these test files in for automated test, but can also be passed in via the
     - They are harder to test.
 - Check function signatures should reflect the functionality.
 - Check functions should have corresponding unit tests.
-    - [Unit Test](.tests/test_check_functions.py)
+    - [Unit Test](tests/test_check_functions.py)
 - Check definitions' name should be set to validation ID.
     - Example: "denial_reasons. enum_value_conflict"
       ![Validation ID](images/validation_id.png)
