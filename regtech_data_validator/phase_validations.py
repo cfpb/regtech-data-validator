@@ -1944,7 +1944,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str | None = None):
             "phase_2": [
                 SBLCheck(
                     is_unique_in_field,
-                    id="WO901",
+                    id="W0901",
                     name="po_1_ethnicity.duplicates_in_field",
                     description="'Ethnicity of principal owner 1' should not contain duplicated values.",
                     severity=Severity.WARNING,
