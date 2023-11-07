@@ -142,5 +142,6 @@ def validate(
     # returned values are only used in unit tests
     return is_valid, findings_df
 
+
 if __name__ == '__main__':
     app()
