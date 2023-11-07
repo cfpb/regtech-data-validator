@@ -3,7 +3,6 @@
 This mapping is used to populate the schema template object and create
 an instance of a PanderaSchema object for phase 1 and phase 2."""
 
-
 from regtech_data_validator import global_data
 from regtech_data_validator.check_functions import (
     has_correct_length,
