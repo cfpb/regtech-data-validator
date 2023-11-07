@@ -20,7 +20,6 @@ class KeyValueOpt:
     value: str
 
 
-@staticmethod
 def parse_key_value(kv_str: str) -> KeyValueOpt:
     split_str = kv_str.split('=')
 
