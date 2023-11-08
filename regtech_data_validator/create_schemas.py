@@ -31,7 +31,6 @@ def get_phase_2_schema_for_lei(context: dict[str, str] | None = None):
     return get_schema_by_phase_for_lei(phase_2_template, "phase_2", context)
 
 
-@staticmethod
 def _get_check_fields(check: Check, primary_column: str) -> list[str]:
     """
     Retrieves unique sorted list of fields associated with a given Check
@@ -47,7 +46,6 @@ def _get_check_fields(check: Check, primary_column: str) -> list[str]:
     return fields
 
 
-@staticmethod
 def _filter_valid_records(df: pd.DataFrame, check_output: pd.Series, fields: list[str]) -> pd.DataFrame:
     """
     Return only records and fields associated with a given `Check`'s
@@ -65,7 +63,6 @@ def _filter_valid_records(df: pd.DataFrame, check_output: pd.Series, fields: lis
     return failed_records_df
 
 
-@staticmethod
 def _records_to_fields(failed_records_df: pd.DataFrame) -> pd.DataFrame:
     """
     Transforms a DataFrame with columns per Check field to DataFrame with a row per field
@@ -81,7 +78,6 @@ def _records_to_fields(failed_records_df: pd.DataFrame) -> pd.DataFrame:
     return failed_record_fields_df
 
 
-@staticmethod
 def _add_validation_metadata(failed_check_fields_df: pd.DataFrame, check: SBLCheck):
     """
     Add SBLCheck metadata (id, name, description, severity)
