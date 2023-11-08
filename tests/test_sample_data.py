@@ -8,8 +8,6 @@ BAD_FILE_PATH = "./tests/data/sbl-validations-fail.csv"
 
 
 class TestValidatingSampleData:
-    valid_response = {"response": "No validations errors or warnings"}
-
     good_file_df = pd.read_csv(GOOD_FILE_PATH, dtype=str, na_filter=False)
     bad_file_df = pd.read_csv(BAD_FILE_PATH, dtype=str, na_filter=False)
 
@@ -21,28 +19,36 @@ class TestValidatingSampleData:
 
     def test_run_validation_on_good_data_invalid_lei(self):
         lei = "000TESTFIUIDDONOTUS1"
-        validation_result = validate_phases(self.good_file_df, lei)
+        is_valid, findings_df = validate_phases(self.good_file_df, {'lei': lei})
 
-        assert len(validation_result) == 1
-        assert validation_result[0] != self.valid_response
+        assert not is_valid
+
+        # Only 'uid.invalid_uid_lei' validation returned
+        assert len(findings_df['validation_name'].unique()) == 1
+        assert len(findings_df['validation_name'] == 'uid.invalid_uid_lei') > 0
 
     def test_run_validation_on_good_data_valid_lei(self):
         lei = "000TESTFIUIDDONOTUSE"
-        validation_result = validate_phases(self.good_file_df, lei)
+        is_valid, findings_df = validate_phases(self.good_file_df, {'lei': lei})
 
-        assert len(validation_result) == 1
-        assert validation_result[0] == self.valid_response
+        assert is_valid
+        assert findings_df.empty
 
     def test_run_validation_on_bad_data_invalid_lei(self):
         lei = "000TESTFIUIDDONOTUS1"
-        validation_result = validate_phases(self.bad_file_df, lei)
+        is_valid, findings_df = validate_phases(self.bad_file_df, {'lei': lei})
 
-        assert len(validation_result) >= 1
-        assert validation_result[0] != self.valid_response
+        assert not is_valid
+
+        # 'uid.invalid_uid_lei' and other validations returned
+        assert len(findings_df['validation_name'].unique()) > 1
+        assert len(findings_df['validation_name'] == 'uid.invalid_uid_lei') > 0
 
     def test_run_validation_on_bad_data_valid_lei(self):
         lei = "000TESTFIUIDDONOTUSE"
-        validation_result = validate_phases(self.bad_file_df, lei)
+        is_valid, findings_df = validate_phases(self.bad_file_df, {'lei': lei})
 
-        assert len(validation_result) >= 1
-        assert validation_result[0] != self.valid_response
+        assert not is_valid
+
+        # 'uid.invalid_uid_lei' and other validations returned
+        assert len(findings_df['validation_name'].unique()) > 1
