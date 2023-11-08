@@ -8,7 +8,7 @@ from typer.testing import CliRunner
 
 from regtech_data_validator import cli
 
-cli_runner = CliRunner()
+cli_runner = CliRunner(mix_stderr=False)
 data_dir = f'{os.path.dirname(os.path.realpath(__file__))}/data'
 pass_file = f'{data_dir}/sbl-validations-pass.csv'
 fail_file = f'{data_dir}/sbl-validations-fail.csv'
@@ -214,11 +214,17 @@ class TestValidateCli:
 
         assert result.exit_code == 0
         assert result.stdout == ''
+        assert result.stderr == 'status: SUCCESS, findings: 0\n'
 
-    def test_fail_file_output_arg_value(self):
+    def test_pass_file_invalid_output_arg_value(self):
         result = cli_runner.invoke(cli.app, ['validate', pass_file, '--output', 'pdf'])
 
-        print(result.stdout)
-
         assert result.exit_code == 2
-        assert "Invalid value for '--output': 'pdf' is not one of" in result.stdout
+        assert "Invalid value for '--output': 'pdf' is not one of" in result.stderr
+
+    def test_fail_file_defaults(self):
+        result = cli_runner.invoke(cli.app, ['validate', fail_file])
+
+        assert result.exit_code == 0
+        assert result.stdout != ''
+        assert 'status: FAILURE, findings:' in result.stderr

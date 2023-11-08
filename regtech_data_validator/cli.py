@@ -126,7 +126,13 @@ def validate(
     input_df = pd.read_csv(path, dtype=str, na_filter=False)
     is_valid, findings_df = validate_phases(input_df, context_dict)
 
+    status = 'SUCCESS'
+    no_of_findings = 0
+
     if not is_valid:
+        status = 'FAILURE'
+        no_of_findings = len(findings_df.index.unique())
+
         match output:
             case OutputFormat.PANDAS:
                 print(df_to_str(findings_df))
@@ -138,6 +144,8 @@ def validate(
                 print(df_to_table(findings_df))
             case _:
                 raise ValueError(f'output format "{output}" not supported')
+
+    typer.echo(f"status: {status}, findings: {no_of_findings}", err=True)
 
     # returned values are only used in unit tests
     return is_valid, findings_df
