@@ -1332,7 +1332,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
-                    id="E0640",
+                    id="E0660",
                     name="census_tract_adr_type.invalid_enum_value",
                     description="'Census tract: type of address' must equal 1, 2, 3, or 988.",
                     severity=Severity.ERROR,
@@ -1445,7 +1445,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
-                    id="E0720",
+                    id="E0740",
                     name="naics_code_flag.invalid_enum_value",
                     description=(
                         "'North American Industry Classification System (NAICS) code: NP flag'must equal 900 or 988."
