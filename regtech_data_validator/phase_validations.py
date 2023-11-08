@@ -3,7 +3,6 @@
 This mapping is used to populate the schema template object and create
 an instance of a PanderaSchema object for phase 1 and phase 2."""
 
-
 from regtech_data_validator import global_data
 from regtech_data_validator.check_functions import (
     has_correct_length,
@@ -31,7 +30,9 @@ from regtech_data_validator.check_functions import (
 from regtech_data_validator.checks import SBLCheck, Severity
 
 
-def get_phase_1_and_2_validations_for_lei(lei: str | None = None):
+def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None):
+    lei: str | None = context.get('lei', None) if context else None
+
     return {
         "uid": {
             "phase_1": [
@@ -70,6 +71,8 @@ def get_phase_1_and_2_validations_for_lei(lei: str | None = None):
                     element_wise=True,
                     regex="^[A-Z0-9]+$",
                 ),
+            ],
+            "phase_2": [
                 SBLCheck(
                     string_contains,
                     id="W0003",
@@ -85,7 +88,6 @@ def get_phase_1_and_2_validations_for_lei(lei: str | None = None):
                     end_idx=20,
                 ),
             ],
-            "phase_2": [],
         },
         "app_date": {
             "phase_1": [
@@ -759,7 +761,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str | None = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
-                    id="E0001",
+                    id="E0340",
                     name="denial_reasons.invalid_enum_value",
                     description=(
                         "Each value in 'denial reason(s)' (separated by semicolons)"
@@ -1030,12 +1032,12 @@ def get_phase_1_and_2_validations_for_lei(lei: str | None = None):
                 ),
                 SBLCheck(
                     is_greater_than,
-                    id="E0001",
+                    id="W0441",
                     name="pricing_adj_margin.unreasonable_numeric_value",
                     description=(
                         "When present, 'adjustable rate transaction: margin' should generally be greater than 0.1."
                     ),
-                    severity=Severity.ERROR,
+                    severity=Severity.WARNING,
                     element_wise=True,
                     min_value="0.1",
                     accept_blank=True,
@@ -1330,7 +1332,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str | None = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
-                    id="E0640",
+                    id="E0660",
                     name="census_tract_adr_type.invalid_enum_value",
                     description="'Census tract: type of address' must equal 1, 2, 3, or 988.",
                     severity=Severity.ERROR,
@@ -1443,7 +1445,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str | None = None):
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
-                    id="E0720",
+                    id="E0740",
                     name="naics_code_flag.invalid_enum_value",
                     description=(
                         "'North American Industry Classification System (NAICS) code: NP flag'must equal 900 or 988."

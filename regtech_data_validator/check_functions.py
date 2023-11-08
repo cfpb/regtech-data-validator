@@ -11,7 +11,6 @@ The names of the check functions should clearly indicate the purpose of
 the function. This may or may not align with the name of the validation
 in the fig."""
 
-
 import re
 from datetime import datetime, timedelta
 from typing import Dict
