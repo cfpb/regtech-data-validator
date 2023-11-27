@@ -2064,7 +2064,7 @@ def get_phase_1_and_2_validations_for_lei(lei: str | None = None):
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
-                    id="W0951",
+                    id="W0942",
                     name="po_1_race.multi_value_field_restriction",
                     description=(
                         "When 'race of principal owner 1' contains"
