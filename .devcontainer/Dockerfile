@@ -9,8 +9,8 @@ COPY poetry.lock .
 RUN apk add --update git curl
 
 # install pip dependencies
-RUN pip install --upgrade pip & \
-    pip install poetry
+RUN pip install --upgrade pip 
+RUN pip install poetry
 
 # run poetry install
 RUN poetry config virtualenvs.create false
