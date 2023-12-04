@@ -25,7 +25,7 @@ from regtech_data_validator.check_functions import (
     is_valid_code,
     is_valid_enum,
     meets_multi_value_field_restriction,
-    string_contains
+    string_contains,
 )
 from regtech_data_validator.checks import SBLCheck, Severity
 
@@ -311,9 +311,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_valid_enum,
                     id="E0160",
                     name="ct_loan_term_flag.invalid_enum_value",
-                    description=(
-                        "'Loan term: NA/NP flag' must equal 900, 988, or 999."
-                    ),
+                    description="'Loan term: NA/NP flag' must equal 900, 988, or 999.",
                     severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
@@ -897,9 +895,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_valid_enum,
                     id="E0380",
                     name="pricing_interest_rate_type.invalid_enum_value",
-                    description=(
-                        "'Interest rate type' must equal 1, 2, 3, 4, 5, 6, or 999."
-                    ),
+                    description="'Interest rate type' must equal 1, 2, 3, 4, 5, 6, or 999.",
                     severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
@@ -921,7 +917,9 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_number,
                     id="E0400",
                     name="pricing_init_rate_period.invalid_numeric_format",
-                    description="When present, 'adjustable rate transaction: initial rate period' must be a whole number.",
+                    description=(
+                        "When present, 'adjustable rate transaction: initial rate period' must be a whole number."
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     accept_blank=True,
@@ -949,7 +947,9 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_greater_than,
                     id="E0401",
                     name="pricing_init_rate_period.invalid_numeric_value",
-                    description="When present, 'adjustable rate transaction: initial rate period' must be greater than 0.",
+                    description=(
+                        "When present, 'adjustable rate transaction: initial rate period' must be greater than 0."
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     min_value="0",
@@ -1404,7 +1404,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     element_wise=True,
                     accept_blank=True,
                     codes=global_data.census_geoids,
-                )
+                ),
             ],
         },
         "gross_annual_revenue_flag": {
