@@ -638,18 +638,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     id="E2014",
                     name="pricing_all.conditional_fieldset_conflict",
                     description=(
-                        "When 'action taken' equals 3 (denied), "
-                        "4 (withdrawn by applicant), or 5 "
-                        "(incomplete), the following fields must"
-                        " all equal 999 (not applicable): "
-                        "'Interest rate type', 'MCA/sales-based: "
-                        "additional cost for merchant cash advances"
-                        " or other sales-based financing: NA flag', "
-                        "'Prepayment penalty could be imposed', "
-                        "'Prepayment penalty exists'). And the "
-                        " following fields must all be blank: "
-                        "'Total origination charges', 'Amount of "
-                        "total broker fees', 'Initial annual charges'"
+                        "When 'action taken' equals 3 (denied), 4 (withdrawn by applicant), or 5 (incomplete),\n\nthe"
+                        " following fields must all equal 999 (not applicable):\n- 'Interest rate type'\n-"
+                        " 'MCA/sales-based: additional cost for merchant cash advances or other sales-based financing:"
+                        " NA flag'\n- 'Prepayment penalty could be imposed'\n- 'Prepayment penalty exists'\n\nand the"
+                        " following fields must all be blank:\n- 'Total origination charges'\n- 'Amount of total broker"
+                        " fees'\n- 'Initial annual charges'"
                     ),
                     severity=Severity.ERROR,
                     groupby=[
@@ -677,15 +671,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     id="E2015",
                     name="pricing_charges.conditional_fieldset_conflict",
                     description=(
-                        "When 'action taken' equals 1 (originated)"
-                        " or 2 (approved but not accepted), the "
-                        "following fields all must not be blank: "
-                        "'Total origination charges', 'Amount of "
-                        "total broker fees', 'Initial annual "
-                        "charges'. And the following fields must "
-                        "not equal 999 (not applicable): 'Prepayment "
-                        "penalty could be imposed', 'Prepayment "
-                        "penalty exists'"
+                        "When 'action taken' equals 1 (originated) or 2 (approved but not accepted), the following"
+                        " fields all must not be blank:\n- 'total origination charges'\n- 'amount of total broker"
+                        " fees'\n- 'initial annual charges'\nAnd the following fields must not equal 999 (not"
+                        " applicable):\n- 'prepayment penalty could be imposed'\n- 'prepayment penalty exists'"
                     ),
                     severity=Severity.ERROR,
                     groupby=[
