@@ -10,8 +10,8 @@ class TestCSVDifferences:
     # in regards to formatting on the client side certain error messages that are 
     # more 'robust' than others.  This works for now.
     def remove_formatting(self, code_string, csv_string):
-        re_csvstring = ''.join(re.findall("[a-zA-Z0-9':()/]|\-\S+",csv_string))
-        re_codestring = ''.join(re.findall("[a-zA-Z0-9':()/]|\-\S+",code_string))
+        re_csvstring = ''.join(re.findall("[a-zA-Z0-9':()/-]",csv_string))
+        re_codestring = ''.join(re.findall("[a-zA-Z0-9':()/-]",code_string))
         return re_codestring, re_csvstring
         
     def test_csv_differences(self):
