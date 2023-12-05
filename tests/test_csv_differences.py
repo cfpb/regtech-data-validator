@@ -4,16 +4,16 @@ import pandas as pd
 
 
 class TestCSVDifferences:
-    remove_formatting_codes = ['E2014', 'E2015']
-    
+    remove_formatting_codes = ["E2014", "E2015"]
+
     # At some point this will probably need to be updated depending on what is decided
-    # in regards to formatting on the client side certain error messages that are 
+    # in regards to formatting on the client side certain error messages that are
     # more 'robust' than others.  This works for now.
     def remove_formatting(self, code_string, csv_string):
-        re_csvstring = ''.join(re.findall("[a-zA-Z0-9':()/-]",csv_string))
-        re_codestring = ''.join(re.findall("[a-zA-Z0-9':()/-]",code_string))
+        re_csvstring = "".join(re.findall("[a-zA-Z0-9':()/-]", csv_string))
+        re_codestring = "".join(re.findall("[a-zA-Z0-9':()/-]", code_string))
         return re_codestring, re_csvstring
-        
+
     def test_csv_differences(self):
         vals = get_phase_1_and_2_validations_for_lei()
         code_descs = [
@@ -32,7 +32,7 @@ class TestCSVDifferences:
         with open("errors.csv", "w") as error_file:
             for c in code_descs:
                 found_cd = [d for d in csv_descs if d[0] == c[0]]
-                if c[0] in self.remove_formatting_codes and len(found_cd) !=0:
+                if c[0] in self.remove_formatting_codes and len(found_cd) != 0:
                     re_codestring, re_csvstring = self.remove_formatting(c[2], found_cd[0][2])
                     c[2] = re_codestring
                     found_cd[0] = list(found_cd[0])
