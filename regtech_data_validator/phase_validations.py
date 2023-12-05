@@ -646,8 +646,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         "additional cost for merchant cash advances"
                         " or other sales-based financing: NA flag', "
                         "'Prepayment penalty could be imposed', "
-                        "'Prepayment penalty exists'). And the "
-                        " following fields must all be blank: "
+                        "'Prepayment penalty exists' and the "
+                        "following fields must all be blank: "
                         "'Total origination charges', 'Amount of "
                         "total broker fees', 'Initial annual charges'"
                     ),
@@ -680,11 +680,11 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         "When 'action taken' equals 1 (originated)"
                         " or 2 (approved but not accepted), the "
                         "following fields all must not be blank: "
-                        "'Total origination charges', 'Amount of "
-                        "total broker fees', 'Initial annual "
+                        "'total origination charges', 'amount of "
+                        "total broker fees', 'initial annual "
                         "charges'. And the following fields must "
-                        "not equal 999 (not applicable): 'Prepayment "
-                        "penalty could be imposed', 'Prepayment "
+                        "not equal 999 (not applicable): 'prepayment "
+                        "penalty could be imposed', 'prepayment "
                         "penalty exists'"
                     ),
                     severity=Severity.ERROR,
