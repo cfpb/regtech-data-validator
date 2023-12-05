@@ -31,7 +31,7 @@ from regtech_data_validator.checks import SBLCheck, Severity
 
 
 def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None):
-    lei: str | None = context.get('lei', None) if context else None
+    lei: str | None = context.get("lei", None) if context else None
 
     return {
         "uid": {
@@ -1394,8 +1394,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 ),
                 SBLCheck(
                     is_valid_code,
-                    id='W0680',
-                    name='census_tract_number.invalid_geoid',
+                    id="W0680",
+                    name="census_tract_number.invalid_geoid",
                     description=(
                         "When present, 'census tract: tract number' should be a valid "
                         "census tract GEOID as defined by the U.S. Census Bureau."
