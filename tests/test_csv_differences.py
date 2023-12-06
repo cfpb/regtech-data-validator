@@ -51,7 +51,12 @@ class TestCSVDifferences:
                     c[2] = re_codestring
                     found_cd[0] = list(found_cd[0])
                     found_cd[0][2] = re_csvstring
-                if c[0] in self.add_starting_quote and len(found_cd) != 0:
+                # Add a single quote to certain descriptions from the CSV.  This is because
+                # Excel will strip that first single quote off when saving to a CSV, as it uses
+                # a starting single quote to signify that the rest of the data is a string.
+                # This checks if the description we're checking is one of those, and if it doesn't
+                # already start with a single quote in the CSV just in case someone saves the doc differently than with Excel
+                if c[0] in self.add_starting_quote and len(found_cd) != 0 and not found_cd[0][2].startswith("'"):
                     found_cd[0] = list(found_cd[0])
                     found_cd[0][2] = "'" + found_cd[0][2]
                 if len(found_cd) == 0 or found_cd[0][1].lower() != c[1].lower() or found_cd[0][2] != c[2]:
