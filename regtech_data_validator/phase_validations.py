@@ -673,7 +673,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description=(
                         "When 'action taken' equals 1 (originated) or 2 (approved but not accepted), the following"
                         " fields all must not be blank:\n- 'Total origination charges'\n- 'Amount of total broker"
-                        " fees'\n- 'Initial annual charges'\nAnd the following fields must not equal 999 (not"
+                        " fees'\n- 'Initial annual charges'\nand the following fields must not equal 999 (not"
                         " applicable):\n- 'Prepayment penalty could be imposed'\n- 'Prepayment penalty exists'"
                     ),
                     severity=Severity.ERROR,
