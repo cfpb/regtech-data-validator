@@ -5,6 +5,19 @@ import pandas as pd
 
 class TestCSVDifferences:
     remove_formatting_codes = ["E2014", "E2015"]
+    add_starting_quote = [
+        "E0460",
+        "E0480",
+        "E0740",
+        "W0901",
+        "W0941",
+        "W1081",
+        "W1121",
+        "W1261",
+        "W1301",
+        "W1441",
+        "W1481",
+    ]
 
     # At some point this will probably need to be updated depending on what is decided
     # in regards to formatting on the client side certain error messages that are
@@ -23,7 +36,8 @@ class TestCSVDifferences:
         ]
 
         csv_df = pd.read_csv(
-            "https://raw.githubusercontent.com/cfpb/sbl-content/main/fig-files/validation-spec/2024-validations.csv"
+            # "https://raw.githubusercontent.com/cfpb/sbl-content/main/fig-files/validation-spec/2024-validations.csv"
+            "https://raw.githubusercontent.com/cfpb/sbl-content/18-csv-updates-to-fix-discrepancies/fig-files/validation-spec/2024-validations.csv"
         )
         csv_descs = list(zip(csv_df.validation_id, csv_df.type, csv_df.description))
 
@@ -37,6 +51,9 @@ class TestCSVDifferences:
                     c[2] = re_codestring
                     found_cd[0] = list(found_cd[0])
                     found_cd[0][2] = re_csvstring
+                if c[0] in self.add_starting_quote and len(found_cd) != 0:
+                    found_cd[0] = list(found_cd[0])
+                    found_cd[0][2] = "'" + found_cd[0][2]
                 if len(found_cd) == 0 or found_cd[0][1].lower() != c[1].lower() or found_cd[0][2] != c[2]:
                     # This can be used locally to run a pytest and get a csv of discrepancies, which makes for easier
                     # correcting of code/csv.
