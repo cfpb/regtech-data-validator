@@ -36,8 +36,7 @@ class TestCSVDifferences:
         ]
 
         csv_df = pd.read_csv(
-            # "https://raw.githubusercontent.com/cfpb/sbl-content/main/fig-files/validation-spec/2024-validations.csv"
-            "https://raw.githubusercontent.com/cfpb/sbl-content/18-csv-updates-to-fix-discrepancies/fig-files/validation-spec/2024-validations.csv"
+            "https://raw.githubusercontent.com/cfpb/sbl-content/main/fig-files/validation-spec/2024-validations.csv"
         )
         csv_descs = list(zip(csv_df.validation_id, csv_df.type, csv_df.description))
 
