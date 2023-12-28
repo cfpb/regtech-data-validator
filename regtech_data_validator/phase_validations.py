@@ -31,7 +31,7 @@ from regtech_data_validator.checks import SBLCheck, Severity
 
 
 def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None):
-    lei: str | None = context.get('lei', None) if context else None
+    lei: str | None = context.get("lei", None) if context else None
 
     return {
         "uid": {
@@ -127,7 +127,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_valid_enum,
                     id="E0060",
                     name="app_recipient.invalid_enum_value",
-                    description="'Application recipient' must equal 1 or 2",
+                    description="'Application recipient' must equal 1 or 2.",
                     severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
@@ -185,7 +185,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description=(
                         "When 'credit product' does not equal 977 (other), 'free-form"
                         " text field for other credit products' must be blank."
-                        "When 'credit product' equals 977, 'free-form text field "
+                        " When 'credit product' equals 977, 'free-form text field "
                         "for other credit products' must not be blank."
                     ),
                     severity=Severity.ERROR,
@@ -201,7 +201,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     id="E0120",
                     name="ct_guarantee.invalid_enum_value",
                     description=(
-                        "Each value in 'type of guarantee' (separated by "
+                        "Each value in 'type of guarantee' (separated by"
                         " semicolons) must equal 1, 2, 3, 4, 5, 6, 7, 8,"
                         " 9, 10, 11, 977, or 999."
                     ),
@@ -268,7 +268,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E0140",
                     name="ct_guarantee_ff.invalid_text_length",
-                    description="'Free-form text field for other guarantee' must not exceed 300 characters in length",
+                    description="'Free-form text field for other guarantee' must not exceed 300 characters in length.",
                     severity=Severity.ERROR,
                 ),
             ],
@@ -289,7 +289,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 ),
                 SBLCheck(
                     has_valid_multi_field_value_count,
-                    id="W2006",
+                    id="W2002",
                     name="ct_guarantee_ff.multi_invalid_number_of_values",
                     description=(
                         "'Type of guarantee' and 'free-form text field for other "
@@ -311,9 +311,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_valid_enum,
                     id="E0160",
                     name="ct_loan_term_flag.invalid_enum_value",
-                    description=(
-                        "Each value in 'Loan term: NA/NP flag' (separated by  semicolons) must equal 900, 988, or 999."
-                    ),
+                    description="'Loan term: NA/NP flag' must equal 900, 988, or 999.",
                     severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
@@ -330,11 +328,11 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     name="ct_loan_term_flag.enum_value_conflict",
                     description=(
                         "When 'credit product' equals 1 (term loan - unsecured) or 2"
-                        "(term loan - secured), 'loan term: NA/NP flag' must not equal"
-                        "999 (not applicable)."
-                        "When 'credit product' equals 988 (not provided by applicant "
-                        "and otherwise undetermined), 'loan term: NA/NP flag' must"
-                        "equal 999."
+                        " (term loan - secured), 'loan term: NA/NP flag' must not equal"
+                        " 999 (not applicable)."
+                        " When 'credit product' equals 988 (not provided by applicant"
+                        " and otherwise undetermined), 'loan term: NA/NP flag' must"
+                        " equal 999."
                     ),
                     severity=Severity.ERROR,
                     groupby="ct_credit_product",
@@ -374,7 +372,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     name="ct_loan_term.conditional_field_conflict",
                     description=(
                         "When 'loan term: NA/NP flag' does not equal 900 (applicable "
-                        "and reported), 'loan term' must be blank. When 'loan term:"
+                        "and reported), 'loan term' must be blank. When 'loan term: "
                         "NA/NP flag' equals 900, 'loan term' must not be blank."
                     ),
                     severity=Severity.ERROR,
@@ -410,7 +408,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     id="E0200",
                     name="credit_purpose.invalid_enum_value",
                     description=(
-                        "Each value in 'credit purpose' (separated by "
+                        "Each value in 'credit purpose' (separated by"
                         " semicolons) must equal 1, 2, 3, 4, 5, 6, 7, 8,"
                         " 9, 10, 11, 977, 988, or 999."
                     ),
@@ -452,9 +450,9 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     id="W0202",
                     name="credit_purpose.multi_value_field_restriction",
                     description=(
-                        "When 'credit purpose' contains 988 or 999,"
-                        " 'credit purpose' should not contain more than one"
-                        " value."
+                        "When 'credit purpose' contains 988 (not provided by applicant and otherwise undetermined) "
+                        "or 999 (not applicable), "
+                        "'credit purpose' should not contain more than one value."
                     ),
                     severity=Severity.WARNING,
                     element_wise=True,
@@ -481,7 +479,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     id="E0220",
                     name="credit_purpose_ff.invalid_text_length",
                     description=(
-                        "'Free-form text field for other credit purpose'  must not exceed 300 characters in length"
+                        "'Free-form text field for other credit purpose' must not exceed 300 characters in length."
                     ),
                     severity=Severity.ERROR,
                 ),
@@ -492,9 +490,9 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     id="E2005",
                     name="credit_purpose_ff.conditional_field_conflict",
                     description=(
-                        "When 'credit purpose' does not contain 977 (other),"
-                        "'free-form text field for other credit purpose' must be blank."
-                        "When 'credit purpose' contains 977, 'free-form text field for"
+                        "When 'credit purpose' does not contain 977 (other), "
+                        "'free-form text field for other credit purpose' must be blank. "
+                        "When 'credit purpose' contains 977 (other), 'free-form text field for "
                         "other credit purpose' must not be blank."
                     ),
                     severity=Severity.ERROR,
@@ -556,7 +554,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     name="amount_applied_for.conditional_field_conflict",
                     description=(
                         "When 'amount applied for: NA/NP flag' does not equal 900 "
-                        "(applicable and reported), 'amount applied for' must be blank."
+                        "(applicable and reported), 'amount applied for' must be blank. "
                         "When 'amount applied for: NA/NP flag' equals 900, "
                         "'amount applied for' must not be blank."
                     ),
@@ -606,7 +604,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description=(
                         "When 'action taken' does not equal 1 (originated) "
                         "or 2 (approved but not accepted), 'amount approved "
-                        " or originated' must be blank. When 'action taken' "
+                        "or originated' must be blank. When 'action taken' "
                         "equals 1 or 2, 'amount approved or originated' must "
                         "not be blank."
                     ),
@@ -640,18 +638,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     id="E2014",
                     name="pricing_all.conditional_fieldset_conflict",
                     description=(
-                        "When 'action taken' equals 3 (denied), "
-                        "4 (withdrawn by applicant), or 5 "
-                        "(incomplete), the following fields must"
-                        " all equal 999 (not applicable): "
-                        "'Interest rate type', 'MCA/sales-based: "
-                        "additional cost for merchant cash advances"
-                        " or other sales-based financing: NA flag', "
-                        "'Prepayment penalty could be imposed', "
-                        "'Prepayment penalty exists'). And the "
-                        " following fields must all be blank: "
-                        "'Total origination charges', 'Amount of "
-                        "total broker fees', 'Initial annual charges'"
+                        "When 'action taken' equals 3 (denied), 4 (withdrawn by applicant), or 5 (incomplete), the"
+                        " following fields must all equal 999 (not applicable):\n- 'Interest rate type'\n-"
+                        " 'MCA/sales-based: additional cost for merchant cash advances or other sales-based financing:"
+                        " NA flag'\n- 'Prepayment penalty could be imposed'\n- 'Prepayment penalty exists'\n\nand the"
+                        " following fields must all be blank:\n- 'Total origination charges'\n- 'Amount of total broker"
+                        " fees'\n- 'Initial annual charges'"
                     ),
                     severity=Severity.ERROR,
                     groupby=[
@@ -679,15 +671,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     id="E2015",
                     name="pricing_charges.conditional_fieldset_conflict",
                     description=(
-                        "When 'action taken' equals 1 (originated)"
-                        " or 2 (approved but not accepted), the "
-                        "following fields all must not be blank: "
-                        "'Total origination charges', 'Amount of "
-                        "total broker fees', 'Initial annual "
-                        "charges'. And the following fields must "
-                        "not equal 999 (not applicable): 'Prepayment "
-                        "penalty could be imposed', 'Prepayment "
-                        "penalty exists'"
+                        "When 'action taken' equals 1 (originated) or 2 (approved but not accepted), the following"
+                        " fields all must not be blank:\n- 'Total origination charges'\n- 'Amount of total broker"
+                        " fees'\n- 'Initial annual charges'\nand the following fields must not equal 999 (not"
+                        " applicable):\n- 'Prepayment penalty could be imposed'\n- 'Prepayment penalty exists'"
                     ),
                     severity=Severity.ERROR,
                     groupby=[
@@ -765,7 +752,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     name="denial_reasons.invalid_enum_value",
                     description=(
                         "Each value in 'denial reason(s)' (separated by semicolons)"
-                        "must equal 1, 2, 3, 4, 5, 6, 7, 8, 9, 977, or 999."
+                        " must equal 1, 2, 3, 4, 5, 6, 7, 8, 9, 977, or 999."
                     ),
                     severity=Severity.ERROR,
                     element_wise=True,
@@ -790,7 +777,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     id="E0341",
                     name="denial_reasons.invalid_number_of_values",
                     description=(
-                        "'Denial reason(s)' must contain at least one and at most fourvalues, separated by semicolons."
+                        "'Denial reason(s)' must contain at least one and at most four values, separated by semicolons."
                     ),
                     severity=Severity.ERROR,
                     element_wise=True,
@@ -802,9 +789,9 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     id="E2011",
                     name="denial_reasons.enum_value_conflict",
                     description=(
-                        "When 'action taken' equals 3, 'denial reason(s)' must not"
-                        "contain 999. When 'action taken' does not equal 3, 'denial"
-                        "reason(s)' must equal 999."
+                        "When 'action taken' equals 3, 'denial reason(s)' must not "
+                        "contain 999. When 'action taken' does not equal 3 (denied), 'denial "
+                        "reason(s)' must equal 999 (not applicable)."
                     ),
                     severity=Severity.ERROR,
                     groupby="action_taken",
@@ -828,7 +815,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     id="W0340",
                     name="denial_reasons.multi_value_field_restriction",
                     description=(
-                        "When 'denial reason(s)' contains 999 (not applicable),"
+                        "When 'denial reason(s)' contains 999 (not applicable), "
                         "'denial reason(s)' should not contain more than one value."
                     ),
                     severity=Severity.WARNING,
@@ -853,7 +840,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     id="E0360",
                     name="denial_reasons_ff.invalid_text_length",
                     description=(
-                        "'Free-form text field for other denial reason(s)'must not exceed 300 characters in length."
+                        "'Free-form text field for other denial reason(s)' must not exceed 300 characters in length."
                     ),
                     severity=Severity.ERROR,
                 ),
@@ -864,9 +851,9 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     id="E2012",
                     name="denial_reasons_ff.conditional_field_conflict",
                     description=(
-                        "When 'denial reason(s)' does not contain 977 (other), field"
-                        "'free-form text field for other denial reason(s)' must be"
-                        "blank. When 'denial reason(s)' contains 977, 'free-form text"
+                        "When 'denial reason(s)' does not contain 977 (other), field "
+                        "'free-form text field for other denial reason(s)' must be "
+                        "blank. When 'denial reason(s)' contains 977, 'free-form text "
                         "field for other denial reason(s)' must not be blank."
                     ),
                     severity=Severity.ERROR,
@@ -897,10 +884,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_valid_enum,
                     id="E0380",
                     name="pricing_interest_rate_type.invalid_enum_value",
-                    description=(
-                        "Each value in 'Interest rate type' (separated by "
-                        " semicolons) Must equal 1, 2, 3, 4, 5, 6, or 999"
-                    ),
+                    description="'Interest rate type' must equal 1, 2, 3, 4, 5, 6, or 999.",
                     severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
@@ -922,7 +906,9 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_number,
                     id="E0400",
                     name="pricing_init_rate_period.invalid_numeric_format",
-                    description="When present, 'initial rate period' must be a whole number.",
+                    description=(
+                        "When present, 'adjustable rate transaction: initial rate period' must be a whole number."
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     accept_blank=True,
@@ -935,12 +921,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     name="pricing_init_rate_period.conditional_field_conflict",
                     description=(
                         "When 'interest rate type' does not equal 3 (initial rate "
-                        "period > 12 months, variable interest), 4 (initial rate "
+                        "period > 12 months, adjustable interest), 4 (initial rate "
                         "period > 12 months, fixed interest), 5 (initial rate period "
-                        "<= 12 months, variable interest), or 6 (initial rate period "
+                        "<= 12 months, adjustable interest), or 6 (initial rate period "
                         "<= 12 months, fixed interest), 'initial rate period' must "
                         "be blank. When 'interest rate type' equals 3, 4, 5, or 6, "
-                        "'initial rate period' must not be blank"
+                        "'initial rate period' must not be blank."
                     ),
                     severity=Severity.ERROR,
                     groupby="pricing_interest_rate_type",
@@ -950,7 +936,9 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_greater_than,
                     id="E0401",
                     name="pricing_init_rate_period.invalid_numeric_value",
-                    description="When present, 'initial rate period' must be greater than 0",
+                    description=(
+                        "When present, 'adjustable rate transaction: initial rate period' must be greater than 0."
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     min_value="0",
@@ -1021,10 +1009,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         "When 'interest rate type' does not equal 1"
                         " (adjustable interest rate, no initial rate period),"
                         " 3 (initial rate period > 12 months, adjustable interest"
-                        " rate), or 5 (initial rate period <= 12 months, variable "
+                        " rate), or 5 (initial rate period <= 12 months, adjustable "
                         "interest rate), 'adjustable rate transaction: margin' must "
                         "be blank. When 'interest rate type' equals 1, 3, or 5, "
-                        "'variable rate transaction: margin' must not be blank."
+                        "'adjustable rate transaction: margin' must not be blank."
                     ),
                     severity=Severity.ERROR,
                     groupby="pricing_interest_rate_type",
@@ -1078,13 +1066,13 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     id="E2019",
                     name="pricing_adj_index_name.enum_value_conflict",
                     description=(
-                        "When 'interest rate type' does not equal 1 (variable interest"
-                        "rate, no initial rate period), 3 (initial rate period > 12"
-                        "months, adjustable interest rate), or 5 (initial rate"
-                        "period <= 12 months, adjustable interest rate), 'adjustable"
+                        "When 'interest rate type' does not equal 1 (adjustable interest"
+                        " rate, no initial rate period), 3 (initial rate period > 12"
+                        " months, adjustable interest rate), or 5 (initial rate"
+                        " period <= 12 months, adjustable interest rate), 'adjustable"
                         " rate transaction: index name' must equal 999."
-                        "When 'interest rate type' equals 1, 3, or 5, 'adjustable rate"
-                        "transaction: index name' must not equal 999."
+                        " When 'interest rate type' equals 1, 3, or 5, 'adjustable rate"
+                        " transaction: index name' must not equal 999."
                     ),
                     severity=Severity.ERROR,
                     groupby="pricing_interest_rate_type",
@@ -1124,11 +1112,11 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     id="E2020",
                     name="pricing_adj_index_name_ff.conditional_field_conflict",
                     description=(
-                        "When 'adjustable rate transaction: index name' does not equal"
-                        "977 (other), 'adjustable rate transaction: index name: other'"
-                        "must be blank."
-                        "When 'adjustable rate transaction: index name' equals 977,"
-                        "'adjustable rate transaction: index name: other' must not be"
+                        "When 'adjustable rate transaction: index name' does not equal "
+                        "977 (other), 'adjustable rate transaction: index name: other' "
+                        "must be blank. "
+                        "When 'adjustable rate transaction: index name' equals 977, "
+                        "'adjustable rate transaction: index name: other' must not be "
                         "blank."
                     ),
                     severity=Severity.ERROR,
@@ -1155,9 +1143,9 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     id="E2021",
                     name="pricing_adj_index_value.conditional_field_conflict",
                     description=(
-                        "When 'interest rate type' does not equal 1 (variable"
+                        "When 'interest rate type' does not equal 1 (adjustable"
                         " interest rate, no initial rate period),"
-                        " or 3 (initial rate period > 12 months, variable interest"
+                        " or 3 (initial rate period > 12 months, adjustable interest"
                         " rate), 'adjustable rate transaction: index value' must be"
                         " blank. When 'interest rate type' equals 1 or 3,"
                         " 'adjustable rate transaction: index value' must not be blank."
@@ -1202,7 +1190,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_number,
                     id="E0560",
                     name="pricing_initial_charges.invalid_numeric_format",
-                    description="When present, 'initial annual charges' must be anumeric value.",
+                    description="When present, 'initial annual charges' must be a numeric value.",
                     severity=Severity.ERROR,
                     element_wise=True,
                     accept_blank=True,
@@ -1263,7 +1251,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description=(
                         "When present, 'MCA/sales-based: additional cost for "
                         "merchant cash advances or other sales-based financing' "
-                        "must be a numeric value"
+                        "must be a numeric value."
                     ),
                     severity=Severity.ERROR,
                     element_wise=True,
@@ -1282,9 +1270,9 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         "additional cost for merchant cash advances or other "
                         "sales-based financing' must be blank. When 'MCA/sales-based: "
                         "additional cost for merchant cash advances or other "
-                        "sales-based financing: NA flag' equals 900, MCA/sales-based: "
+                        "sales-based financing: NA flag' equals 900, 'MCA/sales-based: "
                         "additional cost for merchant cash advances or other "
-                        "sales-based financing’ must not be blank."
+                        "sales-based financing' must not be blank."
                     ),
                     severity=Severity.ERROR,
                     groupby="pricing_mca_addcost_flag",
@@ -1368,7 +1356,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description=(
                         "When 'census tract: type of address' equals 988 (not "
                         "provided by applicant and otherwise undetermined), "
-                        "'census tract: tract number' must be blank."
+                        "'census tract: tract number' must be blank. "
                         "When 'census tract: type of address' equals 1 (address"
                         " or location where the loan proceeds will principally "
                         "be applied), 2 (address or location of borrower's main "
@@ -1392,6 +1380,19 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                             "should_equal_target": True,
                         },
                     ],
+                ),
+                SBLCheck(
+                    is_valid_code,
+                    id="W0680",
+                    name="census_tract_number.invalid_geoid",
+                    description=(
+                        "When present, 'census tract: tract number' should be a valid "
+                        "census tract GEOID as defined by the U.S. Census Bureau."
+                    ),
+                    severity=Severity.WARNING,
+                    element_wise=True,
+                    accept_blank=True,
+                    codes=global_data.census_geoids,
                 ),
             ],
         },
@@ -1448,7 +1449,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     id="E0740",
                     name="naics_code_flag.invalid_enum_value",
                     description=(
-                        "'North American Industry Classification System (NAICS) code: NP flag'must equal 900 or 988."
+                        "'North American Industry Classification System (NAICS) code: NP flag' must equal 900 or 988."
                     ),
                     severity=Severity.ERROR,
                     element_wise=True,
@@ -1507,10 +1508,11 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     id="E2026",
                     name="naics_code.conditional_field_conflict",
                     description=(
-                        "When 'type of guarantee' does not contain 977 (other), "
-                        "'free-form text field for other guarantee' must be blank. "
-                        "When 'type of guarantee' contains 977, 'free-form text field"
-                        " for other guarantee' must not be blank."
+                        "When 'North American Industry Classification System (NAICS) code: NP flag' does "
+                        "not equal 900 (reported), 'North American Industry Classification System (NAICS) "
+                        "code' must be blank. When 'North American Industry Classification System (NAICS) "
+                        "code: NP flag' equals 900, 'North American Industry Classification System (NAICS) "
+                        "code' must not be blank."
                     ),
                     severity=Severity.ERROR,
                     groupby="naics_code_flag",
@@ -1767,7 +1769,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         "When 'number of principal owners' equals 2, "
                         "'ethnicity of principal owner 1 and 2', 'race of principal "
                         "owner 1 and 2', and 'sex/gender of principal owner 1 and 2: "
-                        "NP flag' should not be blank."
+                        "NP flag' should not be blank. Demographic fields for "
+                        "principal owners 3 and 4 should be blank."
                     ),
                     severity=Severity.WARNING,
                     groupby=[
@@ -1906,7 +1909,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     name="num_principal_owners.conditional_field_conflict",
                     description=(
                         "When 'number of principal owners: NP flag' does not equal 900 "
-                        "(reported), 'number of principal owners' must be blank."
+                        "(reported), 'number of principal owners' must be blank. "
                         "When 'number of principal owners: NP flag' equals 900, "
                         "'number of principal owners' must not be blank."
                     ),
@@ -1962,7 +1965,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         " 966 (the applicant responded that they did"
                         " not wish to provide this information) or 988"
                         " (not provided by applicant), 'ethnicity of"
-                        " principal owner 1' should not contain more than one value."
+                        " principal owner: 1' should not contain more than one value."
                     ),
                     severity=Severity.WARNING,
                     element_wise=True,
@@ -2074,7 +2077,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         " 966 (the applicant responded that they"
                         " did not wish to provide this information)"
                         " or 988 (not provided by applicant),"
-                        " 'race of principal owner 1' should not"
+                        " 'race of principal owner: 1' should not"
                         " contain more than one value."
                     ),
                     severity=Severity.WARNING,
@@ -2219,8 +2222,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         " for other Pacific Islander race), 'race of principal"
                         " owner 1: free-form text field for other Pacific Islander"
                         " race' must be blank. When 'race of principal owner 1'"
-                        " contains 974, 'race of principal owner 1: free-form text"
-                        " field for other Pacific Islander race' must not be blank."
+                        " contains 974, 'Race of Principal Owner 1: Free-form Text"
+                        " Field for Other Pacific Islander race' must not be blank."
                     ),
                     severity=Severity.ERROR,
                     groupby="po_1_race",
@@ -2329,7 +2332,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         " 966 (the applicant responded that they did"
                         " not wish to provide this information) or 988"
                         " (not provided by applicant), 'ethnicity of"
-                        " principal owner 2' should not contain more than one value."
+                        " principal owner: 2' should not contain more than one value."
                     ),
                     severity=Severity.WARNING,
                     element_wise=True,
@@ -2441,7 +2444,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         " 966 (the applicant responded that they"
                         " did not wish to provide this information)"
                         " or 988 (not provided by applicant),"
-                        " 'race of principal owner 2' should not"
+                        " 'race of principal owner: 2' should not"
                         " contain more than one value."
                     ),
                     severity=Severity.WARNING,
@@ -2586,8 +2589,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         " for other Pacific Islander race), 'race of principal"
                         " owner 2: free-form text field for other Pacific Islander"
                         " race' must be blank. When 'race of principal owner 2'"
-                        " contains 974, 'race of principal owner 2: free-form text"
-                        " field for other Pacific Islander race' must not be blank."
+                        " contains 974, 'Race of Principal Owner 2: Free-form Text"
+                        " Field for Other Pacific Islander race' must not be blank."
                     ),
                     severity=Severity.ERROR,
                     groupby="po_2_race",
@@ -2696,7 +2699,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         " 966 (the applicant responded that they did"
                         " not wish to provide this information) or 988"
                         " (not provided by applicant), 'ethnicity of"
-                        " principal owner 3' should not contain more than one value."
+                        " principal owner: 3' should not contain more than one value."
                     ),
                     severity=Severity.WARNING,
                     element_wise=True,
@@ -2808,7 +2811,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         " 966 (the applicant responded that they"
                         " did not wish to provide this information)"
                         " or 988 (not provided by applicant),"
-                        " 'race of principal owner 3' should not"
+                        " 'race of principal owner: 3' should not"
                         " contain more than one value."
                     ),
                     severity=Severity.WARNING,
@@ -2953,8 +2956,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         " for other Pacific Islander race), 'race of principal"
                         " owner 3: free-form text field for other Pacific Islander"
                         " race' must be blank. When 'race of principal owner 3'"
-                        " contains 974, 'race of principal owner 3: free-form text"
-                        " field for other Pacific Islander race' must not be blank."
+                        " contains 974, 'Race of Principal Owner 3: Free-form Text"
+                        " Field for Other Pacific Islander race' must not be blank."
                     ),
                     severity=Severity.ERROR,
                     groupby="po_3_race",
@@ -3063,7 +3066,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         " 966 (the applicant responded that they did"
                         " not wish to provide this information) or 988"
                         " (not provided by applicant), 'ethnicity of"
-                        " principal owner 4' should not contain more than one value."
+                        " principal owner: 4' should not contain more than one value."
                     ),
                     severity=Severity.WARNING,
                     element_wise=True,
@@ -3175,7 +3178,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         " 966 (the applicant responded that they"
                         " did not wish to provide this information)"
                         " or 988 (not provided by applicant),"
-                        " 'race of principal owner 4' should not"
+                        " 'race of principal owner: 4' should not"
                         " contain more than one value."
                     ),
                     severity=Severity.WARNING,
@@ -3320,8 +3323,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         " for other Pacific Islander race), 'race of principal"
                         " owner 4: free-form text field for other Pacific Islander"
                         " race' must be blank. When 'race of principal owner 4'"
-                        " contains 974, 'race of principal owner 4: free-form text"
-                        " field for other Pacific Islander race' must not be blank."
+                        " contains 974, 'Race of Principal Owner 4: Free-form Text"
+                        " Field for Other Pacific Islander race' must not be blank."
                     ),
                     severity=Severity.ERROR,
                     groupby="po_4_race",
@@ -3333,7 +3336,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             "phase_1": [
                 SBLCheck(
                     is_valid_enum,
-                    id="E1560",
+                    id="E1580",
                     name="po_4_gender_flag.invalid_enum_value",
                     description="When present, 'sex/gender of principal owner 4: NP flag' must equal 1, 966, or 988.",
                     severity=Severity.ERROR,
@@ -3353,7 +3356,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck.str_length(
                     0,
                     300,
-                    id="E1580",
+                    id="E1600",
                     name="po_4_gender_ff.invalid_text_length",
                     description=(
                         "'Sex/gender of principal owner 4: free-form"
