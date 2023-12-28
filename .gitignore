@@ -20,3 +20,5 @@ coverage.xml
 
 # excel artifact
 ~$example_sblar.xlsx
+
+errors.csv
