@@ -135,11 +135,13 @@ class TestValidate:
 
     def test_with_multi_invalid_dataframe(self):
         df = pd.DataFrame(
-            data=self.util.get_data({
-                "ct_credit_product": ["989"],
-                "num_principal_owners": ["1"],
-                "action_taken": ["2"],
-            })
+            data=self.util.get_data(
+                {
+                    "ct_credit_product": ["989"],
+                    "num_principal_owners": ["1"],
+                    "action_taken": ["2"],
+                }
+            )
         )
         p1_is_valid, p1_findings_df = validate(self.phase1_schema, df)
         assert not p1_is_valid
@@ -193,11 +195,13 @@ class TestValidatePhases:
     def test_with_multi_invalid_data_with_phase1(self):
         is_valid, findings_df = validate_phases(
             pd.DataFrame(
-                data=self.util.get_data({
-                    "ct_credit_product": ["989"],
-                    "num_principal_owners": ["1"],
-                    "action_taken": ["2"],
-                })
+                data=self.util.get_data(
+                    {
+                        "ct_credit_product": ["989"],
+                        "num_principal_owners": ["1"],
+                        "action_taken": ["2"],
+                    }
+                )
             )
         )
 
@@ -208,10 +212,12 @@ class TestValidatePhases:
     def test_with_multi_invalid_data_with_phase2(self):
         is_valid, findings_df = validate_phases(
             pd.DataFrame(
-                data=self.util.get_data({
-                    "num_principal_owners": ["1"],
-                    "action_taken": ["2"],
-                })
+                data=self.util.get_data(
+                    {
+                        "num_principal_owners": ["1"],
+                        "action_taken": ["2"],
+                    }
+                )
             ),
         )
         # since the data passed phase 1 validations
