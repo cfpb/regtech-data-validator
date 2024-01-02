@@ -157,7 +157,6 @@ failed validation.
 We use these test files in for automated test, but can also be passed in via the
 `cfpb-val` CLI utility for manual testing.
 
-
 ## Development
 
 ### Best practices
@@ -233,6 +232,30 @@ Test coverage details can be found in this project's
 [`python-coverage-comment-action-data`](https://github.com/cfpb/regtech-data-validator/tree/python-coverage-comment-action-data)
 branch.
 
+
+### Testing the FIG CSV
+
+A standard pytest ([`test_csv_differences.py`](tests/test_csv_differences.py)) has been written that compares the validation code in [`phase_validations.py`](regtech_data_validator/phase_validations.py) 
+to the [`FIG CSV`](https://github.com/cfpb/sbl-content/blob/main/fig-files/validation-spec/2024-validations.csv). This test will check that
+the list of validation IDs in one match the other, and will report on IDs that are missing in either.
+The test will also validate that all severities (error or warning) match.  The test will then
+do a hard string compare between the violation descriptions, with a couple of caveats:
+- Any python validation check whose description starts with a single quote will first add the single quote
+  to the CSV's description, if one doesn't exist.  This is done because if someone modifies the CSV in Excel,
+  Excel will drop the beginning single quote, which it interprets as a formatter telling Excel "this field is a string"
+- Certain descriptions in the CSV have 'complex' formatting to produce layouts with lists, new lines and white space
+  that may not compare correctly.  Since how error descriptions will be formatted on the results page for a submission,
+  currently the test will strip off some of this formatting and compare the text.
+
+This test is ran automatically as part of our unit testing pipeline.  A developer can also
+run the test manually by running the command `poetry run pytest tests/test_csv_differences.py`
+
+This will create an errors.csv file at the root of the repo that can be used to easily view 
+differences found between the two files.
+
+Normally the pytest will point to the main branch in the sbl-content repo, but a developer
+can modify the test to point to a development branch that has upcoming changes, run the test with the above command,
+and then evaluate what changes may need to be made to the python validation code.
 
 ## Linting
 
