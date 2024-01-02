@@ -60,7 +60,7 @@ class TestCSVDifferences:
                     # Excel will strip that first single quote off when saving to a CSV, as it uses
                     # a starting single quote to signify that the rest of the data is a string.
                     # This checks if the description we're checking is one of those, and if it doesn't
-                    # already start with a single quote in the CSV just in case someone saves the doc differently 
+                    # already start with a single quote in the CSV just in case someone saves the doc differently
                     # than with Excel
                     if row["validation_id"] in self.add_starting_quote and not row["description"].startswith("'"):
                         row["description"] = "'" + row["description"]
@@ -68,7 +68,7 @@ class TestCSVDifferences:
                         row["type"].lower() != found_py_validation["type"].lower()
                         or row["description"] != found_py_validation["description"]
                     ):
-                        # This can be used locally to run a pytest and get a csv of discrepancies, which makes 
+                        # This can be used locally to run a pytest and get a csv of discrepancies, which makes
                         # for easier correcting of code/csv.
                         error_file.write(
                             f'{row["validation_id"]},{row["type"].lower()},{found_py_validation["type"].lower()},\"{row["description"]}\",\"{found_py_validation["description"]}\"\n'
