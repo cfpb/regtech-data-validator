@@ -1231,14 +1231,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     groupby="ct_credit_product",
-                    conditions=[
-                        {
-                            "condition_values": {"7", "8", "977"},
-                            "is_equal_condition": False,
-                            "target_value": "999",
-                            "should_equal_target": True,
-                        }
-                    ],
+                    conditions=[{
+                        "condition_values": {"7", "8", "977"},
+                        "is_equal_condition": False,
+                        "target_value": "999",
+                        "should_equal_target": True,
+                    }],
                 ),
             ],
         },
