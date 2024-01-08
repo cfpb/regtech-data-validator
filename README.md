@@ -235,7 +235,7 @@ branch.
 
 ### Testing the FIG CSV
 
-A standard pytest ([`test_csv_differences.py`](tests/test_csv_differences.py)) has been written that compares the validation code in [`phase_validations.py`](regtech_data_validator/phase_validations.py) 
+A standard pytest ([`test_csv_to_code_differences.py`](tests/test_csv_to_code_differences.py)) has been written that compares the validation code in [`phase_validations.py`](regtech_data_validator/phase_validations.py) 
 to the [`FIG CSV`](https://github.com/cfpb/sbl-content/blob/main/fig-files/validation-spec/2024-validations.csv). This test will check that
 the list of validation IDs in one match the other, and will report on IDs that are missing in either.
 The test will also validate that all severities (error or warning) match.  The test will then
@@ -248,7 +248,7 @@ do a hard string compare between the violation descriptions, with a couple of ca
   currently the test will strip off some of this formatting and compare the text.
 
 This test is ran automatically as part of our unit testing pipeline.  A developer can also
-run the test manually by running the command `poetry run pytest tests/test_csv_differences.py`
+run the test manually by running the command `poetry run pytest tests/test_csv_to_code_differences.py`
 
 This will create an errors.csv file at the root of the repo that can be used to easily view 
 differences found between the two files.
