@@ -1,8 +1,8 @@
 """A collection of custom check functions for the Pandera schema.
 
-These are functions that are outside the scope of built in checks. We 
+These are functions that are outside the scope of built in checks. We
 are not making use of Lambda functions within the schema because they
-make testing difficult. 
+make testing difficult.
 
 We may wish to split this module into separate files if it grows to an
 unwieldy size. For now we'll just use a single module.
