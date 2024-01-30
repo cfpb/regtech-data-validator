@@ -69,44 +69,57 @@ class TestOutputFormat:
     input_df.index += 1
 
     def test_output_pandas(self):
-        expected_output = dedent("""
+        expected_output = dedent(
+            """
                     record_no field_name           field_value validation_severity validation_id            validation_name                                    validation_desc
         finding_no                                                                                                                                                            
         1                   1        uid  12345678901234567890               error         E3000  uid.duplicates_in_dataset  Any 'unique identifier' may not be used in mor...
         2                   2        uid  12345678901234567890               error         E3000  uid.duplicates_in_dataset  Any 'unique identifier' may not be used in mor...
-        """).strip('\n')  # noqa: E501
+        """
+        ).strip(
+            '\n'
+        )  # noqa: E501
 
         actual_output = cli.df_to_str(self.input_df)
 
         assert actual_output == expected_output
 
     def test_output_table(self):
-        expected_output = dedent("""
+        expected_output = dedent(
+            """
         ╭──────────────┬─────────────┬──────────────┬──────────────────────┬───────────────────────┬─────────────────┬───────────────────────────╮
         │   finding_no │   record_no │ field_name   │          field_value │ validation_severity   │ validation_id   │ validation_name           │
         ├──────────────┼─────────────┼──────────────┼──────────────────────┼───────────────────────┼─────────────────┼───────────────────────────┤
         │            1 │           1 │ uid          │ 12345678901234567890 │ error                 │ E3000           │ uid.duplicates_in_dataset │
         │            2 │           2 │ uid          │ 12345678901234567890 │ error                 │ E3000           │ uid.duplicates_in_dataset │
         ╰──────────────┴─────────────┴──────────────┴──────────────────────┴───────────────────────┴─────────────────┴───────────────────────────╯
-        """).strip('\n')  # noqa: E501
+        """
+        ).strip(
+            '\n'
+        )  # noqa: E501
 
         actual_output = cli.df_to_table(self.input_df)
 
         assert actual_output == expected_output
 
     def test_output_csv(self):
-        expected_output = dedent("""
+        expected_output = dedent(
+            """
         finding_no,record_no,field_name,field_value,validation_severity,validation_id,validation_name,validation_desc
         1,1,uid,12345678901234567890,error,E3000,uid.duplicates_in_dataset,Any 'unique identifier' may not be used in mor...
         2,2,uid,12345678901234567890,error,E3000,uid.duplicates_in_dataset,Any 'unique identifier' may not be used in mor...
-        """).strip('\n')  # noqa: E501
+        """
+        ).strip(
+            '\n'
+        )  # noqa: E501
 
         actual_output = cli.df_to_csv(self.input_df)
 
         assert actual_output.strip('\n') == expected_output
 
     def test_output_json(self):
-        expected_output = dedent("""
+        expected_output = dedent(
+            """
         [
             {
                 "validation": {
@@ -137,7 +150,8 @@ class TestOutputFormat:
                 ]
             }
         ]
-        """).strip('\n')
+        """
+        ).strip('\n')
 
         actual_output = cli.df_to_json(self.input_df)
 
