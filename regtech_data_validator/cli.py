@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import StrEnum
-import json, datatime
+import json
 from pathlib import Path
 from typing import Annotated, Optional
 
@@ -18,6 +18,7 @@ app = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=False)
 class KeyValueOpt:
     key: str
     value: str
+
 
 def parse_key_value(kv_str: str) -> KeyValueOpt:
     split_str = kv_str.split('=')
@@ -62,7 +63,11 @@ def df_to_json(df: pd.DataFrame) -> str:
         v_head = v_id_df.iloc[0]
 
         finding_json = {
-            'validation': {'id': v_id_idx,'name': v_head.at['validation_name'],'description': v_head.at['validation_desc'],'severity': v_head.at['validation_severity'],
+            'validation': {
+                'id': v_id_idx,
+                'name': v_head.at['validation_name'],
+                'description': v_head.at['validation_desc'],
+                'severity': v_head.at['validation_severity'],
             },
             'records': [],
         }
