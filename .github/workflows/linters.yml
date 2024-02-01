@@ -19,7 +19,7 @@ jobs:
           poetry install --only linters
       - name: Run black
         run: |
-          poetry run black .
+          poetry run black --check .
   ruff:
     runs-on: ubuntu-latest
     steps:
