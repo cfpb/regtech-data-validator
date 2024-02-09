@@ -3,11 +3,11 @@
 [![Coverage badge](https://github.com/cfpb/regtech-data-validator/raw/python-coverage-comment-action-data/badge.svg)](https://github.com/cfpb/regtech-data-validator/tree/python-coverage-comment-action-data)
 
 Python-based tool for parsing and validating CFPB's RegTech-related data submissions.
-It uses the [Pandera](https://pandera.readthedocs.io/en/stable/) data testing
-framework to define schemas for datasets and to perform all data validations,
-which is in turn based on the [Pandas](http://pandas.pydata.org/docs/getting_started/)
-data analytics tool. It is intended to be used as a library for Python-based apps,
-but can also be used directly via command-line interface.
+It uses [Pandera](https://pandera.readthedocs.io/en/stable/), a 
+[Pandas](http://pandas.pydata.org/docs/getting_started/)-based data testing framework,
+to define schemas for datasets and to perform all data validations. It is intended to
+be used as a library for Python-based apps, but can also be used directly via
+command-line interface.
 
 We are currently focused on implementing the SBL (Small Business Lending) data
 submission. For details on this dataset and its validations, please see:
@@ -55,7 +55,7 @@ This project includes the `cfpb-val` CLI utility for validating CFPB's RegTech-r
 data collection file formats. It currently supports the small business lending (SBL) data
 collected for 2024, but may support more formats in the future. This tool is intended for
 testing purposes, allowing a quick way to check the validity of a file without having
-to submit it through the full CFPB-hosted filing systems.
+to submit it through the full filing systems.
 
 ### Validating data
 
@@ -76,13 +76,12 @@ $ cfpb-val validate --help
 
 #### Examples
 
-1. Validate file with no findings
+1. Validate a file with no findings
 
         $ cfpb-val validate tests/data/sbl-validations-pass.csv
+        status: SUCCESS, findings: 0
 
-    **Note:** No output is returned if the file contains no validations errors or warnings.
-
-1. Validate file with findings, passing in LEI as context
+1. Validate a file with findings, passing in LEI as context
 
         $ cfpb-val validate tests/data/sbl-validations-fail.csv --context lei=000TESTFIUIDDONOTUSE
 
@@ -100,8 +99,9 @@ $ cfpb-val validate --help
         │        117 │       302 │ po_4_gender_flag │ 9001                                               │ error               │ E1040         │ po_4_gender_flag.invalid_enum_value  │
         │        118 │       306 │ po_4_gender_ff   │ 12345678901234567890123456789012345678901234567890 │ error               │ E1060         │ po_4_gender_ff.invalid_text_length   │
         ╰────────────┴───────────┴──────────────────┴────────────────────────────────────────────────────┴─────────────────────┴───────────────┴──────────────────────────────────────╯
+        status: FAILURE, findings: 118
 
-1. Validate file with findings with JSON output
+1. Validate a file with findings with output in JSON format
 
         $ cfpb-val validate tests/data/sbl-validations-fail.csv --output json
 
@@ -144,6 +144,7 @@ $ cfpb-val validate --help
                 ]
             },
             ...
+        status: FAILURE, findings: 118
 
 ## Test Data
 
@@ -158,6 +159,11 @@ We use these test files in for automated test, but can also be passed in via the
 `cfpb-val` CLI utility for manual testing.
 
 ## Development
+
+This section is for developer who wish to contribute to this project.
+
+**Note:** If you simply want to use the **cfpb-val** tool for testing you data,
+you don't need to read any further.
 
 ### Best practices
 
@@ -233,28 +239,29 @@ Test coverage details can be found in this project's
 branch.
 
 
-### Testing the FIG CSV
+### Checking validation code vs. validations CSV
 
-A standard pytest ([`test_csv_to_code_differences.py`](tests/test_csv_to_code_differences.py)) has been written that compares the validation code in [`phase_validations.py`](regtech_data_validator/phase_validations.py) 
-to the [`FIG CSV`](https://github.com/cfpb/sbl-content/blob/main/fig-files/validation-spec/2024-validations.csv). This test will check that
-the list of validation IDs in one match the other, and will report on IDs that are missing in either.
+The ([`test_csv_to_code_differences.py`](tests/test_csv_to_code_differences.py)) test compares the validation code in
+[`phase_validations.py`](regtech_data_validator/phase_validations.py) against the CSV-based 2024 SBL validation spec
+([`2024-validations.csv`](https://github.com/cfpb/sbl-content/blob/main/fig-files/validation-spec/2024-validations.csv)).
+This test checks that the list of validation IDs in one match the other, and will report on IDs that are missing in either.
 The test will also validate that all severities (error or warning) match.  The test will then
-do a hard string compare between the violation descriptions, with a couple of caveats:
+do a hard string compare between the validation descriptions, with a couple of caveats:
 - Any python validation check whose description starts with a single quote will first add the single quote
   to the CSV's description, if one doesn't exist.  This is done because if someone modifies the CSV in Excel,
   Excel will drop the beginning single quote, which it interprets as a formatter telling Excel "this field is a string"
 - Certain descriptions in the CSV have 'complex' formatting to produce layouts with lists, new lines and white space
-  that may not compare correctly.  Since how error descriptions will be formatted on the results page for a submission,
+  that may not compare correctly.  Since how validation descriptions will be formatted on the results page for a submission,
   currently the test will strip off some of this formatting and compare the text.
 
-This test is ran automatically as part of our unit testing pipeline.  A developer can also
+This test runs automatically as part of our unit testing pipeline.  You can also
 run the test manually by running the command `poetry run pytest tests/test_csv_to_code_differences.py`
 
-This will create an errors.csv file at the root of the repo that can be used to easily view 
+This will create an `errors.csv` file at the root of the repo that can be used to easily view 
 differences found between the two files.
 
-Normally the pytest will point to the main branch in the sbl-content repo, but a developer
-can modify the test to point to a development branch that has upcoming changes, run the test with the above command,
+Normally the pytest will point to the main branch in the sbl-content repo, but you can modify the test to
+point to a development branch that has upcoming changes, run the test with the above command,
 and then evaluate what changes may need to be made to the python validation code.
 
 ## Linting
