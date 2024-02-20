@@ -15,7 +15,7 @@ pandas = "^2.2.0"
 pandera = "^0.18.0"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "8.0.0"
+pytest = "8.0.1"
 pytest-cov = "4.1.0"
 
 [tool.poetry.group.data.dependencies]
@@ -28,7 +28,7 @@ typer = "^0.9.0"
 
 [tool.poetry.group.linters.dependencies]
 black = "24.2.0"
-ruff = "0.2.1"
+ruff = "0.2.2"
 
 [tool.poetry.scripts]
 cfpb-val = 'regtech_data_validator.cli:app'
