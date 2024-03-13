@@ -12,7 +12,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 pandas = "^2.2.1"
-pandera = "^0.18.0"
+pandera = "^0.18.3"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "8.1.1"
