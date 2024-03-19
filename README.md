@@ -193,7 +193,7 @@ This project uses [pytest](https://docs.pytest.org/) for automated testing.
 ```
 $ pytest
 ======================================================= test session starts =======================================================
-platform darwin -- Python 3.11.2, pytest-7.4.0, pluggy-1.3.0 -- /Users/keelerh/Library/Caches/pypoetry/virtualenvs/regtech-data-validator-Sa0Sf38s-py3.11/bin/python
+platform darwin -- Python 3.12.0, pytest-7.4.0, pluggy-1.3.0 -- /Users/keelerh/Library/Caches/pypoetry/virtualenvs/regtech-data-validator-p5DmiWB0-py3.12/bin/python
 cachedir: .pytest_cache
 rootdir: /Users/keelerh/Projects/regtech-data-validator
 configfile: pyproject.toml
@@ -214,7 +214,7 @@ tests/test_schema_functions.py::TestValidatePhases::test_with_multi_invalid_data
 tests/test_schema_functions.py::TestValidatePhases::test_with_invalid_lei PASSED                                            [100%]
 
 
----------- coverage: platform darwin, python 3.11.2-final-0 ----------
+---------- coverage: platform darwin, python 3.12.0-final-0 ----------
 Name                                          Stmts   Miss Branch BrPart  Cover   Missing
 -----------------------------------------------------------------------------------------
 regtech_data_validator/check_functions.py       184     14     78      0    91%   55-59, 111-121, 275-276, 297-298, 420-421
