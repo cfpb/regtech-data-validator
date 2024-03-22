@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "RegTech submission data parser and validator"
 authors = []
 readme = "README.md"
+packages = [{ include = "regtech_data_validator", from = "src" }]
 
 [tool.poetry.dependencies]
 python = ">=3.12,<4"
@@ -56,6 +57,7 @@ line-length = 120
 
 # Testing
 [tool.pytest.ini_options]
+pythonpath = ["src"]
 addopts = [
     "--cov-report=term-missing",
     "--cov-branch",
