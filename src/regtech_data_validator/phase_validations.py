@@ -636,13 +636,13 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     name="pricing_all.conditional_fieldset_conflict",
                     description=(
                         "When 'action taken' equals 3 (denied), 4 (withdrawn by applicant), or 5 (incomplete), the following fields must all equal 999 (not applicable):\n"
-                        "* 'Interest rate type'\n"   
-                        "* 'MCA/sales-based: additional cost for merchant cash advances or other sales-based financing: NA flag'\n"    
-                        "* 'Prepayment penalty could be imposed'\n"   
-                        "* 'Prepayment penalty exists'\n\n"   
-                        "And the following fields must all be blank:\n\n"   
-                        "* 'Total origination charges'\n"   
-                        "* 'Amount of total broker fees'\n"   
+                        "* 'Interest rate type'\n"
+                        "* 'MCA/sales-based: additional cost for merchant cash advances or other sales-based financing: NA flag'\n"
+                        "* 'Prepayment penalty could be imposed'\n"
+                        "* 'Prepayment penalty exists'\n\n"
+                        "And the following fields must all be blank:\n\n"
+                        "* 'Total origination charges'\n"
+                        "* 'Amount of total broker fees'\n"
                         "* 'Initial annual charges'"
                     ),
                     severity=Severity.ERROR,

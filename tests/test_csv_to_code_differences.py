@@ -1,4 +1,3 @@
-import re
 from regtech_data_validator.phase_validations import get_phase_1_and_2_validations_for_lei
 import pandas as pd
 
