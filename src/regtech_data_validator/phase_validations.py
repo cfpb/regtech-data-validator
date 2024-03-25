@@ -1286,7 +1286,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_valid_enum,
                     id="E0620",
                     name="pricing_prepenalty_allowed.invalid_enum_value",
-                    description="'* Prepayment penalty could be imposed' must equal 1, 2, or 999.",
+                    description="* Prepayment penalty could be imposed' must equal 1, 2, or 999.",
                     severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
