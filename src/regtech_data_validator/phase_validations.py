@@ -281,7 +281,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description=dedent(
                         """\
                         * When 'type of guarantee' does **not** contain 977 (other), 'free-form text field for other guarantee' must be blank.
-                        * When 'type of guarantee' contains 977, 'free-form text field for other guarantee' must **not** be blank."
+                        * When 'type of guarantee' contains 977, 'free-form text field for other guarantee' must **not** be blank.
                     """
                     ),
                     severity=Severity.ERROR,
@@ -371,7 +371,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     name="ct_loan_term.conditional_field_conflict",
                     description=dedent(
                         """\
-                        "* When 'loan term: NA/NP flag' does **not** equal 900 (applicable and reported), 'loan term' must be blank.
+                        * When 'loan term: NA/NP flag' does **not** equal 900 (applicable and reported), 'loan term' must be blank.
                         * When 'loan term: NA/NP flag' equals 900, 'loan term' must **not** be blank.
                     """
                     ),
@@ -492,7 +492,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description=dedent(
                         """\
                         * When 'credit purpose' does **not** contain 977 (other), 'free-form text field for other credit purpose' must be blank.
-                        * When 'credit purpose' contains 977 (other), 'free-form text field for other credit purpose' must **not** be blank."
+                        * When 'credit purpose' contains 977 (other), 'free-form text field for other credit purpose' must **not** be blank.
                     """
                     ),
                     severity=Severity.ERROR,
@@ -1916,7 +1916,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description=dedent(
                         """\
                         * When 'number of principal owners: NP flag' does **not** equal 900 (reported), 'number of principal owners' must be blank.
-                        * When 'number of principal owners: NP flag' equals 900, 'number of principal owners' must **not** be blank."
+                        * When 'number of principal owners: NP flag' equals 900, 'number of principal owners' must **not** be blank.
                     """
                     ),
                     severity=Severity.ERROR,
@@ -2223,7 +2223,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         for other Pacific Islander race), 'race of principal owner 1: free-form text field for other Pacific Islander \
                         race' must be blank.
                         * When 'race of principal owner 1' contains 974, 'Race of Principal Owner 1: Free-form Text Field for Other \
-                        Pacific Islander race' must **not** be blank."
+                        Pacific Islander race' must **not** be blank.
                     """
                     ),
                     severity=Severity.ERROR,
@@ -2514,7 +2514,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         * When 'race of principal owner 2' does **not** contain 972 (the applicant responded in the free-form text \
                         field for other Asian race), 'race of principal owner 2: free-form text field for other Asian' must be blank.
                         * When 'race of principal owner 2' contains 972, 'race of principal owner 2: free-form text field for other \
-                        Asian' must **not** be blank."
+                        Asian' must **not** be blank.
                     """
                     ),
                     severity=Severity.ERROR,
@@ -2841,7 +2841,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         'race of principal owner 3: free-form text field for American Indian or Alaska Native \
                         Enrolled or Principal Tribe' must be blank.
                         * When 'race of principal owner 3' contains 971, 'race of principal owner 3: free-form text \
-                        field for American Indian or Alaska Native Enrolled or Principal Tribe' must **not** be blank."
+                        field for American Indian or Alaska Native Enrolled or Principal Tribe' must **not** be blank.
                     """
                     ),
                     severity=Severity.ERROR,
@@ -3202,7 +3202,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         'race of principal owner 4: free-form text field for American Indian or Alaska Native Enrolled \
                         or Principal Tribe' must be blank.
                         * When 'race of principal owner 4' contains 971, 'race of principal owner 4: free-form text field \
-                        for American Indian or Alaska Native Enrolled or Principal Tribe' must **not** be blank."
+                        for American Indian or Alaska Native Enrolled or Principal Tribe' must **not** be blank.
                     """
                     ),
                     severity=Severity.ERROR,
