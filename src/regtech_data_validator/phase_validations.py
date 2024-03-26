@@ -3,6 +3,8 @@
 This mapping is used to populate the schema template object and create
 an instance of a PanderaSchema object for phase 1 and phase 2."""
 
+from textwrap import dedent
+
 from regtech_data_validator import global_data
 from regtech_data_validator.check_functions import (
     has_correct_length,
@@ -182,9 +184,11 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2000",
                     name="ct_credit_product_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'credit product' does **not** equal 977 (other), 'free-form text field for other credit products' must be blank.\n"
-                        "* When 'credit product' equals 977, 'free-form text field for other credit products' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'credit product' does **not** equal 977 (other), 'free-form text field for other credit products' must be blank.
+                        * When 'credit product' equals 977, 'free-form text field for other credit products' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="ct_credit_product",
@@ -274,11 +278,11 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2001",
                     name="ct_guarantee_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'type of guarantee' does **not** contain 977 (other), "
-                        "'free-form text field for other guarantee' must be blank.\n"
-                        "* When 'type of guarantee' contains 977, 'free-form text field"
-                        " for other guarantee' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'type of guarantee' does **not** contain 977 (other), 'free-form text field for other guarantee' must be blank.
+                        * When 'type of guarantee' contains 977, 'free-form text field for other guarantee' must **not** be blank."
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="ct_guarantee",
@@ -323,13 +327,11 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_valid_enum_pair,
                     id="E2003",
                     name="ct_loan_term_flag.enum_value_conflict",
-                    description=(
-                        "* When 'credit product' equals 1 (term loan - unsecured) or 2"
-                        " (term loan - secured), 'loan term: NA/NP flag' must **not** equal"
-                        " 999 (not applicable).\n"
-                        "* When 'credit product' equals 988 (not provided by applicant"
-                        " and otherwise undetermined), 'loan term: NA/NP flag' must"
-                        " equal 999."
+                    description=dedent(
+                        """\
+                        * When 'credit product' equals 1 (term loan - unsecured) or 2 (term loan - secured), 'loan term: NA/NP flag' must **not** equal 999 (not applicable).
+                        * When 'credit product' equals 988 (not provided by applicant and otherwise undetermined), 'loan term: NA/NP flag' must equal 999.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="ct_credit_product",
@@ -367,10 +369,11 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2004",
                     name="ct_loan_term.conditional_field_conflict",
-                    description=(
-                        "* When 'loan term: NA/NP flag' does **not** equal 900 (applicable "
-                        "and reported), 'loan term' must be blank.\n* When 'loan term: "
-                        "NA/NP flag' equals 900, 'loan term' must **not** be blank."
+                    description=dedent(
+                        """\
+                        "* When 'loan term: NA/NP flag' does **not** equal 900 (applicable and reported), 'loan term' must be blank.
+                        * When 'loan term: NA/NP flag' equals 900, 'loan term' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="ct_loan_term_flag",
@@ -486,11 +489,11 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2005",
                     name="credit_purpose_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'credit purpose' does **not** contain 977 (other), "
-                        "'free-form text field for other credit purpose' must be blank.\n"
-                        "* When 'credit purpose' contains 977 (other), 'free-form text field for "
-                        "other credit purpose' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'credit purpose' does **not** contain 977 (other), 'free-form text field for other credit purpose' must be blank.
+                        * When 'credit purpose' contains 977 (other), 'free-form text field for other credit purpose' must **not** be blank."
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="credit_purpose",
@@ -549,11 +552,11 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2007",
                     name="amount_applied_for.conditional_field_conflict",
-                    description=(
-                        "* When 'amount applied for: NA/NP flag' does **not** equal 900 "
-                        "(applicable and reported), 'amount applied for' must be blank.\n"
-                        "* When 'amount applied for: NA/NP flag' equals 900, "
-                        "'amount applied for' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'amount applied for: NA/NP flag' does **not** equal 900 (applicable and reported), 'amount applied for' must be blank.
+                        * When 'amount applied for: NA/NP flag' equals 900, 'amount applied for' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="amount_applied_for_flag",
@@ -598,12 +601,11 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2008",
                     name="amount_approved.conditional_field_conflict",
-                    description=(
-                        "* When 'action taken' does **not** equal 1 (originated) "
-                        "or 2 (approved but not accepted), 'amount approved "
-                        "or originated' must be blank.\n* When 'action taken' "
-                        "equals 1 or 2, 'amount approved or originated' must "
-                        "**not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'action taken' does **not** equal 1 (originated) or 2 (approved but not accepted), 'amount approved or originated' must be blank.
+                        * When 'action taken' equals 1 or 2, 'amount approved or originated' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="action_taken",
@@ -634,16 +636,20 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_valid_fieldset_pair,
                     id="E2014",
                     name="pricing_all.conditional_fieldset_conflict",
-                    description=(
-                        "When 'action taken' equals 3 (denied), 4 (withdrawn by applicant), or 5 (incomplete), the following fields must all equal 999 (not applicable):\n"
-                        "* 'Interest rate type'\n"
-                        "* 'MCA/sales-based: additional cost for merchant cash advances or other sales-based financing: NA flag'\n"
-                        "* 'Prepayment penalty could be imposed'\n"
-                        "* 'Prepayment penalty exists'\n\n"
-                        "And the following fields must all be blank:\n\n"
-                        "* 'Total origination charges'\n"
-                        "* 'Amount of total broker fees'\n"
-                        "* 'Initial annual charges'"
+                    description=dedent(
+                        """\
+                        When 'action taken' equals 3 (denied), 4 (withdrawn by applicant), or 5 (incomplete), the following fields must all equal 999 (not applicable):
+                        * 'Interest rate type'
+                        * 'MCA/sales-based: additional cost for merchant cash advances or other sales-based financing: NA flag'
+                        * 'Prepayment penalty could be imposed'
+                        * 'Prepayment penalty exists'
+                        
+                        And the following fields must all be blank:
+                        
+                        * 'Total origination charges'
+                        * 'Amount of total broker fees'
+                        * 'Initial annual charges'
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby=[
@@ -670,11 +676,18 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_valid_fieldset_pair,
                     id="E2015",
                     name="pricing_charges.conditional_fieldset_conflict",
-                    description=(
-                        "When 'action taken' equals 1 (originated) or 2 (approved but not accepted), the following"
-                        " fields all must **not** be blank:\n* 'Total origination charges'\n* 'Amount of total broker"
-                        " fees'\n* 'Initial annual charges'\n\nAnd the following fields must **not** equal 999 (not"
-                        " applicable):\n\n* 'Prepayment penalty could be imposed'\n* 'Prepayment penalty exists'"
+                    description=dedent(
+                        """\
+                        When 'action taken' equals 1 (originated) or 2 (approved but not accepted), the following fields all must **not** be blank:
+                        * 'Total origination charges'
+                        * 'Amount of total broker fees'
+                        * 'Initial annual charges'
+                        
+                        And the following fields must **not** equal 999 (not applicable):
+                        
+                        * 'Prepayment penalty could be imposed'
+                        * 'Prepayment penalty exists'"
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby=[
@@ -788,10 +801,11 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_valid_enum_pair,
                     id="E2011",
                     name="denial_reasons.enum_value_conflict",
-                    description=(
-                        "* When 'action taken' equals 3, 'denial reason(s)' must **not** "
-                        "contain 999.\n* When 'action taken' does **not** equal 3 (denied), 'denial "
-                        "reason(s)' must equal 999 (not applicable)."
+                    description=dedent(
+                        """\
+                        * When 'action taken' equals 3, 'denial reason(s)' must **not** contain 999.
+                        * When 'action taken' does **not** equal 3 (denied), 'denial reason(s)' must equal 999 (not applicable).
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="action_taken",
@@ -850,11 +864,11 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2012",
                     name="denial_reasons_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'denial reason(s)' does **not** contain 977 (other), field "
-                        "'free-form text field for other denial reason(s)' must be "
-                        "blank.\n* When 'denial reason(s)' contains 977, 'free-form text "
-                        "field for other denial reason(s)' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'denial reason(s)' does **not** contain 977 (other), field 'free-form text field for other denial reason(s)' must be blank.
+                        * When 'denial reason(s)' contains 977, 'free-form text field for other denial reason(s)' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="denial_reasons",
@@ -919,14 +933,13 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2016",
                     name="pricing_init_rate_period.conditional_field_conflict",
-                    description=(
-                        "* When 'interest rate type' does **not** equal 3 (initial rate "
-                        "period > 12 months, adjustable interest), 4 (initial rate "
-                        "period > 12 months, fixed interest), 5 (initial rate period "
-                        "<= 12 months, adjustable interest), or 6 (initial rate period "
-                        "<= 12 months, fixed interest), 'initial rate period' must "
-                        "be blank.\n* When 'interest rate type' equals 3, 4, 5, or 6, "
-                        "'initial rate period' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'interest rate type' does **not** equal 3 (initial rate period > 12 months, adjustable interest), \
+                        4 (initial rate period > 12 months, fixed interest), 5 (initial rate period <= 12 months, adjustable interest), \
+                        or 6 (initial rate period <= 12 months, fixed interest), 'initial rate period' must be blank.
+                        * When 'interest rate type' equals 3, 4, 5, or 6, 'initial rate period' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="pricing_interest_rate_type",
@@ -963,14 +976,13 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2017",
                     name="pricing_fixed_rate.conditional_field_conflict",
-                    description=(
-                        "* When 'interest rate type' does **not** equal 2"
-                        " (fixed interest rate, no initial rate period),"
-                        " 4 (initial rate period > 12 months, fixed interest"
-                        " rate), or 6 (initial rate period <= 12 months, fixed"
-                        " interest rate), 'fixed rate: interest rate' must be"
-                        " blank.\n* When 'interest rate type' equals 2, 4, or 6,"
-                        " 'fixed rate: interest rate' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'interest rate type' does **not** equal 2 (fixed interest rate, no initial rate period), \
+                        4 (initial rate period > 12 months, fixed interest rate), or 6 (initial rate period <= 12 months, fixed \
+                        interest rate), 'fixed rate: interest rate' must be blank.
+                        * When 'interest rate type' equals 2, 4, or 6, 'fixed rate: interest rate' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="pricing_interest_rate_type",
@@ -1005,14 +1017,13 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2018",
                     name="pricing_adj_margin.conditional_field_conflict",
-                    description=(
-                        "* When 'interest rate type' does **not** equal 1"
-                        " (adjustable interest rate, no initial rate period),"
-                        " 3 (initial rate period > 12 months, adjustable interest"
-                        " rate), or 5 (initial rate period <= 12 months, adjustable "
-                        "interest rate), 'adjustable rate transaction: margin' must "
-                        "be blank.\n* When 'interest rate type' equals 1, 3, or 5, "
-                        "'adjustable rate transaction: margin' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'interest rate type' does **not** equal 1 (adjustable interest rate, no initial rate period), \
+                        3 (initial rate period > 12 months, adjustable interest rate), or 5 (initial rate period <= 12 months, adjustable \
+                        interest rate), 'adjustable rate transaction: margin' must be blank.
+                        * When 'interest rate type' equals 1, 3, or 5, 'adjustable rate transaction: margin' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="pricing_interest_rate_type",
@@ -1065,14 +1076,13 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_valid_enum_pair,
                     id="E2019",
                     name="pricing_adj_index_name.enum_value_conflict",
-                    description=(
-                        "* When 'interest rate type' does **not** equal 1 (adjustable interest"
-                        " rate, no initial rate period), 3 (initial rate period > 12"
-                        " months, adjustable interest rate), or 5 (initial rate"
-                        " period <= 12 months, adjustable interest rate), 'adjustable"
-                        " rate transaction: index name' must equal 999."
-                        "\n* When 'interest rate type' equals 1, 3, or 5, 'adjustable rate"
-                        " transaction: index name' must **not** equal 999."
+                    description=dedent(
+                        """\
+                        * When 'interest rate type' does **not** equal 1 (adjustable interest rate, no initial rate period), 3 (initial rate period > 12 \
+                        months, adjustable interest rate), or 5 (initial rate period <= 12 months, adjustable interest rate), 'adjustable \
+                        rate transaction: index name' must equal 999.
+                        * When 'interest rate type' equals 1, 3, or 5, 'adjustable rate transaction: index name' must **not** equal 999.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="pricing_interest_rate_type",
@@ -1111,13 +1121,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2020",
                     name="pricing_adj_index_name_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'adjustable rate transaction: index name' does **not** equal "
-                        "977 (other), 'adjustable rate transaction: index name: other' "
-                        "must be blank. "
-                        "\n* When 'adjustable rate transaction: index name' equals 977, "
-                        "'adjustable rate transaction: index name: other' must **not** be "
-                        "blank."
+                    description=dedent(
+                        """\
+                        * When 'adjustable rate transaction: index name' does **not** equal 977 (other), 'adjustable rate transaction: index name: other' \
+                        must be blank.
+                        * When 'adjustable rate transaction: index name' equals 977, 'adjustable rate transaction: index name: other' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="pricing_adj_index_name",
@@ -1142,13 +1151,13 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2021",
                     name="pricing_adj_index_value.conditional_field_conflict",
-                    description=(
-                        "* When 'interest rate type' does **not** equal 1 (adjustable"
-                        " interest rate, no initial rate period),"
-                        " or 3 (initial rate period > 12 months, adjustable interest"
-                        " rate), 'adjustable rate transaction: index value' must be"
-                        " blank.\n* When 'interest rate type' equals 1 or 3,"
-                        " 'adjustable rate transaction: index value' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'interest rate type' does **not** equal 1 (adjustable interest rate, no initial rate period), \
+                        or 3 (initial rate period > 12 months, adjustable interest rate), 'adjustable rate transaction: index value' \
+                        must be blank.
+                        * When 'interest rate type' equals 1 or 3, 'adjustable rate transaction: index value' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="pricing_interest_rate_type",
@@ -1263,16 +1272,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2023",
                     name="pricing_mca_addcost.conditional_field_conflict",
-                    description=(
-                        "* When 'MCA/sales-based: additional cost for merchant "
-                        "cash advances or other sales-based financing: NA flag' "
-                        "does **not** equal 900 (applicable), 'MCA/sales-based: "
-                        "additional cost for merchant cash advances or other "
-                        "sales-based financing' must be blank.\n* When 'MCA/sales-based: "
-                        "additional cost for merchant cash advances or other "
-                        "sales-based financing: NA flag' equals 900, 'MCA/sales-based: "
-                        "additional cost for merchant cash advances or other "
-                        "sales-based financing' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'MCA/sales-based: additional cost for merchant cash advances or other sales-based financing: NA flag' \
+                        does **not** equal 900 (applicable), 'MCA/sales-based: additional cost for merchant cash advances or other \
+                        sales-based financing' must be blank.
+                        * When 'MCA/sales-based: additional cost for merchant cash advances or other sales-based financing: NA flag' \
+                        equals 900, 'MCA/sales-based: additional cost for merchant cash advances or other sales-based financing' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="pricing_mca_addcost_flag",
@@ -1353,16 +1360,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_valid_enum_pair,
                     id="E2024",
                     name="census_tract_number.conditional_field_conflict",
-                    description=(
-                        "* When 'census tract: type of address' equals 988 (not "
-                        "provided by applicant and otherwise undetermined), "
-                        "'census tract: tract number' must be blank. "
-                        "\n* When 'census tract: type of address' equals 1 (address"
-                        " or location where the loan proceeds will principally "
-                        "be applied), 2 (address or location of borrower's main "
-                        "office or headquarters), or 3 (another address or "
-                        "location associated with the applicant), 'census tract:"
-                        " tract number' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'census tract: type of address' equals 988 (not provided by applicant and otherwise undetermined), \
+                        'census tract: tract number' must be blank. 
+                        * When 'census tract: type of address' equals 1 (address or location where the loan proceeds will principally \
+                        be applied), 2 (address or location of borrower's main office or headquarters), or 3 (another address or \
+                        location associated with the applicant), 'census tract: tract number' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="census_tract_adr_type",
@@ -1386,8 +1391,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     id="W0680",
                     name="census_tract_number.invalid_geoid",
                     description=(
-                        "* When present, 'census tract: tract number' should be a valid "
-                        "census tract GEOID as defined by the U.S. Census Bureau."
+                        "* When present, 'census tract: tract number' should be a valid census tract GEOID as defined by the U.S. Census Bureau."
                     ),
                     severity=Severity.WARNING,
                     element_wise=True,
@@ -1430,11 +1434,11 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2025",
                     name="gross_annual_revenue.conditional_field_conflict",
-                    description=(
-                        "* When 'gross annual revenue: NP flag' does **not** equal 900 "
-                        "(reported), 'gross annual revenue' must be blank.\n* When "
-                        "'gross annual revenue: NP flag' equals 900, "
-                        "'gross annual revenue' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'gross annual revenue: NP flag' does **not** equal 900 (reported), 'gross annual revenue' must be blank.
+                        * When 'gross annual revenue: NP flag' equals 900, 'gross annual revenue' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="gross_annual_revenue_flag",
@@ -1507,12 +1511,13 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2026",
                     name="naics_code.conditional_field_conflict",
-                    description=(
-                        "* When 'North American Industry Classification System (NAICS) code: NP flag' does "
-                        "**not** equal 900 (reported), 'North American Industry Classification System (NAICS) "
-                        "code' must be blank.\n* When 'North American Industry Classification System (NAICS) "
-                        "code: NP flag' equals 900, 'North American Industry Classification System (NAICS) "
-                        "code' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'North American Industry Classification System (NAICS) code: NP flag' does **not** equal 900 (reported), \
+                        'North American Industry Classification System (NAICS) code' must be blank.
+                        * When 'North American Industry Classification System (NAICS) code: NP flag' equals 900, 'North American Industry \
+                        Classification System (NAICS) code' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="naics_code_flag",
@@ -1591,13 +1596,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2027",
                     name="time_in_business.conditional_field_conflict",
-                    description=(
-                        "* When 'time in business: type of response' does **not**"
-                        " equal 1 (the number of years an applicant has been"
-                        " in business is collected or obtained by the financial"
-                        " institution), 'time in business' must be blank.\n* When"
-                        " 'time in business: type of response' equals 1,"
-                        " 'time in business' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'time in business: type of response' does **not** equal 1 (the number of years an applicant has been \
+                        in business is collected or obtained by the financial institution), 'time in business' must be blank.
+                        * When 'time in business: type of response' equals 1, 'time in business' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="time_in_business_type",
@@ -1723,12 +1727,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_valid_fieldset_pair,
                     id="W2036",
                     name="po_demographics_1.conditional_fieldset_conflict",
-                    description=(
-                        "* When 'number of principal owners' equals 1, "
-                        "'ethnicity of principal owner 1', 'race of principal owner 1',"
-                        " and 'sex/gender of principal owner 1: NP flag' should **not** be"
-                        " blank.\n* Demographic fields for principal owners 2, 3, and 4 "
-                        "should be blank."
+                    description=dedent(
+                        """\
+                        * When 'number of principal owners' equals 1, 'ethnicity of principal owner 1', 'race of principal owner 1', \
+                        and 'sex/gender of principal owner 1: NP flag' should **not** be blank.
+                        * Demographic fields for principal owners 2, 3, and 4 should be blank.
+                    """
                     ),
                     severity=Severity.WARNING,
                     groupby=[
@@ -1765,12 +1769,13 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_valid_fieldset_pair,
                     id="W2037",
                     name="po_demographics_2.conditional_fieldset_conflict",
-                    description=(
-                        "* When 'number of principal owners' equals 2, "
-                        "'ethnicity of principal owner 1 and 2', 'race of principal "
-                        "owner 1 and 2', and 'sex/gender of principal owner 1 and 2: "
-                        "NP flag' should **not** be blank.\n* Demographic fields for "
-                        "principal owners 3 and 4 should be blank."
+                    description=dedent(
+                        """\
+                        * When 'number of principal owners' equals 2, 'ethnicity of principal owner 1 and 2', \
+                        'race of principal owner 1 and 2', and 'sex/gender of principal owner 1 and 2: \
+                        NP flag' should **not** be blank.
+                        * Demographic fields for principal owners 3 and 4 should be blank.
+                    """
                     ),
                     severity=Severity.WARNING,
                     groupby=[
@@ -1807,12 +1812,13 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_valid_fieldset_pair,
                     id="W2038",
                     name="po_demographics_3.conditional_fieldset_conflict",
-                    description=(
-                        "* When 'number of principal owners' equals 3, "
-                        "'ethnicity of principal owner 1, 2, and 3', 'race of principal"
-                        " owner 1, 2, and 3', and 'sex/gender of principal owner 1, 2, "
-                        "and 3: NP flag' should **not** be blank.\n* Demographic fields for "
-                        "principal owner 4 should be blank."
+                    description=dedent(
+                        """\
+                        * When 'number of principal owners' equals 3, 'ethnicity of principal owner 1, 2, and 3', \
+                        'race of principal owner 1, 2, and 3', and 'sex/gender of principal owner 1, 2, \
+                        and 3: NP flag' should **not** be blank.
+                        * Demographic fields for principal owner 4 should be blank.
+                    """
                     ),
                     severity=Severity.WARNING,
                     groupby=[
@@ -1849,12 +1855,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_valid_fieldset_pair,
                     id="W2039",
                     name="po_demographics_4.conditional_fieldset_conflict",
-                    description=(
-                        "* When 'number of principal owners' equals 4, "
-                        "'ethnicity of principal owner 1, 2, 3, and 4', "
-                        "'race of principal owner 1, 2, 3, and 4', "
-                        "and 'sex/gender of principal owner 1, 2, 3, and 4: NP flag'"
-                        " should **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'number of principal owners' equals 4, 'ethnicity of principal owner 1, 2, 3, and 4', \
+                        'race of principal owner 1, 2, 3, and 4', and 'sex/gender of principal owner 1, 2, 3, and 4: NP flag' \
+                        should **not** be blank.
+                    """
                     ),
                     severity=Severity.WARNING,
                     groupby=[
@@ -1907,11 +1913,11 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2028",
                     name="num_principal_owners.conditional_field_conflict",
-                    description=(
-                        "* When 'number of principal owners: NP flag' does **not** equal 900 "
-                        "(reported), 'number of principal owners' must be blank. "
-                        "\n* When 'number of principal owners: NP flag' equals 900, "
-                        "'number of principal owners' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'number of principal owners: NP flag' does **not** equal 900 (reported), 'number of principal owners' must be blank.
+                        * When 'number of principal owners: NP flag' equals 900, 'number of principal owners' must **not** be blank."
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="num_principal_owners_flag",
@@ -1993,15 +1999,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2040",
                     name="po_1_ethnicity_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'ethnicity of principal owner 1' does **not**"
-                        " contain 977 (the applicant responded in the"
-                        " free-form text field), 'ethnicity of principal"
-                        " owner 1: free-form text field for other Hispanic"
-                        " or Latino' must be blank.\n* When 'ethnicity of principal"
-                        " owner 1' contains 977, 'ethnicity of principal"
-                        " owner 1: free-form text field for other Hispanic"
-                        " or Latino' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'ethnicity of principal owner 1' does **not** contain 977 (the applicant responded in the \
+                        free-form text field), 'ethnicity of principal owner 1: free-form text field for other Hispanic \
+                        or Latino' must be blank.
+                        * When 'ethnicity of principal owner 1' contains 977, 'ethnicity of principal owner 1: free-form \
+                        text field for other Hispanic or Latino' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="po_1_ethnicity",
@@ -2107,18 +2112,15 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2060",
                     name="po_1_race_anai_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'race of principal owner 1' does **not**"
-                        " contain 971 (the applicant responded in"
-                        " the free-form text field for American Indian"
-                        " or Alaska Native Enrolled or Principal Tribe),"
-                        " 'race of principal owner 1: free-form text"
-                        " field for American Indian or Alaska Native"
-                        " Enrolled or Principal Tribe' must be blank."
-                        "\n* When 'race of principal owner 1' contains 971,"
-                        " 'race of principal owner 1: free-form text field"
-                        " for American Indian or Alaska Native Enrolled or"
-                        " Principal Tribe' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'race of principal owner 1' does **not** contain 971 (the applicant responded in \
+                        the free-form text field for American Indian or Alaska Native Enrolled or Principal Tribe), \
+                        'race of principal owner 1: free-form text field for American Indian or Alaska Native \
+                        Enrolled or Principal Tribe' must be blank.
+                        * When 'race of principal owner 1' contains 971, 'race of principal owner 1: free-form text field \
+                        for American Indian or Alaska Native Enrolled or Principal Tribe' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="po_1_race",
@@ -2146,14 +2148,13 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2080",
                     name="po_1_race_asian_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'race of principal owner 1' does **not** contain"
-                        " 972 (the applicant responded in the free-form text"
-                        " field for other Asian race), 'race of principal"
-                        " owner 1: free-form text field for other Asian' must"
-                        " be blank.\n* When 'race of principal owner 1' contains"
-                        " 972, 'race of principal owner 1: free-form text field"
-                        " for other Asian' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'race of principal owner 1' does **not** contain 972 (the applicant responded in the free-form text \
+                        field for other Asian race), 'race of principal owner 1: free-form text field for other Asian' must be blank.
+                        * When 'race of principal owner 1' contains 972, 'race of principal owner 1: free-form text field \
+                        for other Asian' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="po_1_race",
@@ -2181,14 +2182,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2100",
                     name="po_1_race_baa_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'race of principal owner 1' does **not** contain 973"
-                        " (the applicant responded in the free-form text field"
-                        " for other Black or African race), 'race of principal"
-                        " owner 1: free-form text field for other Black or African"
-                        " American' must be blank.\n* When 'race of principal owner 1'"
-                        " contains 973, 'race of principal owner 1: free-form text"
-                        " field for other Black or African American' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'race of principal owner 1' does **not** contain 973 (the applicant responded in the free-form text field \
+                        for other Black or African race), 'race of principal owner 1: free-form text field for other Black or African \
+                        American' must be blank.
+                        * When 'race of principal owner 1' contains 973, 'race of principal owner 1: free-form text field for other \
+                        Black or African American' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="po_1_race",
@@ -2216,14 +2217,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2120",
                     name="po_1_race_pi_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'race of principal owner 1' does **not** contain 974"
-                        " (the applicant responded in the free-form text field"
-                        " for other Pacific Islander race), 'race of principal"
-                        " owner 1: free-form text field for other Pacific Islander"
-                        " race' must be blank.\n* When 'race of principal owner 1'"
-                        " contains 974, 'Race of Principal Owner 1: Free-form Text"
-                        " Field for Other Pacific Islander race' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'race of principal owner 1' does **not** contain 974 (the applicant responded in the free-form text field \
+                        for other Pacific Islander race), 'race of principal owner 1: free-form text field for other Pacific Islander \
+                        race' must be blank.
+                        * When 'race of principal owner 1' contains 974, 'Race of Principal Owner 1: Free-form Text Field for Other \
+                        Pacific Islander race' must **not** be blank."
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="po_1_race",
@@ -2270,15 +2271,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2140",
                     name="po_1_gender_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'sex/gender of principal owner 1: NP flag'"
-                        " does **not** equal 1 (the applicant responded in the"
-                        " free-form text field), 'sex/gender of principal"
-                        " owner 1: free-form text field for self-identified"
-                        " sex/gender' must be blank.\n* When 'sex/gender of"
-                        " principal owner 1: NP flag' equals 1, 'sex/gender"
-                        " of principal owner 1: free-form text field for"
-                        " self-identified sex/gender' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'sex/gender of principal owner 1: NP flag' does **not** equal 1 (the applicant responded in the \
+                        free-form text field), 'sex/gender of principal owner 1: free-form text field for self-identified \
+                        sex/gender' must be blank.
+                        * When 'sex/gender of principal owner 1: NP flag' equals 1, 'sex/gender of principal owner 1: free-form \
+                        text field for self-identified sex/gender' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="po_1_gender_flag",
@@ -2360,15 +2360,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2041",
                     name="po_2_ethnicity_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'ethnicity of principal owner 2' does **not**"
-                        " contain 977 (the applicant responded in the"
-                        " free-form text field), 'ethnicity of principal"
-                        " owner 2: free-form text field for other Hispanic"
-                        " or Latino' must be blank.\n* When 'ethnicity of principal"
-                        " owner 2' contains 977, 'ethnicity of principal"
-                        " owner 2: free-form text field for other Hispanic"
-                        " or Latino' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'ethnicity of principal owner 2' does **not** contain 977 (the applicant responded in the \
+                        free-form text field), 'ethnicity of principal owner 2: free-form text field for other Hispanic \
+                        or Latino' must be blank.
+                        * When 'ethnicity of principal owner 2' contains 977, 'ethnicity of principal owner 2: free-form \
+                        text field for other Hispanic or Latino' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="po_2_ethnicity",
@@ -2474,18 +2473,15 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2061",
                     name="po_2_race_anai_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'race of principal owner 2' does **not**"
-                        " contain 971 (the applicant responded in"
-                        " the free-form text field for American Indian"
-                        " or Alaska Native Enrolled or Principal Tribe),"
-                        " 'race of principal owner 2: free-form text"
-                        " field for American Indian or Alaska Native"
-                        " Enrolled or Principal Tribe' must be blank."
-                        "\n* When 'race of principal owner 2' contains 971,"
-                        " 'race of principal owner 2: free-form text field"
-                        " for American Indian or Alaska Native Enrolled or"
-                        " Principal Tribe' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'race of principal owner 2' does **not** contain 971 (the applicant responded in \
+                        the free-form text field for American Indian or Alaska Native Enrolled or Principal Tribe), \
+                        'race of principal owner 2: free-form text field for American Indian or Alaska Native Enrolled \
+                        or Principal Tribe' must be blank.
+                        * When 'race of principal owner 2' contains 971, 'race of principal owner 2: free-form text field \
+                        for American Indian or Alaska Native Enrolled or Principal Tribe' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="po_2_race",
@@ -2513,14 +2509,13 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2081",
                     name="po_2_race_asian_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'race of principal owner 2' does **not** contain"
-                        " 972 (the applicant responded in the free-form text"
-                        " field for other Asian race), 'race of principal"
-                        " owner 2: free-form text field for other Asian' must"
-                        " be blank.\n* When 'race of principal owner 2' contains"
-                        " 972, 'race of principal owner 2: free-form text field"
-                        " for other Asian' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'race of principal owner 2' does **not** contain 972 (the applicant responded in the free-form text \
+                        field for other Asian race), 'race of principal owner 2: free-form text field for other Asian' must be blank.
+                        * When 'race of principal owner 2' contains 972, 'race of principal owner 2: free-form text field for other \
+                        Asian' must **not** be blank."
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="po_2_race",
@@ -2548,14 +2543,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2101",
                     name="po_2_race_baa_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'race of principal owner 2' does **not** contain 973"
-                        " (the applicant responded in the free-form text field"
-                        " for other Black or African race), 'race of principal"
-                        " owner 2: free-form text field for other Black or African"
-                        " American' must be blank.\n* When 'race of principal owner 2'"
-                        " contains 973, 'race of principal owner 2: free-form text"
-                        " field for other Black or African American' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'race of principal owner 2' does **not** contain 973 (the applicant responded in the free-form text field \
+                        for other Black or African race), 'race of principal owner 2: free-form text field for other Black or African \
+                        American' must be blank.
+                        * When 'race of principal owner 2' contains 973, 'race of principal owner 2: free-form text field for other \
+                        Black or African American' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="po_2_race",
@@ -2583,14 +2578,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2121",
                     name="po_2_race_pi_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'race of principal owner 2' does **not** contain 974"
-                        " (the applicant responded in the free-form text field"
-                        " for other Pacific Islander race), 'race of principal"
-                        " owner 2: free-form text field for other Pacific Islander"
-                        " race' must be blank.\n* When 'race of principal owner 2'"
-                        " contains 974, 'Race of Principal Owner 2: Free-form Text"
-                        " Field for Other Pacific Islander race' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'race of principal owner 2' does **not** contain 974 (the applicant responded in the \
+                        free-form text field for other Pacific Islander race), 'race of principal owner 2: free-form \
+                        text field for other Pacific Islander race' must be blank.
+                        * When 'race of principal owner 2' contains 974, 'Race of Principal Owner 2: Free-form Text \
+                        Field for Other Pacific Islander race' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="po_2_race",
@@ -2637,15 +2632,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2141",
                     name="po_2_gender_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'sex/gender of principal owner 2: NP flag'"
-                        " does **not** equal 1 (the applicant responded in the"
-                        " free-form text field), 'sex/gender of principal"
-                        " owner 2: free-form text field for self-identified"
-                        " sex/gender' must be blank.\n* When 'sex/gender of"
-                        " principal owner 2: NP flag' equals 1, 'sex/gender"
-                        " of principal owner 2: free-form text field for"
-                        " self-identified sex/gender' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'sex/gender of principal owner 2: NP flag' does **not** equal 1 (the applicant responded in the \
+                        free-form text field), 'sex/gender of principal owner 2: free-form text field for self-identified sex/gender' \
+                        must be blank.
+                        * When 'sex/gender of principal owner 2: NP flag' equals 1, 'sex/gender of principal owner 2: free-form text \
+                        field for self-identified sex/gender' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="po_2_gender_flag",
@@ -2727,15 +2721,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2042",
                     name="po_3_ethnicity_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'ethnicity of principal owner 3' does not"
-                        " contain 977 (the applicant responded in the"
-                        " free-form text field), 'ethnicity of principal"
-                        " owner 3: free-form text field for other Hispanic"
-                        " or Latino' must be blank.\n* When 'ethnicity of principal"
-                        " owner 3' contains 977, 'ethnicity of principal"
-                        " owner 3: free-form text field for other Hispanic"
-                        " or Latino' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'ethnicity of principal owner 3' does not contain 977 (the applicant responded in the \
+                        free-form text field), 'ethnicity of principal owner 3: free-form text field for other Hispanic \
+                        or Latino' must be blank.
+                        * When 'ethnicity of principal owner 3' contains 977, 'ethnicity of principal owner 3: free-form \
+                        text field for other Hispanic or Latino' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="po_3_ethnicity",
@@ -2841,18 +2834,15 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2062",
                     name="po_3_race_anai_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'race of principal owner 3' does **not**"
-                        " contain 971 (the applicant responded in"
-                        " the free-form text field for American Indian"
-                        " or Alaska Native Enrolled or Principal Tribe),"
-                        " 'race of principal owner 3: free-form text"
-                        " field for American Indian or Alaska Native"
-                        " Enrolled or Principal Tribe' must be blank."
-                        "\n* When 'race of principal owner 3' contains 971,"
-                        " 'race of principal owner 3: free-form text field"
-                        " for American Indian or Alaska Native Enrolled or"
-                        " Principal Tribe' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'race of principal owner 3' does **not** contain 971 (the applicant responded in \
+                        the free-form text field for American Indian or Alaska Native Enrolled or Principal Tribe), \
+                        'race of principal owner 3: free-form text field for American Indian or Alaska Native \
+                        Enrolled or Principal Tribe' must be blank.
+                        * When 'race of principal owner 3' contains 971, 'race of principal owner 3: free-form text \
+                        field for American Indian or Alaska Native Enrolled or Principal Tribe' must **not** be blank."
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="po_3_race",
@@ -2880,14 +2870,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2082",
                     name="po_3_race_asian_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'race of principal owner 3' does **not** contain"
-                        " 972 (the applicant responded in the free-form text"
-                        " field for other Asian race), 'race of principal"
-                        " owner 3: free-form text field for other Asian' must"
-                        " be blank.\n* When 'race of principal owner 3' contains"
-                        " 972, 'race of principal owner 3: free-form text field"
-                        " for other Asian' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'race of principal owner 3' does **not** contain 972 (the applicant responded in the \
+                        free-form text field for other Asian race), 'race of principal owner 3: free-form text field \
+                        for other Asian' must be blank.
+                        * When 'race of principal owner 3' contains 972, 'race of principal owner 3: free-form text \
+                        field for other Asian' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="po_3_race",
@@ -2903,8 +2893,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     id="E1360",
                     name="po_3_race_baa_ff.invalid_text_length",
                     description=(
-                        "* 'Race of principal owner 3: free-form text"
-                        " field for other Black or African American'"
+                        "* 'Race of principal owner 3: free-form text field for other Black or African American'"
                         " must **not** exceed 300 characters in length."
                     ),
                     severity=Severity.ERROR,
@@ -2915,14 +2904,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2102",
                     name="po_3_race_baa_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'race of principal owner 3' does **not** contain 973"
-                        " (the applicant responded in the free-form text field"
-                        " for other Black or African race), 'race of principal"
-                        " owner 3: free-form text field for other Black or African"
-                        " American' must be blank.\n* When 'race of principal owner 3'"
-                        " contains 973, 'race of principal owner 3: free-form text"
-                        " field for other Black or African American' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'race of principal owner 3' does **not** contain 973 (the applicant responded in \
+                        the free-form text field for other Black or African race), 'race of principal owner 3: \
+                        free-form text field for other Black or African American' must be blank.
+                        * When 'race of principal owner 3' contains 973, 'race of principal owner 3: free-form text \
+                        field for other Black or African American' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="po_3_race",
@@ -2950,14 +2939,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2122",
                     name="po_3_race_pi_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'race of principal owner 3' does **not** contain 974"
-                        " (the applicant responded in the free-form text field"
-                        " for other Pacific Islander race), 'race of principal"
-                        " owner 3: free-form text field for other Pacific Islander"
-                        " race' must be blank.\n* When 'race of principal owner 3'"
-                        " contains 974, 'Race of Principal Owner 3: Free-form Text"
-                        " Field for Other Pacific Islander race' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'race of principal owner 3' does **not** contain 974 (the applicant responded in \
+                        the free-form text field for other Pacific Islander race), 'race of principal owner 3: \
+                        free-form text field for other Pacific Islander race' must be blank.
+                        * When 'race of principal owner 3' contains 974, 'Race of Principal Owner 3: Free-form Text \
+                        Field for Other Pacific Islander race' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="po_3_race",
@@ -3004,15 +2993,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2142",
                     name="po_3_gender_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'sex/gender of principal owner 3: NP flag'"
-                        " does **not** equal 1 (the applicant responded in the"
-                        " free-form text field), 'sex/gender of principal"
-                        " owner 3: free-form text field for self-identified"
-                        " sex/gender' must be blank.\n* When 'sex/gender of"
-                        " principal owner 3: NP flag' equals 1, 'sex/gender"
-                        " of principal owner 3: free-form text field for"
-                        " self-identified sex/gender' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'sex/gender of principal owner 3: NP flag' does **not** equal 1 \
+                        (the applicant responded in the free-form text field), 'sex/gender of principal \
+                        owner 3: free-form text field for self-identified sex/gender' must be blank.
+                        * When 'sex/gender of principal owner 3: NP flag' equals 1, 'sex/gender of principal \
+                        owner 3: free-form text field for self-identified sex/gender' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="po_3_gender_flag",
@@ -3094,15 +3082,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2043",
                     name="po_4_ethnicity_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'ethnicity of principal owner 4' does **not**"
-                        " contain 977 (the applicant responded in the"
-                        " free-form text field), 'ethnicity of principal"
-                        " owner 4: free-form text field for other Hispanic"
-                        " or Latino' must be blank.\n* When 'ethnicity of principal"
-                        " owner 4' contains 977, 'ethnicity of principal"
-                        " owner 4: free-form text field for other Hispanic"
-                        " or Latino' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'ethnicity of principal owner 4' does **not** contain 977 (the applicant responded in the \
+                        free-form text field), 'ethnicity of principal owner 4: free-form text field for other Hispanic \
+                        or Latino' must be blank.
+                        * When 'ethnicity of principal owner 4' contains 977, 'ethnicity of principal owner 4: free-form \
+                        text field for other Hispanic or Latino' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="po_4_ethnicity",
@@ -3208,18 +3195,15 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2063",
                     name="po_4_race_anai_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'race of principal owner 4' does **not**"
-                        " contain 971 (the applicant responded in"
-                        " the free-form text field for American Indian"
-                        " or Alaska Native Enrolled or Principal Tribe),"
-                        " 'race of principal owner 4: free-form text"
-                        " field for American Indian or Alaska Native"
-                        " Enrolled or Principal Tribe' must be blank."
-                        "\n* When 'race of principal owner 4' contains 971,"
-                        " 'race of principal owner 4: free-form text field"
-                        " for American Indian or Alaska Native Enrolled or"
-                        " Principal Tribe' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'race of principal owner 4' does **not** contain 971 (the applicant responded in \
+                        the free-form text field for American Indian or Alaska Native Enrolled or Principal Tribe), \
+                        'race of principal owner 4: free-form text field for American Indian or Alaska Native Enrolled \
+                        or Principal Tribe' must be blank.
+                        * When 'race of principal owner 4' contains 971, 'race of principal owner 4: free-form text field \
+                        for American Indian or Alaska Native Enrolled or Principal Tribe' must **not** be blank."
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="po_4_race",
@@ -3247,14 +3231,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2083",
                     name="po_4_race_asian_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'race of principal owner 4' does **not** contain"
-                        " 972 (the applicant responded in the free-form text"
-                        " field for other Asian race), 'race of principal"
-                        " owner 4: free-form text field for other Asian' must"
-                        " be blank.\n* When 'race of principal owner 4' contains"
-                        " 972, 'race of principal owner 4: free-form text field"
-                        " for other Asian' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'race of principal owner 4' does **not** contain 972 (the applicant \
+                        responded in the free-form text field for other Asian race), 'race of principal \
+                        owner 4: free-form text field for other Asian' must be blank.
+                        * When 'race of principal owner 4' contains 972, 'race of principal owner 4: \
+                        free-form text field for other Asian' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="po_4_race",
@@ -3282,14 +3266,15 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2103",
                     name="po_4_race_baa_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'race of principal owner 4' does **not** contain 973"
-                        " (the applicant responded in the free-form text field"
-                        " for other Black or African race), 'race of principal"
-                        " owner 4: free-form text field for other Black or African"
-                        " American' must be blank.\n* When 'race of principal owner 4'"
-                        " contains 973, 'race of principal owner 4: free-form text"
-                        " field for other Black or African American' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'race of principal owner 4' does **not** contain 973 (the applicant \
+                        responded in the free-form text field for other Black or African race), \
+                        'race of principal owner 4: free-form text field for other Black or African \
+                        American' must be blank.
+                        * When 'race of principal owner 4' contains 973, 'race of principal owner 4: \
+                        free-form text field for other Black or African American' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="po_4_race",
@@ -3317,14 +3302,15 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2123",
                     name="po_4_race_pi_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'race of principal owner 4' does **not** contain 974"
-                        " (the applicant responded in the free-form text field"
-                        " for other Pacific Islander race), 'race of principal"
-                        " owner 4: free-form text field for other Pacific Islander"
-                        " race' must be blank.\n* When 'race of principal owner 4'"
-                        " contains 974, 'Race of Principal Owner 4: Free-form Text"
-                        " Field for Other Pacific Islander race' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'race of principal owner 4' does **not** contain 974 (the applicant \
+                        responded in the free-form text field for other Pacific Islander race), \
+                        'race of principal owner 4: free-form text field for other Pacific Islander \
+                        race' must be blank.
+                        * When 'race of principal owner 4' contains 974, 'Race of Principal Owner 4: \
+                        Free-form Text Field for Other Pacific Islander race' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="po_4_race",
@@ -3371,15 +3357,15 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_no_conditional_field_conflict,
                     id="E2143",
                     name="po_4_gender_ff.conditional_field_conflict",
-                    description=(
-                        "* When 'sex/gender of principal owner 4: NP flag'"
-                        " does **not** equal 1 (the applicant responded in the"
-                        " free-form text field), 'sex/gender of principal"
-                        " owner 4: free-form text field for self-identified"
-                        " sex/gender' must be blank.\n* When 'sex/gender of"
-                        " principal owner 4: NP flag' equals 1, 'sex/gender"
-                        " of principal owner 4: free-form text field for"
-                        " self-identified sex/gender' must **not** be blank."
+                    description=dedent(
+                        """\
+                        * When 'sex/gender of principal owner 4: NP flag' does **not** equal 1 \
+                        (the applicant responded in the free-form text field), 'sex/gender of \
+                        principal owner 4: free-form text field for self-identified sex/gender' \
+                        must be blank.
+                        * When 'sex/gender of principal owner 4: NP flag' equals 1, 'sex/gender \
+                        of principal owner 4: free-form text field for self-identified sex/gender' must **not** be blank.
+                    """
                     ),
                     severity=Severity.ERROR,
                     groupby="po_4_gender_flag",
