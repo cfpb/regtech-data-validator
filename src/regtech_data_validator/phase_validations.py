@@ -42,10 +42,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_unique_column,
                     id="E3000",
                     name="uid.duplicates_in_dataset",
-                    description=dedent("""\
+                    description=dedent(
+                        """\
                         * Any 'unique identifier' may **not** be used in more than one 
                         record within a small business lending application register.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="uid",
                 ),
@@ -54,21 +56,25 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     45,
                     id="E0001",
                     name="uid.invalid_text_length",
-                    description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Unique identifier' must be at least 21 characters in 
                         length and at most 45 characters in length."
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                 ),
                 SBLCheck(
                     has_valid_format,
                     id="E0002",
                     name="uid.invalid_text_pattern",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Unique identifier' may contain any combination of numbers 
                         and/or uppercase letters (i.e., 0-9 and A-Z), and must **not** 
                         contain any other characters.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     regex="^[A-Z0-9]+$",
@@ -79,10 +85,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     string_contains,
                     id="W0003",
                     name="uid.invalid_uid_lei",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * The first 20 characters of the 'unique identifier' should
                         match the Legal Entity Identifier (LEI) for the financial institution.
-                     """),
+                     """
+                    ),
                     severity=Severity.WARNING,
                     element_wise=True,
                     containing_value=lei,
@@ -172,10 +180,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E0100",
                     name="ct_credit_product_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Free-form text field for other credit products' must **not** 
                         exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 )
             ],
@@ -190,7 +200,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         'free-form text field for other credit products' must be blank.
                         * When 'credit product' equals 977, 'free-form text field for 
                         other credit products' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="ct_credit_product",
                     condition_values={"977"},
@@ -203,10 +214,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_valid_enum,
                     id="E0120",
                     name="ct_guarantee.invalid_enum_value",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * Each value in 'type of guarantee' (separated by semicolons) 
                         must equal 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 977, or 999.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
@@ -231,10 +244,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_valid_value_count,
                     id="E0121",
                     name="ct_guarantee.invalid_number_of_values",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Type of guarantee' must contain at least one and 
                         at most five values, separated by semicolons.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     min_length=1,
@@ -252,10 +267,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     meets_multi_value_field_restriction,
                     id="W0122",
                     name="ct_guarantee.multi_value_field_restriction",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When 'type of guarantee' contains 999 (no guarantee), 
                         'type of guarantee' should **not** contain more than one value.
-                     """),
+                     """
+                    ),
                     severity=Severity.WARNING,
                     element_wise=True,
                     single_values={"999"},
@@ -282,7 +299,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         """\
                         * When 'type of guarantee' does **not** contain 977 (other), 'free-form text field for other guarantee' must be blank.
                         * When 'type of guarantee' contains 977, 'free-form text field for other guarantee' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="ct_guarantee",
                     condition_values={"977"},
@@ -291,12 +309,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_valid_multi_field_value_count,
                     id="W2002",
                     name="ct_guarantee_ff.multi_invalid_number_of_values",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Type of guarantee' and 'free-form text field for other guarantee' 
                         combined should **not** contain more than five values. Code 977 (other), 
                         within 'type of guarantee', does **not** count toward the maximum number 
                         of values for the purpose of this validation check.
-                     """),
+                     """
+                    ),
                     severity=Severity.WARNING,
                     groupby="ct_guarantee",
                     ignored_values={"977"},
@@ -331,7 +351,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         'loan term: NA/NP flag' must **not** equal 999 (not applicable).
                         * When 'credit product' equals 988 (not provided by applicant and otherwise undetermined), 
                         'loan term: NA/NP flag' must equal 999.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="ct_credit_product",
                     conditions=[
@@ -372,7 +393,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         """\
                         * When 'loan term: NA/NP flag' does **not** equal 900 (applicable and reported), 'loan term' must be blank.
                         * When 'loan term: NA/NP flag' equals 900, 'loan term' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="ct_loan_term_flag",
                     condition_values={"900"},
@@ -405,10 +427,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_valid_enum,
                     id="E0200",
                     name="credit_purpose.invalid_enum_value",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * Each value in 'credit purpose' (separated by semicolons) 
                         must equal 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 977, 988, or 999.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
@@ -434,10 +458,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_valid_value_count,
                     id="E0201",
                     name="credit_purpose.invalid_number_of_values",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Credit purpose' must contain at least one and 
                         at most three values, separated by semicolons.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     min_length=1,
@@ -447,11 +473,13 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     meets_multi_value_field_restriction,
                     id="W0202",
                     name="credit_purpose.multi_value_field_restriction",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When 'credit purpose' contains 988 (not provided by applicant and 
                         otherwise undetermined) or 999 (not applicable), 'credit purpose' 
                         should **not** contain more than one value.
-                     """),
+                     """
+                    ),
                     severity=Severity.WARNING,
                     element_wise=True,
                     single_values={
@@ -476,10 +504,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E0220",
                     name="credit_purpose_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Free-form text field for other credit purpose' must 
                         **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -494,7 +524,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         field for other credit purpose' must be blank.
                         * When 'credit purpose' contains 977 (other), 'free-form text 
                         field for other credit purpose' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="credit_purpose",
                     condition_values={"977"},
@@ -503,13 +534,15 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_valid_multi_field_value_count,
                     id="W2006",
                     name="credit_purpose_ff.multi_invalid_number_of_values",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Credit purpose' and 'free-form text field for other credit 
                         purpose' combined should **not** contain more than three values. 
                         Code 977 (other), within 'credit purpose', does **not** count 
                         toward the maximum number of values for the purpose of 
                         this validation check.
-                     """),
+                     """
+                    ),
                     severity=Severity.WARNING,
                     groupby="credit_purpose",
                     ignored_values={"977"},
@@ -558,7 +591,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         900 (applicable and reported), 'amount applied for' must be blank.
                         * When 'amount applied for: NA/NP flag' equals 900, 
                         'amount applied for' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="amount_applied_for_flag",
                     condition_values={"900"},
@@ -607,7 +641,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         * When 'action taken' does **not** equal 1 (originated) or 
                         2 (approved but not accepted), 'amount approved or originated' must be blank.
                         * When 'action taken' equals 1 or 2, 'amount approved or originated' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="action_taken",
                     condition_values={"1", "2"},
@@ -651,7 +686,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         * 'Total origination charges'
                         * 'Amount of total broker fees'
                         * 'Initial annual charges'
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby=[
                         "pricing_interest_rate_type",
@@ -689,7 +725,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         
                         * 'Prepayment penalty could be imposed'
                         * 'Prepayment penalty exists'"
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby=[
                         "pricing_origination_charges",
@@ -725,10 +762,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_date_in_range,
                     id="E0321",
                     name="action_taken_date.invalid_date_value",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * The date indicated by 'action taken date' must occur within the 
                         current reporting period: October 1, 2024 to December 31, 2024.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     start_date_value="20241001",
@@ -746,11 +785,13 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_date_before_in_days,
                     id="W2010",
                     name="action_taken_date.unreasonable_date_value",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * The date indicated by 'application date' should
                         generally be less than two years (730 days) before 
                         'action taken date'."
-                     """),
+                     """
+                    ),
                     severity=Severity.WARNING,
                     groupby="app_date",
                     days_value=730,
@@ -763,10 +804,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_valid_enum,
                     id="E0340",
                     name="denial_reasons.invalid_enum_value",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * Each value in 'denial reason(s)' (separated by semicolons) 
                         must equal 1, 2, 3, 4, 5, 6, 7, 8, 9, 977, or 999."
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
@@ -789,10 +832,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_valid_value_count,
                     id="E0341",
                     name="denial_reasons.invalid_number_of_values",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Denial reason(s)' must contain at least one and 
                         at most four values, separated by semicolons.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     min_length=1,
@@ -806,7 +851,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         """\
                         * When 'action taken' equals 3, 'denial reason(s)' must **not** contain 999.
                         * When 'action taken' does **not** equal 3 (denied), 'denial reason(s)' must equal 999 (not applicable).
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="action_taken",
                     conditions=[
@@ -828,10 +874,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     meets_multi_value_field_restriction,
                     id="W0340",
                     name="denial_reasons.multi_value_field_restriction",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When 'denial reason(s)' contains 999 (not applicable), 
                         'denial reason(s)' should **not** contain more than one value.
-                     """),
+                     """
+                    ),
                     severity=Severity.WARNING,
                     element_wise=True,
                     single_values={"999"},
@@ -853,10 +901,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     max_value=300,
                     id="E0360",
                     name="denial_reasons_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Free-form text field for other denial reason(s)' must 
                         **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -871,7 +921,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         field 'free-form text field for other denial reason(s)' must be blank.
                         * When 'denial reason(s)' contains 977, 'free-form text field for other 
                         denial reason(s)' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="denial_reasons",
                     condition_values={"977"},
@@ -880,13 +931,15 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_valid_multi_field_value_count,
                     id="W2013",
                     name="denial_reasons_ff.multi_invalid_number_of_values",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Denial reason(s)' and 'free-form text field for other 
                         denial reason(s)' combined should **not** contain more than 
                         four values. Code 977 (other), within 'Denial reason(s)', 
                         does **not** count toward the maximum number of values for 
                         the purpose of this validation check."
-                     """),
+                     """
+                    ),
                     severity=Severity.WARNING,
                     groupby="denial_reasons",
                     ignored_values={"977"},
@@ -922,9 +975,11 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_number,
                     id="E0400",
                     name="pricing_init_rate_period.invalid_numeric_format",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When present, 'adjustable rate transaction: initial rate period' must be a whole number.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     accept_blank=True,
@@ -941,7 +996,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         4 (initial rate period > 12 months, fixed interest), 5 (initial rate period <= 12 months, adjustable interest), 
                         or 6 (initial rate period <= 12 months, fixed interest), 'initial rate period' must be blank.
                         * When 'interest rate type' equals 3, 4, 5, or 6, 'initial rate period' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="pricing_interest_rate_type",
                     condition_values={"3", "4", "5", "6"},
@@ -950,9 +1006,11 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_greater_than,
                     id="E0401",
                     name="pricing_init_rate_period.invalid_numeric_value",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When present, 'adjustable rate transaction: initial rate period' must be greater than 0.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     min_value="0",
@@ -983,7 +1041,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         4 (initial rate period > 12 months, fixed interest rate), or 6 (initial rate period <= 12 months, fixed 
                         interest rate), 'fixed rate: interest rate' must be blank.
                         * When 'interest rate type' equals 2, 4, or 6, 'fixed rate: interest rate' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="pricing_interest_rate_type",
                     condition_values={"2", "4", "6"},
@@ -1024,7 +1083,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         5 (initial rate period <= 12 months, adjustable 
                         interest rate), 'adjustable rate transaction: margin' must be blank.
                         * When 'interest rate type' equals 1, 3, or 5, 'adjustable rate transaction: margin' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="pricing_interest_rate_type",
                     condition_values={"1", "3", "5"},
@@ -1033,9 +1093,11 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_greater_than,
                     id="W0441",
                     name="pricing_adj_margin.unreasonable_numeric_value",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         "* When present, 'adjustable rate transaction: margin' should generally be greater than 0.1."
-                     """),
+                     """
+                    ),
                     severity=Severity.WARNING,
                     element_wise=True,
                     min_value="0.1",
@@ -1049,10 +1111,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_valid_enum,
                     id="E0460",
                     name="pricing_adj_index_name.invalid_enum_value",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         "* 'Adjustable rate transaction: index name' must equal "
                         "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 977, or 999."
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
@@ -1083,7 +1147,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         adjustable interest rate), 'adjustable rate transaction: index name' must equal 999.
                         * When 'interest rate type' equals 1, 3, or 5, 'adjustable rate transaction: index name' must 
                         **not** equal 999.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="pricing_interest_rate_type",
                     conditions=[
@@ -1110,9 +1175,11 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     max_value=300,
                     id="E0480",
                     name="pricing_adj_index_name_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         "* 'Adjustable rate transaction: index name: other' must **not** exceed 300 characters in length."
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -1127,7 +1194,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         'adjustable rate transaction: index name: other' must be blank.
                         * When 'adjustable rate transaction: index name' equals 977, 'adjustable rate transaction: 
                         index name: other' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="pricing_adj_index_name",
                     condition_values={"977"},
@@ -1157,7 +1225,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         or 3 (initial rate period > 12 months, adjustable interest rate), 'adjustable rate transaction: index value' 
                         must be blank.
                         * When 'interest rate type' equals 1 or 3, 'adjustable rate transaction: index value' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="pricing_interest_rate_type",
                     condition_values={"1", "3"},
@@ -1212,10 +1281,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_valid_enum,
                     id="E0580",
                     name="pricing_mca_addcost_flag.invalid_enum_value",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'MCA/sales-based: additional cost for merchant cash advances or 
                         other sales-based financing: NA flag' must equal 900 or 999.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
@@ -1229,13 +1300,15 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_valid_enum_pair,
                     id="E2022",
                     name="pricing_mca_addcost_flag.enum_value_conflict",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When 'credit product' does **not** equal 7 (merchant cash 
                         advance), 8 (other sales-based financing transaction) 
                         or 977 (other), 'MCA/sales-based: additional cost for 
                         merchant cash advances or other sales-based financing: 
                         NA flag' must be 999 (not applicable).
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     groupby="ct_credit_product",
                     conditions=[
@@ -1255,10 +1328,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_number,
                     id="E0600",
                     name="pricing_mca_addcost.invalid_numeric_format",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When present, 'MCA/sales-based: additional cost for merchant cash 
                         advances or other sales-based financing' must be a numeric value.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     accept_blank=True,
@@ -1278,7 +1353,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         * When 'MCA/sales-based: additional cost for merchant cash advances or 
                         other sales-based financing: NA flag' equals 900, 'MCA/sales-based: additional cost for 
                         merchant cash advances or other sales-based financing' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="pricing_mca_addcost_flag",
                     condition_values={"900"},
@@ -1366,7 +1442,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         the loan proceeds will principally be applied), 2 (address or location of 
                         borrower's main office or headquarters), or 3 (another address or location 
                         associated with the applicant), 'census tract: tract number' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="census_tract_adr_type",
                     conditions=[
@@ -1388,10 +1465,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_valid_code,
                     id="W0680",
                     name="census_tract_number.invalid_geoid",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When present, 'census tract: tract number' should be a valid 
                         census tract GEOID as defined by the U.S. Census Bureau.
-                     """),
+                     """
+                    ),
                     severity=Severity.WARNING,
                     element_wise=True,
                     accept_blank=True,
@@ -1439,7 +1518,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         'gross annual revenue' must be blank.
                         * When 'gross annual revenue: NP flag' equals 900, 'gross annual revenue' 
                         must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="gross_annual_revenue_flag",
                     condition_values={"900"},
@@ -1452,10 +1532,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_valid_enum,
                     id="E0740",
                     name="naics_code_flag.invalid_enum_value",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'North American Industry Classification System (NAICS) code: NP flag' 
                         must equal 900 or 988.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
@@ -1472,10 +1554,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_number,
                     id="E0761",
                     name="naics_code.invalid_naics_format",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'North American Industry Classification System (NAICS) code' 
                         may only contain numeric characters.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     accept_blank=True,
@@ -1486,10 +1570,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_correct_length,
                     id="E0760",
                     name="naics_code.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When present, 'North American Industry Classification System (NAICS) code' 
                         must be three digits in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     accepted_length=3,
@@ -1499,10 +1585,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_valid_code,
                     id="W0762",
                     name="naics_code.invalid_naics_value",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When present, 'North American Industry Classification System (NAICS) code' 
                         should be a valid NAICS code.
-                     """),
+                     """
+                    ),
                     severity=Severity.WARNING,
                     element_wise=True,
                     accept_blank=True,
@@ -1520,7 +1608,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         * When 'North American Industry Classification System (NAICS) code: NP flag' 
                         equals 900, 'North American Industry Classification System (NAICS) code' 
                         must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="naics_code_flag",
                     condition_values={"900"},
@@ -1603,7 +1692,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         * When 'time in business: type of response' does **not** equal 1 (the number of years an applicant has been 
                         in business is collected or obtained by the financial institution), 'time in business' must be blank.
                         * When 'time in business: type of response' equals 1, 'time in business' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="time_in_business_type",
                     condition_values={"1"},
@@ -1616,10 +1706,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_valid_enum,
                     id="E0840",
                     name="business_ownership_status.invalid_enum_value",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * Each value in 'business ownership status' (separated by semicolons) 
                         must equal 1, 2, 3, 955, 966, or 988.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
@@ -1654,12 +1746,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     meets_multi_value_field_restriction,
                     id="W0843",
                     name="business_ownership_status.multi_value_field_restriction",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When 'business ownership status' contains 966
                         (the applicant responded that they did not wish to 
                         provide this information) or 988 (not provided by applicant), 
                         'business ownership status' should **not** contain more than one value.
-                     """),
+                     """
+                    ),
                     severity=Severity.WARNING,
                     element_wise=True,
                     single_values={"966", "988"},
@@ -1686,11 +1780,13 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     has_valid_fieldset_pair,
                     id="W2035",
                     name="po_demographics_0.conditional_fieldset_conflict",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When 'number of principal owners' equals 0 or is blank, 
                         demographic fields for principal owners 1, 2, 3, and 4 
                         should be blank.
-                     """),
+                     """
+                    ),
                     severity=Severity.WARNING,
                     groupby=[
                         "po_1_ethnicity",
@@ -1732,7 +1828,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         'race of principal owner 1', and 'sex/gender of principal owner 1: NP flag' 
                         should **not** be blank.
                         * Demographic fields for principal owners 2, 3, and 4 should be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.WARNING,
                     groupby=[
                         "po_1_ethnicity",
@@ -1774,7 +1871,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         'race of principal owner 1 and 2', and 'sex/gender of principal owner 1 and 2: 
                         NP flag' should **not** be blank.
                         * Demographic fields for principal owners 3 and 4 should be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.WARNING,
                     groupby=[
                         "po_1_ethnicity",
@@ -1816,7 +1914,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         'race of principal owner 1, 2, and 3', and 'sex/gender of principal owner 1, 2, 
                         and 3: NP flag' should **not** be blank.
                         * Demographic fields for principal owner 4 should be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.WARNING,
                     groupby=[
                         "po_1_ethnicity",
@@ -1857,7 +1956,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         * When 'number of principal owners' equals 4, 'ethnicity of principal owner 1, 2, 3, and 4', 
                         'race of principal owner 1, 2, 3, and 4', and 'sex/gender of principal owner 1, 2, 3, and 4: NP flag' 
                         should **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.WARNING,
                     groupby=[
                         "po_1_ethnicity",
@@ -1915,7 +2015,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         'number of principal owners' must be blank.
                         * When 'number of principal owners: NP flag' equals 900, 'number of principal 
                         owners' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="num_principal_owners_flag",
                     condition_values={"900"},
@@ -1928,10 +2029,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_valid_enum,
                     id="E0900",
                     name="po_1_ethnicity.invalid_enum_value",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When present, each value in 'ethnicity of principal owner 1' 
                         (separated by semicolons) must equal 1, 11, 12, 13, 14, 2, 966, 977, or 988.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
@@ -1961,12 +2064,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     meets_multi_value_field_restriction,
                     id="W0902",
                     name="po_1_ethnicity.multi_value_field_restriction",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When 'ethnicity of principal owner 1' contains 966 
                         (the applicant responded that they did not wish to provide this information) or 
                         988 (not provided by applicant), 'ethnicity of principal owner: 1' should **not** 
                         contain more than one value.
-                     """),
+                     """
+                    ),
                     severity=Severity.WARNING,
                     element_wise=True,
                     single_values={"966", "988"},
@@ -1980,10 +2085,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E0920",
                     name="po_1_ethnicity_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Ethnicity of principal owner 1: free-form text field for 
                         other Hispanic or Latino' must **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -1999,7 +2106,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         or Latino' must be blank.
                         * When 'ethnicity of principal owner 1' contains 977, 'ethnicity of principal owner 1: free-form 
                         text field for other Hispanic or Latino' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="po_1_ethnicity",
                     condition_values={"977"},
@@ -2012,12 +2120,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_valid_enum,
                     id="E0940",
                     name="po_1_race.invalid_enum_value",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When present, each value in 'race of principal owner 1' 
                         (separated by semicolons) must equal 1, 2, 21, 22, 23, 24, 
                         25, 26, 27, 3, 31, 32, 33, 34, 35, 36, 37, 4, 41, 42, 43, 
                         44, 5, 966, 971, 972, 973, 974, or 988.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
@@ -2067,11 +2177,13 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     meets_multi_value_field_restriction,
                     id="W0942",
                     name="po_1_race.multi_value_field_restriction",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When 'race of principal owner 1' contains 966 (the applicant responded that 
                         they did not wish to provide this information) or 988 (not provided by applicant), 
                         'race of principal owner: 1' should **not** contain more than one value."
-                     """),
+                     """
+                    ),
                     severity=Severity.WARNING,
                     element_wise=True,
                     single_values={"966", "988"},
@@ -2085,11 +2197,13 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E0960",
                     name="po_1_race_anai_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Race of principal owner 1: free-form text field for 
                         American Indian or Alaska Native Enrolled or Principal Tribe' 
                         must **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -2106,7 +2220,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         Enrolled or Principal Tribe' must be blank.
                         * When 'race of principal owner 1' contains 971, 'race of principal owner 1: free-form text field 
                         for American Indian or Alaska Native Enrolled or Principal Tribe' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="po_1_race",
                     condition_values={"971"},
@@ -2120,10 +2235,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E0980",
                     name="po_1_race_asian_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Race of principal owner 1: free-form text field for 
                         other Asian' must **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -2138,7 +2255,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         field for other Asian race), 'race of principal owner 1: free-form text field for other Asian' must be blank.
                         * When 'race of principal owner 1' contains 972, 'race of principal owner 1: free-form text field 
                         for other Asian' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="po_1_race",
                     condition_values={"972"},
@@ -2152,10 +2270,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E1000",
                     name="po_1_race_baa_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Race of principal owner 1: free-form text field for other 
                         Black or African American' must **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -2172,7 +2292,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         American' must be blank.
                         * When 'race of principal owner 1' contains 973, 'race of principal owner 1: 
                         free-form text field for other Black or African American' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="po_1_race",
                     condition_values={"973"},
@@ -2186,10 +2307,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E1020",
                     name="po_1_race_pi_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Race of principal owner 1: free-form text field for 
                         other Pacific Islander race' must **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -2206,7 +2329,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         must be blank.
                         * When 'race of principal owner 1' contains 974, 'Race of Principal Owner 1: 
                         Free-form Text Field for Other Pacific Islander race' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="po_1_race",
                     condition_values={"974"},
@@ -2239,10 +2363,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E1060",
                     name="po_1_gender_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Sex/gender of principal owner 1: free-form text field for 
                         self-identified sex/gender' must **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -2258,7 +2384,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         sex/gender' must be blank.
                         * When 'sex/gender of principal owner 1: NP flag' equals 1, 'sex/gender of principal owner 1: free-form 
                         text field for self-identified sex/gender' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="po_1_gender_flag",
                     condition_values={"1"},
@@ -2271,10 +2398,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_valid_enum,
                     id="E1080",
                     name="po_2_ethnicity.invalid_enum_value",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When present, each value in 'ethnicity of principal owner 2' 
                         (separated by semicolons) must equal 1, 11, 12, 13, 14, 2, 966, 977, or 988.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
@@ -2304,12 +2433,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     meets_multi_value_field_restriction,
                     id="W1082",
                     name="po_2_ethnicity.multi_value_field_restriction",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When 'ethnicity of principal owner 2' contains 966 (the applicant 
                         responded that they did not wish to provide this information) or 988 
                         (not provided by applicant), 'ethnicity of principal owner: 2' should 
                         **not** contain more than one value.
-                     """),
+                     """
+                    ),
                     severity=Severity.WARNING,
                     element_wise=True,
                     single_values={"966", "988"},
@@ -2323,10 +2454,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E1100",
                     name="po_2_ethnicity_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Ethnicity of principal owner 2: free-form text field for 
                         other Hispanic or Latino' must **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -2342,7 +2475,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         or Latino' must be blank.
                         * When 'ethnicity of principal owner 2' contains 977, 'ethnicity of principal owner 2: free-form 
                         text field for other Hispanic or Latino' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="po_2_ethnicity",
                     condition_values={"977"},
@@ -2355,12 +2489,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_valid_enum,
                     id="E1120",
                     name="po_2_race.invalid_enum_value",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When present, each value in 'race of principal owner 2' 
                         (separated by semicolons) must equal 1, 2, 21, 22, 23, 24, 
                         25, 26, 27, 3, 31, 32, 33, 34, 35, 36, 37, 4, 41, 42, 43, 44, 
                         5, 966, 971, 972, 973, 974, or 988.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
@@ -2410,13 +2546,15 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     meets_multi_value_field_restriction,
                     id="W1122",
                     name="po_2_race.multi_value_field_restriction",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When 'race of principal owner 2' contains 966 
                         (the applicant responded that they did not wish 
                         to provide this information) or 988 (not provided 
                         by applicant), 'race of principal owner: 2' should 
                         **not** contain more than one value.
-                     """),
+                     """
+                    ),
                     severity=Severity.WARNING,
                     element_wise=True,
                     single_values={"966", "988"},
@@ -2430,11 +2568,13 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E1140",
                     name="po_2_race_anai_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Race of principal owner 2: free-form text field 
                         for American Indian or Alaska Native Enrolled or Principal 
                         Tribe' must **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -2451,7 +2591,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         or Principal Tribe' must be blank.
                         * When 'race of principal owner 2' contains 971, 'race of principal owner 2: free-form text field 
                         for American Indian or Alaska Native Enrolled or Principal Tribe' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="po_2_race",
                     condition_values={"971"},
@@ -2465,10 +2606,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E1160",
                     name="po_2_race_asian_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Race of principal owner 2: free-form text field for 
                         other Asian' must **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -2483,7 +2626,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         field for other Asian race), 'race of principal owner 2: free-form text field for other Asian' must be blank.
                         * When 'race of principal owner 2' contains 972, 'race of principal owner 2: free-form text field for other 
                         Asian' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="po_2_race",
                     condition_values={"972"},
@@ -2497,10 +2641,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E1180",
                     name="po_2_race_baa_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Race of principal owner 2: free-form text field for other 
                         Black or African American' must **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -2516,7 +2662,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         'race of principal owner 2: free-form text field for other Black or African American' must be blank.
                         * When 'race of principal owner 2' contains 973, 'race of principal owner 2: 
                         free-form text field for other Black or African American' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="po_2_race",
                     condition_values={"973"},
@@ -2530,10 +2677,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E1200",
                     name="po_2_race_pi_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Race of principal owner 2: free-form text field for 
                         other Pacific Islander race' must **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -2549,7 +2698,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         text field for other Pacific Islander race' must be blank.
                         * When 'race of principal owner 2' contains 974, 'Race of Principal Owner 2: Free-form Text 
                         Field for Other Pacific Islander race' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="po_2_race",
                     condition_values={"974"},
@@ -2582,10 +2732,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E1240",
                     name="po_2_gender_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Sex/gender of principal owner 2: free-form text field for 
                         self-identified sex/gender' must **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -2603,7 +2755,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         * When 'sex/gender of principal owner 2: NP flag' equals 1, 'sex/gender 
                         of principal owner 2: free-form text field for self-identified sex/gender' 
                         must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="po_2_gender_flag",
                     condition_values={"1"},
@@ -2616,11 +2769,13 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_valid_enum,
                     id="E1260",
                     name="po_3_ethnicity.invalid_enum_value",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When present, each value in 'ethnicity of principal 
                         owner 3' (separated by semicolons) must equal 1, 11, 12, 
                         13, 14, 2, 966, 977, or 988.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
@@ -2650,12 +2805,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     meets_multi_value_field_restriction,
                     id="W1262",
                     name="po_3_ethnicity.multi_value_field_restriction",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When 'ethnicity of principal owner 3' contains 966 
                         (the applicant responded that they did not wish to provide 
                         this information) or 988 (not provided by applicant), 'ethnicity 
                         of principal owner: 3' should **not** contain more than one value.
-                     """),
+                     """
+                    ),
                     severity=Severity.WARNING,
                     element_wise=True,
                     single_values={"966", "988"},
@@ -2669,10 +2826,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E1280",
                     name="po_3_ethnicity_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Ethnicity of principal owner 3: free-form text field 
                         for other Hispanic or Latino' must **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -2688,7 +2847,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         or Latino' must be blank.
                         * When 'ethnicity of principal owner 3' contains 977, 'ethnicity of principal owner 3: free-form 
                         text field for other Hispanic or Latino' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="po_3_ethnicity",
                     condition_values={"977"},
@@ -2701,12 +2861,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_valid_enum,
                     id="E1300",
                     name="po_3_race.invalid_enum_value",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When present, each value in 'race of principal owner 3' 
                         (separated by semicolons) must equal 1, 2, 21, 22, 23, 24, 
                         25, 26, 27, 3, 31, 32, 33, 34, 35, 36, 37, 4, 41, 42, 43, 
                         44, 5, 966, 971, 972, 973, 974, or 988.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
@@ -2756,12 +2918,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     meets_multi_value_field_restriction,
                     id="W1302",
                     name="po_3_race.multi_value_field_restriction",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When 'race of principal owner 3' contains 966 
                         (the applicant responded that they did not wish to 
                         provide this information) or 988 (not provided by applicant), 
                         'race of principal owner: 3' should **not** contain more than one value.
-                     """),
+                     """
+                    ),
                     severity=Severity.WARNING,
                     element_wise=True,
                     single_values={"966", "988"},
@@ -2775,11 +2939,13 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E1320",
                     name="po_3_race_anai_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Race of principal owner 3: free-form text field for 
                         American Indian or Alaska Native Enrolled or Principal Tribe' 
                         must **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -2796,7 +2962,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         Enrolled or Principal Tribe' must be blank.
                         * When 'race of principal owner 3' contains 971, 'race of principal owner 3: free-form text 
                         field for American Indian or Alaska Native Enrolled or Principal Tribe' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="po_3_race",
                     condition_values={"971"},
@@ -2810,10 +2977,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E1340",
                     name="po_3_race_asian_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Race of principal owner 3: free-form text field for 
                         other Asian' must **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -2829,7 +2998,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         for other Asian' must be blank.
                         * When 'race of principal owner 3' contains 972, 'race of principal owner 3: free-form text 
                         field for other Asian' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="po_3_race",
                     condition_values={"972"},
@@ -2843,10 +3013,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E1360",
                     name="po_3_race_baa_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Race of principal owner 3: free-form text field for other 
                         Black or African American' must **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -2862,7 +3034,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         free-form text field for other Black or African American' must be blank.
                         * When 'race of principal owner 3' contains 973, 'race of principal owner 3: free-form text 
                         field for other Black or African American' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="po_3_race",
                     condition_values={"973"},
@@ -2876,10 +3049,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E1380",
                     name="po_3_race_pi_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Race of principal owner 3: free-form text field for other 
                         Pacific Islander race' must **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -2895,7 +3070,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         free-form text field for other Pacific Islander race' must be blank.
                         * When 'race of principal owner 3' contains 974, 'Race of Principal Owner 3: Free-form Text 
                         Field for Other Pacific Islander race' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="po_3_race",
                     condition_values={"974"},
@@ -2928,10 +3104,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E1420",
                     name="po_3_gender_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Sex/gender of principal owner 3: free-form text field for 
                         self-identified sex/gender' must **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -2947,7 +3125,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         owner 3: free-form text field for self-identified sex/gender' must be blank.
                         * When 'sex/gender of principal owner 3: NP flag' equals 1, 'sex/gender of principal 
                         owner 3: free-form text field for self-identified sex/gender' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="po_3_gender_flag",
                     condition_values={"1"},
@@ -2960,10 +3139,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_valid_enum,
                     id="E1440",
                     name="po_4_ethnicity.invalid_enum_value",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When present, each value in 'ethnicity of principal owner 4' 
                         (separated by semicolons) must equal 1, 11, 12, 13, 14, 2, 966, 977, or 988.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
@@ -2993,12 +3174,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     meets_multi_value_field_restriction,
                     id="W1442",
                     name="po_4_ethnicity.multi_value_field_restriction",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When 'ethnicity of principal owner 4' contains 966 (the applicant 
                         responded that they did not wish to provide this information) or 988 
                         (not provided by applicant), 'ethnicity of principal owner: 4' should 
                         **not** contain more than one value.
-                     """),
+                     """
+                    ),
                     severity=Severity.WARNING,
                     element_wise=True,
                     single_values={"966", "988"},
@@ -3012,10 +3195,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E1460",
                     name="po_4_ethnicity_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Ethnicity of principal owner 4: free-form text field for 
                         other Hispanic or Latino' must **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -3031,7 +3216,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         or Latino' must be blank.
                         * When 'ethnicity of principal owner 4' contains 977, 'ethnicity of principal owner 4: free-form 
                         text field for other Hispanic or Latino' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="po_4_ethnicity",
                     condition_values={"977"},
@@ -3044,12 +3230,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     is_valid_enum,
                     id="E1480",
                     name="po_4_race.invalid_enum_value",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When present, each value in 'race of principal owner 4' 
                         (separated by semicolons) must equal 1, 2, 21, 22, 23, 24, 
                         25, 26, 27, 3, 31, 32, 33, 34, 35, 36, 37, 4, 41, 42, 43, 
                         44, 5, 966, 971, 972, 973, 974, or 988.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                     element_wise=True,
                     accepted_values=[
@@ -3099,12 +3287,14 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     meets_multi_value_field_restriction,
                     id="W1482",
                     name="po_4_race.multi_value_field_restriction",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * When 'race of principal owner 4' contains 966 (the applicant 
                         responded that they did not wish to provide this information) or 
                         988 (not provided by applicant), 'race of principal owner: 4' 
                         should **not** contain more than one value.
-                     """),
+                     """
+                    ),
                     severity=Severity.WARNING,
                     element_wise=True,
                     single_values={"966", "988"},
@@ -3118,11 +3308,13 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E1500",
                     name="po_4_race_anai_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Race of principal owner 4: free-form text field for 
                         American Indian or Alaska Native Enrolled or Principal Tribe' 
                         must **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -3139,7 +3331,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         or Principal Tribe' must be blank.
                         * When 'race of principal owner 4' contains 971, 'race of principal owner 4: free-form text field 
                         for American Indian or Alaska Native Enrolled or Principal Tribe' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="po_4_race",
                     condition_values={"971"},
@@ -3153,10 +3346,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E1520",
                     name="po_4_race_asian_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Race of principal owner 4: free-form text field for other 
                         Asian' must **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -3172,7 +3367,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         owner 4: free-form text field for other Asian' must be blank.
                         * When 'race of principal owner 4' contains 972, 'race of principal owner 4: 
                         free-form text field for other Asian' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="po_4_race",
                     condition_values={"972"},
@@ -3186,10 +3382,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E1540",
                     name="po_4_race_baa_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Race of principal owner 4: free-form text field for other 
                         Black or African American' must **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -3206,7 +3404,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         American' must be blank.
                         * When 'race of principal owner 4' contains 973, 'race of principal owner 4: 
                         free-form text field for other Black or African American' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="po_4_race",
                     condition_values={"973"},
@@ -3220,10 +3419,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E1560",
                     name="po_4_race_pi_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Race of principal owner 4: free-form text field for other 
                         Pacific Islander race' must **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -3240,7 +3441,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         race' must be blank.
                         * When 'race of principal owner 4' contains 974, 'Race of Principal Owner 4: 
                         Free-form Text Field for Other Pacific Islander race' must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="po_4_race",
                     condition_values={"974"},
@@ -3273,10 +3475,12 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     300,
                     id="E1600",
                     name="po_4_gender_ff.invalid_text_length",
-                     description=dedent("""\
+                    description=dedent(
+                        """\
                         * 'Sex/gender of principal owner 4: free-form text field for 
                         self-identified sex/gender' must **not** exceed 300 characters in length.
-                     """),
+                     """
+                    ),
                     severity=Severity.ERROR,
                 ),
             ],
@@ -3294,7 +3498,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         * When 'sex/gender of principal owner 4: NP flag' equals 1, 'sex/gender 
                         of principal owner 4: free-form text field for self-identified sex/gender' 
                         must **not** be blank.
-                    """),
+                    """
+                    ),
                     severity=Severity.ERROR,
                     groupby="po_4_gender_flag",
                     condition_values={"1"},
