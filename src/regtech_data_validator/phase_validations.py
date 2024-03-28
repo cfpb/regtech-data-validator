@@ -1095,7 +1095,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     name="pricing_adj_margin.unreasonable_numeric_value",
                     description=dedent(
                         """\
-                        "* When present, 'adjustable rate transaction: margin' should generally be greater than 0.1."
+                        * When present, 'adjustable rate transaction: margin' should generally be greater than 0.1.
                      """
                     ),
                     severity=Severity.WARNING,
@@ -1113,8 +1113,8 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     name="pricing_adj_index_name.invalid_enum_value",
                     description=dedent(
                         """\
-                        "* 'Adjustable rate transaction: index name' must equal "
-                        "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 977, or 999."
+                        * 'Adjustable rate transaction: index name' must equal 
+                        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 977, or 999.
                      """
                     ),
                     severity=Severity.ERROR,
@@ -1177,7 +1177,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     name="pricing_adj_index_name_ff.invalid_text_length",
                     description=dedent(
                         """\
-                        "* 'Adjustable rate transaction: index name: other' must **not** exceed 300 characters in length."
+                        * 'Adjustable rate transaction: index name: other' must **not** exceed 300 characters in length.
                      """
                     ),
                     severity=Severity.ERROR,
