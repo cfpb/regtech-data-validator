@@ -11,8 +11,8 @@ from pandera.backends.pandas.checks import PandasCheckBackend
 
 
 class Severity(StrEnum):
-    ERROR = 'error'
-    WARNING = 'warning'
+    ERROR = 'Error'
+    WARNING = 'Warning'
 
 
 class SBLCheck(Check):
