@@ -85,6 +85,7 @@ def _add_validation_metadata(failed_check_fields_df: pd.DataFrame, check: SBLChe
 
     validation_fields_df = (
         failed_check_fields_df.assign(validation_severity=check.severity)
+        .assign(fig_anchor=check.fig_anchor)
         .assign(validation_id=check.title)
         .assign(validation_name=check.name)
         .assign(validation_desc=check.description)

@@ -61,10 +61,10 @@ def df_to_json(df: pd.DataFrame) -> str:
 
     for v_id_idx, v_id_df in findings_by_v_id_df.groupby(by='validation_id'):
         v_head = v_id_df.iloc[0]
-
         finding_json = {
             'validation': {
                 'id': v_id_idx,
+                'fig_anchor': v_head.at['fig_anchor'],
                 'name': v_head.at['validation_name'],
                 'description': v_head.at['validation_desc'],
                 'severity': v_head.at['validation_severity'],
