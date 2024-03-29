@@ -41,6 +41,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_unique_column,
                     id="E3000",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1",
                     name="uid.duplicates_in_dataset",
                     description=dedent(
                         """\
@@ -55,6 +56,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     21,
                     45,
                     id="E0001",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.1",
                     name="uid.invalid_text_length",
                     description=dedent(
                         """\
@@ -67,6 +69,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_valid_format,
                     id="E0002",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.2",
                     name="uid.invalid_text_pattern",
                     description=dedent(
                         """\
@@ -84,6 +87,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     string_contains,
                     id="W0003",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.1",
                     name="uid.invalid_uid_lei",
                     description=dedent(
                         """\
@@ -103,6 +107,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_date,
                     id="E0020",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.3",
                     name="app_date.invalid_date_format",
                     description="* 'Application date' must be a real calendar date using YYYYMMDD format.",
                     severity=Severity.ERROR,
@@ -116,6 +121,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E0040",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.4",
                     name="app_method.invalid_enum_value",
                     description="* 'Application method' must equal 1, 2, 3, or 4.",
                     severity=Severity.ERROR,
@@ -135,6 +141,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E0060",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.5",
                     name="app_recipient.invalid_enum_value",
                     description="* 'Application recipient' must equal 1 or 2.",
                     severity=Severity.ERROR,
@@ -152,6 +159,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E0080",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.6",
                     name="ct_credit_product.invalid_enum_value",
                     description="* 'Credit product' must equal 1, 2, 3, 4, 5, 6, 7, 8, 977, or 988.",
                     severity=Severity.ERROR,
@@ -179,6 +187,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E0100",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.7",
                     name="ct_credit_product_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -193,6 +202,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2000",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.1",
                     name="ct_credit_product_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -213,6 +223,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E0120",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.8",
                     name="ct_guarantee.invalid_enum_value",
                     description=dedent(
                         """\
@@ -243,6 +254,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_valid_value_count,
                     id="E0121",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.9",
                     name="ct_guarantee.invalid_number_of_values",
                     description=dedent(
                         """\
@@ -258,6 +270,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_unique_in_field,
                     id="W0123",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.3",
                     name="ct_guarantee.duplicates_in_field",
                     description="* 'Type of guarantee' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
@@ -266,6 +279,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     meets_multi_value_field_restriction,
                     id="W0122",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.2",
                     name="ct_guarantee.multi_value_field_restriction",
                     description=dedent(
                         """\
@@ -285,6 +299,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E0140",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.10",
                     name="ct_guarantee_ff.invalid_text_length",
                     description="* 'Free-form text field for other guarantee' must **not** exceed 300 characters in length.",
                     severity=Severity.ERROR,
@@ -294,6 +309,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2001",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.2",
                     name="ct_guarantee_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -308,6 +324,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_valid_multi_field_value_count,
                     id="W2002",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.5.1",
                     name="ct_guarantee_ff.multi_invalid_number_of_values",
                     description=dedent(
                         """\
@@ -329,6 +346,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E0160",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.11",
                     name="ct_loan_term_flag.invalid_enum_value",
                     description="* 'Loan term: NA/NP flag' must equal 900, 988, or 999.",
                     severity=Severity.ERROR,
@@ -344,6 +362,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_valid_enum_pair,
                     id="E2003",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.3",
                     name="ct_loan_term_flag.enum_value_conflict",
                     description=dedent(
                         """\
@@ -377,6 +396,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_number,
                     id="E0180",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.12",
                     name="ct_loan_term.invalid_numeric_format",
                     description="* When present, 'loan term' must be a whole number.",
                     severity=Severity.ERROR,
@@ -388,6 +408,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2004",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.4",
                     name="ct_loan_term.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -402,6 +423,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_greater_than_or_equal_to,
                     id="E0181",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.13",
                     name="ct_loan_term.invalid_numeric_value",
                     description="* When present, 'loan term' must be greater than or equal to 1.",
                     severity=Severity.ERROR,
@@ -412,6 +434,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_less_than,
                     id="W0182",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.4",
                     name="ct_loan_term.unreasonable_numeric_value",
                     description="* When present, 'loan term' should be less than 1200 (100 years).",
                     severity=Severity.WARNING,
@@ -426,6 +449,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E0200",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.14",
                     name="credit_purpose.invalid_enum_value",
                     description=dedent(
                         """\
@@ -457,6 +481,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_valid_value_count,
                     id="E0201",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.15",
                     name="credit_purpose.invalid_number_of_values",
                     description=dedent(
                         """\
@@ -472,6 +497,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     meets_multi_value_field_restriction,
                     id="W0202",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.5",
                     name="credit_purpose.multi_value_field_restriction",
                     description=dedent(
                         """\
@@ -490,6 +516,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_unique_in_field,
                     id="W0203",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.6",
                     name="credit_purpose.duplicates_in_field",
                     description="* 'Credit purpose' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
@@ -503,6 +530,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E0220",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.16",
                     name="credit_purpose_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -517,6 +545,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2005",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.5",
                     name="credit_purpose_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -533,6 +562,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_valid_multi_field_value_count,
                     id="W2006",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.5.2",
                     name="credit_purpose_ff.multi_invalid_number_of_values",
                     description=dedent(
                         """\
@@ -555,6 +585,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E0240",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.17",
                     name="amount_applied_for_flag.invalid_enum_value",
                     description="* 'Amount applied For: NA/NP flag' must equal 900, 988, or 999.",
                     severity=Severity.ERROR,
@@ -573,6 +604,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_number,
                     id="E0260",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.18",
                     name="amount_applied_for.invalid_numeric_format",
                     description="* When present, 'amount applied for' must be a numeric value.",
                     severity=Severity.ERROR,
@@ -584,6 +616,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2007",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.6",
                     name="amount_applied_for.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -600,6 +633,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_greater_than,
                     id="E0261",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.19",
                     name="amount_applied_for.invalid_numeric_value",
                     description="* When present, 'amount applied for' must be greater than 0.",
                     severity=Severity.ERROR,
@@ -614,6 +648,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_number,
                     id="E0280",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.20",
                     name="amount_approved.invalid_numeric_format",
                     description="* When present, 'amount approved or originated' must be a numeric value.",
                     severity=Severity.ERROR,
@@ -625,6 +660,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_greater_than,
                     id="E0281",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.21",
                     name="amount_approved.invalid_numeric_value",
                     description="* When present, 'amount approved or originated' must be greater than 0.",
                     severity=Severity.ERROR,
@@ -635,6 +671,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2008",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.7",
                     name="amount_approved.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -654,6 +691,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E0300",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.22",
                     name="action_taken.invalid_enum_value",
                     description="* 'Action taken' must equal 1, 2, 3, 4, or 5.",
                     severity=Severity.ERROR,
@@ -671,6 +709,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_valid_fieldset_pair,
                     id="E2014",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.11",
                     name="pricing_all.conditional_fieldset_conflict",
                     description=dedent(
                         """\
@@ -712,6 +751,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_valid_fieldset_pair,
                     id="E2015",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.12",
                     name="pricing_charges.conditional_fieldset_conflict",
                     description=dedent(
                         """\
@@ -751,6 +791,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_date,
                     id="E0320",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.23",
                     name="action_taken_date.invalid_date_format",
                     description="* 'Action taken date' must be a real calendar date using YYYYMMDD format.",
                     severity=Severity.ERROR,
@@ -761,6 +802,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_date_in_range,
                     id="E0321",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.24",
                     name="action_taken_date.invalid_date_value",
                     description=dedent(
                         """\
@@ -776,6 +818,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_date_after,
                     id="E2009",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.8",
                     name="action_taken_date.date_value_conflict",
                     description="* The date indicated by 'action taken date' must occur on or after 'application date'.",
                     severity=Severity.ERROR,
@@ -784,6 +827,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_date_before_in_days,
                     id="W2010",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.5.3",
                     name="action_taken_date.unreasonable_date_value",
                     description=dedent(
                         """\
@@ -803,6 +847,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E0340",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.25",
                     name="denial_reasons.invalid_enum_value",
                     description=dedent(
                         """\
@@ -831,6 +876,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_valid_value_count,
                     id="E0341",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.26",
                     name="denial_reasons.invalid_number_of_values",
                     description=dedent(
                         """\
@@ -846,6 +892,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_valid_enum_pair,
                     id="E2011",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.9",
                     name="denial_reasons.enum_value_conflict",
                     description=dedent(
                         """\
@@ -873,6 +920,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     meets_multi_value_field_restriction,
                     id="W0340",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.7",
                     name="denial_reasons.multi_value_field_restriction",
                     description=dedent(
                         """\
@@ -887,6 +935,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_unique_in_field,
                     id="W0341",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.8",
                     name="denial_reasons.duplicates_in_field",
                     description="* 'Denial reason(s)' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
@@ -900,6 +949,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     min_value=0,
                     max_value=300,
                     id="E0360",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.27",
                     name="denial_reasons_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -914,6 +964,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2012",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.10",
                     name="denial_reasons_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -930,6 +981,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_valid_multi_field_value_count,
                     id="W2013",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.5.4",
                     name="denial_reasons_ff.multi_invalid_number_of_values",
                     description=dedent(
                         """\
@@ -952,6 +1004,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E0380",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.28",
                     name="pricing_interest_rate_type.invalid_enum_value",
                     description="* 'Interest rate type' must equal 1, 2, 3, 4, 5, 6, or 999.",
                     severity=Severity.ERROR,
@@ -974,6 +1027,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_number,
                     id="E0400",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.29",
                     name="pricing_init_rate_period.invalid_numeric_format",
                     description=dedent(
                         """\
@@ -989,6 +1043,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2016",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.13",
                     name="pricing_init_rate_period.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -1005,6 +1060,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_greater_than,
                     id="E0401",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.30",
                     name="pricing_init_rate_period.invalid_numeric_value",
                     description=dedent(
                         """\
@@ -1023,6 +1079,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_number,
                     id="E0420",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.31",
                     name="pricing_fixed_rate.invalid_numeric_format",
                     description="* When present, 'fixed rate: interest rate' must be a numeric value.",
                     severity=Severity.ERROR,
@@ -1034,6 +1091,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2017",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.14",
                     name="pricing_fixed_rate.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -1050,6 +1108,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_greater_than,
                     id="W0420",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.9",
                     name="pricing_fixed_rate.unreasonable_numeric_value",
                     description="* When present, 'fixed rate: interest rate' should generally be greater than 0.1.",
                     severity=Severity.WARNING,
@@ -1064,6 +1123,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_number,
                     id="E0440",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.32",
                     name="pricing_adj_margin.invalid_numeric_format",
                     description="* When present, 'adjustable rate transaction: margin' must be a numeric value.",
                     severity=Severity.ERROR,
@@ -1075,6 +1135,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2018",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.15",
                     name="pricing_adj_margin.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -1092,6 +1153,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_greater_than,
                     id="W0441",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.10",
                     name="pricing_adj_margin.unreasonable_numeric_value",
                     description=dedent(
                         """\
@@ -1110,6 +1172,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E0460",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.33",
                     name="pricing_adj_index_name.invalid_enum_value",
                     description=dedent(
                         """\
@@ -1139,6 +1202,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_valid_enum_pair,
                     id="E2019",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.16",
                     name="pricing_adj_index_name.enum_value_conflict",
                     description=dedent(
                         """\
@@ -1174,6 +1238,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     min_value=0,
                     max_value=300,
                     id="E0480",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.34",
                     name="pricing_adj_index_name_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -1187,6 +1252,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2020",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.17",
                     name="pricing_adj_index_name_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -1207,6 +1273,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_number,
                     id="E0500",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.35",
                     name="pricing_adj_index_value.invalid_numeric_format",
                     description="* When present, 'adjustable rate transaction: index value' must be a numeric value.",
                     severity=Severity.ERROR,
@@ -1218,6 +1285,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2021",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.18",
                     name="pricing_adj_index_value.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -1238,6 +1306,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_number,
                     id="E0520",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.36",
                     name="pricing_origination_charges.invalid_numeric_format",
                     description="* When present, 'total origination charges' must be a numeric value.",
                     severity=Severity.ERROR,
@@ -1252,6 +1321,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_number,
                     id="E0540",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.37",
                     name="pricing_broker_fees.invalid_numeric_format",
                     description="* When present, 'amount of total broker fees' must be a numeric value.",
                     severity=Severity.ERROR,
@@ -1266,6 +1336,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_number,
                     id="E0560",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.38",
                     name="pricing_initial_charges.invalid_numeric_format",
                     description="* When present, 'initial annual charges' must be a numeric value.",
                     severity=Severity.ERROR,
@@ -1280,6 +1351,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E0580",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.39",
                     name="pricing_mca_addcost_flag.invalid_enum_value",
                     description=dedent(
                         """\
@@ -1299,6 +1371,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_valid_enum_pair,
                     id="E2022",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.19",
                     name="pricing_mca_addcost_flag.enum_value_conflict",
                     description=dedent(
                         """\
@@ -1327,6 +1400,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_number,
                     id="E0600",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.40",
                     name="pricing_mca_addcost.invalid_numeric_format",
                     description=dedent(
                         """\
@@ -1343,6 +1417,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2023",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.20",
                     name="pricing_mca_addcost.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -1366,6 +1441,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E0620",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.41",
                     name="pricing_prepenalty_allowed.invalid_enum_value",
                     description="* Prepayment penalty could be imposed' must equal 1, 2, or 999.",
                     severity=Severity.ERROR,
@@ -1384,6 +1460,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E0640",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.42",
                     name="pricing_prepenalty_exists.invalid_enum_value",
                     description="* 'Prepayment penalty exists' must equal 1, 2, or 999.",
                     severity=Severity.ERROR,
@@ -1402,6 +1479,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E0660",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.43",
                     name="census_tract_adr_type.invalid_enum_value",
                     description="* 'Census tract: type of address' must equal 1, 2, 3, or 988.",
                     severity=Severity.ERROR,
@@ -1421,6 +1499,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_correct_length,
                     id="E0680",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.44",
                     name="census_tract_number.invalid_text_length",
                     description="* When present, 'census tract: tract number' must be a GEOID with exactly 11 digits.",
                     severity=Severity.ERROR,
@@ -1433,6 +1512,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_valid_enum_pair,
                     id="E2024",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.21",
                     name="census_tract_number.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -1464,6 +1544,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_code,
                     id="W0680",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.11",
                     name="census_tract_number.invalid_geoid",
                     description=dedent(
                         """\
@@ -1483,6 +1564,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E0700",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.45",
                     name="gross_annual_revenue_flag.invalid_enum_value",
                     description="* 'Gross annual revenue: NP flag' must equal 900 or 988.",
                     severity=Severity.ERROR,
@@ -1500,6 +1582,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_number,
                     id="E0720",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.46",
                     name="gross_annual_revenue.invalid_numeric_format",
                     description="* When present, 'gross annual revenue' must be a numeric value.",
                     severity=Severity.ERROR,
@@ -1511,6 +1594,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2025",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.22",
                     name="gross_annual_revenue.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -1531,6 +1615,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E0740",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.47",
                     name="naics_code_flag.invalid_enum_value",
                     description=dedent(
                         """\
@@ -1553,6 +1638,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_number,
                     id="E0761",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.49",
                     name="naics_code.invalid_naics_format",
                     description=dedent(
                         """\
@@ -1569,6 +1655,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_correct_length,
                     id="E0760",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.48",
                     name="naics_code.invalid_text_length",
                     description=dedent(
                         """\
@@ -1584,6 +1671,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_code,
                     id="W0762",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.12",
                     name="naics_code.invalid_naics_value",
                     description=dedent(
                         """\
@@ -1599,6 +1687,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2026",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.23",
                     name="naics_code.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -1621,6 +1710,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E0780",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.50",
                     name="number_of_workers.invalid_enum_value",
                     description="* 'Number of workers' must equal 1, 2, 3, 4, 5, 6, 7, 8, 9, or 988.",
                     severity=Severity.ERROR,
@@ -1646,6 +1736,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E0800",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.51",
                     name="time_in_business_type.invalid_enum_value",
                     description="* 'Time in business: type of response' must equal 1, 2, 3, or 988.",
                     severity=Severity.ERROR,
@@ -1665,6 +1756,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_number,
                     id="E0820",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.52",
                     name="time_in_business.invalid_numeric_format",
                     description="* When present, 'time in business' must be a whole number.",
                     severity=Severity.ERROR,
@@ -1676,6 +1768,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_greater_than_or_equal_to,
                     id="E0821",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.53",
                     name="time_in_business.invalid_numeric_value",
                     description="* When present, 'time in business' must be greater than or equal to 0.",
                     severity=Severity.ERROR,
@@ -1686,6 +1779,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2027",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.24",
                     name="time_in_business.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -1705,6 +1799,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E0840",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.54",
                     name="business_ownership_status.invalid_enum_value",
                     description=dedent(
                         """\
@@ -1728,6 +1823,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_valid_value_count,
                     id="E0841",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.55",
                     name="business_ownership_status.invalid_number_of_values",
                     description="* 'Business ownership status' must contain at least one value.",
                     severity=Severity.ERROR,
@@ -1737,6 +1833,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_unique_in_field,
                     id="W0842",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.13",
                     name="business_ownership_status.duplicates_in_field",
                     description="* 'Business ownership status' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
@@ -1745,6 +1842,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     meets_multi_value_field_restriction,
                     id="W0843",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.14",
                     name="business_ownership_status.multi_value_field_restriction",
                     description=dedent(
                         """\
@@ -1765,6 +1863,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E0860",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.56",
                     name="num_principal_owners_flag.invalid_enum_value",
                     description="* 'Number of principal owners: NP flag' must equal 900 or 988.",
                     severity=Severity.ERROR,
@@ -1779,6 +1878,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_valid_fieldset_pair,
                     id="W2035",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.5.5",
                     name="po_demographics_0.conditional_fieldset_conflict",
                     description=dedent(
                         """\
@@ -1821,6 +1921,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_valid_fieldset_pair,
                     id="W2036",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.5.6",
                     name="po_demographics_1.conditional_fieldset_conflict",
                     description=dedent(
                         """\
@@ -1864,6 +1965,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_valid_fieldset_pair,
                     id="W2037",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.5.7",
                     name="po_demographics_2.conditional_fieldset_conflict",
                     description=dedent(
                         """\
@@ -1907,6 +2009,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_valid_fieldset_pair,
                     id="W2038",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.5.8",
                     name="po_demographics_3.conditional_fieldset_conflict",
                     description=dedent(
                         """\
@@ -1950,6 +2053,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_valid_fieldset_pair,
                     id="W2039",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.5.9",
                     name="po_demographics_4.conditional_fieldset_conflict",
                     description=dedent(
                         """\
@@ -1996,6 +2100,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E0880",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.57",
                     name="num_principal_owners.invalid_enum_value",
                     description="* When present, 'number of principal owners' must equal 0, 1, 2, 3, or 4.",
                     severity=Severity.ERROR,
@@ -2008,6 +2113,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2028",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.25",
                     name="num_principal_owners.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -2028,6 +2134,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E0900",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.58",
                     name="po_1_ethnicity.invalid_enum_value",
                     description=dedent(
                         """\
@@ -2055,6 +2162,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_unique_in_field,
                     id="W0901",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.15",
                     name="po_1_ethnicity.duplicates_in_field",
                     description="* 'Ethnicity of principal owner 1' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
@@ -2063,6 +2171,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     meets_multi_value_field_restriction,
                     id="W0902",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.16",
                     name="po_1_ethnicity.multi_value_field_restriction",
                     description=dedent(
                         """\
@@ -2084,6 +2193,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E0920",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.59",
                     name="po_1_ethnicity_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -2098,6 +2208,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2040",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.26",
                     name="po_1_ethnicity_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -2119,6 +2230,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E0940",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.60",
                     name="po_1_race.invalid_enum_value",
                     description=dedent(
                         """\
@@ -2168,6 +2280,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_unique_in_field,
                     id="W0941",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.17",
                     name="po_1_race.duplicates_in_field",
                     description="* 'Race of principal owner 1' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
@@ -2176,6 +2289,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     meets_multi_value_field_restriction,
                     id="W0942",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.18",
                     name="po_1_race.multi_value_field_restriction",
                     description=dedent(
                         """\
@@ -2196,6 +2310,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E0960",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.61",
                     name="po_1_race_anai_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -2211,6 +2326,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2060",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.30",
                     name="po_1_race_anai_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -2234,6 +2350,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E0980",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.62",
                     name="po_1_race_asian_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -2248,6 +2365,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2080",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.34",
                     name="po_1_race_asian_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -2269,6 +2387,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E1000",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.63",
                     name="po_1_race_baa_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -2283,6 +2402,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2100",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.38",
                     name="po_1_race_baa_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -2306,6 +2426,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E1020",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.64",
                     name="po_1_race_pi_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -2320,6 +2441,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2120",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.42",
                     name="po_1_race_pi_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -2342,6 +2464,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E1040",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.65",
                     name="po_1_gender_flag.invalid_enum_value",
                     description="* When present, 'sex/gender of principal owner 1: NP flag' must equal 1, 966, or 988.",
                     severity=Severity.ERROR,
@@ -2362,6 +2485,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E1060",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.66",
                     name="po_1_gender_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -2376,6 +2500,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2140",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.46",
                     name="po_1_gender_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -2397,6 +2522,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E1080",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.67",
                     name="po_2_ethnicity.invalid_enum_value",
                     description=dedent(
                         """\
@@ -2424,6 +2550,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_unique_in_field,
                     id="W1081",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.19",
                     name="po_2_ethnicity.duplicates_in_field",
                     description="* 'Ethnicity of principal owner 2' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
@@ -2432,6 +2559,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     meets_multi_value_field_restriction,
                     id="W1082",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.20",
                     name="po_2_ethnicity.multi_value_field_restriction",
                     description=dedent(
                         """\
@@ -2453,6 +2581,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E1100",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.68",
                     name="po_2_ethnicity_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -2467,6 +2596,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2041",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.27",
                     name="po_2_ethnicity_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -2488,6 +2618,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E1120",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.69",
                     name="po_2_race.invalid_enum_value",
                     description=dedent(
                         """\
@@ -2537,6 +2668,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_unique_in_field,
                     id="W1121",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.21",
                     name="po_2_race.duplicates_in_field",
                     description="* 'Race of principal owner 2' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
@@ -2545,6 +2677,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     meets_multi_value_field_restriction,
                     id="W1122",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.22",
                     name="po_2_race.multi_value_field_restriction",
                     description=dedent(
                         """\
@@ -2567,6 +2700,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E1140",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.70",
                     name="po_2_race_anai_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -2582,6 +2716,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2061",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.31",
                     name="po_2_race_anai_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -2605,6 +2740,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E1160",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.71",
                     name="po_2_race_asian_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -2619,6 +2755,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2081",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.35",
                     name="po_2_race_asian_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -2640,6 +2777,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E1180",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.72",
                     name="po_2_race_baa_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -2654,6 +2792,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2101",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.39",
                     name="po_2_race_baa_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -2676,6 +2815,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E1200",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.73",
                     name="po_2_race_pi_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -2690,6 +2830,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2121",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.43",
                     name="po_2_race_pi_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -2711,6 +2852,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E1220",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.74",
                     name="po_2_gender_flag.invalid_enum_value",
                     description="* When present, 'sex/gender of principal owner 2: NP flag' must equal 1, 966, or 988.",
                     severity=Severity.ERROR,
@@ -2731,6 +2873,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E1240",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.75",
                     name="po_2_gender_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -2745,6 +2888,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2141",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.47",
                     name="po_2_gender_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -2768,6 +2912,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E1260",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.76",
                     name="po_3_ethnicity.invalid_enum_value",
                     description=dedent(
                         """\
@@ -2796,6 +2941,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_unique_in_field,
                     id="W1261",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.23",
                     name="po_3_ethnicity.duplicates_in_field",
                     description="* 'Ethnicity of principal owner 3' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
@@ -2804,6 +2950,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     meets_multi_value_field_restriction,
                     id="W1262",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.24",
                     name="po_3_ethnicity.multi_value_field_restriction",
                     description=dedent(
                         """\
@@ -2825,6 +2972,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E1280",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.77",
                     name="po_3_ethnicity_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -2839,6 +2987,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2042",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.28",
                     name="po_3_ethnicity_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -2860,6 +3009,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E1300",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.78",
                     name="po_3_race.invalid_enum_value",
                     description=dedent(
                         """\
@@ -2909,6 +3059,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_unique_in_field,
                     id="W1301",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.25",
                     name="po_3_race.duplicates_in_field",
                     description="* 'Race of principal owner 3' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
@@ -2917,6 +3068,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     meets_multi_value_field_restriction,
                     id="W1302",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.26",
                     name="po_3_race.multi_value_field_restriction",
                     description=dedent(
                         """\
@@ -2938,6 +3090,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E1320",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.79",
                     name="po_3_race_anai_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -2953,6 +3106,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2062",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.32",
                     name="po_3_race_anai_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -2976,6 +3130,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E1340",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.80",
                     name="po_3_race_asian_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -2990,6 +3145,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2082",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.36",
                     name="po_3_race_asian_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -3012,6 +3168,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E1360",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.81",
                     name="po_3_race_baa_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -3026,6 +3183,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2102",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.40",
                     name="po_3_race_baa_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -3048,6 +3206,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E1380",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.82",
                     name="po_3_race_pi_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -3062,6 +3221,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2122",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.44",
                     name="po_3_race_pi_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -3083,6 +3243,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E1400",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.83",
                     name="po_3_gender_flag.invalid_enum_value",
                     description="* When present, 'sex/gender of principal owner 3: NP flag' must equal 1, 966, or 988.",
                     severity=Severity.ERROR,
@@ -3103,6 +3264,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E1420",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.84",
                     name="po_3_gender_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -3117,6 +3279,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2142",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.48",
                     name="po_3_gender_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -3138,6 +3301,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E1440",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.85",
                     name="po_4_ethnicity.invalid_enum_value",
                     description=dedent(
                         """\
@@ -3165,6 +3329,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_unique_in_field,
                     id="W1441",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.27",
                     name="po_4_ethnicity.duplicates_in_field",
                     description="* 'Ethnicity of principal owner 4' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
@@ -3173,6 +3338,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     meets_multi_value_field_restriction,
                     id="W1442",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.28",
                     name="po_4_ethnicity.multi_value_field_restriction",
                     description=dedent(
                         """\
@@ -3194,6 +3360,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E1460",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.86",
                     name="po_4_ethnicity_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -3208,6 +3375,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2043",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.29",
                     name="po_4_ethnicity_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -3229,6 +3397,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E1480",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.87",
                     name="po_4_race.invalid_enum_value",
                     description=dedent(
                         """\
@@ -3278,6 +3447,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_unique_in_field,
                     id="W1481",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.29",
                     name="po_4_race.duplicates_in_field",
                     description="* 'Race of principal owner 4' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
@@ -3286,6 +3456,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     meets_multi_value_field_restriction,
                     id="W1482",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.4.30",
                     name="po_4_race.multi_value_field_restriction",
                     description=dedent(
                         """\
@@ -3307,6 +3478,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E1500",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.88",
                     name="po_4_race_anai_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -3322,6 +3494,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2063",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.33",
                     name="po_4_race_anai_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -3345,6 +3518,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E1520",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.89",
                     name="po_4_race_asian_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -3359,6 +3533,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2083",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.37",
                     name="po_4_race_asian_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -3381,6 +3556,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E1540",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.90",
                     name="po_4_race_baa_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -3395,6 +3571,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2103",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.41",
                     name="po_4_race_baa_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -3418,6 +3595,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E1560",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.91",
                     name="po_4_race_pi_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -3432,6 +3610,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2123",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.45",
                     name="po_4_race_pi_ff.conditional_field_conflict",
                     description=dedent(
                         """\
@@ -3454,6 +3633,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     is_valid_enum,
                     id="E1580",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.92",
                     name="po_4_gender_flag.invalid_enum_value",
                     description="* When present, 'sex/gender of principal owner 4: NP flag' must equal 1, 966, or 988.",
                     severity=Severity.ERROR,
@@ -3474,6 +3654,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     0,
                     300,
                     id="E1600",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.93",
                     name="po_4_gender_ff.invalid_text_length",
                     description=dedent(
                         """\
@@ -3488,6 +3669,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2143",
+					fig_anchor="https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.49",
                     name="po_4_gender_ff.conditional_field_conflict",
                     description=dedent(
                         """\
