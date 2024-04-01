@@ -14,6 +14,7 @@ packages = [{ include = "regtech_data_validator", from = "src" }]
 python = ">=3.12,<4"
 pandas = "^2.2.1"
 pandera = "^0.18.3"
+tabulate = "^0.9.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "8.1.1"
@@ -23,7 +24,6 @@ pytest-cov = "5.0.0"
 openpyxl = "^3.1.2"
 
 [tool.poetry.group.cli.dependencies]
-tabulate = "^0.9.0"
 typer = "^0.11.1"
 
 
