@@ -64,7 +64,7 @@ def df_to_json(df: pd.DataFrame) -> str:
         finding_json = {
             'validation': {
                 'id': v_id_idx,
-                'fig_anchor': v_head.at['fig_anchor'],
+                'fig_link': v_head.at['fig_link'],
                 'name': v_head.at['validation_name'],
                 'description': v_head.at['validation_desc'],
                 'severity': v_head.at['validation_severity'],
