@@ -61,7 +61,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description=dedent(
                         """\
                         * 'Unique identifier' must be at least 21 characters in 
-                        length and at most 45 characters in length."
+                        length and at most 45 characters in length.
                     """
                     ),
                     severity=Severity.ERROR,
