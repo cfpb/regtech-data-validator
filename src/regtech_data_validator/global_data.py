@@ -1,6 +1,9 @@
 import csv
 from importlib.resources import files
 
+fig_base_url = (
+    "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/"
+)
 
 # global variable for NAICS codes
 naics_codes: dict[str, str] = {}
