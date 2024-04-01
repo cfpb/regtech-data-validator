@@ -34,6 +34,11 @@ class OutputFormat(StrEnum):
     JSON = 'json'
     PANDAS = 'pandas'
     TABLE = 'table'
+    DOWNLOAD = 'download'
+
+
+def df_to_download(df: pd.DataFrame) -> str:
+    return df.to_csv(columns=['validation_severity', 'validation_id', 'record_no', 'uid', 'validation_desc', 'fig_anchor'])
 
 
 def df_to_str(df: pd.DataFrame) -> str:
@@ -142,6 +147,8 @@ def validate(
                 print(df_to_json(findings_df))
             case OutputFormat.TABLE:
                 print(df_to_table(findings_df))
+            case OutputFormat.DOWNLOAD:
+                print(df_to_download(findings_df))
             case _:
                 raise ValueError(f'output format "{output}" not supported')
 

@@ -149,7 +149,18 @@ def validate(schema: DataFrameSchema, submission_df: pd.DataFrame) -> tuple[bool
                 # The above exception handling _should_ prevent this from ever happenin, but...just in case.
                 raise RuntimeError(f'No check output for "{check.name}" check.  Pandera SchemaError: {schema_error}')
 
-    return is_valid, findings_df.sort_index()
+    return is_valid, add_uid(findings_df.sort_index(), submission_df)
+
+def add_uid(results_df: pd.DataFrame, submission_df: pd.DataFrame) -> pd.DataFrame:
+    if results_df.empty:
+        return results_df
+    all_uids = []
+    sub_uids = submission_df['uid'].tolist()
+    for index, row in results_df.iterrows():
+        all_uids.append(sub_uids[int(row['record_no'])])
+    
+    results_df.insert(1, "uid", all_uids, True)
+    return results_df
 
 
 def validate_phases(df: pd.DataFrame, context: dict[str, str] | None = None) -> tuple[bool, pd.DataFrame]:
