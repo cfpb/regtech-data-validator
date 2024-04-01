@@ -833,7 +833,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         """\
                         * The date indicated by 'application date' should
                         generally be less than two years (730 days) before 
-                        'action taken date'."
+                        'action taken date'.
                      """
                     ),
                     severity=Severity.WARNING,
@@ -852,7 +852,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description=dedent(
                         """\
                         * Each value in 'denial reason(s)' (separated by semicolons) 
-                        must equal 1, 2, 3, 4, 5, 6, 7, 8, 9, 977, or 999."
+                        must equal 1, 2, 3, 4, 5, 6, 7, 8, 9, 977, or 999.
                      """
                     ),
                     severity=Severity.ERROR,
@@ -989,7 +989,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         denial reason(s)' combined should **not** contain more than 
                         four values. Code 977 (other), within 'Denial reason(s)', 
                         does **not** count toward the maximum number of values for 
-                        the purpose of this validation check."
+                        the purpose of this validation check.
                      """
                     ),
                     severity=Severity.WARNING,
@@ -2295,7 +2295,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         """\
                         * When 'race of principal owner 1' contains 966 (the applicant responded that 
                         they did not wish to provide this information) or 988 (not provided by applicant), 
-                        'race of principal owner: 1' should **not** contain more than one value."
+                        'race of principal owner: 1' should **not** contain more than one value.
                      """
                     ),
                     severity=Severity.WARNING,
