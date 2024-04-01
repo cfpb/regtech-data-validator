@@ -13,7 +13,7 @@ class TestCSVDifferences:
         ]
 
         csv_df = pd.read_csv(
-            "https://raw.githubusercontent.com/cfpb/sbl-content/23-remove-extra-double-quotes/fig-files/validation-spec/2024-validations.csv"
+            "https://raw.githubusercontent.com/cfpb/sbl-content/main/fig-files/validation-spec/2024-validations.csv"
         )
 
         missing_ids_in_code = []
