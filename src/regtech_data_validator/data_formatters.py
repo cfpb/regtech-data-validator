@@ -4,7 +4,15 @@ import pandas as pd
 from tabulate import tabulate
 
 def df_to_download(df: pd.DataFrame) -> str:
-    return df.to_csv(columns=['validation_severity', 'validation_id', 'record_no', 'uid', 'validation_desc', 'fig_anchor'])
+    sorted = df.sort_values('record_no')
+    full_csv = [",".join(["severity", "validation_id", "row", "uid", "description", "fig_link"])]
+    for index, row in sorted.iterrows():
+        full_csv.append(",".join([row['validation_severity'], row['validation_id'], str(row['record_no']), row['uid'], f'"{row['validation_desc']}"', row['fig_link']]))
+        
+    csv_string = "\n".join(full_csv)
+        
+    
+    return csv_string
 
 def df_to_str(df: pd.DataFrame) -> str:
     with pd.option_context('display.width', None, 'display.max_rows', None):
