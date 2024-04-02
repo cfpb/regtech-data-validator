@@ -25,7 +25,16 @@ class SBLCheck(Check):
     SBLWarningCheck subclasses below.
     """
 
-    def __init__(self, check_fn: Callable, id: str, name: str, description: str, severity: Severity, **check_kwargs):
+    def __init__(
+        self,
+        check_fn: Callable,
+        id: str,
+        name: str,
+        description: str,
+        severity: Severity,
+        fig_link: str,
+        **check_kwargs
+    ):
         """
         Subclass of Pandera's `Check`, with special handling for severity level
         Args:
@@ -38,6 +47,7 @@ class SBLCheck(Check):
         """
 
         self.severity = severity
+        self.fig_link = fig_link
 
         super().__init__(check_fn, title=id, name=name, description=description, **check_kwargs)
 
