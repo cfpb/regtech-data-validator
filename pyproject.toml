@@ -5,7 +5,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry]
 name = "regtech-data-validator"
 version = "0.1.0"
-description = "RegTech submission data parser and validator"
+description = "RegTech submission data parser and validator "
 authors = []
 readme = "README.md"
 packages = [{ include = "regtech_data_validator", from = "src" }]
