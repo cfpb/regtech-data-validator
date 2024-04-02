@@ -32,7 +32,7 @@ typer = "^0.11.1"
 
 [tool.poetry.group.linters.dependencies]
 black = "24.3.0"
-ruff = "0.3.4"
+ruff = "0.3.5"
 
 [tool.poetry.scripts]
 cfpb-val = 'regtech_data_validator.cli:app'
