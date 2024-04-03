@@ -12,7 +12,7 @@ from regtech_data_validator.create_schemas import validate_phases
 
 typer.core.rich = None
 
-app = typer.Typer(no_args_is_help=True)
+app = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=False)
 
 
 @dataclass
