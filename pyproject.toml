@@ -74,6 +74,9 @@ addopts = [
 testpaths = [
     "tests",
 ]
+env = [
+    "PYTHONIOENCODING=utf-8"
+]
 
 [tool.coverage.run]
 relative_files = true
