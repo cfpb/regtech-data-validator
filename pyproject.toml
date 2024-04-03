@@ -26,13 +26,13 @@ lxml = "^5.1.1"
 [tool.poetry.group.data.dependencies]
 openpyxl = "^3.1.2"
 
-[tool.poetry.group.cli.dependencies]
-typer = "^0.11.1"
-
-
 [tool.poetry.group.linters.dependencies]
 black = "24.3.0"
 ruff = "0.3.5"
+
+
+[tool.poetry.group.cli.dependencies]
+typer = "^0.12.0"
 
 [tool.poetry.scripts]
 cfpb-val = 'regtech_data_validator.cli:app'

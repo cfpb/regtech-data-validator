@@ -113,7 +113,6 @@ class TestValidateCli:
 
     def test_pass_file_invalid_output_arg_value(self):
         result = cli_runner.invoke(cli.app, ['validate', pass_file, '--output', 'pdf'])
-
         assert result.exit_code == 2
         assert "Invalid value for '--output': 'pdf' is not one of" in result.stderr
 
