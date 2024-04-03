@@ -6,11 +6,13 @@ from typing import Annotated, Optional
 
 import pandas as pd
 import typer
+import typer.core
 
 from regtech_data_validator.create_schemas import validate_phases
 
+typer.core.rich = None
 
-app = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=False)
+app = typer.Typer(no_args_is_help=True)
 
 
 @dataclass
