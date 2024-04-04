@@ -53,7 +53,7 @@ def _filter_valid_records(df: pd.DataFrame, check_output: pd.Series, fields: lis
 
     # `check_output` must be sorted so its index lines up with `df`'s index
     sorted_check_output: pd.Series = check_output.sort_index()
-    print(f"Sorted Check: \n{sorted_check_output}")
+
     # Filter records using Pandas's boolean indexing, where all False values get filtered out.
     # The `~` does the inverse since it's actually the False values we want to keep.
     # http://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#boolean-indexing

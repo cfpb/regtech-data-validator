@@ -222,7 +222,6 @@ class TestValidatePhases:
         )
         # since the data passed phase 1 validations
         # this should return phase 2 validations
-        print(f"{findings_df}")
         assert not is_valid
         assert len(findings_df.index.unique()) == 3
 
