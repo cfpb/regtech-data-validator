@@ -5,26 +5,26 @@ from tabulate import tabulate
 
 def df_to_download(df: pd.DataFrame) -> str:
     highest_field_count = 0
-    findings_by_v_id_df = df.reset_index().set_index(['validation_id', 'uid', 'field_name'])
+    findings_group = df.reset_index().set_index(['validation_id', 'record_no', 'field_name'])
     full_csv = []
-    for v_id_idx, v_id_df in findings_by_v_id_df.groupby(by='validation_id'):
+    for v_id, v_id_df in findings_group.groupby(by='validation_id'):
         v_head = v_id_df.iloc[0]
-        for rec_idx, rec_df in v_id_df.groupby(by='uid'):
+        for record_no, rec_df in v_id_df.groupby(by='record_no'):
             row_data = []
             rec = rec_df.iloc[0]
             row_data.append(v_head['validation_severity'])
-            row_data.append(v_id_idx)
+            row_data.append(v_id)
             row_data.append(v_head['validation_name'])
-            row_data.append(str(rec['row']))
-            row_data.append(rec_idx)
+            row_data.append(str(record_no))
+            row_data.append(rec['uid'])
             row_data.append(v_head['fig_link'])
             row_data.append(f"\"{v_head['validation_desc']}\"")
             
             current_count = 0
-            for field_idx, field_df in rec_df.groupby(by='field_name'):
-                field_head = field_df.iloc[0]
-                row_data.append(field_idx)
-                row_data.append(field_head['field_value'])
+            for field_name, field_df in rec_df.groupby(by='field_name'):
+                field_data = field_df.iloc[0]
+                row_data.append(field_name)
+                row_data.append(field_data['field_value'])
                 current_count += 1
             full_csv.append(",".join(row_data))
         highest_field_count = current_count if current_count > highest_field_count else highest_field_count
@@ -78,13 +78,12 @@ def df_to_json(df: pd.DataFrame) -> str:
 
         for rec_idx, rec_df in v_id_df.groupby(by='record_no'):
             rec = rec_df.iloc[0]
-            record_json = {'record_no': int(rec_idx), 'row': int(rec['row']), 'uid': rec['uid'], 'fields': []}
+            record_json = {'record_no': int(rec_idx), 'uid': rec['uid'], 'fields': []}
             finding_json['records'].append(record_json)
 
             for field_idx, field_df in rec_df.groupby(by='field_name'):
                 field_head = field_df.iloc[0]
                 record_json['fields'].append({'name': field_idx, 'value': field_head.at['field_value']})
-            print(f"{record_json}")
     json_str = json.dumps(findings_json, indent=4)
 
     return json_str
