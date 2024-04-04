@@ -6,9 +6,17 @@ from typing import Annotated, Optional
 
 import pandas as pd
 import typer
+import typer.core
 
 from regtech_data_validator.create_schemas import validate_phases
 
+# Need to do this because the latest version of typer, if the rich package exists
+# will create a Panel with borders in the error output.  This causes stderr during
+# tests to have a bunch of extra characters that aren't properly rendered when NOT
+# in a console.  So until typer comes up with a nice way to turn such fancy error
+# output off, we set the rich import to None in typer.core so it uses basic
+# error formatting.
+typer.core.rich = None
 
 app = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=False)
 
