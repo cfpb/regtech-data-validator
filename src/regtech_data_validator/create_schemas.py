@@ -59,7 +59,7 @@ def _filter_valid_records(df: pd.DataFrame, check_output: pd.Series, fields: lis
     # http://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#boolean-indexing
     # We then up the index by 1 so that record_no is indexed starting with 1 instead of 0
     sorted_fields = df[~sorted_check_output][fields]
-    index = pd.Index(range(1, len(sorted_fields)+1))
+    index = pd.Index(range(1, len(sorted_fields) + 1))
     sorted_fields.index = index
     failed_records_df = sorted_fields.reset_index(names='record_no')
 
@@ -158,14 +158,15 @@ def validate(schema: DataFrameSchema, submission_df: pd.DataFrame) -> tuple[bool
 
     return is_valid, updated_df
 
+
 def add_uid(results_df: pd.DataFrame, submission_df: pd.DataFrame) -> pd.DataFrame:
     if results_df.empty:
         return results_df
     all_uids = []
     sub_uids = submission_df['uid'].tolist()
     for index, row in results_df.iterrows():
-        all_uids.append(sub_uids[int(row['record_no'])-1])
-    
+        all_uids.append(sub_uids[int(row['record_no']) - 1])
+
     results_df.insert(1, "uid", all_uids, True)
     return results_df
 

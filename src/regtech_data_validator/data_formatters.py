@@ -3,6 +3,7 @@ import pandas as pd
 
 from tabulate import tabulate
 
+
 def df_to_download(df: pd.DataFrame) -> str:
     highest_field_count = 0
     findings_group = df.reset_index().set_index(['validation_id', 'record_no', 'field_name'])
@@ -19,7 +20,7 @@ def df_to_download(df: pd.DataFrame) -> str:
             row_data.append(rec['uid'])
             row_data.append(v_head['fig_link'])
             row_data.append(f"\"{v_head['validation_desc']}\"")
-            
+
             current_count = 0
             for field_name, field_df in rec_df.groupby(by='field_name'):
                 field_data = field_df.iloc[0]
@@ -33,11 +34,17 @@ def df_to_download(df: pd.DataFrame) -> str:
     for i in range(highest_field_count):
         field_headers.append(f"field_{i+1}")
         field_headers.append(f"value_{i+1}")
-    full_csv.insert(0, ",".join(["validation_type", "validation_id", "validation_name", "row", "uid", "fig_link", "validation_description"]+field_headers))
+    full_csv.insert(
+        0,
+        ",".join(
+            ["validation_type", "validation_id", "validation_name", "row", "uid", "fig_link", "validation_description"]
+            + field_headers
+        ),
+    )
     csv_string = "\n".join(full_csv)
-        
-    
+
     return csv_string
+
 
 def df_to_str(df: pd.DataFrame) -> str:
     with pd.option_context('display.width', None, 'display.max_rows', None):

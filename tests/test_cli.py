@@ -85,7 +85,7 @@ class TestValidateCommand:
         is_valid, findings_df = cli.validate(path=self.fail_path, output=cli.OutputFormat.TABLE)
 
         assert not is_valid
-    
+
     def test_fail_download_output(self):
         is_valid, findings_df = cli.validate(path=self.fail_path, output=cli.OutputFormat.DOWNLOAD)
 
