@@ -37,7 +37,7 @@ def df_to_download(df: pd.DataFrame) -> str:
     full_csv.insert(
         0,
         ",".join(
-            ["validation_type", "validation_id", "validation_name", "row", "uid", "fig_link", "validation_description"]
+            ["validation_type", "validation_id", "validation_name", "row", "unique_identifier", "fig_link", "validation_description"]
             + field_headers
         ),
     )
