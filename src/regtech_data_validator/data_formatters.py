@@ -4,6 +4,56 @@ import pandas as pd
 from tabulate import tabulate
 
 
+def df_to_download(df: pd.DataFrame) -> str:
+    highest_field_count = 0
+    findings_group = df.reset_index().set_index(['validation_id', 'record_no', 'field_name'])
+    full_csv = []
+    for v_id, v_id_df in findings_group.groupby(by='validation_id'):
+        v_head = v_id_df.iloc[0]
+        for record_no, rec_df in v_id_df.groupby(by='record_no'):
+            row_data = []
+            rec = rec_df.iloc[0]
+            row_data.append(v_head['validation_severity'])
+            row_data.append(v_id)
+            row_data.append(v_head['validation_name'])
+            row_data.append(str(record_no))
+            row_data.append(rec['uid'])
+            row_data.append(v_head['fig_link'])
+            row_data.append(f"\"{v_head['validation_desc']}\"")
+
+            current_count = 0
+            for field_name, field_df in rec_df.groupby(by='field_name'):
+                field_data = field_df.iloc[0]
+                row_data.append(field_name)
+                row_data.append(field_data['field_value'])
+                current_count += 1
+            full_csv.append(",".join(row_data))
+        highest_field_count = current_count if current_count > highest_field_count else highest_field_count
+
+    field_headers = []
+    for i in range(highest_field_count):
+        field_headers.append(f"field_{i+1}")
+        field_headers.append(f"value_{i+1}")
+    full_csv.insert(
+        0,
+        ",".join(
+            [
+                "validation_type",
+                "validation_id",
+                "validation_name",
+                "row",
+                "unique_identifier",
+                "fig_link",
+                "validation_description",
+            ]
+            + field_headers
+        ),
+    )
+    csv_string = "\n".join(full_csv)
+
+    return csv_string
+
+
 def df_to_str(df: pd.DataFrame) -> str:
     with pd.option_context('display.width', None, 'display.max_rows', None):
         return str(df)
@@ -42,13 +92,13 @@ def df_to_json(df: pd.DataFrame) -> str:
         findings_json.append(finding_json)
 
         for rec_idx, rec_df in v_id_df.groupby(by='record_no'):
-            record_json = {'record_no': rec_idx, 'fields': []}
+            rec = rec_df.iloc[0]
+            record_json = {'record_no': int(rec_idx), 'uid': rec['uid'], 'fields': []}
             finding_json['records'].append(record_json)
 
             for field_idx, field_df in rec_df.groupby(by='field_name'):
                 field_head = field_df.iloc[0]
                 record_json['fields'].append({'name': field_idx, 'value': field_head.at['field_value']})
-
     json_str = json.dumps(findings_json, indent=4)
 
     return json_str

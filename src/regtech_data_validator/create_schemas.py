@@ -57,7 +57,12 @@ def _filter_valid_records(df: pd.DataFrame, check_output: pd.Series, fields: lis
     # Filter records using Pandas's boolean indexing, where all False values get filtered out.
     # The `~` does the inverse since it's actually the False values we want to keep.
     # http://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#boolean-indexing
-    failed_records_df = df[~sorted_check_output][fields].reset_index(names='record_no')
+    # We then up the index by 1 so that record_no is indexed starting with 1 instead of 0
+    sorted_fields = df[~sorted_check_output][fields]
+    index = pd.Index(range(1, len(sorted_fields) + 1))
+    sorted_fields.index = index
+    failed_records_df = sorted_fields.reset_index(names='record_no')
+
     failed_records_df.index.rename('finding_no', inplace=True)
 
     return failed_records_df
@@ -149,7 +154,21 @@ def validate(schema: DataFrameSchema, submission_df: pd.DataFrame) -> tuple[bool
                 # The above exception handling _should_ prevent this from ever happenin, but...just in case.
                 raise RuntimeError(f'No check output for "{check.name}" check.  Pandera SchemaError: {schema_error}')
 
-    return is_valid, findings_df.sort_index()
+    updated_df = add_uid(findings_df.sort_index(), submission_df)
+
+    return is_valid, updated_df
+
+
+def add_uid(results_df: pd.DataFrame, submission_df: pd.DataFrame) -> pd.DataFrame:
+    if results_df.empty:
+        return results_df
+    all_uids = []
+    sub_uids = submission_df['uid'].tolist()
+    for index, row in results_df.iterrows():
+        all_uids.append(sub_uids[int(row['record_no']) - 1])
+
+    results_df.insert(1, "uid", all_uids, True)
+    return results_df
 
 
 def validate_phases(df: pd.DataFrame, context: dict[str, str] | None = None) -> tuple[bool, pd.DataFrame]:
