@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
-from regtech_data_validator.data_formatters import df_to_csv, df_to_str, df_to_json, df_to_table
+from regtech_data_validator.data_formatters import df_to_csv, df_to_str, df_to_json, df_to_table, df_to_download
 from typing import Annotated, Optional
 
 import pandas as pd
@@ -41,6 +41,7 @@ class OutputFormat(StrEnum):
     JSON = 'json'
     PANDAS = 'pandas'
     TABLE = 'table'
+    DOWNLOAD = 'download'
 
 
 @app.command()
@@ -99,6 +100,8 @@ def validate(
                 print(df_to_json(findings_df))
             case OutputFormat.TABLE:
                 print(df_to_table(findings_df))
+            case OutputFormat.DOWNLOAD:
+                print(df_to_download(findings_df))
             case _:
                 raise ValueError(f'output format "{output}" not supported')
 
