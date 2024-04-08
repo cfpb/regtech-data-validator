@@ -81,7 +81,11 @@ def validate(
     Validate CFPB data submission
     """
     context_dict = {x.key: x.value for x in context} if context else {}
-    input_df = pd.read_csv(path, dtype=str, na_filter=False)
+    input_df = None
+    try:
+        input_df = pd.read_csv(path, dtype=str, na_filter=False)
+    except Exception as e:
+        raise RuntimeError(e)
     is_valid, findings_df = validate_phases(input_df, context_dict)
 
     status = 'SUCCESS'

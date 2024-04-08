@@ -3,7 +3,7 @@ with validations listed in phase 1 and phase 2."""
 
 import pandas as pd
 from pandera import Check, DataFrameSchema
-from pandera.errors import SchemaErrors, SchemaError
+from pandera.errors import SchemaErrors, SchemaError, SchemaErrorReason
 
 from regtech_data_validator.checks import SBLCheck
 from regtech_data_validator.phase_validations import get_phase_1_and_2_validations_for_lei
@@ -126,6 +126,8 @@ def validate(schema: DataFrameSchema, submission_df: pd.DataFrame) -> tuple[bool
             check = schema_error.check
             column_name = schema_error.schema.name
 
+            if schema_error.reason_code == SchemaErrorReason.COLUMN_NOT_IN_DATAFRAME:
+                raise RuntimeError(schema_error) from schema_error
             if not check:
                 raise RuntimeError(
                     f'SchemaError occurred with no associated Check for {column_name} column'

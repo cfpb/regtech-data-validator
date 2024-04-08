@@ -1,4 +1,5 @@
 import pandas as pd
+import pytest
 
 from regtech_data_validator.create_schemas import (
     get_phase_1_schema_for_lei,
@@ -232,3 +233,15 @@ class TestValidatePhases:
 
         assert not is_valid
         assert len(findings_df['validation_name'] == 'uid.invalid_uid_lei') > 0
+
+    def test_column_not_found_in_df(self):
+        with pytest.raises(RuntimeError) as re:
+            validate_phases(
+                pd.DataFrame(
+                    data={
+                        "Test Column": ["1"],
+                    }
+                ),
+            )
+
+        assert str(re.value == "RuntimeError: column 'uid' not in dataframe. Columns in dataframe: ['Test Column']")
