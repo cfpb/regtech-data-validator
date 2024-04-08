@@ -91,7 +91,8 @@ def validate(
     status = 'SUCCESS'
     no_of_findings = 0
 
-    if not is_valid:
+    #if not is_valid:
+    if True:
         status = 'FAILURE'
         no_of_findings = len(findings_df.index.unique())
 
