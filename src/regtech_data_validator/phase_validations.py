@@ -1874,8 +1874,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ],
                 ),
             ],
-            "phase_2": [
-            ],
+            "phase_2": [],
         },
         "num_principal_owners": {
             "phase_1": [
