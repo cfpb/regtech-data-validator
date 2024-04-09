@@ -8,6 +8,8 @@ from regtech_data_validator.create_schemas import (
     validate_phases,
 )
 
+from regtech_data_validator.phase_validations import PHASE_1_TYPE, PHASE_2_TYPE
+
 
 class TestUtil:
     def get_data(self, update_data: dict[str, list[str]] = {}) -> dict[str, list[str]]:
@@ -208,6 +210,8 @@ class TestValidatePhases:
 
         # should only return phase 1 validation result since phase1 failed
         assert not is_valid
+
+        assert [PHASE_1_TYPE] == findings_df["validation_phase"].unique().tolist()
         assert len(findings_df) == 1
 
     def test_with_multi_invalid_data_with_phase2(self):
@@ -224,6 +228,7 @@ class TestValidatePhases:
         # since the data passed phase 1 validations
         # this should return phase 2 validations
         assert not is_valid
+        assert [PHASE_2_TYPE] == findings_df["validation_phase"].unique().tolist()
         assert len(findings_df.index.unique()) == 3
 
     def test_with_invalid_lei(self):

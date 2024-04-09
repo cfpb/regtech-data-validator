@@ -31,6 +31,9 @@ from regtech_data_validator.check_functions import (
 )
 from regtech_data_validator.checks import SBLCheck, Severity
 
+PHASE_1_TYPE = "Syntactical"
+PHASE_2_TYPE = "Logical"
+
 
 def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None):
     lei: str | None = context.get("lei", None) if context else None

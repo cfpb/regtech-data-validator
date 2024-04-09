@@ -6,7 +6,7 @@ from pandera import Check, DataFrameSchema
 from pandera.errors import SchemaErrors, SchemaError, SchemaErrorReason
 
 from regtech_data_validator.checks import SBLCheck
-from regtech_data_validator.phase_validations import get_phase_1_and_2_validations_for_lei
+from regtech_data_validator.phase_validations import get_phase_1_and_2_validations_for_lei, PHASE_1_TYPE, PHASE_2_TYPE
 from regtech_data_validator.schema_template import get_template
 
 
@@ -59,7 +59,7 @@ def _filter_valid_records(df: pd.DataFrame, check_output: pd.Series, fields: lis
     # http://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#boolean-indexing
     # We then up the index by 1 so that record_no is indexed starting with 1 instead of 0
     sorted_fields = df[~sorted_check_output][fields]
-    index = pd.Index(range(1, len(sorted_fields) + 1))
+    index = [i + 1 for i in sorted_fields.index]
     sorted_fields.index = index
     failed_records_df = sorted_fields.reset_index(names='record_no')
 
@@ -177,6 +177,10 @@ def validate_phases(df: pd.DataFrame, context: dict[str, str] | None = None) -> 
     p1_is_valid, p1_findings = validate(get_phase_1_schema_for_lei(context), df)
 
     if not p1_is_valid:
+        p1_findings.insert(1, "validation_phase", PHASE_1_TYPE, True)
         return p1_is_valid, p1_findings
 
-    return validate(get_phase_2_schema_for_lei(context), df)
+    p2_is_valid, p2_findings = validate(get_phase_2_schema_for_lei(context), df)
+    if not p2_is_valid:
+        p2_findings.insert(1, "validation_phase", PHASE_2_TYPE, True)
+    return p2_is_valid, p2_findings
