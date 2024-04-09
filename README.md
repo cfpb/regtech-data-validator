@@ -69,7 +69,8 @@ $ cfpb-val validate --help
 ╰─────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭─ Options ───────────────────────────────────────────────────────────────────────────────────────────╮
 │ --context        <key>=<value>            [example: lei=12345678901234567890]                       │
-│ --output         [csv|json|pandas|table]  [default: table]                                          │
+│ --output         [csv|json|pandas|table|download]                                                   │   
+│                                           [default: table]                                          │
 │ --help                                    Show this message and exit.                               │
 ╰─────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
@@ -99,7 +100,7 @@ $ cfpb-val validate --help
         │        117 │       302 │ po_4_gender_flag │ 9001                                               │ error               │ E1040         │ po_4_gender_flag.invalid_enum_value  │
         │        118 │       306 │ po_4_gender_ff   │ 12345678901234567890123456789012345678901234567890 │ error               │ E1060         │ po_4_gender_ff.invalid_text_length   │
         ╰────────────┴───────────┴──────────────────┴────────────────────────────────────────────────────┴─────────────────────┴───────────────┴──────────────────────────────────────╯
-        status: FAILURE, findings: 118
+        status: FAILURE, findings: 118, validation phase: Syntactical
 
 1. Validate a file with findings with output in JSON format
 

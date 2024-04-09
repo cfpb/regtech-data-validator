@@ -178,9 +178,9 @@ def validate_phases(df: pd.DataFrame, context: dict[str, str] | None = None) -> 
 
     if not p1_is_valid:
         p1_findings.insert(1, "validation_phase", PHASE_1_TYPE, True)
-        return p1_is_valid, p1_findings
+        return p1_is_valid, p1_findings, PHASE_1_TYPE
 
     p2_is_valid, p2_findings = validate(get_phase_2_schema_for_lei(context), df)
     if not p2_is_valid:
         p2_findings.insert(1, "validation_phase", PHASE_2_TYPE, True)
-    return p2_is_valid, p2_findings
+    return p2_is_valid, p2_findings, PHASE_2_TYPE
