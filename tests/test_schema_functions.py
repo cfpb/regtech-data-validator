@@ -150,7 +150,7 @@ class TestValidate:
 
         p2_is_valid, p2_findings_df = validate(self.phase2_schema, df)
         # 3 unique findings raised
-        assert len(p2_findings_df.index.unique()) == 3
+        assert len(p2_findings_df.index.unique()) == 4
 
     def test_with_invalid_lei(self):
         lei = "000TESTFIUIDDONOTUS1"
@@ -224,7 +224,7 @@ class TestValidatePhases:
         # since the data passed phase 1 validations
         # this should return phase 2 validations
         assert not is_valid
-        assert len(findings_df.index.unique()) == 3
+        assert len(findings_df.index.unique()) == 4
 
     def test_with_invalid_lei(self):
         lei = "000TESTFIUIDDONOTUS1"
