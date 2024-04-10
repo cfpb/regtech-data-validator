@@ -1874,7 +1874,40 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ],
                 ),
             ],
+            "phase_2": [],
+        },
+        "num_principal_owners": {
+            "phase_1": [
+                SBLCheck(
+                    is_valid_enum,
+                    id="E0880",
+                    fig_link=global_data.fig_base_url + "#4.1.57",
+                    name="num_principal_owners.invalid_enum_value",
+                    description="* When present, 'number of principal owners' must equal 0, 1, 2, 3, or 4.",
+                    severity=Severity.ERROR,
+                    element_wise=True,
+                    accepted_values=["0", "1", "2", "3", "4"],
+                    accept_blank=True,
+                ),
+            ],
             "phase_2": [
+                SBLCheck(
+                    has_no_conditional_field_conflict,
+                    id="E2028",
+                    fig_link=global_data.fig_base_url + "#4.2.25",
+                    name="num_principal_owners.conditional_field_conflict",
+                    description=dedent(
+                        """\
+                        * When 'number of principal owners: NP flag' does **not** equal 900 (reported), 
+                        'number of principal owners' must be blank.
+                        * When 'number of principal owners: NP flag' equals 900, 'number of principal 
+                        owners' must **not** be blank.
+                    """
+                    ),
+                    severity=Severity.ERROR,
+                    groupby="num_principal_owners_flag",
+                    condition_values={"900"},
+                ),
                 SBLCheck(
                     has_valid_fieldset_pair,
                     id="W2035",
@@ -2092,40 +2125,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                         "po_4_race": (10, False, ""),
                         "po_4_gender_flag": (11, False, ""),
                     },
-                ),
-            ],
-        },
-        "num_principal_owners": {
-            "phase_1": [
-                SBLCheck(
-                    is_valid_enum,
-                    id="E0880",
-                    fig_link=global_data.fig_base_url + "#4.1.57",
-                    name="num_principal_owners.invalid_enum_value",
-                    description="* When present, 'number of principal owners' must equal 0, 1, 2, 3, or 4.",
-                    severity=Severity.ERROR,
-                    element_wise=True,
-                    accepted_values=["0", "1", "2", "3", "4"],
-                    accept_blank=True,
-                ),
-            ],
-            "phase_2": [
-                SBLCheck(
-                    has_no_conditional_field_conflict,
-                    id="E2028",
-                    fig_link=global_data.fig_base_url + "#4.2.25",
-                    name="num_principal_owners.conditional_field_conflict",
-                    description=dedent(
-                        """\
-                        * When 'number of principal owners: NP flag' does **not** equal 900 (reported), 
-                        'number of principal owners' must be blank.
-                        * When 'number of principal owners: NP flag' equals 900, 'number of principal 
-                        owners' must **not** be blank.
-                    """
-                    ),
-                    severity=Severity.ERROR,
-                    groupby="num_principal_owners_flag",
-                    condition_values={"900"},
                 ),
             ],
         },
