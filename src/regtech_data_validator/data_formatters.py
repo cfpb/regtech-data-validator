@@ -6,29 +6,30 @@ from tabulate import tabulate
 
 def df_to_download(df: pd.DataFrame) -> str:
     highest_field_count = 0
-    findings_group = df.reset_index().set_index(['validation_id', 'record_no', 'field_name'])
     full_csv = []
-    for v_id, v_id_df in findings_group.groupby(by='validation_id'):
-        v_head = v_id_df.iloc[0]
-        for record_no, rec_df in v_id_df.groupby(by='record_no'):
-            row_data = []
-            rec = rec_df.iloc[0]
-            row_data.append(v_head['validation_severity'])
-            row_data.append(v_id)
-            row_data.append(v_head['validation_name'])
-            row_data.append(str(record_no))
-            row_data.append(rec['uid'])
-            row_data.append(v_head['fig_link'])
-            row_data.append(f"\"{v_head['validation_desc']}\"")
+    if not df.empty:
+        findings_group = df.reset_index().set_index(['validation_id', 'record_no', 'field_name'])
+        for v_id, v_id_df in findings_group.groupby(by='validation_id'):
+            v_head = v_id_df.iloc[0]
+            for record_no, rec_df in v_id_df.groupby(by='record_no'):
+                row_data = []
+                rec = rec_df.iloc[0]
+                row_data.append(v_head['validation_severity'])
+                row_data.append(v_id)
+                row_data.append(v_head['validation_name'])
+                row_data.append(str(record_no))
+                row_data.append(rec['uid'])
+                row_data.append(v_head['fig_link'])
+                row_data.append(f"\"{v_head['validation_desc']}\"")
 
-            current_count = 0
-            for field_name, field_df in rec_df.groupby(by='field_name'):
-                field_data = field_df.iloc[0]
-                row_data.append(field_name)
-                row_data.append(field_data['field_value'])
-                current_count += 1
-            full_csv.append(",".join(row_data))
-        highest_field_count = current_count if current_count > highest_field_count else highest_field_count
+                current_count = 0
+                for field_name, field_df in rec_df.groupby(by='field_name'):
+                    field_data = field_df.iloc[0]
+                    row_data.append(field_name)
+                    row_data.append(field_data['field_value'])
+                    current_count += 1
+                full_csv.append(",".join(row_data))
+            highest_field_count = current_count if current_count > highest_field_count else highest_field_count
 
     field_headers = []
     for i in range(highest_field_count):
