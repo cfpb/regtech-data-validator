@@ -59,7 +59,7 @@ def _filter_valid_records(df: pd.DataFrame, check_output: pd.Series, fields: lis
     # http://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#boolean-indexing
     # We then up the index by 1 so that record_no is indexed starting with 1 instead of 0
     sorted_fields = df[~sorted_check_output][fields]
-    index = pd.Index(range(1, len(sorted_fields) + 1))
+    index = [i + 1 for i in sorted_fields.index]
     sorted_fields.index = index
     failed_records_df = sorted_fields.reset_index(names='record_no')
 
