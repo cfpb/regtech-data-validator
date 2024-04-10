@@ -9,10 +9,10 @@ from regtech_data_validator.checks import SBLCheck
 from regtech_data_validator.phase_validations import get_phase_1_and_2_validations_for_lei
 from regtech_data_validator.schema_template import get_template
 
-from enum import Enum
+from enum import StrEnum
 
 
-class ValidationPhase(str, Enum):
+class ValidationPhase(StrEnum):
     SYNTACTICAL = "Syntactical"
     LOGICAL = "Logical"
 
