@@ -135,3 +135,12 @@ class TestOutputFormat:
         ).strip('\n')
         actual_output = df_to_download(self.input_df)
         assert actual_output == expected_output
+
+    def test_empty_download_csv(self):
+        expected_output = dedent(
+            """
+            validation_type,validation_id,validation_name,row,unique_identifier,fig_link,validation_description
+            """
+        ).strip('\n')
+        actual_output = df_to_download(pd.DataFrame())
+        assert actual_output == expected_output
