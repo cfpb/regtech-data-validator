@@ -6,9 +6,8 @@ from regtech_data_validator.create_schemas import (
     get_phase_2_schema_for_lei,
     validate,
     validate_phases,
+    ValidationPhase,
 )
-
-from regtech_data_validator.phase_validations import PHASE_1_TYPE, PHASE_2_TYPE
 
 
 class TestUtil:
@@ -181,7 +180,7 @@ class TestValidatePhases:
         is_valid, findings_df, validation_phase = validate_phases(pd.DataFrame(data=self.util.get_data()))
 
         assert is_valid
-        assert validation_phase == PHASE_2_TYPE
+        assert validation_phase == ValidationPhase.LOGICAL.value
 
     def test_with_valid_lei(self):
         lei = "000TESTFIUIDDONOTUSE"
@@ -189,7 +188,7 @@ class TestValidatePhases:
         is_valid, findings_df, validation_phase = validate_phases(df, {'lei': lei})
 
         assert is_valid
-        assert validation_phase == PHASE_2_TYPE
+        assert validation_phase == ValidationPhase.LOGICAL.value
 
     def test_with_invalid_data(self):
         is_valid, findings_df, validation_phase = validate_phases(
@@ -198,7 +197,7 @@ class TestValidatePhases:
 
         assert not is_valid
         assert len(findings_df) == 1
-        assert validation_phase == PHASE_1_TYPE
+        assert validation_phase == ValidationPhase.SYNTACTICAL.value
 
     def test_with_multi_invalid_data_with_phase1(self):
         is_valid, findings_df, validation_phase = validate_phases(
@@ -216,8 +215,8 @@ class TestValidatePhases:
         # should only return phase 1 validation result since phase1 failed
         assert not is_valid
 
-        assert [PHASE_1_TYPE] == findings_df["validation_phase"].unique().tolist()
-        assert validation_phase == PHASE_1_TYPE
+        assert [ValidationPhase.SYNTACTICAL.value] == findings_df["validation_phase"].unique().tolist()
+        assert validation_phase == ValidationPhase.SYNTACTICAL.value
         assert len(findings_df) == 1
 
     def test_with_multi_invalid_data_with_phase2(self):
@@ -234,8 +233,8 @@ class TestValidatePhases:
         # since the data passed phase 1 validations
         # this should return phase 2 validations
         assert not is_valid
-        assert [PHASE_2_TYPE] == findings_df["validation_phase"].unique().tolist()
-        assert validation_phase == PHASE_2_TYPE
+        assert [ValidationPhase.LOGICAL.value] == findings_df["validation_phase"].unique().tolist()
+        assert validation_phase == ValidationPhase.LOGICAL.value
         assert len(findings_df.index.unique()) == 3
 
     def test_with_invalid_lei(self):
@@ -245,7 +244,7 @@ class TestValidatePhases:
 
         assert not is_valid
         assert len(findings_df['validation_name'] == 'uid.invalid_uid_lei') > 0
-        assert validation_phase == PHASE_2_TYPE
+        assert validation_phase == ValidationPhase.LOGICAL.value
 
     def test_column_not_found_in_df(self):
         with pytest.raises(RuntimeError) as re:
