@@ -67,7 +67,7 @@
             <a id="nextFileLink" class="nav" href="d_b772852a625afef9_create_schemas_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.4">coverage.py v7.4.4</a>,
-            created at 2024-04-10 21:07 +0000
+            created at 2024-04-11 00:22 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -170,7 +170,7 @@
     <p class="run"><span class="n"><a id="t86" href="#t86">86</a></span><span class="t">        <span class="nam">input_df</span> <span class="op">=</span> <span class="nam">pd</span><span class="op">.</span><span class="nam">read_csv</span><span class="op">(</span><span class="nam">path</span><span class="op">,</span> <span class="nam">dtype</span><span class="op">=</span><span class="nam">str</span><span class="op">,</span> <span class="nam">na_filter</span><span class="op">=</span><span class="key">False</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t87" href="#t87">87</a></span><span class="t">    <span class="key">except</span> <span class="nam">Exception</span> <span class="key">as</span> <span class="nam">e</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t88" href="#t88">88</a></span><span class="t">        <span class="key">raise</span> <span class="nam">RuntimeError</span><span class="op">(</span><span class="nam">e</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t">    <span class="nam">is_valid</span><span class="op">,</span> <span class="nam">findings_df</span> <span class="op">=</span> <span class="nam">validate_phases</span><span class="op">(</span><span class="nam">input_df</span><span class="op">,</span> <span class="nam">context_dict</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t89" href="#t89">89</a></span><span class="t">    <span class="nam">is_valid</span><span class="op">,</span> <span class="nam">findings_df</span><span class="op">,</span> <span class="nam">validation_phase</span> <span class="op">=</span> <span class="nam">validate_phases</span><span class="op">(</span><span class="nam">input_df</span><span class="op">,</span> <span class="nam">context_dict</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t90" href="#t90">90</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t">    <span class="nam">status</span> <span class="op">=</span> <span class="str">'SUCCESS'</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t">    <span class="nam">no_of_findings</span> <span class="op">=</span> <span class="num">0</span>&nbsp;</span><span class="r"></span></p>
@@ -193,7 +193,7 @@
     <p class="mis show_mis"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t">            <span class="key">case</span> <span class="nam">_</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t">                <span class="key">raise</span> <span class="nam">ValueError</span><span class="op">(</span><span class="fst">f'</span><span class="fst">output format "</span><span class="op">{</span><span class="nam">output</span><span class="op">}</span><span class="fst">" not supported</span><span class="fst">'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t">    <span class="nam">typer</span><span class="op">.</span><span class="nam">echo</span><span class="op">(</span><span class="fst">f"</span><span class="fst">status: </span><span class="op">{</span><span class="nam">status</span><span class="op">}</span><span class="fst">, findings: </span><span class="op">{</span><span class="nam">no_of_findings</span><span class="op">}</span><span class="fst">"</span><span class="op">,</span> <span class="nam">err</span><span class="op">=</span><span class="key">True</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t112" href="#t112">112</a></span><span class="t">    <span class="nam">typer</span><span class="op">.</span><span class="nam">echo</span><span class="op">(</span><span class="fst">f"</span><span class="fst">status: </span><span class="op">{</span><span class="nam">status</span><span class="op">}</span><span class="fst">, findings: </span><span class="op">{</span><span class="nam">no_of_findings</span><span class="op">}</span><span class="fst">, validation phase: </span><span class="op">{</span><span class="nam">validation_phase</span><span class="op">}</span><span class="fst">"</span><span class="op">,</span> <span class="nam">err</span><span class="op">=</span><span class="key">True</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t113" href="#t113">113</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t114" href="#t114">114</a></span><span class="t">    <span class="com"># returned values are only used in unit tests</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t115" href="#t115">115</a></span><span class="t">    <span class="key">return</span> <span class="nam">is_valid</span><span class="op">,</span> <span class="nam">findings_df</span>&nbsp;</span><span class="r"></span></p>
@@ -210,7 +210,7 @@
             <a id="nextFileLink" class="nav" href="d_b772852a625afef9_create_schemas_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.4.4">coverage.py v7.4.4</a>,
-            created at 2024-04-10 21:07 +0000
+            created at 2024-04-11 00:22 +0000
         </p>
     </div>
 </footer>
