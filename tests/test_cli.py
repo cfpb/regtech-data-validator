@@ -114,7 +114,7 @@ class TestValidateCli:
 
         assert result.exit_code == 0
         assert result.stdout == ''
-        assert result.stderr == 'status: SUCCESS, findings: 0\n'
+        assert result.stderr == 'status: SUCCESS, findings: 0, validation phase: Logical\n'
 
     def test_pass_file_invalid_output_arg_value(self):
         result = cli_runner.invoke(cli.app, ['validate', pass_file, '--output', 'pdf'])
@@ -127,3 +127,4 @@ class TestValidateCli:
         assert result.exit_code == 0
         assert result.stdout != ''
         assert 'status: FAILURE, findings:' in result.stderr
+        assert 'validation phase: Syntactical' in result.stderr

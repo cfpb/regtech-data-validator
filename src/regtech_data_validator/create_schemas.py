@@ -9,6 +9,13 @@ from regtech_data_validator.checks import SBLCheck
 from regtech_data_validator.phase_validations import get_phase_1_and_2_validations_for_lei
 from regtech_data_validator.schema_template import get_template
 
+from enum import StrEnum
+
+
+class ValidationPhase(StrEnum):
+    SYNTACTICAL = "Syntactical"
+    LOGICAL = "Logical"
+
 
 # Get separate schema templates for phase 1 and 2
 phase_1_template = get_template()
@@ -177,6 +184,10 @@ def validate_phases(df: pd.DataFrame, context: dict[str, str] | None = None) -> 
     p1_is_valid, p1_findings = validate(get_phase_1_schema_for_lei(context), df)
 
     if not p1_is_valid:
-        return p1_is_valid, p1_findings
+        p1_findings.insert(1, "validation_phase", ValidationPhase.SYNTACTICAL.value, True)
+        return p1_is_valid, p1_findings, ValidationPhase.SYNTACTICAL.value
 
-    return validate(get_phase_2_schema_for_lei(context), df)
+    p2_is_valid, p2_findings = validate(get_phase_2_schema_for_lei(context), df)
+    if not p2_is_valid:
+        p2_findings.insert(1, "validation_phase", ValidationPhase.LOGICAL.value, True)
+    return p2_is_valid, p2_findings, ValidationPhase.LOGICAL.value

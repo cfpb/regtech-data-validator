@@ -86,7 +86,7 @@ def validate(
         input_df = pd.read_csv(path, dtype=str, na_filter=False)
     except Exception as e:
         raise RuntimeError(e)
-    is_valid, findings_df = validate_phases(input_df, context_dict)
+    is_valid, findings_df, validation_phase = validate_phases(input_df, context_dict)
 
     status = 'SUCCESS'
     no_of_findings = 0
@@ -109,7 +109,7 @@ def validate(
             case _:
                 raise ValueError(f'output format "{output}" not supported')
 
-    typer.echo(f"status: {status}, findings: {no_of_findings}", err=True)
+    typer.echo(f"status: {status}, findings: {no_of_findings}, validation phase: {validation_phase}", err=True)
 
     # returned values are only used in unit tests
     return is_valid, findings_df
