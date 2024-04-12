@@ -516,6 +516,11 @@ class TestIsGreaterThan:
         assert is_greater_than("", "2") is False
         assert is_greater_than(" ", "2") is False
 
+    def test_with_larger_numbers(self):
+        assert is_greater_than("715", "1200") is False
+        assert is_greater_than("1240", "1200") is True
+        assert is_greater_than("125.9", "130") is False
+
 
 class TestIsGreaterThanOrEqualTo:
     def test_with_greater_min_value(self):
@@ -535,6 +540,12 @@ class TestIsGreaterThanOrEqualTo:
         assert is_greater_than_or_equal_to("", "2") is False
         assert is_greater_than_or_equal_to(" ", "2") is False
 
+    def test_with_larger_numbers(self):
+        assert is_greater_than_or_equal_to("715", "1200") is False
+        assert is_greater_than_or_equal_to("1240", "1200") is True
+        assert is_greater_than_or_equal_to("1200", "1200") is True
+        assert is_greater_than_or_equal_to("125.9", "130") is False
+
 
 class TestIsLessThan:
     def test_with_greater_max_value(self):
@@ -553,6 +564,11 @@ class TestIsLessThan:
     def test_with_invalid_blank_space(self):
         assert is_less_than("", "1") is False
         assert is_less_than(" ", "1") is False
+
+    def test_with_larger_numbers(self):
+        assert is_less_than("715", "1200") is True
+        assert is_less_than("1240", "1200") is False
+        assert is_less_than("125.9", "130") is True
 
 
 class TestHasValidFormat:
