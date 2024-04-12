@@ -38,20 +38,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
     return {
         "uid": {
             "phase_1": [
-                SBLCheck(
-                    is_unique_column,
-                    id="E3000",
-                    fig_link=global_data.fig_base_url + "#4.3.1",
-                    name="uid.duplicates_in_dataset",
-                    description=dedent(
-                        """\
-                        * Any 'unique identifier' may **not** be used in more than one 
-                        record within a small business lending application register.
-                    """
-                    ),
-                    severity=Severity.ERROR,
-                    groupby="uid",
-                ),
                 SBLCheck.str_length(
                     21,
                     45,
@@ -84,6 +70,20 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                 ),
             ],
             "phase_2": [
+                SBLCheck(
+                    is_unique_column,
+                    id="E3000",
+                    fig_link=global_data.fig_base_url + "#4.3.1",
+                    name="uid.duplicates_in_dataset",
+                    description=dedent(
+                        """\
+                        * Any 'unique identifier' may **not** be used in more than one 
+                        record within a small business lending application register.
+                    """
+                    ),
+                    severity=Severity.ERROR,
+                    groupby="uid",
+                ),
                 SBLCheck(
                     string_contains,
                     id="W0003",
