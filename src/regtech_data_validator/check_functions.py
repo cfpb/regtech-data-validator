@@ -39,6 +39,21 @@ def _check_blank_(value: str, check_result: bool, accept_blank: bool = False) ->
         return check_result
 
 
+def comparison_helper(value: str, sign: str, limit: str, accept_blank: bool = False) -> bool:
+    """
+    Used to first check if blank values are acceptable and returns corresponding boolean result.
+    Then, if actual value exists, uses python eval() to convert string to numerical values
+    and then evals again to use the passed in sign to compare the value to the limit.  This
+    ensures accurate comparison checks.
+    """
+    if accept_blank and not value.strip():
+        return True
+    elif not accept_blank and not value.strip():
+        return False
+    else:
+        return (bool)(eval(f"eval(value) {sign} eval(limit)"))
+
+
 def begins_with_same_lei(ulis: pd.Series) -> bool:
     """Verifies that only a single LEI prefixes the list of ULIs.
 
@@ -452,51 +467,15 @@ def is_valid_code(ct_value: str, accept_blank: bool = False, codes: dict = {}) -
 
 
 def is_greater_than_or_equal_to(value: str, min_value: str, accept_blank: bool = False) -> bool:
-    """
-    check if value is greater or equal to min_value or blank
-    If blank value check is not needed, use built-in 'greater_than_or_equal_to'
-
-    Args:
-        value (str): parsed value
-        min_value(str): minimum value
-        accept_blank (bool): accept blank value
-    Returns:
-        bool: true if blank or value is greater than or equal to min value
-    """
-    check_result = value >= min_value
-    return _check_blank_(value, check_result, accept_blank)
+    return comparison_helper(value, ">=", min_value, accept_blank)
 
 
 def is_greater_than(value: str, min_value: str, accept_blank: bool = False) -> bool:
-    """
-    check if value is greater than min_value or blank
-    If blank value check is not needed, use built-in 'greater_than'
-
-    Args:
-        value (str): parsed value
-        min_value(str): minimum value
-        accept_blank (bool): accept blank value
-    Returns:
-        bool: true if blank or value is greater than min value
-    """
-    check_result = value > min_value
-    return _check_blank_(value, check_result, accept_blank)
+    return comparison_helper(value, ">", min_value, accept_blank)
 
 
 def is_less_than(value: str, max_value: str, accept_blank: bool = False) -> bool:
-    """
-    check if value is less than max_value or blank
-    If blank value check is not needed, use built-in 'less_than'
-
-    Args:
-        value (str): parsed value
-        max_value(str): maximum value
-        accept_blank (bool): accept blank value
-    Returns:
-        bool: true if blank or value is less than max
-    """
-    check_result = value < max_value
-    return _check_blank_(value, check_result, accept_blank)
+    return comparison_helper(value, "<", max_value, accept_blank)
 
 
 def has_valid_format(value: str, regex: str, accept_blank: bool = False) -> bool:
