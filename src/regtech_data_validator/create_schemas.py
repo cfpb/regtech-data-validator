@@ -11,8 +11,6 @@ from regtech_data_validator.schema_template import get_template
 
 from enum import StrEnum
 
-from collections import OrderedDict
-
 
 class ValidationPhase(StrEnum):
     SYNTACTICAL = "Syntactical"
@@ -51,7 +49,7 @@ def _get_check_fields(check: Check, primary_column: str) -> list[str]:
     if check.groupby:
         field_list += check.groupby
     # remove possible dupes but maintain order
-    field_list = list(OrderedDict.fromkeys(field_list))
+    field_list = list(dict.fromkeys(field_list))
     return field_list
 
 
