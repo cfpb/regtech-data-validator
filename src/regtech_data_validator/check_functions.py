@@ -16,6 +16,7 @@ from datetime import datetime, timedelta
 from typing import Dict
 
 import pandas as pd
+import operator
 
 
 def _check_blank_(value: str, check_result: bool, accept_blank: bool = False) -> bool:
@@ -39,19 +40,12 @@ def _check_blank_(value: str, check_result: bool, accept_blank: bool = False) ->
         return check_result
 
 
-def comparison_helper(value: str, sign: str, limit: str, accept_blank: bool = False) -> bool:
-    """
-    Used to first check if blank values are acceptable and returns corresponding boolean result.
-    Then, if actual value exists, uses python eval() to convert string to numerical values
-    and then evals again to use the passed in sign to compare the value to the limit.  This
-    ensures accurate comparison checks.
-    """
-    if accept_blank and not value.strip():
-        return True
-    elif not accept_blank and not value.strip():
+def comparison_helper(value: str, limit: str, accept_blank: bool, operand) -> bool:
+    if not value.strip() and not accept_blank:
         return False
-    else:
-        return (bool)(eval(f"eval(value) {sign} eval(limit)"))
+    elif not value.strip() and accept_blank:
+        return True
+    return operand(float(value), float(limit))
 
 
 def begins_with_same_lei(ulis: pd.Series) -> bool:
@@ -467,15 +461,15 @@ def is_valid_code(ct_value: str, accept_blank: bool = False, codes: dict = {}) -
 
 
 def is_greater_than_or_equal_to(value: str, min_value: str, accept_blank: bool = False) -> bool:
-    return comparison_helper(value, ">=", min_value, accept_blank)
+    return comparison_helper(value, min_value, accept_blank, operator.ge)
 
 
 def is_greater_than(value: str, min_value: str, accept_blank: bool = False) -> bool:
-    return comparison_helper(value, ">", min_value, accept_blank)
+    return comparison_helper(value, min_value, accept_blank, operator.gt)
 
 
 def is_less_than(value: str, max_value: str, accept_blank: bool = False) -> bool:
-    return comparison_helper(value, "<", max_value, accept_blank)
+    return comparison_helper(value, max_value, accept_blank, operator.lt)
 
 
 def has_valid_format(value: str, regex: str, accept_blank: bool = False) -> bool:
