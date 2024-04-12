@@ -11,6 +11,8 @@ from regtech_data_validator.schema_template import get_template
 
 from enum import StrEnum
 
+from collections import OrderedDict
+
 
 class ValidationPhase(StrEnum):
     SYNTACTICAL = "Syntactical"
@@ -40,17 +42,17 @@ def get_phase_2_schema_for_lei(context: dict[str, str] | None = None):
 
 def _get_check_fields(check: Check, primary_column: str) -> list[str]:
     """
-    Retrieves unique sorted list of fields associated with a given Check
+    Don't sort field list to maintain original ordering.  Use List as
+    python Set does not guarantee order.
     """
 
-    field_set: set[str] = {primary_column}
+    field_list = [primary_column]
 
     if check.groupby:
-        field_set.update(check.groupby)  # type: ignore
-
-    fields = sorted(list(field_set))
-
-    return fields
+        field_list += check.groupby
+    # remove possible dupes but maintain order
+    field_list = list(OrderedDict.fromkeys(field_list))
+    return field_list
 
 
 def _filter_valid_records(df: pd.DataFrame, check_output: pd.Series, fields: list[str]) -> pd.DataFrame:
@@ -163,7 +165,7 @@ def validate(schema: DataFrameSchema, submission_df: pd.DataFrame) -> tuple[bool
                 # The above exception handling _should_ prevent this from ever happenin, but...just in case.
                 raise RuntimeError(f'No check output for "{check.name}" check.  Pandera SchemaError: {schema_error}')
 
-    updated_df = add_uid(findings_df.sort_index(), submission_df)
+    updated_df = add_uid(findings_df, submission_df)
 
     return is_valid, updated_df
 

@@ -23,7 +23,7 @@ def df_to_download(df: pd.DataFrame) -> str:
                 row_data.append(f"\"{v_head['validation_desc']}\"")
 
                 current_count = 0
-                for field_name, field_df in rec_df.groupby(by='field_name'):
+                for field_name, field_df in rec_df.groupby(by='field_name', sort=False):
                     field_data = field_df.iloc[0]
                     row_data.append(field_name)
                     row_data.append(field_data['field_value'])
@@ -97,7 +97,7 @@ def df_to_json(df: pd.DataFrame) -> str:
             record_json = {'record_no': int(rec_idx), 'uid': rec['uid'], 'fields': []}
             finding_json['records'].append(record_json)
 
-            for field_idx, field_df in rec_df.groupby(by='field_name'):
+            for field_idx, field_df in rec_df.groupby(by='field_name', sort=False):
                 field_head = field_df.iloc[0]
                 record_json['fields'].append({'name': field_idx, 'value': field_head.at['field_value']})
     json_str = json.dumps(findings_json, indent=4)
