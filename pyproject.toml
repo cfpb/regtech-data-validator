@@ -12,7 +12,7 @@ packages = [{ include = "regtech_data_validator", from = "src" }]
 
 [tool.poetry.dependencies]
 python = ">=3.12,<4"
-pandas = "^2.2.1"
+pandas = "^2.2.2"
 pandera = "^0.18.3"
 requests = "^2.31.0"
 tabulate = "^0.9.0"
@@ -32,7 +32,7 @@ ruff = "0.3.5"
 
 
 [tool.poetry.group.cli.dependencies]
-typer = "^0.12.1"
+typer = "^0.12.3"
 
 [tool.poetry.scripts]
 cfpb-val = 'regtech_data_validator.cli:app'
