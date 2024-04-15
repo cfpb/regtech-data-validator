@@ -127,7 +127,6 @@ class TestOutputFormat:
         actual_output = df_to_json(self.input_df)
 
         assert actual_output == expected_output
-        
 
     def test_download_csv(self):
         expected_output = dedent(
