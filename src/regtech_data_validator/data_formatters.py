@@ -3,6 +3,8 @@ import pandas as pd
 
 from tabulate import tabulate
 
+more_than_2_fields = ["E2014", "E2015", "W2035", "W2036", "W2037", "W2038", "W2039"]
+
 
 def df_to_download(df: pd.DataFrame) -> str:
     highest_field_count = 0
@@ -23,7 +25,12 @@ def df_to_download(df: pd.DataFrame) -> str:
                 row_data.append(f"\"{v_head['validation_desc']}\"")
 
                 current_count = 0
-                for field_name, field_df in rec_df.groupby(by='field_name', sort=False):
+                fields = (
+                    rec_df.groupby(by='field_name', sort=False)
+                    if v_id in more_than_2_fields
+                    else reversed(tuple(rec_df.groupby(by='field_name', sort=False)))
+                )
+                for field_name, field_df in fields:
                     field_data = field_df.iloc[0]
                     row_data.append(field_name)
                     row_data.append(field_data['field_value'])
@@ -87,6 +94,7 @@ def df_to_json(df: pd.DataFrame) -> str:
                 'name': v_head.at['validation_name'],
                 'description': v_head.at['validation_desc'],
                 'severity': v_head.at['validation_severity'],
+                'scope': v_head.at['scope'],
             },
             'records': [],
         }
@@ -97,7 +105,12 @@ def df_to_json(df: pd.DataFrame) -> str:
             record_json = {'record_no': int(rec_idx), 'uid': rec['uid'], 'fields': []}
             finding_json['records'].append(record_json)
 
-            for field_idx, field_df in rec_df.groupby(by='field_name', sort=False):
+            fields = (
+                rec_df.groupby(by='field_name', sort=False)
+                if v_id_idx in more_than_2_fields
+                else reversed(tuple(rec_df.groupby(by='field_name', sort=False)))
+            )
+            for field_idx, field_df in fields:
                 field_head = field_df.iloc[0]
                 record_json['fields'].append({'name': field_idx, 'value': field_head.at['field_value']})
     json_str = json.dumps(findings_json, indent=4)
