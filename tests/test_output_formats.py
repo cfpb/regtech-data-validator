@@ -144,3 +144,7 @@ class TestOutputFormat:
         ).strip('\n')
         actual_output = df_to_download(pd.DataFrame())
         assert actual_output == expected_output
+
+    def test_empty_json(self):
+        actual_output = df_to_json(pd.DataFrame())
+        assert actual_output == "[]"
