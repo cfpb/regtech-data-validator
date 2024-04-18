@@ -95,6 +95,7 @@ def df_to_json(df: pd.DataFrame) -> str:
                 'description': v_head.at['validation_desc'],
                 'severity': v_head.at['validation_severity'],
                 'scope': v_head.at['scope'],
+                'fig_link': v_head['fig_link'],
             },
             'records': [],
         }

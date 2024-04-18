@@ -95,7 +95,8 @@ class TestOutputFormat:
                             "name": "uid.duplicates_in_dataset",
                             "description": "Any 'unique identifier' may not be used in mor...",
                             "severity": "Error",
-                            "scope": "register"
+                            "scope": "register",
+                            "fig_link": "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1"
                         },
                         "records": [
                             {
