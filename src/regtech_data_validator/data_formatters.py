@@ -116,6 +116,6 @@ def df_to_json(df: pd.DataFrame) -> str:
                 for field_idx, field_df in fields:
                     field_head = field_df.iloc[0]
                     record_json['fields'].append({'name': field_idx, 'value': field_head.at['field_value']})
-        json_str = json.dumps(findings_json, indent=4)
+    json_str = json.dumps(findings_json, indent=4)
 
-        return json_str
+    return json_str
