@@ -83,37 +83,39 @@ def df_to_table(df: pd.DataFrame) -> str:
 
 def df_to_json(df: pd.DataFrame) -> str:
     findings_json = []
-    findings_by_v_id_df = df.reset_index().set_index(['validation_id', 'record_no', 'field_name'])
 
-    for v_id_idx, v_id_df in findings_by_v_id_df.groupby(by='validation_id'):
-        v_head = v_id_df.iloc[0]
+    if not df.empty:
+        findings_by_v_id_df = df.reset_index().set_index(['validation_id', 'record_no', 'field_name'])
 
-        finding_json = {
-            'validation': {
-                'id': v_id_idx,
-                'name': v_head.at['validation_name'],
-                'description': v_head.at['validation_desc'],
-                'severity': v_head.at['validation_severity'],
-                'scope': v_head.at['scope'],
-                'fig_link': v_head['fig_link'],
-            },
-            'records': [],
-        }
-        findings_json.append(finding_json)
+        for v_id_idx, v_id_df in findings_by_v_id_df.groupby(by='validation_id'):
+            v_head = v_id_df.iloc[0]
 
-        for rec_idx, rec_df in v_id_df.groupby(by='record_no'):
-            rec = rec_df.iloc[0]
-            record_json = {'record_no': int(rec_idx), 'uid': rec['uid'], 'fields': []}
-            finding_json['records'].append(record_json)
+            finding_json = {
+                'validation': {
+                    'id': v_id_idx,
+                    'name': v_head.at['validation_name'],
+                    'description': v_head.at['validation_desc'],
+                    'severity': v_head.at['validation_severity'],
+                    'scope': v_head.at['scope'],
+                    'fig_link': v_head['fig_link'],
+                },
+                'records': [],
+            }
+            findings_json.append(finding_json)
 
-            fields = (
-                rec_df.groupby(by='field_name', sort=False)
-                if v_id_idx in more_than_2_fields
-                else reversed(tuple(rec_df.groupby(by='field_name', sort=False)))
-            )
-            for field_idx, field_df in fields:
-                field_head = field_df.iloc[0]
-                record_json['fields'].append({'name': field_idx, 'value': field_head.at['field_value']})
-    json_str = json.dumps(findings_json, indent=4)
+            for rec_idx, rec_df in v_id_df.groupby(by='record_no'):
+                rec = rec_df.iloc[0]
+                record_json = {'record_no': int(rec_idx), 'uid': rec['uid'], 'fields': []}
+                finding_json['records'].append(record_json)
 
-    return json_str
+                fields = (
+                    rec_df.groupby(by='field_name', sort=False)
+                    if v_id_idx in more_than_2_fields
+                    else reversed(tuple(rec_df.groupby(by='field_name', sort=False)))
+                )
+                for field_idx, field_df in fields:
+                    field_head = field_df.iloc[0]
+                    record_json['fields'].append({'name': field_idx, 'value': field_head.at['field_value']})
+        json_str = json.dumps(findings_json, indent=4)
+
+        return json_str
