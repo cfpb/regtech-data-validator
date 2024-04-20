@@ -10,6 +10,7 @@ def df_to_download(df: pd.DataFrame) -> str:
     highest_field_count = 0
     full_csv = []
     if not df.empty:
+        '''
         findings_group = df.reset_index().set_index(['validation_id', 'record_no', 'field_name'])
         for v_id, v_id_df in findings_group.groupby(by='validation_id'):
             v_head = v_id_df.iloc[0]
@@ -37,6 +38,30 @@ def df_to_download(df: pd.DataFrame) -> str:
                     current_count += 1
                 full_csv.append(",".join(row_data))
             highest_field_count = current_count if current_count > highest_field_count else highest_field_count
+        '''
+
+        for _, group_df in df.groupby(['validation_id', 'record_no']):
+            v_head = group_df.iloc[0]
+            row_data = [v_head['validation_severity'],
+                        v_head['validation_id'],
+                        v_head['validation_name'],
+                        str(v_head['record_no'] + 1),
+                        v_head['uid'],
+                        v_head['fig_link'],
+                        f"\"{v_head['validation_desc']}\""
+            ]
+            current_count = 0
+            fields = (
+                    group_df.iterrows()
+                    if v_head['validation_id'] in more_than_2_fields
+                    else group_df[::-1].iterrows())
+            for _, field_data in fields:
+                row_data.extend([field_data['field_name'], field_data['field_value']])
+                current_count += 1
+            
+            full_csv.append(",".join(row_data))
+            highest_field_count = current_count if current_count > highest_field_count else highest_field_count
+                              
 
     field_headers = []
     for i in range(highest_field_count):
