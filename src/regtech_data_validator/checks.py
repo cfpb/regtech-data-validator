@@ -33,6 +33,7 @@ class SBLCheck(Check):
         description: str,
         severity: Severity,
         fig_link: str,
+        scope: str,
         **check_kwargs
     ):
         """
@@ -48,6 +49,7 @@ class SBLCheck(Check):
 
         self.severity = severity
         self.fig_link = fig_link
+        self.scope = scope
 
         super().__init__(check_fn, title=id, name=name, description=description, **check_kwargs)
 

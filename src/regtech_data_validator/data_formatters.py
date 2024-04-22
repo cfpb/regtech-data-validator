@@ -3,32 +3,32 @@ import pandas as pd
 
 from tabulate import tabulate
 
+more_than_2_fields = ["E2014", "E2015", "W2035", "W2036", "W2037", "W2038", "W2039"]
+
 
 def df_to_download(df: pd.DataFrame) -> str:
     highest_field_count = 0
     full_csv = []
     if not df.empty:
-        findings_group = df.reset_index().set_index(['validation_id', 'record_no', 'field_name'])
-        for v_id, v_id_df in findings_group.groupby(by='validation_id'):
-            v_head = v_id_df.iloc[0]
-            for record_no, rec_df in v_id_df.groupby(by='record_no'):
-                row_data = []
-                rec = rec_df.iloc[0]
-                row_data.append(v_head['validation_severity'])
-                row_data.append(v_id)
-                row_data.append(v_head['validation_name'])
-                row_data.append(str(record_no))
-                row_data.append(rec['uid'])
-                row_data.append(v_head['fig_link'])
-                row_data.append(f"\"{v_head['validation_desc']}\"")
 
-                current_count = 0
-                for field_name, field_df in rec_df.groupby(by='field_name', sort=False):
-                    field_data = field_df.iloc[0]
-                    row_data.append(field_name)
-                    row_data.append(field_data['field_value'])
-                    current_count += 1
-                full_csv.append(",".join(row_data))
+        for _, group_df in df.groupby(['validation_id', 'record_no']):
+            v_head = group_df.iloc[0]
+            row_data = [
+                v_head['validation_severity'],
+                v_head['validation_id'],
+                v_head['validation_name'],
+                str(v_head['record_no'] + 1),
+                v_head['uid'],
+                v_head['fig_link'],
+                f"\"{v_head['validation_desc']}\"",
+            ]
+            current_count = 0
+            fields = group_df.iterrows() if v_head['validation_id'] in more_than_2_fields else group_df[::-1].iterrows()
+            for _, field_data in fields:
+                row_data.extend([field_data['field_name'], field_data['field_value']])
+                current_count += 1
+
+            full_csv.append(",".join(row_data))
             highest_field_count = current_count if current_count > highest_field_count else highest_field_count
 
     field_headers = []
@@ -76,30 +76,31 @@ def df_to_table(df: pd.DataFrame) -> str:
 
 def df_to_json(df: pd.DataFrame) -> str:
     findings_json = []
-    findings_by_v_id_df = df.reset_index().set_index(['validation_id', 'record_no', 'field_name'])
 
-    for v_id_idx, v_id_df in findings_by_v_id_df.groupby(by='validation_id'):
-        v_head = v_id_df.iloc[0]
+    if not df.empty:
 
-        finding_json = {
-            'validation': {
-                'id': v_id_idx,
-                'name': v_head.at['validation_name'],
-                'description': v_head.at['validation_desc'],
-                'severity': v_head.at['validation_severity'],
-            },
-            'records': [],
-        }
-        findings_json.append(finding_json)
+        for _, group_df in df.groupby(['validation_id']):
+            v_head = group_df.iloc[0]
 
-        for rec_idx, rec_df in v_id_df.groupby(by='record_no'):
-            rec = rec_df.iloc[0]
-            record_json = {'record_no': int(rec_idx), 'uid': rec['uid'], 'fields': []}
-            finding_json['records'].append(record_json)
+            finding_json = {
+                'validation': {
+                    'id': v_head['validation_id'],
+                    'name': v_head['validation_name'],
+                    'description': v_head['validation_desc'],
+                    'severity': v_head['validation_severity'],
+                    'scope': v_head['scope'],
+                    'fig_link': v_head['fig_link'],
+                },
+                'records': [],
+            }
+            findings_json.append(finding_json)
 
-            for field_idx, field_df in rec_df.groupby(by='field_name', sort=False):
-                field_head = field_df.iloc[0]
-                record_json['fields'].append({'name': field_idx, 'value': field_head.at['field_value']})
-    json_str = json.dumps(findings_json, indent=4)
+            for _, rec_df in group_df.groupby(by='record_no'):
+                rec = rec_df.iloc[0]
+                record_json = {'record_no': int(rec['record_no']), 'uid': rec['uid'], 'fields': []}
+                finding_json['records'].append(record_json)
 
-    return json_str
+                fields = rec_df.iterrows() if v_head['validation_id'] in more_than_2_fields else rec_df[::-1].iterrows()
+                for _, field_data in fields:
+                    record_json['fields'].append({'name': field_data['field_name'], 'value': field_data['field_value']})
+    return json.dumps(findings_json, indent=4)
