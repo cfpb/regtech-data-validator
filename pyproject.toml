@@ -28,7 +28,7 @@ openpyxl = "^3.1.2"
 
 [tool.poetry.group.linters.dependencies]
 black = "24.4.0"
-ruff = "0.3.7"
+ruff = "0.4.1"
 
 
 [tool.poetry.group.cli.dependencies]
