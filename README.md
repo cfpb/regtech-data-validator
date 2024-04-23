@@ -5,14 +5,14 @@
 | Name                                               |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
 |--------------------------------------------------- | -------: | -------: | -------: | -------: | ------: | --------: |
 | src/regtech\_data\_validator/check\_functions.py   |      188 |       14 |       82 |        0 |     91% |63-67, 119-129, 283-284, 305-306, 428-429 |
-| src/regtech\_data\_validator/checks.py             |       16 |        0 |        2 |        0 |    100% |           |
+| src/regtech\_data\_validator/checks.py             |       17 |        0 |        2 |        0 |    100% |           |
 | src/regtech\_data\_validator/cli.py                |       60 |        5 |       22 |        2 |     91% |87-88, 109-110, 119 |
-| src/regtech\_data\_validator/create\_schemas.py    |       88 |        3 |       22 |        3 |     95% |139, 144, 164 |
-| src/regtech\_data\_validator/data\_formatters.py   |       60 |        0 |       18 |        0 |    100% |           |
+| src/regtech\_data\_validator/create\_schemas.py    |       88 |        3 |       22 |        3 |     95% |140, 145, 165 |
+| src/regtech\_data\_validator/data\_formatters.py   |       49 |        0 |       18 |        1 |     99% |   80->106 |
 | src/regtech\_data\_validator/global\_data.py       |       13 |        0 |        8 |        0 |    100% |           |
 | src/regtech\_data\_validator/phase\_validations.py |        7 |        0 |        0 |        0 |    100% |           |
 | src/regtech\_data\_validator/schema\_template.py   |        6 |        0 |        0 |        0 |    100% |           |
-|                                          **TOTAL** |  **438** |   **22** |  **154** |    **5** | **94%** |           |
+|                                          **TOTAL** |  **428** |   **22** |  **154** |    **6** | **93%** |           |
 
 3 empty files skipped.
 
