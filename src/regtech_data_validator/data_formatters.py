@@ -1,3 +1,4 @@
+import csv
 import json
 import pandas as pd
 
@@ -7,37 +8,65 @@ more_than_2_fields = ["E2014", "E2015", "W2035", "W2036", "W2037", "W2038", "W20
 
 
 def df_to_download(df: pd.DataFrame) -> str:
-    highest_field_count = 0
-    full_csv = []
-    if not df.empty:
+    if df.empty:
+        # return headers of csv for 'emtpy' report
+        return "validation_type,validation_id,validation_name,row,unique_identifier,fig_link,validation_description"
+    else:
+        df.reset_index(drop=True, inplace=True)
+        df = df.drop(["scope"], axis=1)
 
-        for _, group_df in df.groupby(['validation_id', 'record_no']):
-            v_head = group_df.iloc[0]
-            row_data = [
-                v_head['validation_severity'],
-                v_head['validation_id'],
-                v_head['validation_name'],
-                str(v_head['record_no'] + 1),
-                v_head['uid'],
-                v_head['fig_link'],
-                f"\"{v_head['validation_desc']}\"",
-            ]
-            current_count = 0
-            fields = group_df.iterrows() if v_head['validation_id'] in more_than_2_fields else group_df[::-1].iterrows()
-            for _, field_data in fields:
-                row_data.extend([field_data['field_name'], field_data['field_value']])
-                current_count += 1
+        df['field_number'] = (
+            df.groupby(
+                [
+                    "validation_severity",
+                    "validation_id",
+                    "validation_name",
+                    "record_no",
+                    "uid",
+                    "fig_link",
+                    "validation_desc",
+                ]
+            ).cumcount()
+            + 1
+        )
+        df_pivot = df.pivot_table(
+            index=[
+                "validation_severity",
+                "validation_id",
+                "validation_name",
+                "record_no",
+                "uid",
+                "fig_link",
+                "validation_desc",
+            ],
+            columns="field_number",
+            values=["field_name", "field_value"],
+            aggfunc="first",
+        ).reset_index()
 
-            full_csv.append(",".join(row_data))
-            highest_field_count = current_count if current_count > highest_field_count else highest_field_count
+        df_pivot.columns = [f"{col[0]}_{col[1]}" if col[1] else col[0] for col in df_pivot.columns]
 
-    field_headers = []
-    for i in range(highest_field_count):
-        field_headers.append(f"field_{i+1}")
-        field_headers.append(f"value_{i+1}")
-    full_csv.insert(
-        0,
-        ",".join(
+        df_pivot.rename(
+            columns={f"field_name_{i}": f"field_{i}" for i in range(1, len(df_pivot.columns) // 2 + 1)}, inplace=True
+        )
+        df_pivot.rename(
+            columns={f"field_value_{i}": f"value_{i}" for i in range(1, len(df_pivot.columns) // 2 + 1)}, inplace=True
+        )
+        df_pivot.rename(
+            columns={
+                "record_no": "row",
+                "validation_severity": "validation_type",
+                "uid": "unique_identifier",
+                "validation_desc": "validation_description",
+            },
+            inplace=True,
+        )
+
+        field_columns = [col for col in df_pivot.columns if col.startswith('field_')]
+        value_columns = [col for col in df_pivot.columns if col.startswith('value_')]
+        sorted_columns = [col for pair in zip(field_columns, value_columns) for col in pair]
+
+        df_pivot = df_pivot[
             [
                 "validation_type",
                 "validation_id",
@@ -47,12 +76,12 @@ def df_to_download(df: pd.DataFrame) -> str:
                 "fig_link",
                 "validation_description",
             ]
-            + field_headers
-        ),
-    )
-    csv_string = "\n".join(full_csv)
+            + sorted_columns
+        ]
 
-    return csv_string
+        df_pivot['row'] += 1
+
+        return df_pivot.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC)
 
 
 def df_to_str(df: pd.DataFrame) -> str:
