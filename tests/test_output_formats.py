@@ -13,6 +13,7 @@ class TestOutputFormat:
                 'record_no': 1,
                 'uid': '12345678901234567890',
                 'fig_link': 'https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1',
+                "scope": "register",
                 'field_name': 'uid',
                 'field_value': '12345678901234567890',
                 'validation_severity': Severity.ERROR.value,
@@ -24,6 +25,7 @@ class TestOutputFormat:
                 'record_no': 2,
                 'uid': '12345678901234567890',
                 'fig_link': 'https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1',
+                "scope": "register",
                 'field_name': 'uid',
                 'field_value': '12345678901234567890',
                 'validation_severity': Severity.ERROR.value,
@@ -39,28 +41,29 @@ class TestOutputFormat:
     def test_output_pandas(self):
         expected_output = dedent(
             """
-                        record_no                   uid                                           fig_link field_name           field_value validation_severity validation_id            validation_name                                    validation_desc
-            finding_no                                                                                                                                                                                                                                     
-            1                   1  12345678901234567890  https://www.consumerfinance.gov/data-research/...        uid  12345678901234567890               Error         E3000  uid.duplicates_in_dataset  Any 'unique identifier' may not be used in mor...
-            2                   2  12345678901234567890  https://www.consumerfinance.gov/data-research/...        uid  12345678901234567890               Error         E3000  uid.duplicates_in_dataset  Any 'unique identifier' may not be used in mor...
+                        record_no                   uid                                           fig_link     scope field_name           field_value validation_severity validation_id            validation_name                                    validation_desc
+            finding_no                                                                                                                                                                                                                                               
+            1                   1  12345678901234567890  https://www.consumerfinance.gov/data-research/...  register        uid  12345678901234567890               Error         E3000  uid.duplicates_in_dataset  Any 'unique identifier' may not be used in mor...
+            2                   2  12345678901234567890  https://www.consumerfinance.gov/data-research/...  register        uid  12345678901234567890               Error         E3000  uid.duplicates_in_dataset  Any 'unique identifier' may not be used in mor...
             """
         ).strip(
             '\n'
         )  # noqa: E501
 
         actual_output = df_to_str(self.input_df)
+        print(f"{actual_output}")
         assert actual_output == expected_output
 
     def test_output_table(self):
         expected_output = dedent(
             """
-            ╭──────────────┬─────────────┬──────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┬──────────────┬──────────────────────┬───────────────────────┬─────────────────┬───────────────────────────╮
-            │   finding_no │   record_no │                  uid │ fig_link                                                                                                         │ field_name   │          field_value │ validation_severity   │ validation_id   │ validation_name           │
-            ├──────────────┼─────────────┼──────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼──────────────┼──────────────────────┼───────────────────────┼─────────────────┼───────────────────────────┤
-            │            1 │           1 │ 12345678901234567890 │ https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1 │ uid          │ 12345678901234567890 │ Error                 │ E3000           │ uid.duplicates_in_dataset │
-            │            2 │           2 │ 12345678901234567890 │ https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1 │ uid          │ 12345678901234567890 │ Error                 │ E3000           │ uid.duplicates_in_dataset │
-            ╰──────────────┴─────────────┴──────────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┴──────────────┴──────────────────────┴───────────────────────┴─────────────────┴───────────────────────────╯
-        """
+            ╭──────────────┬─────────────┬──────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┬──────────┬──────────────┬──────────────────────┬───────────────────────┬─────────────────┬───────────────────────────╮
+            │   finding_no │   record_no │                  uid │ fig_link                                                                                                         │ scope    │ field_name   │          field_value │ validation_severity   │ validation_id   │ validation_name           │
+            ├──────────────┼─────────────┼──────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼──────────┼──────────────┼──────────────────────┼───────────────────────┼─────────────────┼───────────────────────────┤
+            │            1 │           1 │ 12345678901234567890 │ https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1 │ register │ uid          │ 12345678901234567890 │ Error                 │ E3000           │ uid.duplicates_in_dataset │
+            │            2 │           2 │ 12345678901234567890 │ https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1 │ register │ uid          │ 12345678901234567890 │ Error                 │ E3000           │ uid.duplicates_in_dataset │
+            ╰──────────────┴─────────────┴──────────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────┴──────────┴──────────────┴──────────────────────┴───────────────────────┴─────────────────┴───────────────────────────╯
+            """
         ).strip(
             '\n'
         )  # noqa: E501
@@ -71,16 +74,15 @@ class TestOutputFormat:
     def test_output_csv(self):
         expected_output = dedent(
             """
-            finding_no,record_no,uid,fig_link,field_name,field_value,validation_severity,validation_id,validation_name,validation_desc
-            1,1,12345678901234567890,https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1,uid,12345678901234567890,Error,E3000,uid.duplicates_in_dataset,Any 'unique identifier' may not be used in mor...
-            2,2,12345678901234567890,https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1,uid,12345678901234567890,Error,E3000,uid.duplicates_in_dataset,Any 'unique identifier' may not be used in mor...
-        """
+            finding_no,record_no,uid,fig_link,scope,field_name,field_value,validation_severity,validation_id,validation_name,validation_desc
+            1,1,12345678901234567890,https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1,register,uid,12345678901234567890,Error,E3000,uid.duplicates_in_dataset,Any 'unique identifier' may not be used in mor...
+            2,2,12345678901234567890,https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1,register,uid,12345678901234567890,Error,E3000,uid.duplicates_in_dataset,Any 'unique identifier' may not be used in mor...
+            """
         ).strip(
             '\n'
         )  # noqa: E501
 
         actual_output = df_to_csv(self.input_df)
-
         assert actual_output.strip('\n') == expected_output
 
     def test_output_json(self):
@@ -92,7 +94,9 @@ class TestOutputFormat:
                             "id": "E3000",
                             "name": "uid.duplicates_in_dataset",
                             "description": "Any 'unique identifier' may not be used in mor...",
-                            "severity": "Error"
+                            "severity": "Error",
+                            "scope": "register",
+                            "fig_link": "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1"
                         },
                         "records": [
                             {
@@ -129,8 +133,8 @@ class TestOutputFormat:
         expected_output = dedent(
             """
             validation_type,validation_id,validation_name,row,unique_identifier,fig_link,validation_description,field_1,value_1
-            Error,E3000,uid.duplicates_in_dataset,1,12345678901234567890,https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1,"Any 'unique identifier' may not be used in mor...",uid,12345678901234567890
             Error,E3000,uid.duplicates_in_dataset,2,12345678901234567890,https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1,"Any 'unique identifier' may not be used in mor...",uid,12345678901234567890
+            Error,E3000,uid.duplicates_in_dataset,3,12345678901234567890,https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1,"Any 'unique identifier' may not be used in mor...",uid,12345678901234567890
             """
         ).strip('\n')
         actual_output = df_to_download(self.input_df)
