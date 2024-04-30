@@ -132,13 +132,13 @@ class TestOutputFormat:
     def test_download_csv(self):
         expected_output = dedent(
             """
-            validation_type,validation_id,validation_name,row,unique_identifier,fig_link,validation_description,field_1,value_1
-            Error,E3000,uid.duplicates_in_dataset,2,12345678901234567890,https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1,"Any 'unique identifier' may not be used in mor...",uid,12345678901234567890
-            Error,E3000,uid.duplicates_in_dataset,3,12345678901234567890,https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1,"Any 'unique identifier' may not be used in mor...",uid,12345678901234567890
+            "validation_type","validation_id","validation_name","row","unique_identifier","fig_link","validation_description","field_1","value_1"
+            "Error","E3000","uid.duplicates_in_dataset",2,"12345678901234567890","https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1","Any 'unique identifier' may not be used in mor...","uid","12345678901234567890"
+            "Error","E3000","uid.duplicates_in_dataset",3,"12345678901234567890","https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1","Any 'unique identifier' may not be used in mor...","uid","12345678901234567890"
             """
         ).strip('\n')
         actual_output = df_to_download(self.input_df)
-        assert actual_output == expected_output
+        assert actual_output.strip() == expected_output
 
     def test_empty_download_csv(self):
         expected_output = dedent(

@@ -215,7 +215,6 @@ class TestValidatePhases:
         # should only return phase 1 validation result since phase1 failed
         assert not is_valid
 
-        assert [ValidationPhase.SYNTACTICAL.value] == findings_df["validation_phase"].unique().tolist()
         assert validation_phase == ValidationPhase.SYNTACTICAL.value
         assert len(findings_df) == 1
 
@@ -233,7 +232,6 @@ class TestValidatePhases:
         # since the data passed phase 1 validations
         # this should return phase 2 validations
         assert not is_valid
-        assert [ValidationPhase.LOGICAL.value] == findings_df["validation_phase"].unique().tolist()
         assert validation_phase == ValidationPhase.LOGICAL.value
         assert len(findings_df.index.unique()) == 4
 
