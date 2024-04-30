@@ -7,12 +7,12 @@
 | src/regtech\_data\_validator/check\_functions.py   |      188 |       14 |       82 |        0 |     91% |63-67, 119-129, 283-284, 305-306, 428-429 |
 | src/regtech\_data\_validator/checks.py             |       17 |        0 |        2 |        0 |    100% |           |
 | src/regtech\_data\_validator/cli.py                |       60 |        5 |       22 |        2 |     91% |87-88, 109-110, 119 |
-| src/regtech\_data\_validator/create\_schemas.py    |       88 |        3 |       22 |        3 |     95% |140, 145, 165 |
-| src/regtech\_data\_validator/data\_formatters.py   |       49 |        0 |       18 |        1 |     99% |   80->106 |
+| src/regtech\_data\_validator/create\_schemas.py    |       85 |        3 |       20 |        3 |     94% |140, 145, 165 |
+| src/regtech\_data\_validator/data\_formatters.py   |       46 |        0 |       12 |        1 |     98% |  109->135 |
 | src/regtech\_data\_validator/global\_data.py       |       13 |        0 |        8 |        0 |    100% |           |
 | src/regtech\_data\_validator/phase\_validations.py |        7 |        0 |        0 |        0 |    100% |           |
 | src/regtech\_data\_validator/schema\_template.py   |        6 |        0 |        0 |        0 |    100% |           |
-|                                          **TOTAL** |  **428** |   **22** |  **154** |    **6** | **93%** |           |
+|                                          **TOTAL** |  **422** |   **22** |  **146** |    **6** | **93%** |           |
 
 3 empty files skipped.
 
