@@ -15,6 +15,7 @@ def df_to_download(df: pd.DataFrame) -> str:
         df.reset_index(drop=True, inplace=True)
         df = df.drop(["scope"], axis=1)
 
+        # numbers the field entries, which will give us the largest number of total fields
         df['field_number'] = (
             df.groupby(
                 [
@@ -29,6 +30,8 @@ def df_to_download(df: pd.DataFrame) -> str:
             ).cumcount()
             + 1
         )
+
+        # create a pivot table around field number so that the field name/value will be given their respective number
         df_pivot = df.pivot_table(
             index=[
                 "validation_severity",
@@ -44,8 +47,10 @@ def df_to_download(df: pd.DataFrame) -> str:
             aggfunc="first",
         ).reset_index()
 
+        # create column names like field_name_1, field_value_1, etc (if the column needs numbering)
         df_pivot.columns = [f"{col[0]}_{col[1]}" if col[1] else col[0] for col in df_pivot.columns]
 
+        # rename columns to match the expected headers in the csv, and zip the field and value columns so 1 goes with 1, 2 with 2, etc
         df_pivot.rename(
             columns={f"field_name_{i}": f"field_{i}" for i in range(1, len(df_pivot.columns) // 2 + 1)}, inplace=True
         )
@@ -66,6 +71,7 @@ def df_to_download(df: pd.DataFrame) -> str:
         value_columns = [col for col in df_pivot.columns if col.startswith('value_')]
         sorted_columns = [col for pair in zip(field_columns, value_columns) for col in pair]
 
+        # order the way the csv is expected the columns to be in
         df_pivot = df_pivot[
             [
                 "validation_type",
