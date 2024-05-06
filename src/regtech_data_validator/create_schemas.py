@@ -172,12 +172,12 @@ def validate(schema: DataFrameSchema, submission_df: pd.DataFrame) -> tuple[bool
 def add_uid(results_df: pd.DataFrame, submission_df: pd.DataFrame) -> pd.DataFrame:
     if results_df.empty:
         return results_df
-    all_uids = []
-    sub_uids = submission_df['uid'].tolist()
-    for index, row in results_df.iterrows():
-        all_uids.append(sub_uids[int(row['record_no']) - 1])
 
-    results_df.insert(1, "uid", all_uids, True)
+    # uses pandas column operation to get list of record_no - 1 values, which would be indexes in the submission, since
+    # record_no is index offset by 1, and the uid column values for that into a new series that is then
+    # assigned to the results uid column.  Much simpler and faster than looping over and assigning row by row.
+
+    results_df['uid'] = submission_df.loc[results_df['record_no'] - 1, 'uid'].values
     return results_df
 
 
