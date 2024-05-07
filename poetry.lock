@@ -676,13 +676,13 @@ xml = ["lxml (>=4.9.2)"]
 
 [[package]]
 name = "pandera"
-version = "0.18.3"
+version = "0.19.0"
 description = "A light-weight and flexible data validation and testing tool for statistical data objects."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pandera-0.18.3-py3-none-any.whl", hash = "sha256:376faf746db57517f7fd85f234fa193e34266e7bcd1781e5c5912befbc180b98"},
-    {file = "pandera-0.18.3.tar.gz", hash = "sha256:47dd2e10ed7d2a2bc9cfd154b76b8bcd065a9bf1413d00de902d31c7afeec014"},
+    {file = "pandera-0.19.0-py3-none-any.whl", hash = "sha256:ca7410b69b45758097b908c4f02cf06ac8329122a99e16760b1ec797952e3251"},
+    {file = "pandera-0.19.0.tar.gz", hash = "sha256:f68d95f2b78e6d465aeb6ed800fdb7b7e3bbf88978f4f0d334ded287e7bd4243"},
 ]
 
 [package.dependencies]
@@ -691,21 +691,22 @@ numpy = ">=1.19.0"
 packaging = ">=20.0"
 pandas = ">=1.2.0"
 pydantic = "*"
-typeguard = ">=3.0.2"
+typeguard = "*"
 typing-inspect = ">=0.6.0"
 wrapt = "*"
 
 [package.extras]
-all = ["black", "dask", "fastapi", "frictionless (<=4.40.8)", "geopandas", "hypothesis (>=6.92.7)", "modin", "pandas-stubs", "pyspark (>=3.2.0)", "pyyaml (>=5.1)", "ray", "scipy", "shapely"]
-dask = ["dask"]
+all = ["black", "dask[dataframe]", "fastapi", "frictionless (<=4.40.8)", "geopandas", "hypothesis (>=6.92.7)", "modin", "pandas-stubs", "polars (>=0.20.0)", "pyspark (>=3.2.0)", "pyyaml (>=5.1)", "ray", "scipy", "shapely"]
+dask = ["dask[dataframe]"]
 fastapi = ["fastapi"]
 geopandas = ["geopandas", "shapely"]
 hypotheses = ["scipy"]
 io = ["black", "frictionless (<=4.40.8)", "pyyaml (>=5.1)"]
-modin = ["dask", "modin", "ray"]
-modin-dask = ["dask", "modin"]
+modin = ["dask[dataframe]", "modin", "ray"]
+modin-dask = ["dask[dataframe]", "modin"]
 modin-ray = ["modin", "ray"]
 mypy = ["pandas-stubs"]
+polars = ["polars (>=0.20.0)"]
 pyspark = ["pyspark (>=3.2.0)"]
 strategies = ["hypothesis (>=6.92.7)"]
 
@@ -1221,4 +1222,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.12,<4"
-content-hash = "a72c771333008dbc83f684eb3c63c6e5e485bdadbcf9c7f1517d33a19c6e9228"
+content-hash = "8d89ad88a7d7c868a07d5e6a5b15e8938ad4c52c89b8ccf61eaeff3a1fde4acc"
