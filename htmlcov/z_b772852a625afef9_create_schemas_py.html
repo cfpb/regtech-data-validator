@@ -55,8 +55,8 @@
             </div>
         </aside>
         <h2>
-            <span class="text">85 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">82<span class="text"> run</span></button>
+            <span class="text">81 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">78<span class="text"> run</span></button>
             <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">3<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
             <button type="button" class="par run show_par button_toggle_par" value="par" data-shortcut="p" title="Toggle lines partially run">3<span class="text"> partial</span></button>
@@ -67,7 +67,7 @@
             <a id="nextFileLink" class="nav" href="z_b772852a625afef9_data_formatters_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.5.1">coverage.py v7.5.1</a>,
-            created at 2024-05-06 16:26 +0000
+            created at 2024-05-07 00:03 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -256,12 +256,12 @@
     <p class="run"><span class="n"><a id="t172" href="#t172">172</a></span><span class="t"><span class="key">def</span> <span class="nam">add_uid</span><span class="op">(</span><span class="nam">results_df</span><span class="op">:</span> <span class="nam">pd</span><span class="op">.</span><span class="nam">DataFrame</span><span class="op">,</span> <span class="nam">submission_df</span><span class="op">:</span> <span class="nam">pd</span><span class="op">.</span><span class="nam">DataFrame</span><span class="op">)</span> <span class="op">-></span> <span class="nam">pd</span><span class="op">.</span><span class="nam">DataFrame</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t173" href="#t173">173</a></span><span class="t">    <span class="key">if</span> <span class="nam">results_df</span><span class="op">.</span><span class="nam">empty</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t174" href="#t174">174</a></span><span class="t">        <span class="key">return</span> <span class="nam">results_df</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t175" href="#t175">175</a></span><span class="t">    <span class="nam">all_uids</span> <span class="op">=</span> <span class="op">[</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t176" href="#t176">176</a></span><span class="t">    <span class="nam">sub_uids</span> <span class="op">=</span> <span class="nam">submission_df</span><span class="op">[</span><span class="str">'uid'</span><span class="op">]</span><span class="op">.</span><span class="nam">tolist</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t">    <span class="key">for</span> <span class="nam">index</span><span class="op">,</span> <span class="nam">row</span> <span class="key">in</span> <span class="nam">results_df</span><span class="op">.</span><span class="nam">iterrows</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t">        <span class="nam">all_uids</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">sub_uids</span><span class="op">[</span><span class="nam">int</span><span class="op">(</span><span class="nam">row</span><span class="op">[</span><span class="str">'record_no'</span><span class="op">]</span><span class="op">)</span> <span class="op">-</span> <span class="num">1</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t175" href="#t175">175</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t176" href="#t176">176</a></span><span class="t">    <span class="com"># uses pandas column operation to get list of record_no - 1 values, which would be indexes in the submission, since</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t">    <span class="com"># record_no is index offset by 1, and the uid column values for that into a new series that is then</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t">    <span class="com"># assigned to the results uid column.  Much simpler and faster than looping over and assigning row by row.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t179" href="#t179">179</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t">    <span class="nam">results_df</span><span class="op">.</span><span class="nam">insert</span><span class="op">(</span><span class="num">1</span><span class="op">,</span> <span class="str">"uid"</span><span class="op">,</span> <span class="nam">all_uids</span><span class="op">,</span> <span class="key">True</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t">    <span class="nam">results_df</span><span class="op">[</span><span class="str">'uid'</span><span class="op">]</span> <span class="op">=</span> <span class="nam">submission_df</span><span class="op">.</span><span class="nam">loc</span><span class="op">[</span><span class="nam">results_df</span><span class="op">[</span><span class="str">'record_no'</span><span class="op">]</span> <span class="op">-</span> <span class="num">1</span><span class="op">,</span> <span class="str">'uid'</span><span class="op">]</span><span class="op">.</span><span class="nam">values</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t181" href="#t181">181</a></span><span class="t">    <span class="key">return</span> <span class="nam">results_df</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t182" href="#t182">182</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t183" href="#t183">183</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -282,7 +282,7 @@
             <a class="nav" href="z_b772852a625afef9_data_formatters_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.5.1">coverage.py v7.5.1</a>,
-            created at 2024-05-06 16:26 +0000
+            created at 2024-05-07 00:03 +0000
         </p>
     </div>
 </footer>
