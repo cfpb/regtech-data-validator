@@ -1,5 +1,5 @@
 import csv
-import json
+import ujson
 import pandas as pd
 
 from tabulate import tabulate
@@ -104,11 +104,28 @@ def df_to_table(df: pd.DataFrame) -> str:
 
 
 def df_to_json(df: pd.DataFrame) -> str:
-    output_json = []
+    chunk_size = 500000  # maybe at some point make this configurable?
+    json_results = []
+    # group by the validation_id so we don't lose data while chunking,
+    # then chunk the group into smaller pieces
+    grouped_df = df.groupby('validation_id')
 
+    for group_name, group_data in grouped_df:
+        start_index = 0
+        while start_index < len(group_data):
+            end_index = min(start_index + chunk_size, len(group_data))
+            chunk = group_data.iloc[start_index:end_index]
+            json_results.extend(process_chunk(chunk))
+            start_index = end_index
+    return ujson.dumps(json_results, indent=4, escape_forward_slashes=False)
+
+
+def process_chunk(df: pd.DataFrame) -> [dict]:
+    output_json = []
     if not df.empty:
+
         df.reset_index(drop=True, inplace=True)
-        findings_json = json.loads(df.to_json(orient='columns'))
+        findings_json = ujson.loads(df.to_json(orient='columns'))
 
         grouped_data = {}
         for i in range(len(findings_json['record_no'])):
@@ -153,4 +170,5 @@ def df_to_json(df: pd.DataFrame) -> str:
             output_json.append(validation_info)
 
         output_json = sorted(output_json, key=lambda x: x['validation']['id'])
-    return json.dumps(output_json, indent=4)
+
+    return output_json
