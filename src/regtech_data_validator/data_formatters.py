@@ -4,8 +4,6 @@ import pandas as pd
 
 from tabulate import tabulate
 
-more_than_2_fields = ["E2014", "E2015", "W2035", "W2036", "W2037", "W2038", "W2039"]
-
 
 def df_to_download(df: pd.DataFrame) -> str:
     if df.empty:
@@ -104,71 +102,54 @@ def df_to_table(df: pd.DataFrame) -> str:
 
 
 def df_to_json(df: pd.DataFrame) -> str:
-    chunk_size = 500000  # maybe at some point make this configurable?
+    # grouping and processing keeps the process from crashing on really large error
+    # dataframes (millions of errors).  We can't chunk because could cause splitting
+    # related validation data across chunks, without having to add extra processing
+    # for tying those objects back together.  Grouping adds a little more processing
+    # time for smaller datasets but keeps really larger ones from crashing.
     json_results = []
-    # group by the validation_id so we don't lose data while chunking,
-    # then chunk the group into smaller pieces
     grouped_df = df.groupby('validation_id')
-
     for group_name, group_data in grouped_df:
-        start_index = 0
-        while start_index < len(group_data):
-            end_index = min(start_index + chunk_size, len(group_data))
-            chunk = group_data.iloc[start_index:end_index]
-            json_results.extend(process_chunk(chunk))
-            start_index = end_index
+        json_results.append(process_chunk(group_data, group_name))
+    json_results = sorted(json_results, key=lambda x: x['validation']['id'])
     return ujson.dumps(json_results, indent=4, escape_forward_slashes=False)
 
 
-def process_chunk(df: pd.DataFrame) -> [dict]:
-    output_json = []
-    if not df.empty:
-
-        df.reset_index(drop=True, inplace=True)
-        findings_json = ujson.loads(df.to_json(orient='columns'))
-
-        grouped_data = {}
-        for i in range(len(findings_json['record_no'])):
-            validation_id = findings_json['validation_id'][str(i)]
-            if validation_id not in grouped_data:
-                grouped_data[validation_id] = []
-            grouped_data[validation_id].append(
-                {
-                    'record_no': findings_json['record_no'][str(i)],
-                    'uid': findings_json['uid'][str(i)],
-                    'field_name': findings_json['field_name'][str(i)],
-                    'field_value': findings_json['field_value'][str(i)],
-                }
-            )
-
-        for validation_id, records in grouped_data.items():
-            for key, value in findings_json['validation_id'].items():
-                if validation_id == value:
-                    validation_key = key
-                    break
-            validation_info = {
-                'validation': {
-                    'id': validation_id,
-                    'name': findings_json['validation_name'][validation_key],
-                    'description': findings_json['validation_desc'][validation_key],
-                    'severity': findings_json['validation_severity'][validation_key],
-                    'scope': findings_json['scope'][validation_key],
-                    'fig_link': findings_json['fig_link'][validation_key],
-                },
-                'records': [],
+def process_chunk(df: pd.DataFrame, validation_id: str) -> [dict]:
+    df.reset_index(drop=True, inplace=True)
+    findings_json = ujson.loads(df.to_json(orient='columns'))
+    grouped_data = []
+    for i in range(len(findings_json['record_no'])):
+        grouped_data.append(
+            {
+                'record_no': findings_json['record_no'][str(i)],
+                'uid': findings_json['uid'][str(i)],
+                'field_name': findings_json['field_name'][str(i)],
+                'field_value': findings_json['field_value'][str(i)],
             }
-            records_dict = {}
-            for record in records:
-                record_no = record['record_no']
-                if record_no not in records_dict:
-                    records_dict[record_no] = {'record_no': record['record_no'], 'uid': record['uid'], 'fields': []}
-                records_dict[record_no]['fields'].append({'name': record['field_name'], 'value': record['field_value']})
-            validation_info['records'] = list(records_dict.values())
-            for record in validation_info['records']:
-                if len(record['fields']) == 2:
-                    record['fields'][0], record['fields'][1] = record['fields'][1], record['fields'][0]
-            output_json.append(validation_info)
+        )
 
-        output_json = sorted(output_json, key=lambda x: x['validation']['id'])
+    validation_info = {
+        'validation': {
+            'id': validation_id,
+            'name': findings_json['validation_name']['0'],
+            'description': findings_json['validation_desc']['0'],
+            'severity': findings_json['validation_severity']['0'],
+            'scope': findings_json['scope']['0'],
+            'fig_link': findings_json['fig_link']['0'],
+        },
+        'records': [],
+    }
+    records_dict = {}
+    for record in grouped_data:
+        record_no = record['record_no']
+        if record_no not in records_dict:
+            records_dict[record_no] = {'record_no': record['record_no'], 'uid': record['uid'], 'fields': []}
+        records_dict[record_no]['fields'].append({'name': record['field_name'], 'value': record['field_value']})
+    validation_info['records'] = list(records_dict.values())
 
-    return output_json
+    for record in validation_info['records']:
+        if len(record['fields']) == 2:
+            record['fields'][0], record['fields'][1] = record['fields'][1], record['fields'][0]
+
+    return validation_info
