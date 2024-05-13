@@ -3,7 +3,7 @@ import ujson
 import pandas as pd
 
 from tabulate import tabulate
-
+import logging
 
 def df_to_download(df: pd.DataFrame) -> str:
     if df.empty:
@@ -102,6 +102,8 @@ def df_to_table(df: pd.DataFrame) -> str:
 
 
 def df_to_json(df: pd.DataFrame) -> str:
+    from datetime import datetime
+    log = logging.getLogger(__name__)
     # grouping and processing keeps the process from crashing on really large error
     # dataframes (millions of errors).  We can't chunk because could cause splitting
     # related validation data across chunks, without having to add extra processing
@@ -109,11 +111,16 @@ def df_to_json(df: pd.DataFrame) -> str:
     # time for smaller datasets but keeps really larger ones from crashing.
     json_results = []
     grouped_df = df.groupby('validation_id')
+    start = datetime.now()
     for group_name, group_data in grouped_df:
+        log.error(f"BANG! Chunking {group_name}")
         json_results.append(process_chunk(group_data, group_name))
+        log.error(f"BANG! {group_name} took: {(datetime.now() - start).total_seconds()} seconds")
     json_results = sorted(json_results, key=lambda x: x['validation']['id'])
-    return ujson.dumps(json_results, indent=4, escape_forward_slashes=False)
-
+    start = datetime.now()
+    json_dump = ujson.dumps(json_results, indent=4, escape_forward_slashes=False)
+    log.error(f"BANG! validation json dump took: {(datetime.now() - start).total_seconds()} seconds")
+    return json_dump
 
 def process_chunk(df: pd.DataFrame, validation_id: str) -> [dict]:
     df.reset_index(drop=True, inplace=True)
