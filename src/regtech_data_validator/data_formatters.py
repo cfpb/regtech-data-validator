@@ -108,10 +108,11 @@ def df_to_json(df: pd.DataFrame) -> str:
     # for tying those objects back together.  Grouping adds a little more processing
     # time for smaller datasets but keeps really larger ones from crashing.
     json_results = []
-    grouped_df = df.groupby('validation_id')
-    for group_name, group_data in grouped_df:
-        json_results.append(process_chunk(group_data, group_name))
-    json_results = sorted(json_results, key=lambda x: x['validation']['id'])
+    if not df.empty:
+        grouped_df = df.groupby('validation_id')
+        for group_name, group_data in grouped_df:
+            json_results.append(process_chunk(group_data, group_name))
+        json_results = sorted(json_results, key=lambda x: x['validation']['id'])
     return ujson.dumps(json_results, indent=4, escape_forward_slashes=False)
 
 
