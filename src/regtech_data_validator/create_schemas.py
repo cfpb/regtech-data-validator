@@ -126,10 +126,11 @@ def validate(schema: DataFrameSchema, submission_df: pd.DataFrame) -> tuple[bool
         schema(submission_df, lazy=True)
     except SchemaErrors as err:
         is_valid = False
-
+        check_findings = []
         # NOTE: `type: ignore` because SchemaErrors.schema_errors is supposed to be
         #       `list[dict[str,Any]]`, but it's actually of type `SchemaError`
         schema_error: SchemaError
+
         for schema_error in err.schema_errors:  # type: ignore
             check = schema_error.check
             column_name = schema_error.schema.name
@@ -145,9 +146,7 @@ def validate(schema: DataFrameSchema, submission_df: pd.DataFrame) -> tuple[bool
                 raise RuntimeError(
                     f'Check {check} type on {column_name} column not supported. Must be of type {SBLCheck}'
                 ) from schema_error
-
             fields = _get_check_fields(check, column_name)
-
             check_output: pd.Series | None = schema_error.check_output
 
             if check_output is not None:
@@ -155,17 +154,13 @@ def validate(schema: DataFrameSchema, submission_df: pd.DataFrame) -> tuple[bool
                 failed_records_df = _filter_valid_records(submission_df, check_output, fields)
                 failed_records_df.index += next_finding_no
                 next_finding_no = failed_records_df.tail(1).index + 1  # type: ignore
-
                 failed_record_fields_df = _records_to_fields(failed_records_df)
-                check_findings_df = _add_validation_metadata(failed_record_fields_df, check)
-
-                findings_df = pd.concat([findings_df, check_findings_df])
+                check_findings.append(_add_validation_metadata(failed_record_fields_df, check))
             else:
                 # The above exception handling _should_ prevent this from ever happenin, but...just in case.
                 raise RuntimeError(f'No check output for "{check.name}" check.  Pandera SchemaError: {schema_error}')
-
+        findings_df = pd.concat(check_findings)
     updated_df = add_uid(findings_df, submission_df)
-
     return is_valid, updated_df
 
 
@@ -182,6 +177,7 @@ def add_uid(results_df: pd.DataFrame, submission_df: pd.DataFrame) -> pd.DataFra
 
 
 def validate_phases(df: pd.DataFrame, context: dict[str, str] | None = None) -> tuple[bool, pd.DataFrame]:
+
     p1_is_valid, p1_findings = validate(get_phase_1_schema_for_lei(context), df)
 
     if not p1_is_valid:
