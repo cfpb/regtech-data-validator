@@ -1,4 +1,5 @@
 import pandas as pd
+import ujson
 
 from regtech_data_validator.data_formatters import df_to_csv, df_to_str, df_to_json, df_to_table, df_to_download
 from regtech_data_validator.checks import Severity
@@ -84,6 +85,12 @@ class TestOutputFormat:
 
         actual_output = df_to_csv(self.input_df)
         assert actual_output.strip('\n') == expected_output
+
+    def test_empty_results_json(self):
+        expected_output = ujson.dumps([], indent=4, escape_forward_slashes=False)
+        actual_output = df_to_json(pd.DataFrame())
+
+        assert actual_output == expected_output
 
     def test_output_json(self):
         expected_output = dedent(
