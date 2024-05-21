@@ -102,6 +102,9 @@ def df_to_table(df: pd.DataFrame) -> str:
 
 
 def df_to_json(df: pd.DataFrame) -> str:
+    return ujson.dumps(df_to_dicts(df), indent=4, escape_forward_slashes=False)
+
+def df_to_dicts(df: pd.DataFrame) -> list[dict]:
     # grouping and processing keeps the process from crashing on really large error
     # dataframes (millions of errors).  We can't chunk because could cause splitting
     # related validation data across chunks, without having to add extra processing
@@ -113,7 +116,7 @@ def df_to_json(df: pd.DataFrame) -> str:
         for group_name, group_data in grouped_df:
             json_results.append(process_chunk(group_data, group_name))
         json_results = sorted(json_results, key=lambda x: x['validation']['id'])
-    return ujson.dumps(json_results, indent=4, escape_forward_slashes=False)
+    return json_results
 
 
 def process_chunk(df: pd.DataFrame, validation_id: str) -> [dict]:
