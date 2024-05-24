@@ -1,4 +1,5 @@
 import csv
+import math
 import ujson
 import pandas as pd
 
@@ -7,6 +8,7 @@ from tabulate import tabulate
 from regtech_data_validator.phase_validations import get_phase_1_and_2_validations_for_lei
 from regtech_data_validator.checks import SBLCheck
 import sys
+import psutil
 
 def get_all_checks():
     return [check for phases in get_phase_1_and_2_validations_for_lei().values() for checks in phases.values() for check in checks]
@@ -54,6 +56,9 @@ def df_to_download(df: pd.DataFrame) -> str:
         checks = get_all_checks()
         df.reset_index(drop=True, inplace=True)
         #df = df.drop(["scope"], axis=1)
+        process = psutil.Process()
+        start_rss = process.memory_info().rss
+        print(f"Starting Mem Usage: {(start_rss / (1024 * 1024)):.2f}MB\n")
         for validation_id, group in df.groupby("validation_id"):
             group['field_number'] = (
                 group.groupby(
@@ -177,11 +182,13 @@ def df_to_download(df: pd.DataFrame) -> str:
 
             df_pivot['row'] += 1
             total_csv += df_pivot.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, header=False)
+            print(f"End of Loop Mem Usage: {((process.memory_info().rss - start_rss) / (1024 * 1024)):.2f}MB\n")
         field_headers = []
         for i in range(largest_field_count):
             field_headers.append(f"field_{i+1}")
             field_headers.append(f"value_{i+1}")
         header += ",".join(field_headers) + "\n"
+        print(f"Total Mem Usage: {((process.memory_info().rss - start_rss) / (1024 * 1024)):.2f}MB\n")
         return (header + total_csv)
 
 
@@ -219,11 +226,11 @@ def df_to_dicts(df: pd.DataFrame) -> list[dict]:
     json_results = []
     if not df.empty:
         grouped_df = df.groupby('validation_id')
+        total_errors_per_group = math.ceil(10000 / grouped_df.ngroups)
         for group_name, group_data in grouped_df:
             check = find_check(group_name, checks)
-            json_results.append(process_chunk(group_data.head(55), group_name, check))
+            json_results.append(process_chunk(group_data.head(total_errors_per_group), group_name, check))
         json_results = sorted(json_results, key=lambda x: x['validation']['id'])
-    print(f"JSON list memory size: {(sys.getsizeof(json_results) / 1024 / 1024)}")
     return json_results
 
 def find_check(group_name, checks):
