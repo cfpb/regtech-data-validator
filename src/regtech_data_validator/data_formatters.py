@@ -44,37 +44,52 @@ def df_to_download(df: pd.DataFrame) -> str:
         
 
 def df_to_download(df: pd.DataFrame) -> str:
+    header = "validation_type,validation_id,validation_name,row,unique_identifier,fig_link,validation_description,"
     if df.empty:
         # return headers of csv for 'emtpy' report
-        return "validation_type,validation_id,validation_name,row,unique_identifier,fig_link,validation_description"
+        return header
     else:
+        total_csv = ""
+        largest_field_count = 1
         checks = get_all_checks()
         df.reset_index(drop=True, inplace=True)
         #df = df.drop(["scope"], axis=1)
-        df['field_number'] = (
-            df.groupby(
-                [
-                    "validation_id",
+        for validation_id, group in df.groupby("validation_id"):
+            group['field_number'] = (
+                group.groupby(
+                    [
+                        "record_no",
+                        "uid",
+                    ]
+                ).cumcount()
+                + 1
+            )
+            df_pivot = group.pivot_table(
+                index=[
                     "record_no",
                     "uid",
-                ]
-            ).cumcount()
-            + 1
-        )
-        df_pivot = df.pivot_table(
-            index=[
-                "validation_id",
-                "record_no",
-                "uid",
-            ],
-            columns="field_number",
-            values=["field_name", "field_value"],
-            aggfunc="first",
-        ).reset_index()
-        '''
-        df['field_number'] = (
-            df.groupby(
-                [
+                ],
+                columns="field_number",
+                values=["field_name", "field_value"],
+                aggfunc="first",
+            ).reset_index()
+            '''
+            df['field_number'] = (
+                df.groupby(
+                    [
+                        "validation_severity",
+                        "validation_id",
+                        "validation_name",
+                        "record_no",
+                        "uid",
+                        "fig_link",
+                        "validation_desc",
+                    ]
+                ).cumcount()
+                + 1
+            )
+            df_pivot = df.pivot_table(
+                index=[
                     "validation_severity",
                     "validation_id",
                     "validation_name",
@@ -82,90 +97,92 @@ def df_to_download(df: pd.DataFrame) -> str:
                     "uid",
                     "fig_link",
                     "validation_desc",
+                ],
+                columns="field_number",
+                values=["field_name", "field_value"],
+                aggfunc="first",
+            ).reset_index()
+            '''
+            df_pivot.columns = [f"{col[0]}_{col[1]}" if col[1] else col[0] for col in df_pivot.columns]
+
+            #df_pivot.rename(
+            #    columns={f"field_name_{i}": f"field_{i}" for i in range(1, len(df_pivot.columns) // 2 + 1)}, inplace=True
+            #)
+            #df_pivot.rename(
+            #    columns={f"field_value_{i}": f"value_{i}" for i in range(1, len(df_pivot.columns) // 2 + 1)}, inplace=True
+            #)
+
+            check = find_check(validation_id, checks)
+            df_pivot['validation_type'] = check.severity
+            df_pivot['validation_description'] = check.description
+            df_pivot['validation_name'] = check.name
+            df_pivot['fig_link'] = check.fig_link
+            #distinct_ids = df_pivot['validation_id'].unique()
+            #data_map = {}
+            #for id in distinct_ids:
+                #check = find_check(id, checks)
+                #df_pivot.loc[df_pivot['validation_id'] == id, 'validation_type'] = check.severity
+                #df_pivot.loc[df_pivot['validation_id'] == id, 'validation_description'] = check.description
+                #df_pivot.loc[df_pivot['validation_id'] == id, 'validation_name'] = check.name
+                #df_pivot.loc[df_pivot['validation_id'] == id, 'fig_link'] = check.fig_link
+                #check = find_check(id, checks)
+                #data_map[id] = {
+                #    "validation_type": check.severity,
+                #    "validation_description": check.description,
+                #    "validation_name": check.name,
+                #    "fig_link": check.fig_link
+                #}
+            
+            #df_pivot = df_pivot.join(df_pivot['validation_id'].apply(lambda x: pd.Series(data_map.get(x, {}))))
+            
+            '''
+            df_pivot.rename(
+                columns={
+                    "record_no": "row",
+                    "validation_severity": "validation_type",
+                    "uid": "unique_identifier",
+                    "validation_desc": "validation_description",
+                },
+                inplace=True,
+            )
+            '''
+            df_pivot.rename(
+                columns={
+                    "record_no": "row",
+                    "uid": "unique_identifier",
+                },
+                inplace=True,
+            )
+            field_columns = [col for col in df_pivot.columns if col.startswith('field_name_')]
+            value_columns = [col for col in df_pivot.columns if col.startswith('field_value_')]
+            sorted_columns = [col for pair in zip(field_columns, value_columns) for col in pair]
+            group_field_count = len(field_columns)
+            largest_field_count = largest_field_count if group_field_count <= largest_field_count else group_field_count
+            if len(field_columns) == 2:
+                sorted_columns = ['field_name_1', 'field_value_1', 'field_name_2', 'field_value_2']
+            df_pivot['validation_id'] = validation_id
+
+            df_pivot = df_pivot[
+                [
+                    "validation_type",
+                    "validation_id",
+                    "validation_name",
+                    "row",
+                    "unique_identifier",
+                    "fig_link",
+                    "validation_description",
                 ]
-            ).cumcount()
-            + 1
-        )
-        df_pivot = df.pivot_table(
-            index=[
-                "validation_severity",
-                "validation_id",
-                "validation_name",
-                "record_no",
-                "uid",
-                "fig_link",
-                "validation_desc",
-            ],
-            columns="field_number",
-            values=["field_name", "field_value"],
-            aggfunc="first",
-        ).reset_index()
-        '''
-        df_pivot.columns = [f"{col[0]}_{col[1]}" if col[1] else col[0] for col in df_pivot.columns]
-
-        df_pivot.rename(
-            columns={f"field_name_{i}": f"field_{i}" for i in range(1, len(df_pivot.columns) // 2 + 1)}, inplace=True
-        )
-        df_pivot.rename(
-            columns={f"field_value_{i}": f"value_{i}" for i in range(1, len(df_pivot.columns) // 2 + 1)}, inplace=True
-        )
-
-        distinct_ids = df_pivot['validation_id'].unique()
-        #data_map = {}
-        for id in distinct_ids:
-            check = find_check(id, checks)
-            df_pivot.loc[df_pivot['validation_id'] == id, 'validation_type'] = check.severity
-            df_pivot.loc[df_pivot['validation_id'] == id, 'validation_description'] = check.description
-            df_pivot.loc[df_pivot['validation_id'] == id, 'validation_name'] = check.name
-            df_pivot.loc[df_pivot['validation_id'] == id, 'fig_link'] = check.fig_link
-            #check = find_check(id, checks)
-            #data_map[id] = {
-            #    "validation_type": check.severity,
-            #    "validation_description": check.description,
-            #    "validation_name": check.name,
-            #    "fig_link": check.fig_link
-            #}
-        
-        #df_pivot = df_pivot.join(df_pivot['validation_id'].apply(lambda x: pd.Series(data_map.get(x, {}))))
-        
-        '''
-        df_pivot.rename(
-            columns={
-                "record_no": "row",
-                "validation_severity": "validation_type",
-                "uid": "unique_identifier",
-                "validation_desc": "validation_description",
-            },
-            inplace=True,
-        )
-        '''
-        df_pivot.rename(
-            columns={
-                "record_no": "row",
-                "uid": "unique_identifier",
-            },
-            inplace=True,
-        )
-        field_columns = [col for col in df_pivot.columns if col.startswith('field_')]
-        value_columns = [col for col in df_pivot.columns if col.startswith('value_')]
-        sorted_columns = [col for pair in zip(field_columns, value_columns) for col in pair]
-
-        df_pivot = df_pivot[
-            [
-                "validation_type",
-                "validation_id",
-                "validation_name",
-                "row",
-                "unique_identifier",
-                "fig_link",
-                "validation_description",
+                + sorted_columns
             ]
-            + sorted_columns
-        ]
 
-        df_pivot['row'] += 1
-
-        return df_pivot.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC)
+            df_pivot['row'] += 1
+            total_csv += df_pivot.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, header=False)
+        field_headers = []
+        for i in range(largest_field_count):
+            field_headers.append(f"field_{i+1}")
+            field_headers.append(f"value_{i+1}")
+        header += ",".join(field_headers) + "\n"
+        return (header + total_csv)
 
 
 def df_to_str(df: pd.DataFrame) -> str:
