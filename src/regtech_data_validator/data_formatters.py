@@ -101,7 +101,6 @@ def df_to_download(df: pd.DataFrame) -> str:
             aggfunc="first",
         ).reset_index()
         '''
-        del df
         df_pivot.columns = [f"{col[0]}_{col[1]}" if col[1] else col[0] for col in df_pivot.columns]
 
         df_pivot.rename(
