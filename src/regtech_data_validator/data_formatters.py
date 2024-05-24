@@ -6,11 +6,12 @@ from tabulate import tabulate
 
 from regtech_data_validator.phase_validations import get_phase_1_and_2_validations_for_lei
 from regtech_data_validator.checks import SBLCheck
+import sys
 
 def get_all_checks():
     return [check for phases in get_phase_1_and_2_validations_for_lei().values() for checks in phases.values() for check in checks]
 
-
+'''
 def df_to_download(df: pd.DataFrame) -> str:
     full_csv = ["validation_type,validation_id,validation_name,row,unique_identifier,fig_link,validation_description,"]
     if df.empty:
@@ -35,14 +36,14 @@ def df_to_download(df: pd.DataFrame) -> str:
             field_headers.append(f"field_{i+1}")
             field_headers.append(f"value_{i+1}")
         full_csv[0] = full_csv[0] + ",".join(field_headers)
-
+        print(f"full_csv list size: {(sys.getsizeof(full_csv) / 1024 / 1024)}")
         csv_string = "\n".join(full_csv)
-        #print(csv_string)
+        print(f"CSV string memory size: {(sys.getsizeof(csv_string) / 1024 / 1024)}")
         return csv_string
-        
+'''       
         
 
-def df_to_download_old(df: pd.DataFrame) -> str:
+def df_to_download(df: pd.DataFrame) -> str:
     if df.empty:
         # return headers of csv for 'emtpy' report
         return "validation_type,validation_id,validation_name,row,unique_identifier,fig_link,validation_description"
@@ -111,17 +112,22 @@ def df_to_download_old(df: pd.DataFrame) -> str:
         )
 
         distinct_ids = df_pivot['validation_id'].unique()
-        data_map = {}
+        #data_map = {}
         for id in distinct_ids:
             check = find_check(id, checks)
-            data_map[id] = {
-                "validation_type": check.severity,
-                "validation_description": check.description,
-                "validation_name": check.name,
-                "fig_link": check.fig_link
-            }
+            df_pivot.loc[df_pivot['validation_id'] == id, 'validation_type'] = check.severity
+            df_pivot.loc[df_pivot['validation_id'] == id, 'validation_description'] = check.description
+            df_pivot.loc[df_pivot['validation_id'] == id, 'validation_name'] = check.name
+            df_pivot.loc[df_pivot['validation_id'] == id, 'fig_link'] = check.fig_link
+            #check = find_check(id, checks)
+            #data_map[id] = {
+            #    "validation_type": check.severity,
+            #    "validation_description": check.description,
+            #    "validation_name": check.name,
+            #    "fig_link": check.fig_link
+            #}
         
-        df_pivot = df_pivot.join(df_pivot['validation_id'].apply(lambda x: pd.Series(data_map.get(x, {}))))
+        #df_pivot = df_pivot.join(df_pivot['validation_id'].apply(lambda x: pd.Series(data_map.get(x, {}))))
         
         '''
         df_pivot.rename(
@@ -199,8 +205,9 @@ def df_to_dicts(df: pd.DataFrame) -> list[dict]:
         grouped_df = df.groupby('validation_id')
         for group_name, group_data in grouped_df:
             check = find_check(group_name, checks)
-            json_results.append(process_chunk(group_data, group_name, check))
+            json_results.append(process_chunk(group_data.head(55), group_name, check))
         json_results = sorted(json_results, key=lambda x: x['validation']['id'])
+    print(f"JSON list memory size: {(sys.getsizeof(json_results) / 1024 / 1024)}")
     return json_results
 
 def find_check(group_name, checks):
