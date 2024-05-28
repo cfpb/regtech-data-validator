@@ -24,8 +24,8 @@ class TestValidatingSampleData:
         assert not is_valid
 
         # Only 'uid.invalid_uid_lei' validation returned
-        assert len(findings_df['validation_name'].unique()) == 1
-        assert len(findings_df['validation_name'] == 'uid.invalid_uid_lei') > 0
+        assert len(findings_df['validation_id'].unique()) == 1
+        assert len(findings_df['validation_id'] == 'W0003') > 0
         assert validation_phase == ValidationPhase.LOGICAL.value
 
     def test_run_validation_on_good_data_valid_lei(self):
@@ -43,8 +43,8 @@ class TestValidatingSampleData:
         assert not is_valid
 
         # 'uid.invalid_uid_lei' and other validations returned
-        assert len(findings_df['validation_name'].unique()) > 1
-        assert len(findings_df['validation_name'] == 'uid.invalid_uid_lei') > 0
+        assert len(findings_df['validation_id'].unique()) > 1
+        assert len(findings_df['validation_id'] == 'W0003') > 0
         assert validation_phase == ValidationPhase.SYNTACTICAL.value
 
     def test_run_validation_on_bad_data_valid_lei(self):
@@ -54,5 +54,5 @@ class TestValidatingSampleData:
         assert not is_valid
 
         # 'uid.invalid_uid_lei' and other validations returned
-        assert len(findings_df['validation_name'].unique()) > 1
+        assert len(findings_df['validation_id'].unique()) > 1
         assert validation_phase == ValidationPhase.SYNTACTICAL.value
