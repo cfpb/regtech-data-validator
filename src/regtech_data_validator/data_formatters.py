@@ -1,85 +1,112 @@
 import csv
+import math
 import ujson
 import pandas as pd
 
 from tabulate import tabulate
 
+from regtech_data_validator.phase_validations import get_phase_1_and_2_validations_for_lei
+from regtech_data_validator.checks import SBLCheck
+
+
+def get_all_checks():
+    return [
+        check
+        for phases in get_phase_1_and_2_validations_for_lei().values()
+        for checks in phases.values()
+        for check in checks
+    ]
+
+
+def find_check(group_name, checks):
+    gen = (check for check in checks if check.title == group_name)
+    return next(gen)
+
 
 def df_to_download(df: pd.DataFrame) -> str:
+    header = "validation_type,validation_id,validation_name,row,unique_identifier,fig_link,validation_description,"
     if df.empty:
         # return headers of csv for 'emtpy' report
-        return "validation_type,validation_id,validation_name,row,unique_identifier,fig_link,validation_description"
+        return header
     else:
+        total_csv = ""
+        largest_field_count = 1
+        checks = get_all_checks()
         df.reset_index(drop=True, inplace=True)
-        df = df.drop(["scope"], axis=1)
 
-        df['field_number'] = (
-            df.groupby(
-                [
-                    "validation_severity",
-                    "validation_id",
-                    "validation_name",
+        for validation_id, group in df.groupby("validation_id"):
+            group['field_number'] = (
+                group.groupby(
+                    [
+                        "record_no",
+                        "uid",
+                    ]
+                ).cumcount()
+                + 1
+            )
+            df_pivot = group.pivot_table(
+                index=[
                     "record_no",
                     "uid",
+                ],
+                columns="field_number",
+                values=["field_name", "field_value"],
+                aggfunc="first",
+            ).reset_index()
+
+            df_pivot.columns = [f"{col[0]}_{col[1]}" if col[1] else col[0] for col in df_pivot.columns]
+
+            check = find_check(validation_id, checks)
+            df_pivot['validation_type'] = check.severity
+            df_pivot['validation_description'] = check.description
+            df_pivot['validation_name'] = check.name
+            df_pivot['fig_link'] = check.fig_link
+
+            df_pivot.rename(
+                columns={
+                    "record_no": "row",
+                    "uid": "unique_identifier",
+                },
+                inplace=True,
+            )
+            field_columns = [col for col in df_pivot.columns if col.startswith('field_name_')]
+            value_columns = [col for col in df_pivot.columns if col.startswith('field_value_')]
+            sorted_columns = [col for pair in zip(field_columns, value_columns) for col in pair]
+            group_field_count = len(field_columns)
+            largest_field_count = largest_field_count if group_field_count <= largest_field_count else group_field_count
+            # swap two-field errors/warnings to keep order of FIG
+            if len(field_columns) == 2:
+                f1_data = df_pivot['field_name_1']
+                v1_data = df_pivot['field_value_1']
+                df_pivot['field_name_1'] = df_pivot['field_name_2']
+                df_pivot['field_value_1'] = df_pivot['field_value_2']
+                df_pivot['field_name_2'] = f1_data
+                df_pivot['field_value_2'] = v1_data
+            df_pivot['validation_id'] = validation_id
+
+            df_pivot = df_pivot[
+                [
+                    "validation_type",
+                    "validation_id",
+                    "validation_name",
+                    "row",
+                    "unique_identifier",
                     "fig_link",
-                    "validation_desc",
+                    "validation_description",
                 ]
-            ).cumcount()
-            + 1
-        )
-        df_pivot = df.pivot_table(
-            index=[
-                "validation_severity",
-                "validation_id",
-                "validation_name",
-                "record_no",
-                "uid",
-                "fig_link",
-                "validation_desc",
-            ],
-            columns="field_number",
-            values=["field_name", "field_value"],
-            aggfunc="first",
-        ).reset_index()
-
-        df_pivot.columns = [f"{col[0]}_{col[1]}" if col[1] else col[0] for col in df_pivot.columns]
-
-        df_pivot.rename(
-            columns={f"field_name_{i}": f"field_{i}" for i in range(1, len(df_pivot.columns) // 2 + 1)}, inplace=True
-        )
-        df_pivot.rename(
-            columns={f"field_value_{i}": f"value_{i}" for i in range(1, len(df_pivot.columns) // 2 + 1)}, inplace=True
-        )
-        df_pivot.rename(
-            columns={
-                "record_no": "row",
-                "validation_severity": "validation_type",
-                "uid": "unique_identifier",
-                "validation_desc": "validation_description",
-            },
-            inplace=True,
-        )
-
-        field_columns = [col for col in df_pivot.columns if col.startswith('field_')]
-        value_columns = [col for col in df_pivot.columns if col.startswith('value_')]
-        sorted_columns = [col for pair in zip(field_columns, value_columns) for col in pair]
-
-        df_pivot = df_pivot[
-            [
-                "validation_type",
-                "validation_id",
-                "validation_name",
-                "row",
-                "unique_identifier",
-                "fig_link",
-                "validation_description",
+                + sorted_columns
             ]
-            + sorted_columns
-        ]
 
-        df_pivot['row'] += 1
+            df_pivot['row'] += 1
+            total_csv += df_pivot.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, header=False)
 
-        return df_pivot.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC)
+        field_headers = []
+        for i in range(largest_field_count):
+            field_headers.append(f"field_{i+1}")
+            field_headers.append(f"value_{i+1}")
+        header += ",".join(field_headers) + "\n"
+        csv_data = header + total_csv
+        return csv_data
 
 
 def df_to_str(df: pd.DataFrame) -> str:
@@ -93,7 +120,7 @@ def df_to_csv(df: pd.DataFrame) -> str:
 
 def df_to_table(df: pd.DataFrame) -> str:
     # trim field_value field to just 50 chars, similar to DataFrame default
-    table_df = df.drop(columns='validation_desc').sort_index()
+    table_df = df.sort_index()
     table_df['field_value'] = table_df['field_value'].str[0:50]
 
     # NOTE: `type: ignore` because tabulate package typing does not include Pandas
@@ -102,21 +129,30 @@ def df_to_table(df: pd.DataFrame) -> str:
 
 
 def df_to_json(df: pd.DataFrame) -> str:
+    return ujson.dumps(df_to_dicts(df), indent=4, escape_forward_slashes=False)
+
+
+def df_to_dicts(df: pd.DataFrame) -> list[dict]:
     # grouping and processing keeps the process from crashing on really large error
     # dataframes (millions of errors).  We can't chunk because could cause splitting
     # related validation data across chunks, without having to add extra processing
     # for tying those objects back together.  Grouping adds a little more processing
     # time for smaller datasets but keeps really larger ones from crashing.
+
+    checks = get_all_checks()
+
     json_results = []
     if not df.empty:
         grouped_df = df.groupby('validation_id')
+        total_errors_per_group = math.ceil(10000 / grouped_df.ngroups)
         for group_name, group_data in grouped_df:
-            json_results.append(process_chunk(group_data, group_name))
+            check = find_check(group_name, checks)
+            json_results.append(process_chunk(group_data.head(total_errors_per_group), group_name, check))
         json_results = sorted(json_results, key=lambda x: x['validation']['id'])
-    return ujson.dumps(json_results, indent=4, escape_forward_slashes=False)
+    return json_results
 
 
-def process_chunk(df: pd.DataFrame, validation_id: str) -> [dict]:
+def process_chunk(df: pd.DataFrame, validation_id: str, check: SBLCheck) -> [dict]:
     df.reset_index(drop=True, inplace=True)
     findings_json = ujson.loads(df.to_json(orient='columns'))
     grouped_data = []
@@ -133,11 +169,11 @@ def process_chunk(df: pd.DataFrame, validation_id: str) -> [dict]:
     validation_info = {
         'validation': {
             'id': validation_id,
-            'name': findings_json['validation_name']['0'],
-            'description': findings_json['validation_desc']['0'],
-            'severity': findings_json['validation_severity']['0'],
-            'scope': findings_json['scope']['0'],
-            'fig_link': findings_json['fig_link']['0'],
+            'name': check.name,
+            'description': check.description,
+            'severity': check.severity,
+            'scope': check.scope,
+            'fig_link': check.fig_link,
         },
         'records': [],
     }

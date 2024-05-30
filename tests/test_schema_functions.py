@@ -241,7 +241,7 @@ class TestValidatePhases:
         is_valid, findings_df, validation_phase = validate_phases(df, {'lei': lei})
 
         assert not is_valid
-        assert len(findings_df['validation_name'] == 'uid.invalid_uid_lei') > 0
+        assert len(findings_df['validation_id'] == 'W0003') > 0
         assert validation_phase == ValidationPhase.LOGICAL.value
 
     def test_column_not_found_in_df(self):
