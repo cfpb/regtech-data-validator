@@ -7,8 +7,6 @@ from tabulate import tabulate
 from regtech_data_validator.phase_validations import get_phase_1_and_2_validations_for_lei
 from regtech_data_validator.checks import SBLCheck
 
-MAX_JSON_RECORDS = 10000
-
 
 def get_all_checks():
     return [
