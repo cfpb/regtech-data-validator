@@ -6,8 +6,8 @@ from regtech_data_validator.create_schemas import (
     get_phase_2_schema_for_lei,
     validate,
     validate_phases,
-    ValidationPhase,
 )
+from regtech_data_validator.validation_results import ValidationPhase
 
 
 class TestUtil:
@@ -106,11 +106,11 @@ class TestValidate:
 
     def test_with_valid_dataframe(self):
         df = pd.DataFrame(data=self.util.get_data())
-        p1_is_valid, p1_findings_df = validate(self.phase1_schema, df)
-        p2_is_valid, p2_findings_df = validate(self.phase2_schema, df)
+        p1_results = validate(self.phase1_schema, df)
+        p2_results = validate(self.phase2_schema, df)
 
-        assert p1_is_valid
-        assert p2_is_valid
+        assert p1_results.is_valid
+        assert p2_results.is_valid
 
     def test_with_valid_lei(self):
         lei = "000TESTFIUIDDONOTUSE"
@@ -119,21 +119,21 @@ class TestValidate:
 
         df = pd.DataFrame(data=self.util.get_data())
 
-        p1_is_valid, p1_findings_df = validate(phase1_schema_by_lei, df)
-        p2_is_valid, p2_findings_df = validate(phase2_schema_by_lei, df)
+        p1_results = validate(phase1_schema_by_lei, df)
+        p2_results = validate(phase2_schema_by_lei, df)
 
-        assert p1_is_valid
-        assert p2_is_valid
+        assert p1_results.is_valid
+        assert p2_results.is_valid
 
     def test_with_invalid_dataframe(self):
         df = pd.DataFrame(data=self.util.get_data({"ct_credit_product": ["989"]}))
 
-        p1_is_valid, p1_findings_df = validate(self.phase1_schema, df)
-        p2_is_valid, p2_findings_df = validate(self.phase2_schema, df)
+        p1_results = validate(self.phase1_schema, df)
+        p2_results = validate(self.phase2_schema, df)
 
-        assert not p1_is_valid
-        assert len(p1_findings_df) == 1
-        assert p2_is_valid
+        assert not p1_results.is_valid
+        assert len(p1_results.findings) == 1
+        assert p2_results.is_valid
 
     def test_with_multi_invalid_dataframe(self):
         df = pd.DataFrame(
@@ -145,13 +145,13 @@ class TestValidate:
                 }
             )
         )
-        p1_is_valid, p1_findings_df = validate(self.phase1_schema, df)
-        assert not p1_is_valid
-        assert len(p1_findings_df) == 1
+        results = validate(self.phase1_schema, df)
+        assert not results.is_valid
+        assert len(results.findings) == 1
 
-        p2_is_valid, p2_findings_df = validate(self.phase2_schema, df)
+        results = validate(self.phase2_schema, df)
         # 3 unique findings raised
-        assert len(p2_findings_df.index.unique()) == 4
+        assert len(results.findings.index.unique()) == 4
 
     def test_with_invalid_lei(self):
         lei = "000TESTFIUIDDONOTUS1"
@@ -161,46 +161,44 @@ class TestValidate:
 
         df = pd.DataFrame(data=self.util.get_data({"ct_credit_product": ["989"]}))
 
-        p1_is_valid, p1_findings_df = validate(phase1_schema_by_lei, df)
-        p2_is_valid, p2_findings_df = validate(phase2_schema_by_lei, df)
+        p1_results = validate(phase1_schema_by_lei, df)
+        p2_results = validate(phase2_schema_by_lei, df)
 
         # 1 unique findings raised in phase 1
-        assert not p1_is_valid
-        assert len(p1_findings_df.index.unique()) == 1
+        assert not p1_results.is_valid
+        assert len(p1_results.findings.index.unique()) == 1
 
         # 1 unique finding raised in phase 2
-        assert not p2_is_valid
-        assert len(p2_findings_df.index.unique()) == 1
+        assert not p2_results.is_valid
+        assert len(p2_results.findings.index.unique()) == 1
 
 
 class TestValidatePhases:
     util = TestUtil()
 
     def test_with_valid_data(self):
-        is_valid, findings_df, validation_phase = validate_phases(pd.DataFrame(data=self.util.get_data()))
+        results = validate_phases(pd.DataFrame(data=self.util.get_data()))
 
-        assert is_valid
-        assert validation_phase == ValidationPhase.LOGICAL.value
+        assert results.is_valid
+        assert results.phase == ValidationPhase.LOGICAL.value
 
     def test_with_valid_lei(self):
         lei = "000TESTFIUIDDONOTUSE"
         df = pd.DataFrame(data=self.util.get_data())
-        is_valid, findings_df, validation_phase = validate_phases(df, {'lei': lei})
+        results = validate_phases(df, {'lei': lei})
 
-        assert is_valid
-        assert validation_phase == ValidationPhase.LOGICAL.value
+        assert results.is_valid
+        assert results.phase == ValidationPhase.LOGICAL.value
 
     def test_with_invalid_data(self):
-        is_valid, findings_df, validation_phase = validate_phases(
-            pd.DataFrame(data=self.util.get_data({"ct_credit_product": ["989"]}))
-        )
+        results = validate_phases(pd.DataFrame(data=self.util.get_data({"ct_credit_product": ["989"]})))
 
-        assert not is_valid
-        assert len(findings_df) == 1
-        assert validation_phase == ValidationPhase.SYNTACTICAL.value
+        assert not results.is_valid
+        assert len(results.findings) == 1
+        assert results.phase == ValidationPhase.SYNTACTICAL.value
 
     def test_with_multi_invalid_data_with_phase1(self):
-        is_valid, findings_df, validation_phase = validate_phases(
+        results = validate_phases(
             pd.DataFrame(
                 data=self.util.get_data(
                     {
@@ -213,13 +211,13 @@ class TestValidatePhases:
         )
 
         # should only return phase 1 validation result since phase1 failed
-        assert not is_valid
+        assert not results.is_valid
 
-        assert validation_phase == ValidationPhase.SYNTACTICAL.value
-        assert len(findings_df) == 1
+        assert results.phase == ValidationPhase.SYNTACTICAL.value
+        assert len(results.findings) == 1
 
     def test_with_multi_invalid_data_with_phase2(self):
-        is_valid, findings_df, validation_phase = validate_phases(
+        results = validate_phases(
             pd.DataFrame(
                 data=self.util.get_data(
                     {
@@ -231,18 +229,18 @@ class TestValidatePhases:
         )
         # since the data passed phase 1 validations
         # this should return phase 2 validations
-        assert not is_valid
-        assert validation_phase == ValidationPhase.LOGICAL.value
-        assert len(findings_df.index.unique()) == 4
+        assert not results.is_valid
+        assert results.phase == ValidationPhase.LOGICAL.value
+        assert len(results.findings.index.unique()) == 4
 
     def test_with_invalid_lei(self):
         lei = "000TESTFIUIDDONOTUS1"
         df = pd.DataFrame(data=self.util.get_data())
-        is_valid, findings_df, validation_phase = validate_phases(df, {'lei': lei})
+        results = validate_phases(df, {'lei': lei})
 
-        assert not is_valid
-        assert len(findings_df['validation_id'] == 'W0003') > 0
-        assert validation_phase == ValidationPhase.LOGICAL.value
+        assert not results.is_valid
+        assert len(results.findings['validation_id'] == 'W0003') > 0
+        assert results.phase == ValidationPhase.LOGICAL.value
 
     def test_column_not_found_in_df(self):
         with pytest.raises(RuntimeError) as re:

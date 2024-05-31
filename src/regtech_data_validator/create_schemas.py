@@ -8,14 +8,7 @@ from pandera.errors import SchemaErrors, SchemaError, SchemaErrorReason
 from regtech_data_validator.checks import SBLCheck
 from regtech_data_validator.phase_validations import get_phase_1_and_2_validations_for_lei
 from regtech_data_validator.schema_template import get_template
-
-from enum import StrEnum
-
-MAX_ERRORS = 1000000
-
-class ValidationPhase(StrEnum):
-    SYNTACTICAL = "Syntactical"
-    LOGICAL = "Logical"
+from regtech_data_validator.validation_results import ValidationPhase, ValidationResults
 
 
 # Get separate schema templates for phase 1 and 2
@@ -96,7 +89,7 @@ def _add_validation_metadata(failed_check_fields_df: pd.DataFrame, check: SBLChe
     return validation_fields_df
 
 
-def validate(schema: DataFrameSchema, submission_df: pd.DataFrame) -> tuple[bool, pd.DataFrame]:
+def validate(schema: DataFrameSchema, submission_df: pd.DataFrame, max_errors: int = 1000000) -> ValidationResults:
     """
     validate received dataframe with schema and return list of
     schema errors
@@ -111,7 +104,7 @@ def validate(schema: DataFrameSchema, submission_df: pd.DataFrame) -> tuple[bool
     findings_df: pd.DataFrame = pd.DataFrame()
     next_finding_no: int = 1
     single_field = multi_field = register = 0
-    
+
     try:
         schema(submission_df, lazy=True)
     except SchemaErrors as err:
@@ -122,8 +115,8 @@ def validate(schema: DataFrameSchema, submission_df: pd.DataFrame) -> tuple[bool
         schema_error: SchemaError
         single_field, multi_field, register = get_scope_counts(err.schema_errors)
         total_error_count = sum([single_field, multi_field, register])
-        if total_error_count > MAX_ERRORS:
-            err.schema_errors = trim_down_errors(err.schema_errors)
+        if total_error_count > max_errors:
+            err.schema_errors = trim_down_errors(err.schema_errors, max_errors)
         for schema_error in err.schema_errors:  # type: ignore
             check = schema_error.check
             column_name = schema_error.schema.name
@@ -153,14 +146,15 @@ def validate(schema: DataFrameSchema, submission_df: pd.DataFrame) -> tuple[bool
                 # The above exception handling _should_ prevent this from ever happenin, but...just in case.
                 raise RuntimeError(f'No check output for "{check.name}" check.  Pandera SchemaError: {schema_error}')
         findings_df = pd.concat(check_findings)
+
     updated_df = add_uid(findings_df, submission_df)
-    results = {
-        "single_field_count": single_field,
-        "multi_field_count": multi_field,
-        "register_count": register,
-        "is_valid": is_valid,
-        "findings": updated_df
-    }
+    results = ValidationResults(
+        single_field_count=single_field,
+        multi_field_count=multi_field,
+        register_count=register,
+        is_valid=is_valid,
+        findings=updated_df,
+    )
     return results
 
 
@@ -176,47 +170,62 @@ def add_uid(results_df: pd.DataFrame, submission_df: pd.DataFrame) -> pd.DataFra
     return results_df
 
 
-def validate_phases(df: pd.DataFrame, context: dict[str, str] | None = None) -> tuple[bool, pd.DataFrame]:
+def validate_phases(
+    df: pd.DataFrame, context: dict[str, str] | None = None, max_errors: int = 1000000
+) -> ValidationResults:
 
-    results = validate(get_phase_1_schema_for_lei(context), df)
+    results = validate(get_phase_1_schema_for_lei(context), df, max_errors)
 
-    if not results["is_valid"]:
-        results["phase"] = ValidationPhase.SYNTACTICAL.value
+    if not results.is_valid:
+        results.phase = ValidationPhase.SYNTACTICAL.value
         return results
 
     results = validate(get_phase_2_schema_for_lei(context), df)
-    results["phase"] = ValidationPhase.LOGICAL.value
+    results.phase = ValidationPhase.LOGICAL.value
     return results
 
 
-def get_scope_counts(schema_errors):
-    single = [(error.check_output == False).sum() for error in schema_errors if error.check.scope == 'single-field']
-    multi = [(error.check_output == False).sum() for error in schema_errors if error.check.scope == 'multi-field']
-    register = [(error.check_output == False).sum() for error in schema_errors if error.check.scope == 'register']
+def get_scope_counts(schema_errors: list[SchemaError]):
+    single = [
+        (~error.check_output).sum()
+        for error in schema_errors
+        if isinstance(error.check, SBLCheck) and error.check.scope == 'single-field'
+    ]
+    multi = [
+        (~error.check_output).sum()
+        for error in schema_errors
+        if isinstance(error.check, SBLCheck) and error.check.scope == 'multi-field'
+    ]
+    register = [
+        (~error.check_output).sum()
+        for error in schema_errors
+        if isinstance(error.check, SBLCheck) and error.check.scope == 'register'
+    ]
     return sum(single), sum(multi), sum(register)
 
-def trim_down_errors(schema_errors):
+
+def trim_down_errors(schema_errors: list[SchemaError], max_errors: int):
     error_counts = [sum(~error.check_output) for error in schema_errors]
     total_error_count = sum(error_counts)
-    
-    # Take the list of counts per error to determine a ratio for each, 
-    # relative to the total number of errors, and use that ratio in 
+
+    # Take the list of counts per error to determine a ratio for each,
+    # relative to the total number of errors, and use that ratio in
     # relation to the max error count to determine a total count for that error
-    error_proportions = [(count / total_error_count) for count in error_counts]
-    new_counts = [int(MAX_ERRORS * prop) for prop in error_proportions]
-    
+    error_ratios = [(count / total_error_count) for count in error_counts]
+    new_counts = [int(max_errors * prop) for prop in error_ratios]
     # Adjust the totals by 1, but within the original number of errors per error id,
     # until we hit the max
-    if sum(new_counts) < MAX_ERRORS:
-        for i in range(len(new_counts)):
-            if new_counts[i] < error_counts[i]:
-                new_counts[i] = new_counts[i] + 1
-            if sum(new_counts) == MAX_ERRORS:
-                break
-    
+    if sum(new_counts) < max_errors:
+        while sum(new_counts) < max_errors:
+            for i in range(len(new_counts)):
+                if new_counts[i] < error_counts[i]:
+                    new_counts[i] = new_counts[i] + 1
+                if sum(new_counts) == max_errors:
+                    break
+
     for error, new_count in zip(schema_errors, new_counts):
         error_indices = error.check_output[~error.check_output].index
         keep_indices = error_indices[:new_count]
         error.check_output = error.check_output.loc[keep_indices]
-    
+
     return schema_errors

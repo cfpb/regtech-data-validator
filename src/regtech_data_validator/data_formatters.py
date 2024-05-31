@@ -1,5 +1,4 @@
 import csv
-import math
 import ujson
 import pandas as pd
 
@@ -7,6 +6,8 @@ from tabulate import tabulate
 
 from regtech_data_validator.phase_validations import get_phase_1_and_2_validations_for_lei
 from regtech_data_validator.checks import SBLCheck
+
+MAX_JSON_RECORDS = 10000
 
 
 def get_all_checks():
@@ -23,7 +24,7 @@ def find_check(group_name, checks):
     return next(gen)
 
 
-def df_to_download(df: pd.DataFrame) -> str:
+def df_to_download(df: pd.DataFrame, total_errors: int, max_errors: int = 1000000) -> str:
     header = "validation_type,validation_id,validation_name,row,unique_identifier,fig_link,validation_description,"
     if df.empty:
         # return headers of csv for 'emtpy' report
@@ -105,6 +106,10 @@ def df_to_download(df: pd.DataFrame) -> str:
             field_headers.append(f"field_{i+1}")
             field_headers.append(f"value_{i+1}")
         header += ",".join(field_headers) + "\n"
+
+        if total_errors and total_errors > max_errors:
+            header += f"The submission contained {total_errors}, but only {max_errors} will be displayed in the download report.  Fix the current errors and resubmit to see more.\n"
+
         csv_data = header + total_csv
         return csv_data
 
@@ -128,11 +133,11 @@ def df_to_table(df: pd.DataFrame) -> str:
     return tabulate(table_df, headers='keys', showindex=True, tablefmt='rounded_outline')  # type: ignore
 
 
-def df_to_json(df: pd.DataFrame) -> str:
-    return ujson.dumps(df_to_dicts(df), indent=4, escape_forward_slashes=False)
+def df_to_json(df: pd.DataFrame, max_records: int = 10000, max_group_size: int = None) -> str:
+    return ujson.dumps(df_to_dicts(df, max_records, max_group_size), indent=4, escape_forward_slashes=False)
 
 
-def df_to_dicts(df: pd.DataFrame) -> list[dict]:
+def df_to_dicts(df: pd.DataFrame, max_records: int = 10000, max_group_size: int = None) -> list[dict]:
     # grouping and processing keeps the process from crashing on really large error
     # dataframes (millions of errors).  We can't chunk because could cause splitting
     # related validation data across chunks, without having to add extra processing
@@ -143,13 +148,53 @@ def df_to_dicts(df: pd.DataFrame) -> list[dict]:
 
     json_results = []
     if not df.empty:
-        grouped_df = df.groupby('validation_id')
-        total_errors_per_group = math.ceil(10000 / grouped_df.ngroups)
-        for group_name, group_data in grouped_df:
-            check = find_check(group_name, checks)
-            json_results.append(process_chunk(group_data.head(total_errors_per_group), group_name, check))
+        grouped_df = df.groupby('validation_id', group_keys=False)
+        if not max_group_size:
+            total_errors_per_group = calculate_group_chunk_sizes(grouped_df, max_records)
+        else:
+            total_errors_per_group = {}
+            for group_name, group_data in grouped_df:
+                total_errors_per_group[group_name] = max_group_size
+        for validation_id, group in df.groupby("validation_id"):
+            check = find_check(validation_id, checks)
+            truncated_group = truncate_validation_group_records(group, total_errors_per_group[validation_id])
+            json_results.append(process_chunk(truncated_group, validation_id, check))
         json_results = sorted(json_results, key=lambda x: x['validation']['id'])
     return json_results
+
+
+def calculate_group_chunk_sizes(grouped_df, max_records):
+    # This function is similar to create_schemas.trim_down_errors but focuses on number of
+    # records per validation id.  It uses a ratio relative to total errors to determine
+    # each group's adjusted errors relative to max_records, and then adjusts to hit max.
+    error_counts = {}
+    for group_name, group_data in grouped_df:
+        error_counts[group_name] = len(group_data["record_no"].unique())
+    total_error_count = sum(error_counts.values())
+
+    if total_error_count > max_records:
+        error_ratios = [(count / total_error_count) for count in error_counts.values()]
+        new_counts = [int(max_records * prop) for prop in error_ratios]
+        # Adjust the totals by 1, but within the original number of errors per error id,
+        # until we hit the max
+        if sum(new_counts) < max_records:
+            while sum(new_counts) < max_records:
+                for i in range(len(new_counts)):
+                    if new_counts[i] < list(error_counts.values())[i]:
+                        new_counts[i] = new_counts[i] + 1
+                        if sum(new_counts) == max_records:
+                            break
+
+        error_counts = dict(zip(error_counts.keys(), new_counts))
+    return error_counts
+
+
+# Cuts off the number of records.  Can't just 'head' on the group due to the dataframe structure.
+# So this function uses the group error counts to truncate on record numbers
+def truncate_validation_group_records(group, group_size):
+    unique_record_nos = group['record_no'].unique()[:group_size]
+    truncated_group = group[group['record_no'].isin(unique_record_nos)]
+    return truncated_group
 
 
 def process_chunk(df: pd.DataFrame, validation_id: str, check: SBLCheck) -> [dict]:
