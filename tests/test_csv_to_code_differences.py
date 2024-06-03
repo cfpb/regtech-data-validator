@@ -9,7 +9,10 @@ class TestCSVDifferences:
         py_codes = get_phase_1_and_2_validations_for_lei()
         py_validations = [
             {"validation_id": s.title, "type": s.severity, "description": s.description}
-            for s in ([v[ValidationPhase.SYNTACTICAL] for v in py_codes.values()] + [v[ValidationPhase.LOGICAL] for v in py_codes.values()])
+            for s in (
+                [v[ValidationPhase.SYNTACTICAL] for v in py_codes.values()]
+                + [v[ValidationPhase.LOGICAL] for v in py_codes.values()]
+            )
             for s in s
         ]
 
