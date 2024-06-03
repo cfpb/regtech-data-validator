@@ -86,14 +86,23 @@ def validate(
         input_df = pd.read_csv(path, dtype=str, na_filter=False)
     except Exception as e:
         raise RuntimeError(e)
-    is_valid, findings_df, validation_phase = validate_phases(input_df, context_dict)
+    validation_results = validate_phases(input_df, context_dict)
 
     status = 'SUCCESS'
     no_of_findings = 0
-
-    if not is_valid:
+    total_errors = 0
+    findings_df = pd.DataFrame()
+    if not validation_results.is_valid:
         status = 'FAILURE'
+        findings_df = validation_results.findings
         no_of_findings = len(findings_df.index.unique())
+        total_errors = sum(
+            [
+                validation_results.single_field_count,
+                validation_results.multi_field_count,
+                validation_results.register_count,
+            ]
+        )
 
         match output:
             case OutputFormat.PANDAS:
@@ -105,14 +114,17 @@ def validate(
             case OutputFormat.TABLE:
                 print(df_to_table(findings_df))
             case OutputFormat.DOWNLOAD:
-                print(df_to_download(findings_df))
+                print(df_to_download(findings_df, total_errors))
             case _:
                 raise ValueError(f'output format "{output}" not supported')
 
-    typer.echo(f"status: {status}, findings: {no_of_findings}, validation phase: {validation_phase}", err=True)
+    typer.echo(
+        f"status: {status}, total errors: {total_errors}, findings: {no_of_findings}, validation phase: {validation_results.phase}",
+        err=True,
+    )
 
     # returned values are only used in unit tests
-    return is_valid, findings_df
+    return validation_results.is_valid, findings_df
 
 
 if __name__ == '__main__':
