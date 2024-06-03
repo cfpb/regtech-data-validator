@@ -1,4 +1,5 @@
 from regtech_data_validator.phase_validations import get_phase_1_and_2_validations_for_lei
+from regtech_data_validator.validation_results import ValidationPhase
 import pandas as pd
 
 
@@ -8,7 +9,7 @@ class TestCSVDifferences:
         py_codes = get_phase_1_and_2_validations_for_lei()
         py_validations = [
             {"validation_id": s.title, "type": s.severity, "description": s.description}
-            for s in ([v["phase_1"] for v in py_codes.values()] + [v["phase_2"] for v in py_codes.values()])
+            for s in ([v[ValidationPhase.SYNTACTICAL] for v in py_codes.values()] + [v[ValidationPhase.LOGICAL] for v in py_codes.values()])
             for s in s
         ]
 

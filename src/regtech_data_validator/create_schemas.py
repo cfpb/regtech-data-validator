@@ -11,8 +11,6 @@ from regtech_data_validator.phase_validations import get_phase_1_and_2_validatio
 from regtech_data_validator.schema_template import get_template
 from regtech_data_validator.validation_results import ValidationPhase, ValidationResults
 
-PHASE_1 = "phase_1"
-PHASE_2 = "phase_2"
 
 # Get separate schema templates for phase 1 and 2
 phase_1_template = get_template()
@@ -28,11 +26,11 @@ def get_schema_by_phase_for_lei(template: dict, phase: str, context: dict[str, s
 
 
 def get_phase_1_schema_for_lei(context: dict[str, str] | None = None):
-    return get_schema_by_phase_for_lei(phase_1_template, PHASE_1, context)
+    return get_schema_by_phase_for_lei(phase_1_template, ValidationPhase.SYNTACTICAL, context)
 
 
 def get_phase_2_schema_for_lei(context: dict[str, str] | None = None):
-    return get_schema_by_phase_for_lei(phase_2_template, PHASE_2, context)
+    return get_schema_by_phase_for_lei(phase_2_template, ValidationPhase.LOGICAL, context)
 
 
 def _get_check_fields(check: Check, primary_column: str) -> list[str]:
@@ -157,7 +155,7 @@ def validate(schema: DataFrameSchema, submission_df: pd.DataFrame, max_errors: i
         register_count=register,
         is_valid=is_valid,
         findings=updated_df,
-        phase=ValidationPhase.SYNTACTICAL.value if schema.name == PHASE_1 else ValidationPhase.LOGICAL.value,
+        phase=schema.name,
     )
     return results
 
