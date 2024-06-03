@@ -1,4 +1,5 @@
 import csv
+import math
 import ujson
 import pandas as pd
 
@@ -156,7 +157,9 @@ def df_to_dicts(df: pd.DataFrame, max_records: int = 10000, max_group_size: int 
         for validation_id, group in df.groupby("validation_id"):
             check = find_check(validation_id, checks)
             truncated_group = truncate_validation_group_records(group, total_errors_per_group[validation_id])
-            json_results.append(process_chunk(truncated_group, validation_id, check))
+            group_json = process_chunk(truncated_group, validation_id, check)
+            if group_json:
+                json_results.append(process_chunk(truncated_group, validation_id, check))
         json_results = sorted(json_results, key=lambda x: x['validation']['id'])
     return json_results
 
@@ -168,20 +171,29 @@ def calculate_group_chunk_sizes(grouped_df, max_records):
     error_counts = {}
     for group_name, group_data in grouped_df:
         error_counts[group_name] = len(group_data["record_no"].unique())
-    total_error_count = sum(error_counts.values())
+    error_count_list = list(error_counts.values())
+    total_error_count = sum(error_count_list)
 
     if total_error_count > max_records:
-        error_ratios = [(count / total_error_count) for count in error_counts.values()]
-        new_counts = [int(max_records * prop) for prop in error_ratios]
-        # Adjust the totals by 1, but within the original number of errors per error id,
-        # until we hit the max
-        if sum(new_counts) < max_records:
-            while sum(new_counts) < max_records:
-                for i in range(len(new_counts)):
-                    if new_counts[i] < list(error_counts.values())[i]:
-                        new_counts[i] = new_counts[i] + 1
-                        if sum(new_counts) == max_records:
-                            break
+        error_ratios = [(count / total_error_count) for count in error_count_list]
+        new_counts = [math.ceil(max_records * prop) for prop in error_ratios]
+
+        # Adjust the counts in case we went over max.  This is very likely since we're using
+        # ceil, unless we have an exact equality of the new counts.  Because of the use
+        # of ceil, we will never have the sum of the new counts be less than max.
+        if sum(new_counts) > max_records:
+            while sum(new_counts) > max_records:
+                # arbitrary reversal to contain errors in FIG order, if we need to remove
+                # records from errors to fit max
+                for i in reversed(range(len(new_counts))):
+                    if new_counts[i] > 1:
+                        new_counts[i] -= 1
+                    # check if all the counts are equal to 1, then
+                    # start removing those until we hit max
+                    elif new_counts[i] == 1 and sum(new_counts) <= len(new_counts):
+                        new_counts[i] -= 1
+                    if sum(new_counts) == max_records:
+                        break
 
         error_counts = dict(zip(error_counts.keys(), new_counts))
     return error_counts
@@ -199,6 +211,9 @@ def process_chunk(df: pd.DataFrame, validation_id: str, check: SBLCheck) -> [dic
     df.reset_index(drop=True, inplace=True)
     findings_json = ujson.loads(df.to_json(orient='columns'))
     grouped_data = []
+    if not findings_json['record_no']:
+        return
+
     for i in range(len(findings_json['record_no'])):
         grouped_data.append(
             {

@@ -193,6 +193,19 @@ class TestOutputFormat:
         results_object = [
             {
                 "validation": {
+                    "id": "E0040",
+                    "name": "app_method.invalid_enum_value",
+                    "description": "* 'Application method' must equal 1, 2, 3, or 4.",
+                    "severity": "Error",
+                    "scope": "single-field",
+                    "fig_link": "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.4",
+                },
+                "records": [
+                    {"record_no": 4, "uid": "12345678901234567890", "fields": [{"name": "app_method", "value": "5"}]}
+                ],
+            },
+            {
+                "validation": {
                     "id": "E2008",
                     "name": "amount_approved.conditional_field_conflict",
                     "description": "* When 'action taken' does **not** equal 1 (originated) or \n2 (approved but not accepted), 'amount approved or originated' must be blank.\n* When 'action taken' equals 1 or 2, 'amount approved or originated' must **not** be blank.\n",
@@ -208,27 +221,15 @@ class TestOutputFormat:
                     }
                 ],
             },
-            {
-                "validation": {
-                    "id": "E3000",
-                    "name": "uid.duplicates_in_dataset",
-                    "description": "* Any 'unique identifier' may **not** be used in more than one \nrecord within a small business lending application register.\n",
-                    "severity": "Error",
-                    "scope": "register",
-                    "fig_link": "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1",
-                },
-                "records": [
-                    {
-                        "record_no": 1,
-                        "uid": "12345678901234567890",
-                        "fields": [{"name": "uid", "value": "12345678901234567890"}],
-                    },
-                ],
-            },
         ]
         expected_output = ujson.dumps(results_object, indent=4, escape_forward_slashes=False)
 
-        actual_output = df_to_json(self.input_df, max_records=2)
+        error_df = pd.DataFrame(self.input_df)
+        error_df.loc[-1] = [4, '12345678901234567890', 'app_method', '5', 'E0040']
+        error_df.index = error_df.index + 1
+        error_df.sort_index(inplace=True)
+
+        actual_output = df_to_json(error_df, max_records=2)
         assert actual_output == expected_output
 
     def test_download_csv(self):

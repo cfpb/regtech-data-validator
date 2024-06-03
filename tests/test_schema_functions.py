@@ -197,6 +197,35 @@ class TestValidatePhases:
         assert len(results.findings) == 1
         assert results.phase == ValidationPhase.SYNTACTICAL.value
 
+    def test_max_errors(self):
+        errors = [pd.DataFrame(data=self.util.get_data({"app_recipient": ["3"]})) for i in range(0, 6)]
+        errors.append(
+            pd.DataFrame(
+                data=self.util.get_data(
+                    {"ct_credit_product": ["989"], "ct_loan_term_flag": ["989"], "ct_guarantee": ["989"]}
+                )
+            )
+        )
+        errors = pd.concat(errors)
+        errors = errors.reset_index()
+        results = validate_phases(errors, max_errors=2)
+
+        assert not results.is_valid
+        assert len(results.findings) == 2
+        assert results.phase == ValidationPhase.SYNTACTICAL.value
+
+        errors = [pd.DataFrame(data=self.util.get_data({"app_recipient": ["3"]})) for i in range(0, 200)]
+        errors.extend([pd.DataFrame(data=self.util.get_data({"ct_credit_product": ["989"]})) for i in range(0, 200)])
+        errors.extend([pd.DataFrame(data=self.util.get_data({"app_method": ["5"]})) for i in range(0, 300)])
+        errors = pd.concat(errors)
+        errors = errors.reset_index()
+
+        results = validate_phases(errors, max_errors=100)
+
+        assert not results.is_valid
+        assert len(results.findings) == 100
+        assert results.phase == ValidationPhase.SYNTACTICAL.value
+
     def test_with_multi_invalid_data_with_phase1(self):
         results = validate_phases(
             pd.DataFrame(

@@ -57,12 +57,3 @@ class TestValidatingSampleData:
         # 'uid.invalid_uid_lei' and other validations returned
         assert len(results.findings['validation_id'].unique()) > 1
         assert results.phase == ValidationPhase.SYNTACTICAL.value
-
-    def test_run_validation_with_max(self):
-        lei = "000TESTFIUIDDONOTUS1"
-        results = validate_phases(self.bad_file_df, {'lei': lei}, max_errors=10)
-
-        assert not results.is_valid
-        assert len(results.findings['validation_id'].unique()) == 10
-        assert len(results.findings['validation_id'] == 'W0003') > 0
-        assert results.phase == ValidationPhase.SYNTACTICAL.value

@@ -1,6 +1,7 @@
 """Creates two DataFrameSchema objects by rendering the schema template
 with validations listed in phase 1 and phase 2."""
 
+import math
 import pandas as pd
 from pandera import Check, DataFrameSchema
 from pandera.errors import SchemaErrors, SchemaError, SchemaErrorReason
@@ -211,15 +212,24 @@ def trim_down_errors(schema_errors: list[SchemaError], max_errors: int):
     # Take the list of counts per error to determine a ratio for each,
     # relative to the total number of errors, and use that ratio in
     # relation to the max error count to determine a total count for that error
+    # use a max so that we always have at least 1 (for really small ratios)
     error_ratios = [(count / total_error_count) for count in error_counts]
-    new_counts = [int(max_errors * prop) for prop in error_ratios]
-    # Adjust the totals by 1, but within the original number of errors per error id,
-    # until we hit the max
-    if sum(new_counts) < max_errors:
-        while sum(new_counts) < max_errors:
-            for i in range(len(new_counts)):
-                if new_counts[i] < error_counts[i]:
-                    new_counts[i] = new_counts[i] + 1
+    new_counts = [math.ceil(max_errors * prop) for prop in error_ratios]
+
+    # Adjust the counts in case we went over max.  This is very likely since we're using
+    # ceil, unless we have an exact equality of the new counts.  Because of the use
+    # of ceil, we will never have the sum of the new counts be less than max.
+    if sum(new_counts) > max_errors:
+        while sum(new_counts) > max_errors:
+            # arbitrary reversal to contain errors in FIG order, if we need to remove
+            # errors to fit max
+            for i in reversed(range(len(new_counts))):
+                if new_counts[i] > 1:
+                    new_counts[i] -= 1
+                # check if all the counts are equal to 1, then
+                # start removing those until we hit max
+                elif new_counts[i] == 1 and sum(new_counts) <= len(new_counts):
+                    new_counts[i] -= 1
                 if sum(new_counts) == max_errors:
                     break
 
@@ -227,5 +237,4 @@ def trim_down_errors(schema_errors: list[SchemaError], max_errors: int):
         error_indices = error.check_output[~error.check_output].index
         keep_indices = error_indices[:new_count]
         error.check_output = error.check_output.loc[keep_indices]
-
     return schema_errors
