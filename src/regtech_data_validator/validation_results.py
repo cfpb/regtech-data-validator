@@ -9,11 +9,11 @@ class ValidationPhase(StrEnum):
     LOGICAL = "Logical"
 
 
-@dataclass
+@dataclass(frozen=True)
 class ValidationResults(object):
     single_field_count: int
     multi_field_count: int
     register_count: int
     is_valid: bool
     findings: pd.DataFrame
-    phase: ValidationPhase = None
+    phase: ValidationPhase
