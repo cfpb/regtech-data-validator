@@ -1,7 +1,8 @@
-"""This is a mapping of column names and validations for each phase.
+"""This is a mapping of column names and validations for each phase
+Defined in validation_results.ValidationPhase.
 
 This mapping is used to populate the schema template object and create
-an instance of a PanderaSchema object for phase 1 and phase 2."""
+an instance of a PanderaSchema object for SYNTACTICAL and LOGICAL phases"""
 
 from textwrap import dedent
 
@@ -30,6 +31,7 @@ from regtech_data_validator.check_functions import (
     string_contains,
 )
 from regtech_data_validator.checks import SBLCheck, Severity
+from regtech_data_validator.validation_results import ValidationPhase
 
 
 def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None):
@@ -37,7 +39,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
 
     return {
         "uid": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     21,
                     45,
@@ -71,7 +73,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     regex="^[A-Z0-9]+$",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     is_unique_column,
                     id="E3000",
@@ -107,7 +109,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "app_date": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_date,
                     id="E0020",
@@ -119,10 +121,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     element_wise=True,
                 ),
             ],
-            "phase_2": [],
+            ValidationPhase.LOGICAL: [],
         },
         "app_method": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E0040",
@@ -140,10 +142,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ],
                 ),
             ],
-            "phase_2": [],
+            ValidationPhase.LOGICAL: [],
         },
         "app_recipient": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E0060",
@@ -159,10 +161,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ],
                 ),
             ],
-            "phase_2": [],
+            ValidationPhase.LOGICAL: [],
         },
         "ct_credit_product": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E0080",
@@ -186,10 +188,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ],
                 ),
             ],
-            "phase_2": [],
+            ValidationPhase.LOGICAL: [],
         },
         "ct_credit_product_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 # FIXME: built-in Pandera checks do not support add'l params like `severity`
                 SBLCheck.str_length(
                     0,
@@ -207,7 +209,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 )
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2000",
@@ -229,7 +231,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "ct_guarantee": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E0120",
@@ -261,7 +263,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ],
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_valid_value_count,
                     id="E0121",
@@ -308,7 +310,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "ct_guarantee_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -320,7 +322,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2001",
@@ -359,7 +361,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "ct_loan_term_flag": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E0160",
@@ -376,7 +378,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ],
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_valid_enum_pair,
                     id="E2003",
@@ -411,7 +413,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "ct_loan_term": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_number,
                     id="E0180",
@@ -424,7 +426,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2004",
@@ -468,7 +470,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "credit_purpose": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E0200",
@@ -501,7 +503,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ],
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_valid_value_count,
                     id="E0201",
@@ -552,7 +554,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "credit_purpose_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -569,7 +571,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2005",
@@ -611,7 +613,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "amount_applied_for_flag": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E0240",
@@ -628,10 +630,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ],
                 ),
             ],
-            "phase_2": [],
+            ValidationPhase.LOGICAL: [],
         },
         "amount_applied_for": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_number,
                     id="E0260",
@@ -644,7 +646,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2007",
@@ -678,7 +680,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "amount_approved": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_number,
                     id="E0280",
@@ -691,7 +693,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     is_greater_than,
                     id="E0281",
@@ -724,7 +726,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "action_taken": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E0300",
@@ -743,7 +745,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ],
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_valid_fieldset_pair,
                     id="E2014",
@@ -827,7 +829,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "action_taken_date": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_date,
                     id="E0320",
@@ -839,7 +841,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     element_wise=True,
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     is_date_in_range,
                     id="E0321",
@@ -887,7 +889,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "denial_reasons": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E0340",
@@ -917,7 +919,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ],
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_valid_value_count,
                     id="E0341",
@@ -993,7 +995,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "denial_reasons_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     min_value=0,
                     max_value=300,
@@ -1010,7 +1012,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2012",
@@ -1052,7 +1054,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "pricing_interest_rate_type": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E0380",
@@ -1073,10 +1075,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ],
                 ),
             ],
-            "phase_2": [],
+            ValidationPhase.LOGICAL: [],
         },
         "pricing_init_rate_period": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_number,
                     id="E0400",
@@ -1093,7 +1095,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2016",
@@ -1131,7 +1133,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "pricing_fixed_rate": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_number,
                     id="E0420",
@@ -1144,7 +1146,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2017",
@@ -1178,7 +1180,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "pricing_adj_margin": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_number,
                     id="E0440",
@@ -1191,7 +1193,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2018",
@@ -1230,7 +1232,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "pricing_adj_index_name": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E0460",
@@ -1261,7 +1263,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ],
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_valid_enum_pair,
                     id="E2019",
@@ -1297,7 +1299,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "pricing_adj_index_name_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     min_value=0,
                     max_value=300,
@@ -1313,7 +1315,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2020",
@@ -1335,7 +1337,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "pricing_adj_index_value": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_number,
                     id="E0500",
@@ -1348,7 +1350,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2021",
@@ -1370,7 +1372,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "pricing_origination_charges": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_number,
                     id="E0520",
@@ -1383,10 +1385,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [],
+            ValidationPhase.LOGICAL: [],
         },
         "pricing_broker_fees": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_number,
                     id="E0540",
@@ -1399,10 +1401,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [],
+            ValidationPhase.LOGICAL: [],
         },
         "pricing_initial_charges": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_number,
                     id="E0560",
@@ -1415,10 +1417,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [],
+            ValidationPhase.LOGICAL: [],
         },
         "pricing_mca_addcost_flag": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E0580",
@@ -1439,7 +1441,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ],
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_valid_enum_pair,
                     id="E2022",
@@ -1469,7 +1471,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "pricing_mca_addcost": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_number,
                     id="E0600",
@@ -1487,7 +1489,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2023",
@@ -1512,7 +1514,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "pricing_prepenalty_allowed": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E0620",
@@ -1529,10 +1531,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ],
                 ),
             ],
-            "phase_2": [],
+            ValidationPhase.LOGICAL: [],
         },
         "pricing_prepenalty_exists": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E0640",
@@ -1549,10 +1551,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ],
                 ),
             ],
-            "phase_2": [],
+            ValidationPhase.LOGICAL: [],
         },
         "census_tract_adr_type": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E0660",
@@ -1570,10 +1572,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ],
                 ),
             ],
-            "phase_2": [],
+            ValidationPhase.LOGICAL: [],
         },
         "census_tract_number": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     has_correct_length,
                     id="E0680",
@@ -1587,7 +1589,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_valid_enum_pair,
                     id="E2024",
@@ -1641,7 +1643,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "gross_annual_revenue_flag": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E0700",
@@ -1657,10 +1659,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ],
                 ),
             ],
-            "phase_2": [],
+            ValidationPhase.LOGICAL: [],
         },
         "gross_annual_revenue": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_number,
                     id="E0720",
@@ -1673,7 +1675,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2025",
@@ -1695,7 +1697,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "naics_code_flag": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E0740",
@@ -1716,10 +1718,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ],
                 ),
             ],
-            "phase_2": [],
+            ValidationPhase.LOGICAL: [],
         },
         "naics_code": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_number,
                     id="E0761",
@@ -1737,7 +1739,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_correct_length,
                     id="E0760",
@@ -1795,7 +1797,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "number_of_workers": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E0780",
@@ -1819,10 +1821,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ],
                 ),
             ],
-            "phase_2": [],
+            ValidationPhase.LOGICAL: [],
         },
         "time_in_business_type": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E0800",
@@ -1840,10 +1842,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ],
                 ),
             ],
-            "phase_2": [],
+            ValidationPhase.LOGICAL: [],
         },
         "time_in_business": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_number,
                     id="E0820",
@@ -1856,7 +1858,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     is_greater_than_or_equal_to,
                     id="E0821",
@@ -1889,7 +1891,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "business_ownership_status": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E0840",
@@ -1914,7 +1916,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ],
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_valid_value_count,
                     id="E0841",
@@ -1957,7 +1959,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "num_principal_owners_flag": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E0860",
@@ -1973,10 +1975,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ],
                 ),
             ],
-            "phase_2": [],
+            ValidationPhase.LOGICAL: [],
         },
         "num_principal_owners": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E0880",
@@ -1990,7 +1992,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2028",
@@ -2235,7 +2237,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_1_ethnicity": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E0900",
@@ -2264,7 +2266,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     is_unique_in_field,
                     id="W0901",
@@ -2296,7 +2298,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_1_ethnicity_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -2313,7 +2315,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2040",
@@ -2336,7 +2338,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_1_race": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E0940",
@@ -2387,7 +2389,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     is_unique_in_field,
                     id="W0941",
@@ -2418,7 +2420,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_1_race_anai_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -2436,7 +2438,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2060",
@@ -2460,7 +2462,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_1_race_asian_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -2477,7 +2479,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2080",
@@ -2499,7 +2501,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_1_race_baa_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -2516,7 +2518,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2100",
@@ -2540,7 +2542,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_1_race_pi_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -2557,7 +2559,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2120",
@@ -2581,7 +2583,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_1_gender_flag": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E1040",
@@ -2599,10 +2601,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [],
+            ValidationPhase.LOGICAL: [],
         },
         "po_1_gender_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -2619,7 +2621,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2140",
@@ -2642,7 +2644,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_2_ethnicity": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E1080",
@@ -2671,7 +2673,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     is_unique_in_field,
                     id="W1081",
@@ -2703,7 +2705,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_2_ethnicity_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -2720,7 +2722,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2041",
@@ -2743,7 +2745,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_2_race": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E1120",
@@ -2794,7 +2796,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     is_unique_in_field,
                     id="W1121",
@@ -2827,7 +2829,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_2_race_anai_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -2845,7 +2847,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2061",
@@ -2869,7 +2871,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_2_race_asian_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -2886,7 +2888,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2081",
@@ -2908,7 +2910,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_2_race_baa_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -2925,7 +2927,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2101",
@@ -2948,7 +2950,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_2_race_pi_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -2965,7 +2967,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2121",
@@ -2988,7 +2990,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_2_gender_flag": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E1220",
@@ -3006,10 +3008,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [],
+            ValidationPhase.LOGICAL: [],
         },
         "po_2_gender_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -3026,7 +3028,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2141",
@@ -3051,7 +3053,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_3_ethnicity": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E1260",
@@ -3081,7 +3083,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     is_unique_in_field,
                     id="W1261",
@@ -3113,7 +3115,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_3_ethnicity_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -3130,7 +3132,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2042",
@@ -3153,7 +3155,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_3_race": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E1300",
@@ -3204,7 +3206,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     is_unique_in_field,
                     id="W1301",
@@ -3236,7 +3238,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_3_race_anai_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -3254,7 +3256,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2062",
@@ -3278,7 +3280,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_3_race_asian_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -3295,7 +3297,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2082",
@@ -3318,7 +3320,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_3_race_baa_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -3335,7 +3337,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2102",
@@ -3358,7 +3360,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_3_race_pi_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -3375,7 +3377,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2122",
@@ -3398,7 +3400,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_3_gender_flag": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E1400",
@@ -3416,10 +3418,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [],
+            ValidationPhase.LOGICAL: [],
         },
         "po_3_gender_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -3436,7 +3438,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2142",
@@ -3459,7 +3461,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_4_ethnicity": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E1440",
@@ -3488,7 +3490,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     is_unique_in_field,
                     id="W1441",
@@ -3520,7 +3522,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_4_ethnicity_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -3537,7 +3539,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2043",
@@ -3560,7 +3562,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_4_race": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E1480",
@@ -3611,7 +3613,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     is_unique_in_field,
                     id="W1481",
@@ -3643,7 +3645,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_4_race_anai_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -3661,7 +3663,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2063",
@@ -3685,7 +3687,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_4_race_asian_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -3702,7 +3704,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2083",
@@ -3725,7 +3727,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_4_race_baa_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -3742,7 +3744,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2103",
@@ -3766,7 +3768,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_4_race_pi_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -3783,7 +3785,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2123",
@@ -3807,7 +3809,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
             ],
         },
         "po_4_gender_flag": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck(
                     is_valid_enum,
                     id="E1580",
@@ -3825,10 +3827,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     accept_blank=True,
                 ),
             ],
-            "phase_2": [],
+            ValidationPhase.LOGICAL: [],
         },
         "po_4_gender_ff": {
-            "phase_1": [
+            ValidationPhase.SYNTACTICAL: [
                 SBLCheck.str_length(
                     0,
                     300,
@@ -3845,7 +3847,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                 ),
             ],
-            "phase_2": [
+            ValidationPhase.LOGICAL: [
                 SBLCheck(
                     has_no_conditional_field_conflict,
                     id="E2143",

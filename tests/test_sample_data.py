@@ -1,7 +1,8 @@
 import pandas as pd
 import pytest
 
-from regtech_data_validator.create_schemas import validate_phases, ValidationPhase
+from regtech_data_validator.create_schemas import validate_phases
+from regtech_data_validator.validation_results import ValidationPhase
 
 GOOD_FILE_PATH = "./tests/data/sbl-validations-pass.csv"
 BAD_FILE_PATH = "./tests/data/sbl-validations-fail.csv"
@@ -19,40 +20,40 @@ class TestValidatingSampleData:
 
     def test_run_validation_on_good_data_invalid_lei(self):
         lei = "000TESTFIUIDDONOTUS1"
-        is_valid, findings_df, validation_phase = validate_phases(self.good_file_df, {'lei': lei})
+        results = validate_phases(self.good_file_df, {'lei': lei})
 
-        assert not is_valid
+        assert not results.is_valid
 
         # Only 'uid.invalid_uid_lei' validation returned
-        assert len(findings_df['validation_name'].unique()) == 1
-        assert len(findings_df['validation_name'] == 'uid.invalid_uid_lei') > 0
-        assert validation_phase == ValidationPhase.LOGICAL.value
+        assert len(results.findings['validation_id'].unique()) == 1
+        assert len(results.findings['validation_id'] == 'W0003') > 0
+        assert results.phase == ValidationPhase.LOGICAL.value
 
     def test_run_validation_on_good_data_valid_lei(self):
         lei = "000TESTFIUIDDONOTUSE"
-        is_valid, findings_df, validation_phase = validate_phases(self.good_file_df, {'lei': lei})
+        results = validate_phases(self.good_file_df, {'lei': lei})
 
-        assert is_valid
-        assert findings_df.empty
-        assert validation_phase == ValidationPhase.LOGICAL.value
+        assert results.is_valid
+        assert results.findings.empty
+        assert results.phase == ValidationPhase.LOGICAL.value
 
     def test_run_validation_on_bad_data_invalid_lei(self):
         lei = "000TESTFIUIDDONOTUS1"
-        is_valid, findings_df, validation_phase = validate_phases(self.bad_file_df, {'lei': lei})
+        results = validate_phases(self.bad_file_df, {'lei': lei})
 
-        assert not is_valid
+        assert not results.is_valid
 
         # 'uid.invalid_uid_lei' and other validations returned
-        assert len(findings_df['validation_name'].unique()) > 1
-        assert len(findings_df['validation_name'] == 'uid.invalid_uid_lei') > 0
-        assert validation_phase == ValidationPhase.SYNTACTICAL.value
+        assert len(results.findings['validation_id'].unique()) > 1
+        assert len(results.findings['validation_id'] == 'W0003') > 0
+        assert results.phase == ValidationPhase.SYNTACTICAL.value
 
     def test_run_validation_on_bad_data_valid_lei(self):
         lei = "000TESTFIUIDDONOTUSE"
-        is_valid, findings_df, validation_phase = validate_phases(self.bad_file_df, {'lei': lei})
+        results = validate_phases(self.bad_file_df, {'lei': lei})
 
-        assert not is_valid
+        assert not results.is_valid
 
         # 'uid.invalid_uid_lei' and other validations returned
-        assert len(findings_df['validation_name'].unique()) > 1
-        assert validation_phase == ValidationPhase.SYNTACTICAL.value
+        assert len(results.findings['validation_id'].unique()) > 1
+        assert results.phase == ValidationPhase.SYNTACTICAL.value
