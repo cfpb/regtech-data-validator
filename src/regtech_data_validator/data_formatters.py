@@ -161,7 +161,7 @@ def df_to_dicts(df: pd.DataFrame, max_records: int = 10000, max_group_size: int 
             )
             group_json = process_chunk(truncated_group, validation_id, check)
             if group_json:
-                group_json["validation"]["truncated"] = need_to_truncate
+                group_json["validation"]["is_truncated"] = need_to_truncate
                 json_results.append(group_json)
         json_results = sorted(json_results, key=lambda x: x['validation']['id'])
     return json_results

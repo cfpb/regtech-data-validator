@@ -110,7 +110,7 @@ class TestOutputFormat:
                     "severity": "Error",
                     "scope": "multi-field",
                     "fig_link": "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.7",
-                    "truncated": False,
+                    "is_truncated": False,
                 },
                 "records": [
                     {
@@ -128,7 +128,7 @@ class TestOutputFormat:
                     "severity": "Error",
                     "scope": "register",
                     "fig_link": "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1",
-                    "truncated": False,
+                    "is_truncated": False,
                 },
                 "records": [
                     {
@@ -159,7 +159,7 @@ class TestOutputFormat:
                     "severity": "Error",
                     "scope": "multi-field",
                     "fig_link": "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.7",
-                    "truncated": False,
+                    "is_truncated": False,
                 },
                 "records": [
                     {
@@ -177,7 +177,7 @@ class TestOutputFormat:
                     "severity": "Error",
                     "scope": "register",
                     "fig_link": "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1",
-                    "truncated": True,
+                    "is_truncated": True,
                 },
                 "records": [
                     {
@@ -203,7 +203,7 @@ class TestOutputFormat:
                     "severity": "Error",
                     "scope": "single-field",
                     "fig_link": "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.4",
-                    "truncated": True,
+                    "is_truncated": True,
                 },
                 "records": [
                     {"record_no": 4, "uid": "12345678901234567890", "fields": [{"name": "app_method", "value": "5"}]}
@@ -217,7 +217,7 @@ class TestOutputFormat:
                     "severity": "Error",
                     "scope": "multi-field",
                     "fig_link": "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.7",
-                    "truncated": False,
+                    "is_truncated": False,
                 },
                 "records": [
                     {
