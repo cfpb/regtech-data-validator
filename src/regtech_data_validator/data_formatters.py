@@ -156,10 +156,13 @@ def df_to_dicts(df: pd.DataFrame, max_records: int = 10000, max_group_size: int 
                 total_errors_per_group[group_name] = max_group_size
         for validation_id, group in df.groupby("validation_id"):
             check = find_check(validation_id, checks)
-            truncated_group = truncate_validation_group_records(group, total_errors_per_group[validation_id])
+            truncated_group, need_to_truncate = truncate_validation_group_records(
+                group, total_errors_per_group[validation_id]
+            )
             group_json = process_chunk(truncated_group, validation_id, check)
             if group_json:
-                json_results.append(process_chunk(truncated_group, validation_id, check))
+                group_json["validation"]["is_truncated"] = need_to_truncate
+                json_results.append(group_json)
         json_results = sorted(json_results, key=lambda x: x['validation']['id'])
     return json_results
 
@@ -202,9 +205,10 @@ def calculate_group_chunk_sizes(grouped_df, max_records):
 # Cuts off the number of records.  Can't just 'head' on the group due to the dataframe structure.
 # So this function uses the group error counts to truncate on record numbers
 def truncate_validation_group_records(group, group_size):
+    need_to_truncate = len(group['record_no'].unique()) > group_size
     unique_record_nos = group['record_no'].unique()[:group_size]
     truncated_group = group[group['record_no'].isin(unique_record_nos)]
-    return truncated_group
+    return truncated_group, need_to_truncate
 
 
 def process_chunk(df: pd.DataFrame, validation_id: str, check: SBLCheck) -> [dict]:

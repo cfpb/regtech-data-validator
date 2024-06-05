@@ -110,6 +110,7 @@ class TestOutputFormat:
                     "severity": "Error",
                     "scope": "multi-field",
                     "fig_link": "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.7",
+                    "is_truncated": False,
                 },
                 "records": [
                     {
@@ -127,6 +128,7 @@ class TestOutputFormat:
                     "severity": "Error",
                     "scope": "register",
                     "fig_link": "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1",
+                    "is_truncated": False,
                 },
                 "records": [
                     {
@@ -157,6 +159,7 @@ class TestOutputFormat:
                     "severity": "Error",
                     "scope": "multi-field",
                     "fig_link": "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.7",
+                    "is_truncated": False,
                 },
                 "records": [
                     {
@@ -174,6 +177,7 @@ class TestOutputFormat:
                     "severity": "Error",
                     "scope": "register",
                     "fig_link": "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1",
+                    "is_truncated": True,
                 },
                 "records": [
                     {
@@ -199,6 +203,7 @@ class TestOutputFormat:
                     "severity": "Error",
                     "scope": "single-field",
                     "fig_link": "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.4",
+                    "is_truncated": True,
                 },
                 "records": [
                     {"record_no": 4, "uid": "12345678901234567890", "fields": [{"name": "app_method", "value": "5"}]}
@@ -212,6 +217,7 @@ class TestOutputFormat:
                     "severity": "Error",
                     "scope": "multi-field",
                     "fig_link": "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.7",
+                    "is_truncated": False,
                 },
                 "records": [
                     {
@@ -225,8 +231,9 @@ class TestOutputFormat:
         expected_output = ujson.dumps(results_object, indent=4, escape_forward_slashes=False)
 
         error_df = pd.DataFrame(self.input_df)
-        error_df.loc[-1] = [4, '12345678901234567890', 'app_method', '5', 'E0040']
-        error_df.index = error_df.index + 1
+        error_df.loc[-1] = [5, '12345678901234567890', 'app_method', '5', 'E0040']
+        error_df.loc[-2] = [4, '12345678901234567890', 'app_method', '5', 'E0040']
+        error_df.index = error_df.index + 2
         error_df.sort_index(inplace=True)
 
         actual_output = df_to_json(error_df, max_records=2)
