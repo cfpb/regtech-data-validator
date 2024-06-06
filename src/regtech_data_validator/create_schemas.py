@@ -104,7 +104,7 @@ def validate(schema: DataFrameSchema, submission_df: pd.DataFrame, max_errors: i
     is_valid = True
     findings_df: pd.DataFrame = pd.DataFrame()
     next_finding_no: int = 1
-    single_field = multi_field = register = 0
+    error_counts = warning_counts = 0
 
     try:
         schema(submission_df, lazy=True)
@@ -116,7 +116,7 @@ def validate(schema: DataFrameSchema, submission_df: pd.DataFrame, max_errors: i
         schema_error: SchemaError
         error_counts = get_scope_counts(err.schema_errors, Severity.ERROR)
         warning_counts = get_scope_counts(err.schema_errors, Severity.WARNING)
-        total_error_count = sum([single_field, multi_field, register])
+        total_error_count = sum([error_counts.total_count, warning_counts.total_count])
         if total_error_count > max_errors:
             err.schema_errors = trim_down_errors(err.schema_errors, max_errors)
         for schema_error in err.schema_errors:  # type: ignore
