@@ -6,10 +6,10 @@ import pandas as pd
 from pandera import Check, DataFrameSchema
 from pandera.errors import SchemaErrors, SchemaError, SchemaErrorReason
 
-from regtech_data_validator.checks import SBLCheck
+from regtech_data_validator.checks import SBLCheck, Severity
 from regtech_data_validator.phase_validations import get_phase_1_and_2_validations_for_lei
 from regtech_data_validator.schema_template import get_template
-from regtech_data_validator.validation_results import ValidationPhase, ValidationResults
+from regtech_data_validator.validation_results import ValidationPhase, ValidationResults, Count
 
 
 # Get separate schema templates for phase 1 and 2
@@ -114,7 +114,8 @@ def validate(schema: DataFrameSchema, submission_df: pd.DataFrame, max_errors: i
         # NOTE: `type: ignore` because SchemaErrors.schema_errors is supposed to be
         #       `list[dict[str,Any]]`, but it's actually of type `SchemaError`
         schema_error: SchemaError
-        single_field, multi_field, register = get_scope_counts(err.schema_errors)
+        error_counts = get_scope_counts(err.schema_errors, Severity.ERROR)
+        warning_counts = get_scope_counts(err.schema_errors, Severity.WARNING)
         total_error_count = sum([single_field, multi_field, register])
         if total_error_count > max_errors:
             err.schema_errors = trim_down_errors(err.schema_errors, max_errors)
@@ -150,9 +151,8 @@ def validate(schema: DataFrameSchema, submission_df: pd.DataFrame, max_errors: i
 
     updated_df = add_uid(findings_df, submission_df)
     results = ValidationResults(
-        single_field_count=single_field,
-        multi_field_count=multi_field,
-        register_count=register,
+        error_counts=error_counts,
+        warning_counts=warning_counts,
         is_valid=is_valid,
         findings=updated_df,
         phase=schema.name,
@@ -184,23 +184,40 @@ def validate_phases(
     return validate(get_phase_2_schema_for_lei(context), df, max_errors)
 
 
-def get_scope_counts(schema_errors: list[SchemaError]):
-    single = [
-        (~error.check_output).sum()
-        for error in schema_errors
-        if isinstance(error.check, SBLCheck) and error.check.scope == 'single-field'
-    ]
-    multi = [
-        (~error.check_output).sum()
-        for error in schema_errors
-        if isinstance(error.check, SBLCheck) and error.check.scope == 'multi-field'
-    ]
-    register = [
-        (~error.check_output).sum()
-        for error in schema_errors
-        if isinstance(error.check, SBLCheck) and error.check.scope == 'register'
-    ]
-    return sum(single), sum(multi), sum(register)
+def get_scope_counts(schema_errors: list[SchemaError], severity: Severity):
+    single = sum(
+        [
+            (~error.check_output).sum()
+            for error in schema_errors
+            if isinstance(error.check, SBLCheck)
+            and error.check.scope == 'single-field'
+            and error.check.severity == severity
+        ]
+    )
+    multi = sum(
+        [
+            (~error.check_output).sum()
+            for error in schema_errors
+            if isinstance(error.check, SBLCheck)
+            and error.check.scope == 'multi-field'
+            and error.check.severity == severity
+        ]
+    )
+    register = sum(
+        [
+            (~error.check_output).sum()
+            for error in schema_errors
+            if isinstance(error.check, SBLCheck)
+            and error.check.scope == 'register'
+            and error.check.severity == severity
+        ]
+    )
+    return Count(
+        single_field_count=single,
+        multi_field_count=multi,
+        register_count=register,
+        total_count=sum([single, multi, register]),
+    )
 
 
 def trim_down_errors(schema_errors: list[SchemaError], max_errors: int):
