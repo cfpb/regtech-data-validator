@@ -98,9 +98,8 @@ def validate(
         no_of_findings = len(findings_df.index.unique())
         total_errors = sum(
             [
-                validation_results.single_field_count,
-                validation_results.multi_field_count,
-                validation_results.register_count,
+                validation_results.error_counts.total_count,
+                validation_results.warning_counts.total_count,
             ]
         )
 
