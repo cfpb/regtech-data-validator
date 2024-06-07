@@ -9,8 +9,7 @@ from pandera.errors import SchemaErrors, SchemaError, SchemaErrorReason
 from regtech_data_validator.checks import SBLCheck, Severity
 from regtech_data_validator.phase_validations import get_phase_1_and_2_validations_for_lei
 from regtech_data_validator.schema_template import get_template
-from regtech_data_validator.validation_results import ValidationPhase, ValidationResults, Count
-
+from regtech_data_validator.validation_results import ValidationPhase, ValidationResults, Counts
 
 # Get separate schema templates for phase 1 and 2
 phase_1_template = get_template()
@@ -104,7 +103,7 @@ def validate(schema: DataFrameSchema, submission_df: pd.DataFrame, max_errors: i
     is_valid = True
     findings_df: pd.DataFrame = pd.DataFrame()
     next_finding_no: int = 1
-    error_counts = warning_counts = 0
+    error_counts = warning_counts = Counts()
 
     try:
         schema(submission_df, lazy=True)
@@ -114,8 +113,7 @@ def validate(schema: DataFrameSchema, submission_df: pd.DataFrame, max_errors: i
         # NOTE: `type: ignore` because SchemaErrors.schema_errors is supposed to be
         #       `list[dict[str,Any]]`, but it's actually of type `SchemaError`
         schema_error: SchemaError
-        error_counts = get_scope_counts(err.schema_errors, Severity.ERROR)
-        warning_counts = get_scope_counts(err.schema_errors, Severity.WARNING)
+        error_counts, warning_counts = get_scope_counts(err.schema_errors)
         total_error_count = sum([error_counts.total_count, warning_counts.total_count])
         if total_error_count > max_errors:
             err.schema_errors = trim_down_errors(err.schema_errors, max_errors)
@@ -175,7 +173,6 @@ def add_uid(results_df: pd.DataFrame, submission_df: pd.DataFrame) -> pd.DataFra
 def validate_phases(
     df: pd.DataFrame, context: dict[str, str] | None = None, max_errors: int = 1000000
 ) -> ValidationResults:
-
     results = validate(get_phase_1_schema_for_lei(context), df, max_errors)
 
     if not results.is_valid:
@@ -184,39 +181,35 @@ def validate_phases(
     return validate(get_phase_2_schema_for_lei(context), df, max_errors)
 
 
-def get_scope_counts(schema_errors: list[SchemaError], severity: Severity):
-    single = sum(
+def get_scope_counts(schema_errors: list[SchemaError]):
+    singles = [
+        error for error in schema_errors if isinstance(error.check, SBLCheck) and error.check.scope == 'single-field'
+    ]
+    single_errors = sum([(~error.check_output).sum() for error in singles if error.severity == Severity.ERROR])
+    single_warnings = sum([(~error.check_output).sum() for error in singles if error.severity == Severity.WARNING])
+    multi = [
+        error for error in schema_errors if isinstance(error.check, SBLCheck) and error.check.scope == 'multi-field'
+    ]
+    multi_errors = sum([(~error.check_output).sum() for error in multi if error.severity == Severity.ERROR])
+    multi_warnings = sum([(~error.check_output).sum() for error in multi if error.severity == Severity.WARNING])
+    register_errors = sum(
         [
             (~error.check_output).sum()
             for error in schema_errors
-            if isinstance(error.check, SBLCheck)
-            and error.check.scope == 'single-field'
-            and error.check.severity == severity
+            if isinstance(error.check, SBLCheck) and error.check.scope == 'register'
         ]
     )
-    multi = sum(
-        [
-            (~error.check_output).sum()
-            for error in schema_errors
-            if isinstance(error.check, SBLCheck)
-            and error.check.scope == 'multi-field'
-            and error.check.severity == severity
-        ]
-    )
-    register = sum(
-        [
-            (~error.check_output).sum()
-            for error in schema_errors
-            if isinstance(error.check, SBLCheck)
-            and error.check.scope == 'register'
-            and error.check.severity == severity
-        ]
-    )
-    return Count(
-        single_field_count=single,
-        multi_field_count=multi,
-        register_count=register,
-        total_count=sum([single, multi, register]),
+
+    return Counts(
+        single_field_count=single_errors,
+        multi_field_count=multi_errors,
+        register_count=register_errors,
+        total_count=sum([single_errors, multi_errors, register_errors]),
+    ), Counts(
+        single_field_count=single_warnings,
+        multi_field_count=multi_warnings,
+        register_count=0,  # There are no register-level warnings at this time
+        total_count=sum([single_warnings, multi_warnings]),
     )
 
 

@@ -10,17 +10,17 @@ class ValidationPhase(StrEnum):
 
 
 @dataclass(frozen=True)
-class Count(object):
-    single_field_count: int
-    multi_field_count: int
-    register_count: int
-    total_count: int
+class Counts(object):
+    single_field_count: int = 0
+    multi_field_count: int = 0
+    register_count: int = 0
+    total_count: int = 0
 
 
 @dataclass(frozen=True)
 class ValidationResults(object):
-    error_counts: Count
-    warning_counts: Count
+    error_counts: Counts
+    warning_counts: Counts
     is_valid: bool
     findings: pd.DataFrame
     phase: ValidationPhase
