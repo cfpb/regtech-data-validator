@@ -212,11 +212,11 @@ def get_scope_counts(schema_errors: list[SchemaError]):
         single_field_count=single_errors,
         multi_field_count=multi_errors,
         register_count=register_errors,
-        total_count=int(sum([single_errors, multi_errors, register_errors])),
+        total_count=sum([single_errors, multi_errors, register_errors]),
     ), Counts(
         single_field_count=single_warnings,
         multi_field_count=multi_warnings,
-        total_count=int(sum([single_warnings, multi_warnings])),  # There are no register-level warnings at this time
+        total_count=sum([single_warnings, multi_warnings]),  # There are no register-level warnings at this time
     )
 
 
