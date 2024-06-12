@@ -185,21 +185,27 @@ def get_scope_counts(schema_errors: list[SchemaError]):
     singles = [
         error for error in schema_errors if isinstance(error.check, SBLCheck) and error.check.scope == 'single-field'
     ]
-    single_errors = sum([(~error.check_output).sum() for error in singles if error.check.severity == Severity.ERROR])
-    single_warnings = sum(
-        [(~error.check_output).sum() for error in singles if error.check.severity == Severity.WARNING]
+    single_errors = int(
+        sum([(~error.check_output).sum() for error in singles if error.check.severity == Severity.ERROR])
+    )
+    single_warnings = int(
+        sum([(~error.check_output).sum() for error in singles if error.check.severity == Severity.WARNING])
     )
     multi = [
         error for error in schema_errors if isinstance(error.check, SBLCheck) and error.check.scope == 'multi-field'
     ]
-    multi_errors = sum([(~error.check_output).sum() for error in multi if error.check.severity == Severity.ERROR])
-    multi_warnings = sum([(~error.check_output).sum() for error in multi if error.check.severity == Severity.WARNING])
-    register_errors = sum(
-        [
-            (~error.check_output).sum()
-            for error in schema_errors
-            if isinstance(error.check, SBLCheck) and error.check.scope == 'register'
-        ]
+    multi_errors = int(sum([(~error.check_output).sum() for error in multi if error.check.severity == Severity.ERROR]))
+    multi_warnings = int(
+        sum([(~error.check_output).sum() for error in multi if error.check.severity == Severity.WARNING])
+    )
+    register_errors = int(
+        sum(
+            [
+                (~error.check_output).sum()
+                for error in schema_errors
+                if isinstance(error.check, SBLCheck) and error.check.scope == 'register'
+            ]
+        )
     )
 
     return Counts(
