@@ -1,4 +1,5 @@
 import pandas as pd
+import polars as pl
 
 from dataclasses import dataclass
 from enum import StrEnum
@@ -22,5 +23,5 @@ class ValidationResults(object):
     error_counts: Counts
     warning_counts: Counts
     is_valid: bool
-    findings: pd.DataFrame
+    findings: pl.DataFrame
     phase: ValidationPhase

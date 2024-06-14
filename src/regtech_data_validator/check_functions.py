@@ -16,6 +16,8 @@ from datetime import datetime, timedelta
 from typing import Dict
 
 import pandas as pd
+import pandera.polars as pa
+import polars as pl
 import operator
 
 
@@ -48,11 +50,11 @@ def comparison_helper(value: str, limit: str, accept_blank: bool, operand) -> bo
     return operand(float(value), float(limit))
 
 
-def begins_with_same_lei(ulis: pd.Series) -> bool:
+def begins_with_same_lei(ulis: pl.Series) -> bool:
     """Verifies that only a single LEI prefixes the list of ULIs.
 
     Args:
-        ulis (pd.Series): ULIs supplied in the submission.
+        ulis (pl.Series): ULIs supplied in the submission.
 
     Returns:
         bool: True indicates that only a single LEI is present. False
@@ -60,7 +62,7 @@ def begins_with_same_lei(ulis: pd.Series) -> bool:
     """
 
     # the lei is the first 20 characters of the supplied uli
-    leis = ulis.apply(lambda s: s[:20])
+    leis = ulis.apply(lambda s: s[:20], pl.String)
 
     # there should only be a single lei present in the submission across
     # all records.
@@ -95,40 +97,6 @@ def is_date(date: str) -> bool:
         return False
 
 
-def ct_credit_product_ff_blank_validity(grouped_data: Dict[int, pd.Series]) -> pd.Series:
-    """Checks the validity of the field `ct_credit_product_ff` based on
-    the selection of `ct_credit_product`.
-
-    The free form field should be blank unless 977 is selected.
-
-    Args:
-        grouped_data (Dict[int, pd.Series]): This is a mapping of values
-            from ct_credit_product to a pd.Series containing all free
-            form text entries supplied for the given value of the credit
-            product field.
-
-            Example: {977: pd.Series(["some text", "Some more text."]),
-                      1: pd.Series(["", "", "I should be blank!"])}
-
-    Returns:
-        pd.Series: A boolean series specifying whether the value of
-            ct_credit_product_ff is valid at the specified index.
-    """
-
-    # will hold individual boolean series to be concatenated at return
-    validation_holder = []
-
-    for ct_credit_product_value, ct_credit_product_ff_series in grouped_data.items():
-        if ct_credit_product_value != 977:
-            # free form text field should be blank for non 977 entries
-            validation_holder.append(ct_credit_product_ff_series == "")
-        else:
-            # if 977 selected an explanation must be provided
-            validation_holder.append(ct_credit_product_ff_series != "")
-
-    return pd.concat(validation_holder)
-
-
 # helper function to get non blank values
 def _get_non_blank_values(values: list[str]):
     return filter(lambda v: v.strip() != "", values)
@@ -136,7 +104,7 @@ def _get_non_blank_values(values: list[str]):
 
 # helper function for has_valid_multi_field_value_count:
 # process series and return validations
-def _get_related_series_validations(value_count: int, series: pd.Series, max_length: int, separator: str = ";") -> dict:
+def _get_related_series_validations(value_count: int, series: pl.Series, max_length: int, separator: str = ";", groupby_fields: str = "") -> dict:
     series_validations = {}
     for index, value in series.items():
         series_count = len(set(_get_non_blank_values(value.split(separator))))
@@ -145,43 +113,45 @@ def _get_related_series_validations(value_count: int, series: pd.Series, max_len
 
 
 def has_valid_multi_field_value_count(
-    grouped_data: Dict[str, pd.Series],
+    grouped_data: pa.PolarsData,
     max_length: int,
     ignored_values: set[str] = set(),
+    groupby_fields: str = "",
     separator: str = ";",
-) -> pd.Series:
-    validation_holder = []
-    items = grouped_data.items()
+) -> pl.LazyFrame:
+    start = datetime.now()
+    df = grouped_data.lazyframe.collect()
+    groupby_values = df[groupby_fields].apply(lambda v: split_and_ignore(v, separator, ignored_values), return_dtype=pl.List(pl.Utf8))
+    field_values = df[grouped_data.key].apply(lambda v: split_and_ignore(v, separator, ignored_values), return_dtype=pl.List(pl.Utf8))
+    df = df.with_columns(groupby_values.alias("groupby_values"))
+    df = df.with_columns(field_values.alias("field_values"))
+    groupby_sizes = df["groupby_values"].list.lengths()
+    field_sizes = df["field_values"].list.lengths()
+    
+    check_results = (groupby_sizes + field_sizes) <= max_length
+    rf = pl.DataFrame(check_results).lazy()
+    print(f"Processing of has_valid_multi_field_value_count took {(datetime.now() - start).total_seconds()} seconds")
+    return rf
 
-    for value, other_series in items:
-        processed_value = set(_get_non_blank_values(value.split(separator)))
-        validation_holder.append(
-            pd.Series(
-                index=other_series.index,
-                name=other_series.name,
-                data=_get_related_series_validations(
-                    len(processed_value - ignored_values),
-                    other_series,
-                    max_length,
-                ),
-            )
-        )
+def split_and_ignore(value, separator, ignored_values):
+    return [s for s in value.split(separator) if s.strip() and s not in ignored_values]
 
-    return pd.concat(validation_holder)
-
-
-def _get_conditional_field_series_validations(series: pd.Series, conditional_func) -> dict:
-    series_validations = {}
-    for index, value in series.items():
-        series_validations[index] = conditional_func(value)
-    return series_validations
+def _get_conditional_field_series_validations(df: pl.DataFrame, ff_column, conditional_values, separator) -> pl.DataFrame:
+    results = []
+    for value, _ in df.group_by(ff_column, maintain_order=True):
+        results.append(bool(value.strip()))
+    else:
+        for value, _ in df.group_by(ff_column, maintain_order=True):
+            results.append(not bool(value.strip()))
+    return pl.DataFrame(results)
 
 
 def has_no_conditional_field_conflict(
-    grouped_data: Dict[str, pd.Series],
+    grouped_data: pa.PolarsData,
     condition_values: set[str] = {"977"},
+    groupby_fields: str = "", 
     separator: str = ";",
-) -> pd.Series:
+) -> pl.LazyFrame:
     """
     Validates a column's content based on another column's values.
     - if (at least one) other column values is in condition_values list then create
@@ -190,43 +160,30 @@ def has_no_conditional_field_conflict(
           values should be empty.
 
     Args:
-        grouped_data (Dict[str, pd.Series]): parsed data/series from source file
+        grouped_data (Dict[str, pl.Series]): parsed data/series from source file
         condition_values (list[str], optional): list of acceptable values for other
             column. Defaults to ["977"].
         separator (str, optional): character used to separate multiple values.
             Defaults to ";".
 
     Returns:
-        pd.Series: series of current column validations
+        pl.Series: series of current column validations
     """
-    # will hold individual boolean series to be concatenated at return
-    validation_holder = []
-    for value, other_series in grouped_data.items():
-        received_values = set(value.split(separator))
-        if received_values.isdisjoint(condition_values):
-            # disjoint will return TRUE if received values do not contain
-            #    condition values
-            # free form should be blank if acceptable values NOT existed
-            # in received list
-            validation_holder.append(
-                pd.Series(
-                    index=other_series.index,
-                    name=other_series.name,
-                    data=_get_conditional_field_series_validations(other_series, lambda v: not v.strip()),
-                )
-            )
-        else:
-            # free form text should NOT be blank if acceptable values
-            # existed in received list
-            validation_holder.append(
-                pd.Series(
-                    index=other_series.index,
-                    name=other_series.name,
-                    data=_get_conditional_field_series_validations(other_series, lambda v: v.strip() != ""),
-                )
-            )
+    start = datetime.now()
+    lf = grouped_data.lazyframe
+    check_frame = lf.with_columns([pl.col(groupby_fields).str.split(separator).alias("check_col"), pl.col(grouped_data.key).str.strip().alias("val_col")]).collect()
 
-    return pd.concat(validation_holder)
+    check_results = (
+        (check_frame["check_col"].apply(lambda arr: set(arr).isdisjoint(condition_values), return_dtype=pl.Boolean)) &
+        (check_frame["val_col"] == "")
+    ) | (
+       (check_frame["check_col"].apply(lambda arr: not set(arr).isdisjoint(condition_values), return_dtype=pl.Boolean)) &
+        (check_frame["val_col"] != "")
+    )
+
+    rf = pl.DataFrame(check_results).lazy()
+    print(f"Processing of has_no_conditional_field_conflict took {(datetime.now() - start).total_seconds()} seconds")
+    return rf
 
 
 def is_unique_in_field(ct_value: str, separator: str = ";") -> bool:
@@ -285,8 +242,9 @@ def is_date_in_range(date_value: str, start_date_value: str, end_date_value: str
 
 
 def is_date_after(
-    grouped_data: Dict[str, pd.Series],
-) -> pd.Series:
+    grouped_data: pa.PolarsData,
+    groupby_fields: str = "",
+) -> pl.Series:
     """Checks if date in column is after the date value of another column
 
     Args:
@@ -294,17 +252,11 @@ def is_date_after(
 
     Returns: Series with corresponding True/False validation values for the column
     """
-    # will hold individual boolean series to be concatenated at return
-    validation_holder = []
-    for value, other_series in grouped_data.items():
-        try:
-            before_date = datetime.strptime(value, "%Y%m%d")
-            other_series = pd.to_datetime(other_series)  # Convert other series to Date time object
-
-            validation_holder.append(other_series.apply(lambda date: date >= before_date))
-        except ValueError:
-            validation_holder.append(other_series.apply(lambda v: False))
-    return pd.concat(validation_holder)
+    lf = grouped_data.lazyframe
+    rf = lf.with_columns([pl.col(groupby_fields).str.strptime(pl.Date, "%Y%m%d").alias("check_date_tmp"), pl.col(grouped_data.key).str.strptime(pl.Date, "%Y%m%d").alias("v_date_tmp")]).collect()
+    check_results = rf['check_date_tmp'] <= rf['v_date_tmp']
+    rf = pl.DataFrame(check_results).lazy()
+    return rf
 
 
 def is_number(ct_value: str, accept_blank: bool = False) -> bool:
@@ -325,10 +277,10 @@ def is_number(ct_value: str, accept_blank: bool = False) -> bool:
 
 def _has_valid_enum_pair_validation_helper(
     condition=True,
-    series: pd.Series = None,
+    series: pl.Series = None,
     condition_value=None,
-) -> pd.Series:
-    result = pd.Series(index=series.index, name=series.name, data=True)
+) -> pl.Series:
+    result = pl.Series(index=series.index, name=series.name, data=True)
     if condition:
         result = series == condition_value
     else:
@@ -339,8 +291,8 @@ def _has_valid_enum_pair_validation_helper(
 def _has_valid_enum_pair_helper(
     conditions: list[list] = None,
     received_values: set[str] = None,
-    other_series: pd.Series = None,
-) -> pd.Series:
+    other_series: pl.Series = None,
+) -> pl.Series:
     for condition in conditions:
         if (
             condition["condition_values"] is not None
@@ -363,17 +315,18 @@ def _has_valid_enum_pair_helper(
                 condition["target_value"],
             )
 
-    return pd.Series(index=other_series.index, name=other_series.name, data=True)
+    return pl.Series(index=other_series.index, name=other_series.name, data=True)
 
 
 def has_valid_enum_pair(
-    grouped_data: Dict[str, pd.Series],
+    grouped_data: pa.PolarsData,
     conditions: list[list] = None,
+    groupby_fields: str = "",
     separator: str = ";",
-) -> pd.Series:
+) -> pl.Series:
     """Validates a column's enum value based on another column's enum values.
     Args:
-        grouped_data (Dict[str, pd.Series]): parsed data/series from source file
+        grouped_data (Dict[str, pl.Series]): parsed data/series from source file
         conditions: list of list of key-value pairs
         conditions should be passed in the following format:
             Example:
@@ -398,15 +351,35 @@ def has_valid_enum_pair(
     Returns: Series with corresponding True/False validation values for the column
     """
 
-    # will hold individual boolean series to be concatenated at return
-    validation_holder = []
-    for value, other_series in grouped_data.items():
-        received_values = set(value.split(separator))
-        validation_holder.append(_has_valid_enum_pair_helper(conditions, received_values, other_series))
-    return pd.concat(validation_holder)
+    start = datetime.now()
+    df = grouped_data.lazyframe.collect()
+    check_values = df[groupby_fields].str.split(separator)
+    target_values = df[grouped_data.key].str.strip()
+    check_results = pl.Series([True] * len(target_values))
+    
+    for condition in conditions:
+        check_results = check_results & check_condition(condition, check_values, target_values)
+    rf = pl.DataFrame(check_results).lazy()
+    print(f"Processing of has_valid_enum_pair took {(datetime.now() - start).total_seconds()} seconds")
+    return rf
 
 
-def is_date_before_in_days(grouped_data: Dict[str, pd.Series], days_value: int = 730) -> pd.Series:
+def check_condition(condition, check_values, target_values):
+    target_operator = operator.eq if condition["should_equal_target"] else operator.ne
+    con_values = condition["condition_values"]
+    target_value = condition["target_value"]
+    
+    check_df = pl.DataFrame()
+    
+    if condition["is_equal_condition"]:
+        should_check_values = check_values.apply(lambda arr: not set(arr).isdisjoint(con_values), return_dtype=pl.Boolean)
+        check_df = check_df.with_columns(pl.when(should_check_values).then(target_operator(target_values, target_value)).otherwise(True).alias("check_results"))
+    else:
+        should_check_values = check_values.apply(lambda arr: set(arr).isdisjoint(con_values), return_dtype=pl.Boolean)
+        check_df = check_df.with_columns(pl.when(should_check_values).then(target_operator(target_values, target_value)).otherwise(True).alias("check_results"))
+    return check_df["check_results"]
+
+def is_date_before_in_days(grouped_data: pa.PolarsData, days_value: int = 730, groupby_fields: str = "") -> pl.Series:
     """Checks if the provided date is not beyond
        the grouped column date plus the days_value parameter
     Args:
@@ -417,17 +390,13 @@ def is_date_before_in_days(grouped_data: Dict[str, pd.Series], days_value: int =
     Returns: Series with corresponding True/False validation values for the column
     """
     # will hold individual boolean series to be concatenated at return
-    validation_holder = []
-    for value, other_series in grouped_data.items():
-        try:
-            initial_date = datetime.strptime(value, "%Y%m%d")
-            unreasonable_date = initial_date + timedelta(days=days_value)
-            other_series = pd.to_datetime(other_series)  # Convert other series to Date time object
-
-            validation_holder.append(other_series.apply(lambda date: date < unreasonable_date))
-        except ValueError:
-            validation_holder.append(other_series.apply(lambda v: False))
-    return pd.concat(validation_holder)
+    
+    lf = grouped_data.lazyframe
+    rf = lf.with_columns([pl.col(groupby_fields).str.strptime(pl.Date, "%Y%m%d").alias("check_date_tmp"), pl.col(grouped_data.key).str.strptime(pl.Date, "%Y%m%d").alias("v_date_tmp")]).collect()
+    diff_values = (rf['check_date_tmp'] - rf['v_date_tmp']).dt.days()
+    check_results = diff_values < days_value
+    rf = pl.DataFrame(check_results).lazy()
+    return rf
 
 
 def has_correct_length(ct_value: str, accepted_length: int, accept_blank: bool = False) -> bool:
@@ -476,24 +445,21 @@ def has_valid_format(value: str, regex: str, accept_blank: bool = False) -> bool
     return _check_blank_(value, bool(re.match(regex, value)), accept_blank)
 
 
-def _is_unique_column_helper(series: pd.Series, count_limit: int):
+def _is_unique_column_helper(df: pl.DataFrame, name: str, count_limit: int, validation_holder):
     """
     helper function for is_unique_column
 
     Args:
-        series (pd.Series): series related to a row
+        series (pl.Series): series related to a row
 
     Returns:
         all rows validations
     """
-    series_validations = {}
-    check_result = series.count() <= count_limit
-    for current_index, _ in series.items():
-        series_validations[current_index] = check_result
-    return series_validations
+    check_result = len(df) <= count_limit
+    return pl.DataFrame([check_result]*len(df))
 
 
-def is_unique_column(grouped_data: Dict[any, pd.Series], count_limit: int = 1) -> pd.Series:
+def is_unique_column(grouped_data: pa.PolarsData, groupby_fields: str = "", count_limit: int = 1) -> pl.Series:
     """
     verify if the content of a column is unique.
     - To be used with element_wise set to false
@@ -501,21 +467,14 @@ def is_unique_column(grouped_data: Dict[any, pd.Series], count_limit: int = 1) -
     - Return validations for each row
 
     Args:
-        grouped_data (Dict[any, pd.Series]): rows data
+        grouped_data (Dict[any, pl.Series]): rows data
 
     Returns:
-        pd.Series: all rows validations
+        pl.Series: all rows validations
     """
-    validation_holder = []
-    for _, main_series in grouped_data.items():
-        validation_holder.append(
-            pd.Series(
-                index=main_series.index,
-                name=main_series.name,
-                data=_is_unique_column_helper(main_series, count_limit),
-            )
-        )
-    return pd.concat(validation_holder)
+    rf = grouped_data.lazyframe.select(grouped_data.key).collect().is_unique()
+    rf = pl.DataFrame(rf).lazy()
+    return rf
 
 
 def _get_has_valid_fieldset_pair_eq_neq_validation_value(
@@ -538,7 +497,7 @@ def _get_has_valid_fieldset_pair_eq_neq_validation_value(
 
 def _has_valid_fieldset_pair_helper(
     current_values: list[str],
-    series: pd.Series,
+    series: pl.Series,
     condition_values: list[str],
     should_fieldset_key_equal_to: dict({str: (int, bool, str)}) = None,
 ):
@@ -566,10 +525,11 @@ def _has_valid_fieldset_pair_helper(
 
 
 def has_valid_fieldset_pair(
-    grouped_data: Dict[any, pd.Series],
+    grouped_data: pa.PolarsData,
     condition_values: list[str],
+    groupby_fields: list[str],
     should_fieldset_key_equal_to: dict({str: (int, bool, str)}) = None,
-) -> pd.Series:
+) -> pl.Series:
     """conditional check to verify if groups of fields equal to specific
         values (equal_to_values) when another field is set/equal to
         condition_values.
@@ -579,7 +539,7 @@ def has_valid_fieldset_pair(
                 and the column data in the series
 
     Args:
-        grouped_data (Dict[list[str], pd.Series]): parsed data provided by pandera
+        grouped_data (Dict[list[str], pl.Series]): parsed data provided by pandera
         condition_values (list[str]): list of value to be compared to main series
         should_fieldset_key_equal_to Dict{str, (int, bool, str)}: dict of field name
         and tuple, where the first value is the index of field in the groupby and it
@@ -627,26 +587,31 @@ def has_valid_fieldset_pair(
             "po_4_gender_flag": (11, True, ""),
         },
     Returns:
-        pd.Series: list of series with update validations
+        pl.Series: list of series with update validations
     """
-    validation_holder = []
-    for values, main_series in grouped_data.items():
-        validation_holder.append(
-            pd.Series(
-                index=main_series.index,
-                name=main_series.name,
-                data=(
-                    _has_valid_fieldset_pair_helper(
-                        values,
-                        main_series,
-                        condition_values,
-                        should_fieldset_key_equal_to,
-                    )
-                ),
-                dtype=bool,
-            )
-        )
-    return pd.concat(validation_holder)
+    start = datetime.now()
+    df = grouped_data.lazyframe.collect()
+    target_values = df[grouped_data.key]
+    should_check_values = target_values.is_in(condition_values)
+    check_results = []
+    for idx in range(len(df)):
+        if should_check_values[idx]:
+            result = not check_fieldset(df.slice(idx,1), groupby_fields, should_fieldset_key_equal_to, grouped_data.key == "action_taken")
+        else:
+            result = True
+        check_results.append(result)
+    rf = pl.DataFrame(check_results).lazy()
+    print(f"Processing of has_valid_fieldset_pair took {(datetime.now() - start).total_seconds()} seconds")
+    return rf
+    
+
+def check_fieldset(dataframe, groupby_fields, should_fieldset_key_equal_to, do_print):
+    check_result = True
+    for field in groupby_fields:
+        operator_check = operator.eq if should_fieldset_key_equal_to[field][1] else operator.ne
+        check_value = should_fieldset_key_equal_to[field][2]
+        check_result &= operator_check(dataframe[field][0], check_value)
+    return not check_result
 
 
 def string_contains(

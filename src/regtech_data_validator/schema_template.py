@@ -12,7 +12,7 @@ See See https://docs.python.org/3/library/copy.html#copy.deepcopy for details.""
 from copy import deepcopy
 from typing import Dict
 
-from pandera import Column
+from pandera.polars import Column
 
 _schema_template = {
     "uid": Column(

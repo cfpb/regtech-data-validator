@@ -5,6 +5,7 @@ from regtech_data_validator.data_formatters import df_to_csv, df_to_str, df_to_j
 from typing import Annotated, Optional
 
 import pandas as pd
+import polars as pl
 import typer
 import typer.core
 
@@ -76,14 +77,16 @@ def validate(
         ),
     ] = None,
     output: Annotated[Optional[OutputFormat], typer.Option()] = OutputFormat.TABLE,
-) -> tuple[bool, pd.DataFrame]:
+) -> tuple[bool, pl.DataFrame]:
     """
     Validate CFPB data submission
     """
+    from datetime import datetime
     context_dict = {x.key: x.value for x in context} if context else {}
     input_df = None
+    start = datetime.now()
     try:
-        input_df = pd.read_csv(path, dtype=str, na_filter=False)
+        input_df = pl.read_csv(path, infer_schema_length=0, missing_utf8_is_empty_string=True)
     except Exception as e:
         raise RuntimeError(e)
     validation_results = validate_phases(input_df, context_dict)
@@ -91,11 +94,11 @@ def validate(
     status = 'SUCCESS'
     no_of_findings = 0
     total_errors = 0
-    findings_df = pd.DataFrame()
+    findings_df = pl.DataFrame()
     if not validation_results.is_valid:
         status = 'FAILURE'
         findings_df = validation_results.findings
-        no_of_findings = len(findings_df.index.unique())
+        no_of_findings = len(findings_df["finding_no"].unique())
         total_errors = sum(
             [
                 validation_results.error_counts.total_count,
@@ -109,7 +112,8 @@ def validate(
             case OutputFormat.CSV:
                 print(df_to_csv(findings_df))
             case OutputFormat.JSON:
-                print(df_to_json(findings_df))
+                print(f"Validation took {(datetime.now() - start).total_seconds()} seconds")
+                df_to_json(findings_df)
             case OutputFormat.TABLE:
                 print(df_to_table(findings_df))
             case OutputFormat.DOWNLOAD:

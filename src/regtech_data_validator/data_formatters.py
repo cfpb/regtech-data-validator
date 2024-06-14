@@ -2,6 +2,7 @@ import csv
 import math
 import ujson
 import pandas as pd
+import polars as pl
 
 from tabulate import tabulate
 
@@ -23,9 +24,9 @@ def find_check(group_name, checks):
     return next(gen)
 
 
-def df_to_download(df: pd.DataFrame, total_errors: int, max_errors: int = 1000000) -> str:
+def df_to_download(df: pl.DataFrame, total_errors: int, max_errors: int = 1000000) -> str:
     header = "validation_type,validation_id,validation_name,row,unique_identifier,fig_link,validation_description,"
-    if df.empty:
+    if df.is_empty:
         # return headers of csv for 'emtpy' report
         return header
     else:
@@ -113,16 +114,16 @@ def df_to_download(df: pd.DataFrame, total_errors: int, max_errors: int = 100000
         return csv_data
 
 
-def df_to_str(df: pd.DataFrame) -> str:
-    with pd.option_context('display.width', None, 'display.max_rows', None):
+def df_to_str(df: pl.DataFrame) -> str:
+    with pl.option_context('display.width', None, 'display.max_rows', None):
         return str(df)
 
 
-def df_to_csv(df: pd.DataFrame) -> str:
+def df_to_csv(df: pl.DataFrame) -> str:
     return df.to_csv()
 
 
-def df_to_table(df: pd.DataFrame) -> str:
+def df_to_table(df: pl.DataFrame) -> str:
     # trim field_value field to just 50 chars, similar to DataFrame default
     table_df = df.sort_index()
     table_df['field_value'] = table_df['field_value'].str[0:50]
@@ -132,11 +133,11 @@ def df_to_table(df: pd.DataFrame) -> str:
     return tabulate(table_df, headers='keys', showindex=True, tablefmt='rounded_outline')  # type: ignore
 
 
-def df_to_json(df: pd.DataFrame, max_records: int = 10000, max_group_size: int = None) -> str:
+def df_to_json(df: pl.DataFrame, max_records: int = 10000, max_group_size: int = None) -> str:
     return ujson.dumps(df_to_dicts(df, max_records, max_group_size), indent=4, escape_forward_slashes=False)
 
 
-def df_to_dicts(df: pd.DataFrame, max_records: int = 10000, max_group_size: int = None) -> list[dict]:
+def df_to_dicts(df: pl.DataFrame, max_records: int = 10000, max_group_size: int = None) -> list[dict]:
     # grouping and processing keeps the process from crashing on really large error
     # dataframes (millions of errors).  We can't chunk because could cause splitting
     # related validation data across chunks, without having to add extra processing
@@ -146,7 +147,7 @@ def df_to_dicts(df: pd.DataFrame, max_records: int = 10000, max_group_size: int 
     checks = get_all_checks()
 
     json_results = []
-    if not df.empty:
+    if not df.is_empty:
         grouped_df = df.groupby('validation_id', group_keys=False)
         if not max_group_size:
             total_errors_per_group = calculate_group_chunk_sizes(grouped_df, max_records)
@@ -211,7 +212,7 @@ def truncate_validation_group_records(group, group_size):
     return truncated_group, need_to_truncate
 
 
-def process_chunk(df: pd.DataFrame, validation_id: str, check: SBLCheck) -> [dict]:
+def process_chunk(df: pl.DataFrame, validation_id: str, check: SBLCheck) -> [dict]:
     df.reset_index(drop=True, inplace=True)
     findings_json = ujson.loads(df.to_json(orient='columns'))
     grouped_data = []
