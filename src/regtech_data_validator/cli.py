@@ -96,12 +96,8 @@ def validate(
         status = 'FAILURE'
         findings_df = validation_results.findings
         no_of_findings = len(findings_df.index.unique())
-        total_errors = sum(
-            [
-                validation_results.error_counts.total_count,
-                validation_results.warning_counts.total_count,
-            ]
-        )
+        warning_count = validation_results.warning_counts.total_count
+        error_count = validation_results.error_counts.total_count
 
         match output:
             case OutputFormat.PANDAS:
@@ -113,7 +109,7 @@ def validate(
             case OutputFormat.TABLE:
                 print(df_to_table(findings_df))
             case OutputFormat.DOWNLOAD:
-                print(df_to_download(findings_df, total_errors))
+                print(df_to_download(findings_df, warning_count, error_count))
             case _:
                 raise ValueError(f'output format "{output}" not supported')
 
