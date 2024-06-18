@@ -262,7 +262,7 @@ class TestOutputFormat:
         expected_output = dedent(
             """
             validation_type,validation_id,validation_name,row,unique_identifier,fig_link,validation_description,field_1,value_1,field_2,value_2
-            Your register contains 6 errors and warnings, however, only 3 records are displayed in this report. To see additional errors, correct the listed records, and upload a new file.
+            Your register contains 6 errors and warnings, however, only 3 records are displayed in this report. To see additional errors and warnings, correct the listed records, and upload a new file.
             "Error","E2008","amount_approved.conditional_field_conflict",4,"12345678901234567891","https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.7","* When 'action taken' does **not** equal 1 (originated) or 
             2 (approved but not accepted), 'amount approved or originated' must be blank.
             * When 'action taken' equals 1 or 2, 'amount approved or originated' must **not** be blank.
