@@ -23,7 +23,7 @@ def find_check(group_name, checks):
     return next(gen)
 
 
-def df_to_download(df: pd.DataFrame, total_errors: int, max_errors: int = 1000000) -> str:
+def df_to_download(df: pd.DataFrame, warning_count: int = 0, error_count: int = 0, max_errors: int = 1000000) -> str:
     header = "validation_type,validation_id,validation_name,row,unique_identifier,fig_link,validation_description,"
     if df.empty:
         # return headers of csv for 'emtpy' report
@@ -106,8 +106,16 @@ def df_to_download(df: pd.DataFrame, total_errors: int, max_errors: int = 100000
             field_headers.append(f"value_{i+1}")
         header += ",".join(field_headers) + "\n"
 
+        total_errors = warning_count + error_count
+        error_type = "errors"
+        if warning_count > 0:
+            if error_count > 0:
+                error_type = "errors and warnings"
+            else:
+                error_type = "warnings"
+
         if total_errors and total_errors > max_errors:
-            header += f"The submission contained {total_errors}, but only {max_errors} will be displayed in the download report.  Fix the current errors and resubmit to see more.\n"
+            header += f"Your register contains {total_errors} {error_type}, however, only {max_errors} records are displayed in this report. To see additional {error_type}, correct the listed records, and upload a new file.\n"
 
         csv_data = header + total_csv
         return csv_data
