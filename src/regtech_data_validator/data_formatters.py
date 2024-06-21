@@ -115,7 +115,7 @@ def df_to_download(df: pd.DataFrame, warning_count: int = 0, error_count: int = 
                 error_type = "warnings"
 
         if total_errors and total_errors > max_errors:
-            header += f"Your register contains {total_errors} {error_type}, however, only {max_errors} records are displayed in this report. To see additional {error_type}, correct the listed records, and upload a new file.\n"
+            header += f'"Your register contains {total_errors} {error_type}, however, only {max_errors} records are displayed in this report. To see additional {error_type}, correct the listed records, and upload a new file."\n'
 
         csv_data = header + total_csv
         return csv_data
