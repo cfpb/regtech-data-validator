@@ -11,6 +11,12 @@ import typer.core
 
 from regtech_data_validator.create_schemas import validate_phases
 
+import psutil
+import matplotlib.pyplot as plt
+import time
+import threading
+from threading import Thread
+
 # Need to do this because the latest version of typer, if the rich package exists
 # will create a Panel with borders in the error output.  This causes stderr during
 # tests to have a bunch of extra characters that aren't properly rendered when NOT
@@ -20,6 +26,34 @@ from regtech_data_validator.create_schemas import validate_phases
 typer.core.rich = None
 
 app = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=False)
+
+def monitor_memory_usage(interval, stop_event, memory_log):
+    while not stop_event.is_set():
+        memory_log.append(psutil.Process().memory_info().rss / (1024 ** 2))
+        time.sleep(interval)
+
+def monitor_memory(f, *args, **kwargs):
+    memory_log = []
+    stop_event = threading.Event()
+    monitor_thread = Thread(target=monitor_memory_usage, args=(0.1, stop_event, memory_log))
+    start_time = time.time()
+    monitor_thread.start()
+    result = f(*args, **kwargs)
+    stop_event.set()
+    monitor_thread.join()
+    time_log = [start_time + i * 0.1 for i in range(len(memory_log))]
+    plot_mem_usage(f.__name__, time_log, memory_log)
+    return result
+
+def plot_mem_usage(f_name, time_log, memory_log):
+    plt.figure(figsize=(10, 6))
+    plt.plot(time_log, memory_log, label=f"{f_name} Memory Usage")
+    plt.xlabel('Time (s)')
+    plt.ylabel('Memory Usage (MB)')
+    plt.title(f'Memory Usage Over Time: {f_name}')
+    plt.legend()
+    plt.savefig(f'{f_name}_memory_usage.png')
+    plt.close()
 
 
 @dataclass
@@ -86,10 +120,12 @@ def validate(
     input_df = None
     start = datetime.now()
     try:
-        input_df = pl.read_csv(path, infer_schema_length=0, missing_utf8_is_empty_string=True)
+        #input_df = pl.read_csv(path, infer_schema_length=0, missing_utf8_is_empty_string=True)
+        input_df = monitor_memory(pl.read_csv, path, infer_schema_length=0, missing_utf8_is_empty_string=True)
     except Exception as e:
         raise RuntimeError(e)
-    validation_results = validate_phases(input_df, context_dict)
+    #validation_results = validate_phases(input_df, context_dict)
+    validation_results = monitor_memory(validate_phases, input_df, context_dict)
 
     status = 'SUCCESS'
     no_of_findings = 0

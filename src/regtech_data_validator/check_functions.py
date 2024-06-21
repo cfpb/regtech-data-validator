@@ -120,18 +120,15 @@ def has_valid_multi_field_value_count(
     separator: str = ";",
 ) -> pl.LazyFrame:
     start = datetime.now()
-    df = grouped_data.lazyframe.collect()
-    groupby_values = df[groupby_fields].apply(lambda v: split_and_ignore(v, separator, ignored_values), return_dtype=pl.List(pl.Utf8))
-    field_values = df[grouped_data.key].apply(lambda v: split_and_ignore(v, separator, ignored_values), return_dtype=pl.List(pl.Utf8))
-    df = df.with_columns(groupby_values.alias("groupby_values"))
-    df = df.with_columns(field_values.alias("field_values"))
-    groupby_sizes = df["groupby_values"].list.lengths()
-    field_sizes = df["field_values"].list.lengths()
     
-    check_results = (groupby_sizes + field_sizes) <= max_length
-    rf = pl.DataFrame(check_results).lazy()
+    lf = grouped_data.lazyframe
+    groupby_values = (pl.col(groupby_fields).str.split(separator).list.set_difference(list(ignored_values)).list.lengths()).alias("groupby_sizes")
+    field_values = (pl.col(grouped_data.key).str.split(separator).list.set_difference(list(ignored_values)).list.lengths()).alias("field_sizes")
+    rf = lf.with_columns([groupby_values, field_values]).collect()
+    
+    check_results = (rf["groupby_sizes"] + rf["field_sizes"]) <= max_length
     print(f"Processing of has_valid_multi_field_value_count took {(datetime.now() - start).total_seconds()} seconds")
-    return rf
+    return pl.DataFrame(check_results).lazy()
 
 def split_and_ignore(value, separator, ignored_values):
     return [s for s in value.split(separator) if s.strip() and s not in ignored_values]
@@ -170,20 +167,15 @@ def has_no_conditional_field_conflict(
         pl.Series: series of current column validations
     """
     start = datetime.now()
+
     lf = grouped_data.lazyframe
-    check_frame = lf.with_columns([pl.col(groupby_fields).str.split(separator).alias("check_col"), pl.col(grouped_data.key).str.strip().alias("val_col")]).collect()
-
-    check_results = (
-        (check_frame["check_col"].apply(lambda arr: set(arr).isdisjoint(condition_values), return_dtype=pl.Boolean)) &
-        (check_frame["val_col"] == "")
-    ) | (
-       (check_frame["check_col"].apply(lambda arr: not set(arr).isdisjoint(condition_values), return_dtype=pl.Boolean)) &
-        (check_frame["val_col"] != "")
-    )
-
-    rf = pl.DataFrame(check_results).lazy()
+    check_col = (pl.col(groupby_fields).str.split(separator).list.set_intersection(list(condition_values)).list.lengths() == 0).alias("check_col")
+    val_col = (pl.col(grouped_data.key).str.strip_chars().str.n_chars() == 0).alias("val_col")
+    rf = lf.with_columns([check_col, val_col]).select(["check_col", "val_col"]).collect()
+    rf = rf["check_col"] ^ rf["val_col"]
+    
     print(f"Processing of has_no_conditional_field_conflict took {(datetime.now() - start).total_seconds()} seconds")
-    return rf
+    return pl.DataFrame(~rf).lazy()
 
 
 def is_unique_in_field(ct_value: str, separator: str = ";") -> bool:
@@ -352,16 +344,18 @@ def has_valid_enum_pair(
     """
 
     start = datetime.now()
-    df = grouped_data.lazyframe.collect()
-    check_values = df[groupby_fields].str.split(separator)
-    target_values = df[grouped_data.key].str.strip()
-    check_results = pl.Series([True] * len(target_values))
+    lf = grouped_data.lazyframe
+    
+    check_values = pl.col(groupby_fields).str.split(separator)
+    target_values = pl.col(grouped_data.key).str.strip()
+    check_results = pl.lit(True)
     
     for condition in conditions:
-        check_results = check_results & check_condition(condition, check_values, target_values)
-    rf = pl.DataFrame(check_results).lazy()
+        check = check_condition(condition, check_values, target_values)
+        check_results = check_results & check
+    rf = lf.with_columns(check_results.alias("check_results"))
     print(f"Processing of has_valid_enum_pair took {(datetime.now() - start).total_seconds()} seconds")
-    return rf
+    return rf.select("check_results")
 
 
 def check_condition(condition, check_values, target_values):
@@ -369,15 +363,11 @@ def check_condition(condition, check_values, target_values):
     con_values = condition["condition_values"]
     target_value = condition["target_value"]
     
-    check_df = pl.DataFrame()
-    
     if condition["is_equal_condition"]:
-        should_check_values = check_values.apply(lambda arr: not set(arr).isdisjoint(con_values), return_dtype=pl.Boolean)
-        check_df = check_df.with_columns(pl.when(should_check_values).then(target_operator(target_values, target_value)).otherwise(True).alias("check_results"))
+        check = (check_values.list.set_intersection(list(con_values)).list.lengths() > 0)
     else:
-        should_check_values = check_values.apply(lambda arr: set(arr).isdisjoint(con_values), return_dtype=pl.Boolean)
-        check_df = check_df.with_columns(pl.when(should_check_values).then(target_operator(target_values, target_value)).otherwise(True).alias("check_results"))
-    return check_df["check_results"]
+        check = (check_values.list.set_intersection(list(con_values)).list.lengths() == 0)
+    return pl.when(check).then(target_operator(target_values, target_value)).otherwise(True)
 
 def is_date_before_in_days(grouped_data: pa.PolarsData, days_value: int = 730, groupby_fields: str = "") -> pl.Series:
     """Checks if the provided date is not beyond
@@ -442,7 +432,10 @@ def is_less_than(value: str, max_value: str, accept_blank: bool = False) -> bool
 
 
 def has_valid_format(value: str, regex: str, accept_blank: bool = False) -> bool:
-    return _check_blank_(value, bool(re.match(regex, value)), accept_blank)
+    with open("stackoutput.txt", "a") as sf:
+        import traceback
+        traceback.print_stack(file=sf)
+        return _check_blank_(value, bool(re.match(regex, value)), accept_blank)
 
 
 def _is_unique_column_helper(df: pl.DataFrame, name: str, count_limit: int, validation_holder):

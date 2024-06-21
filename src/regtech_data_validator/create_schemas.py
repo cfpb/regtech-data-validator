@@ -1,5 +1,8 @@
 """Creates two DataFrameSchema objects by rendering the schema template
 with validations listed in phase 1 and phase 2."""
+import cProfile
+import pstats
+
 
 import math
 import pandas as pd
@@ -114,7 +117,8 @@ def validate(schema: pa.DataFrameSchema, submission_df: pl.DataFrame, max_errors
     try:
         start = datetime.now()
         submission_df = submission_df.with_row_count("index")
-        schema(submission_df, lazy=True)
+        print(f"Schema checks for uid: {schema.columns["uid"].checks}")
+        schema.validate(submission_df, lazy=True)
         print(f"Validation of {schema.name} took {(datetime.now() - start).total_seconds()} seconds")
     except SchemaErrors as err:
         print(f"Validation of {schema.name} took {(datetime.now() - start).total_seconds()} seconds")
@@ -187,12 +191,25 @@ def add_uid(results_df: pl.DataFrame, submission_df: pl.DataFrame) -> pl.DataFra
 def validate_phases(
     df: pl.DataFrame, context: dict[str, str] | None = None, max_errors: int = 1000000
 ) -> ValidationResults:
+    s_profiler = cProfile.Profile()
+    s_profiler.enable()
     results = validate(get_phase_1_schema_for_lei(context), df, max_errors)
+    s_profiler.disable()
+    with open('syn_polars_output.txt', 'w') as f:
+        pstats.Stats(s_profiler, stream=f).strip_dirs().sort_stats('cumulative').print_stats("check_functions")
+    
 
     if not results.is_valid:
         return results
 
-    return validate(get_phase_2_schema_for_lei(context), df, max_errors)
+
+    l_profiler = cProfile.Profile()
+    l_profiler.enable()
+    results = validate(get_phase_2_schema_for_lei(context), df, max_errors)
+    l_profiler.disable()
+    with open('log_polars_output.txt', 'w') as f:
+        pstats.Stats(l_profiler, stream=f).strip_dirs().sort_stats('cumulative').print_stats("check_functions")
+    return results
 
 
 def get_scope_counts(schema_errors: list[SchemaError]):

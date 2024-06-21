@@ -108,7 +108,7 @@ def df_to_download(df: pl.DataFrame, total_errors: int, max_errors: int = 100000
         header += ",".join(field_headers) + "\n"
 
         if total_errors and total_errors > max_errors:
-            header += f"The submission contained {total_errors}, but only {max_errors} will be displayed in the download report.  Fix the current errors and resubmit to see more.\n"
+            header += f'"The submission contained {total_errors}, but only {max_errors} will be displayed in the download report.  Fix the current errors and resubmit to see more."\n'
 
         csv_data = header + total_csv
         return csv_data
