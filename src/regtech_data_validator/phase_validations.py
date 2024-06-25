@@ -424,6 +424,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                     element_wise=True,
                     accept_blank=True,
+                    is_whole=True,
                 ),
             ],
             ValidationPhase.LOGICAL: [
@@ -1093,6 +1094,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                     element_wise=True,
                     accept_blank=True,
+                    is_whole=True,
                 ),
             ],
             ValidationPhase.LOGICAL: [
@@ -1856,6 +1858,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     scope="single-field",
                     element_wise=True,
                     accept_blank=True,
+                    is_whole=True,
                 ),
             ],
             ValidationPhase.LOGICAL: [

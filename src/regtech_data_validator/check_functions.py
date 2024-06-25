@@ -307,7 +307,7 @@ def is_date_after(
     return pd.concat(validation_holder)
 
 
-def is_number(ct_value: str, accept_blank: bool = False) -> bool:
+def is_number(ct_value: str, accept_blank: bool = False, is_whole: bool = False) -> bool:
     """
     function to check a string is a number
     return True if value is number , False if value is not number
@@ -318,7 +318,10 @@ def is_number(ct_value: str, accept_blank: bool = False) -> bool:
     Returns:
         bool: True if value is number , False if value is not number
     """
-    value_check = ct_value.isdigit() or bool(re.match(r"^[-+]?[0-9]*\.?[0-9]+$", ct_value))
+    if is_whole:
+        value_check = ct_value.isdigit()
+    else:
+        value_check = ct_value.isdigit() or bool(re.match(r"^[-+]?[0-9]*\.?[0-9]+$", ct_value))
 
     return _check_blank_(ct_value, value_check, accept_blank)
 
