@@ -319,17 +319,12 @@ def is_number(ct_value: str, accept_blank: bool = False, is_whole: bool = False)
         bool: True if value is number , False if value is not number
     """
 
-    def num_check():
-        try:
-            if is_whole:
-                int(ct_value)
-            else:
-                float(ct_value)
-        except ValueError:
-            return False
-        return True
-
-    value_check = num_check()
+    value_check = True
+    num_parser = int if is_whole else float
+    try:
+        num_parser(ct_value)
+    except ValueError:
+        value_check = False
 
     return _check_blank_(ct_value, value_check, accept_blank)
 
