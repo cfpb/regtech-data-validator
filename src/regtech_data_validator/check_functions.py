@@ -318,10 +318,18 @@ def is_number(ct_value: str, accept_blank: bool = False, is_whole: bool = False)
     Returns:
         bool: True if value is number , False if value is not number
     """
-    if is_whole:
-        value_check = ct_value.isdigit()
-    else:
-        value_check = ct_value.isdigit() or bool(re.match(r"^[-+]?[0-9]*\.?[0-9]+$", ct_value))
+
+    def num_check():
+        try:
+            if is_whole:
+                int(ct_value)
+            else:
+                float(ct_value)
+        except ValueError:
+            return False
+        return True
+
+    value_check = num_check()
 
     return _check_blank_(ct_value, value_check, accept_blank)
 
@@ -426,7 +434,6 @@ def is_date_before_in_days(grouped_data: Dict[str, pd.Series], days_value: int =
             initial_date = datetime.strptime(value, "%Y%m%d")
             unreasonable_date = initial_date + timedelta(days=days_value)
             other_series = pd.to_datetime(other_series)  # Convert other series to Date time object
-
             validation_holder.append(other_series.apply(lambda date: date < unreasonable_date))
         except ValueError:
             validation_holder.append(other_series.apply(lambda v: False))
