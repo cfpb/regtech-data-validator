@@ -307,7 +307,7 @@ def is_date_after(
     return pd.concat(validation_holder)
 
 
-def is_number(ct_value: str, accept_blank: bool = False) -> bool:
+def is_number(ct_value: str, accept_blank: bool = False, is_whole: bool = False) -> bool:
     """
     function to check a string is a number
     return True if value is number , False if value is not number
@@ -318,7 +318,13 @@ def is_number(ct_value: str, accept_blank: bool = False) -> bool:
     Returns:
         bool: True if value is number , False if value is not number
     """
-    value_check = ct_value.isdigit() or bool(re.match(r"^[-+]?[0-9]*\.?[0-9]+$", ct_value))
+
+    value_check = True
+    num_parser = int if is_whole else float
+    try:
+        num_parser(ct_value)
+    except ValueError:
+        value_check = False
 
     return _check_blank_(ct_value, value_check, accept_blank)
 
@@ -423,7 +429,6 @@ def is_date_before_in_days(grouped_data: Dict[str, pd.Series], days_value: int =
             initial_date = datetime.strptime(value, "%Y%m%d")
             unreasonable_date = initial_date + timedelta(days=days_value)
             other_series = pd.to_datetime(other_series)  # Convert other series to Date time object
-
             validation_holder.append(other_series.apply(lambda date: date < unreasonable_date))
         except ValueError:
             validation_holder.append(other_series.apply(lambda v: False))
