@@ -44,12 +44,13 @@ def _get_check_fields(check: Check, primary_column: str) -> list[str]:
     """
 
     field_list = [primary_column]
-    groupby_fields = check._check_kwargs["groupby_fields"]
-    if groupby_fields:
-        if isinstance(groupby_fields, str):
-            field_list.append(groupby_fields)
-        else:
-            field_list.extend(groupby_fields)
+    if "groupby_fields" in check._check_kwargs:
+        groupby_fields = check._check_kwargs["groupby_fields"]
+        if groupby_fields:
+            if isinstance(groupby_fields, str):
+                field_list.append(groupby_fields)
+            else:
+                field_list.extend(groupby_fields)
     # remove possible dupes but maintain order
     field_list = list(dict.fromkeys(field_list))
     return field_list
@@ -117,8 +118,7 @@ def validate(schema: pa.DataFrameSchema, submission_df: pl.DataFrame, max_errors
     try:
         start = datetime.now()
         submission_df = submission_df.with_row_count("index")
-        print(f"Schema checks for uid: {schema.columns["uid"].checks}")
-        schema.validate(submission_df, lazy=True)
+        schema(submission_df, lazy=True)
         print(f"Validation of {schema.name} took {(datetime.now() - start).total_seconds()} seconds")
     except SchemaErrors as err:
         print(f"Validation of {schema.name} took {(datetime.now() - start).total_seconds()} seconds")
@@ -131,8 +131,8 @@ def validate(schema: pa.DataFrameSchema, submission_df: pl.DataFrame, max_errors
         
         error_counts, warning_counts = get_scope_counts(err.schema_errors)
         total_error_count = sum([error_counts.total_count, warning_counts.total_count])
-        if total_error_count > max_errors:
-            err.schema_errors = trim_down_errors(err.schema_errors, max_errors)
+        #if total_error_count > max_errors:
+        #    err.schema_errors = trim_down_errors(err.schema_errors, max_errors)
         for schema_error in err.schema_errors:  # type: ignore
             check = schema_error.check
             column_name = schema_error.schema.name
@@ -246,7 +246,7 @@ def get_scope_counts(schema_errors: list[SchemaError]):
 
 
 def trim_down_errors(schema_errors: list[SchemaError], max_errors: int):
-    error_counts = [sum(~error.check_output) for error in schema_errors]
+    error_counts = [sum(~(error.check_output["check_output"])) for error in schema_errors]
     total_error_count = sum(error_counts)
 
     # Take the list of counts per error to determine a ratio for each,
