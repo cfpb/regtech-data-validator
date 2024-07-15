@@ -141,11 +141,17 @@ def has_valid_multi_field_value_count(
     separator: str = ";",
 ) -> pl.LazyFrame:
     lf = grouped_data.lazyframe
-    groupby_values = (pl.col(groupby_fields).str.split(separator).list.set_difference(list(ignored_values)).list.lengths()).alias("groupby_sizes")
-    field_values = (pl.col(grouped_data.key).str.split(separator).list.set_difference(list(ignored_values)).list.lengths()).alias("field_sizes")
-    rf = lf.with_columns([groupby_values, field_values]).collect()
     
-    check_results = (rf["groupby_sizes"] + rf["field_sizes"]) <= max_length
+    groupby_list = pl.col(groupby_fields).str.split(separator).list
+    check_field_list = pl.col(grouped_data.key).str.split(separator).list
+    
+    groupby_lengths = groupby_list.set_difference(list(ignored_values)).list.lengths()
+    field_lengths = check_field_list.set_difference(list(ignored_values)).list.lengths()
+    
+    rf = lf.with_columns([groupby_lengths.alias("groupby_length"), field_lengths.alias("field_length")]).collect()
+    
+    check_results = (rf["groupby_length"] + rf["field_length"]) <= max_length
+    
     return pl.DataFrame(check_results).lazy()
 
 def split_and_ignore(value, separator, ignored_values):

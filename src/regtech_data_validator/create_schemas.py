@@ -204,8 +204,10 @@ def add_uid(results_df: pl.DataFrame, submission_df: pl.DataFrame) -> pl.DataFra
 def validate_phases(
     path: Path, context: dict[str, str] | None = None, max_errors: int = 1000000
 ) -> ValidationResults:
+    syntax_results = []
+    logic_results = []
     #NO BATCH
-    
+    '''
     df = pl.read_csv(path, infer_schema_length=0, missing_utf8_is_empty_string=True)
     results = validate(get_phase_1_schema_for_lei(context), df, max_errors)
 
@@ -215,10 +217,9 @@ def validate_phases(
     results = validate(get_phase_2_schema_for_lei(context), df, max_errors)
     return results
     
-    syntax_results = []
-    logic_results = []
-    #SCAN
+    
     '''
+    #SCAN
     lf = pl.scan_csv(path, infer_schema_length=0, missing_utf8_is_empty_string=True)
     all_checks = get_phase_1_and_2_validations_for_lei(context)
     for column in all_checks:
@@ -243,7 +244,6 @@ def validate_phases(
             results = validate(pa.DataFrameSchema(template, name=ValidationPhase.LOGICAL), lf.select(set(cols)).collect())
             if not results.is_valid:
                 logic_results.append(results)
-    '''
     #BATCH
     '''
     batch_reader = pl.read_csv_batched(path, infer_schema_length=0, missing_utf8_is_empty_string=True, batch_size=100000)
