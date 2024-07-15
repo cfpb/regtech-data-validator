@@ -10,7 +10,8 @@ class ValidationPhase(StrEnum):
     LOGICAL = "Logical"
 
 
-@dataclass(frozen=True)
+#@dataclass(frozen=True)
+@dataclass
 class Counts(object):
     single_field_count: int = 0
     multi_field_count: int = 0
@@ -18,7 +19,8 @@ class Counts(object):
     total_count: int = 0
 
 
-@dataclass(frozen=True)
+#@dataclass(frozen=True)
+@dataclass
 class ValidationResults(object):
     error_counts: Counts
     warning_counts: Counts

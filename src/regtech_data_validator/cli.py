@@ -35,13 +35,14 @@ def monitor_memory_usage(interval, stop_event, memory_log):
 def monitor_memory(f, *args, **kwargs):
     memory_log = []
     stop_event = threading.Event()
-    monitor_thread = Thread(target=monitor_memory_usage, args=(0.1, stop_event, memory_log))
+    monitor_thread = Thread(target=monitor_memory_usage, args=(1, stop_event, memory_log))
     start_time = time.time()
     monitor_thread.start()
     result = f(*args, **kwargs)
     stop_event.set()
     monitor_thread.join()
-    time_log = [start_time + i * 0.1 for i in range(len(memory_log))]
+    time_log = [start_time + i * 1 for i in range(len(memory_log))]
+    print(f"Average Memory: {sum(memory_log)/len(memory_log)}, Max: {max(memory_log)}, Min: {min(memory_log)}")
     plot_mem_usage(f.__name__, time_log, memory_log)
     return result
 
@@ -119,13 +120,14 @@ def validate(
     context_dict = {x.key: x.value for x in context} if context else {}
     input_df = None
     start = datetime.now()
-    try:
-        #input_df = pl.read_csv(path, infer_schema_length=0, missing_utf8_is_empty_string=True)
-        input_df = monitor_memory(pl.read_csv, path, infer_schema_length=0, missing_utf8_is_empty_string=True)
-    except Exception as e:
-        raise RuntimeError(e)
+    #try:
+    #    #input_df = pl.read_csv(path, infer_schema_length=0, missing_utf8_is_empty_string=True)
+    #    input_df = monitor_memory(pl.scan_csv, path, infer_schema_length=0, missing_utf8_is_empty_string=True)
+    #except Exception as e:
+    #    raise RuntimeError(e)
     #validation_results = validate_phases(input_df, context_dict)
-    validation_results = monitor_memory(validate_phases, input_df, context_dict)
+    validation_results = monitor_memory(validate_phases, path, context_dict)
+    print(f"Validation took {(datetime.now() - start).total_seconds()} seconds")
 
     status = 'SUCCESS'
     no_of_findings = 0
@@ -134,13 +136,14 @@ def validate(
     if not validation_results.is_valid:
         status = 'FAILURE'
         findings_df = validation_results.findings
-        no_of_findings = len(findings_df["finding_no"].unique())
+        #no_of_findings = len(findings_df["finding_no"].unique())
         total_errors = sum(
             [
                 validation_results.error_counts.total_count,
                 validation_results.warning_counts.total_count,
             ]
         )
+        print(f"Findings length: {findings_df.with_row_count(name='row_nr',offset=0)['row_nr'].len()}")
 
         match output:
             case OutputFormat.PANDAS:
@@ -148,7 +151,6 @@ def validate(
             case OutputFormat.CSV:
                 print(df_to_csv(findings_df))
             case OutputFormat.JSON:
-                print(f"Validation took {(datetime.now() - start).total_seconds()} seconds")
                 df_to_json(findings_df)
             case OutputFormat.TABLE:
                 print(df_to_table(findings_df))

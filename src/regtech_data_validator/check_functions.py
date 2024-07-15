@@ -69,7 +69,7 @@ def begins_with_same_lei(ulis: pl.Series) -> bool:
     return leis.nunique() == 1
 
 
-def is_date(date: str) -> bool:
+def is_date(grouped_data: pa.PolarsData) -> bool:
     """Attempt datetime conversion.
 
     This checks whether the date string has the format %Y%m%d and
@@ -85,6 +85,28 @@ def is_date(date: str) -> bool:
             successfully to a datetime.datetime object without error.
     """
 
+    # check for number type and length must be 8 to match YYYYMMDD
+    lf = grouped_data.lazyframe
+    date_check = pl.col(grouped_data.key).str.strptime(pl.Date, "%Y%m%d", strict=False).is_not_null()
+    rf = lf.with_columns(date_check.alias("check_results"))
+    return rf.select("check_results")
+
+'''
+def is_date(date: str) -> bool:
+    """Attempt datetime conversion.
+
+    This checks whether the date string has the format %Y%m%d and
+    ensures that the supplied date string can be converted to a datetime
+    object. For example, 20221344 is invalid because there is no 13th
+    month.
+
+    Args:
+        date (str): An input string ideally of the format yyyymmdd.
+
+    Returns:
+        bool: True indicates that the supplied date string was converted
+            successfully to a datetime.datetime object without error.
+    """
     try:
         # check for number type and length must be 8 to match YYYYMMDD
         if date.isdigit() and len(date) == 8:
@@ -95,8 +117,7 @@ def is_date(date: str) -> bool:
             return False
     except ValueError:
         return False
-
-
+'''
 # helper function to get non blank values
 def _get_non_blank_values(values: list[str]):
     return filter(lambda v: v.strip() != "", values)
@@ -119,15 +140,12 @@ def has_valid_multi_field_value_count(
     groupby_fields: str = "",
     separator: str = ";",
 ) -> pl.LazyFrame:
-    start = datetime.now()
-    
     lf = grouped_data.lazyframe
     groupby_values = (pl.col(groupby_fields).str.split(separator).list.set_difference(list(ignored_values)).list.lengths()).alias("groupby_sizes")
     field_values = (pl.col(grouped_data.key).str.split(separator).list.set_difference(list(ignored_values)).list.lengths()).alias("field_sizes")
     rf = lf.with_columns([groupby_values, field_values]).collect()
     
     check_results = (rf["groupby_sizes"] + rf["field_sizes"]) <= max_length
-    print(f"Processing of has_valid_multi_field_value_count took {(datetime.now() - start).total_seconds()} seconds")
     return pl.DataFrame(check_results).lazy()
 
 def split_and_ignore(value, separator, ignored_values):
@@ -166,15 +184,12 @@ def has_no_conditional_field_conflict(
     Returns:
         pl.Series: series of current column validations
     """
-    start = datetime.now()
-
     lf = grouped_data.lazyframe
     check_col = (pl.col(groupby_fields).str.split(separator).list.set_intersection(list(condition_values)).list.lengths() == 0).alias("check_col")
     val_col = (pl.col(grouped_data.key).str.strip_chars().str.n_chars() == 0).alias("val_col")
     rf = lf.with_columns([check_col, val_col]).select(["check_col", "val_col"]).collect()
     rf = rf["check_col"] ^ rf["val_col"]
     
-    print(f"Processing of has_no_conditional_field_conflict took {(datetime.now() - start).total_seconds()} seconds")
     return pl.DataFrame(~rf).lazy()
 
 
@@ -190,7 +205,18 @@ def meets_multi_value_field_restriction(ct_value: str, single_values: set[str], 
     else:
         return False
 
+def is_valid_enum(
+    grouped_data: pa.PolarsData,     
+    accepted_values: list[str],
+    accept_blank: bool = False,
+    separator: str = ";",) -> bool:
+    lf = grouped_data.lazyframe
+    split_col = pl.col(grouped_data.key).str.split(separator)
+    format_check = (((pl.col(grouped_data.key).str.strip() == "") & accept_blank) | (split_col.list.set_difference(accepted_values).list.len() == 0))
+    rf = lf.with_columns(format_check.alias("check_results"))
+    return rf.select("check_results")
 
+'''
 def is_valid_enum(
     ct_value: str,
     accepted_values: list[str],
@@ -203,7 +229,7 @@ def is_valid_enum(
         return enum_check or not ct_value.strip()
     else:
         return enum_check
-
+'''
 
 def has_valid_value_count(ct_value: str, min_length: int, max_length: int = None, separator: str = ";") -> bool:
     values_count = len(ct_value.split(separator))
@@ -251,7 +277,7 @@ def is_date_after(
     return rf
 
 
-def is_number(ct_value: str, accept_blank: bool = False) -> bool:
+def is_number(ct_value: str, accept_blank: bool = False, is_whole: bool = False) -> bool:
     """
     function to check a string is a number
     return True if value is number , False if value is not number
@@ -262,7 +288,12 @@ def is_number(ct_value: str, accept_blank: bool = False) -> bool:
     Returns:
         bool: True if value is number , False if value is not number
     """
-    value_check = ct_value.isdigit() or bool(re.match(r"^[-+]?[0-9]*\.?[0-9]+$", ct_value))
+    value_check = True
+    num_parser = int if is_whole else float
+    try:
+        num_parser(ct_value)
+    except ValueError:
+        value_check = False
 
     return _check_blank_(ct_value, value_check, accept_blank)
 
@@ -342,8 +373,6 @@ def has_valid_enum_pair(
 
     Returns: Series with corresponding True/False validation values for the column
     """
-
-    start = datetime.now()
     lf = grouped_data.lazyframe
     
     check_values = pl.col(groupby_fields).str.split(separator)
@@ -354,7 +383,6 @@ def has_valid_enum_pair(
         check = check_condition(condition, check_values, target_values)
         check_results = check_results & check
     rf = lf.with_columns(check_results.alias("check_results"))
-    print(f"Processing of has_valid_enum_pair took {(datetime.now() - start).total_seconds()} seconds")
     return rf.select("check_results")
 
 
@@ -382,8 +410,9 @@ def is_date_before_in_days(grouped_data: pa.PolarsData, days_value: int = 730, g
     # will hold individual boolean series to be concatenated at return
     
     lf = grouped_data.lazyframe
-    rf = lf.with_columns([pl.col(groupby_fields).str.strptime(pl.Date, "%Y%m%d").alias("check_date_tmp"), pl.col(grouped_data.key).str.strptime(pl.Date, "%Y%m%d").alias("v_date_tmp")]).collect()
-    diff_values = (rf['check_date_tmp'] - rf['v_date_tmp']).dt.days()
+    rf = lf.with_columns([pl.col(groupby_fields).str.strptime(pl.Date, "%Y%m%d").alias("check_date_tmp"), pl.col(grouped_data.key).str.strptime(pl.Date, "%Y%m%d").alias("v_date_tmp")])
+    rf = rf.select(["v_date_tmp", "check_date_tmp"]).collect()
+    diff_values = (rf['v_date_tmp'] - rf['check_date_tmp']).dt.days()
     check_results = diff_values < days_value
     rf = pl.DataFrame(check_results).lazy()
     return rf
@@ -431,12 +460,14 @@ def is_less_than(value: str, max_value: str, accept_blank: bool = False) -> bool
     return comparison_helper(value, max_value, accept_blank, operator.lt)
 
 
-def has_valid_format(value: str, regex: str, accept_blank: bool = False) -> bool:
-    with open("stackoutput.txt", "a") as sf:
-        import traceback
-        traceback.print_stack(file=sf)
-        return _check_blank_(value, bool(re.match(regex, value)), accept_blank)
-
+def has_valid_format(grouped_data: pa.PolarsData, regex: str, accept_blank: bool = False) -> bool:
+    lf = grouped_data.lazyframe
+    format_check = (((pl.col(grouped_data.key).str.strip() == "") & accept_blank) | pl.col(grouped_data.key).str.contains(regex))
+    rf = lf.with_columns(format_check.alias("check_results"))
+    return rf.select("check_results")
+    
+#def has_valid_format(value: str, regex: str, accept_blank: bool = False) -> bool:
+#    return _check_blank_(value, bool(re.match(regex, value)), accept_blank)
 
 def _is_unique_column_helper(df: pl.DataFrame, name: str, count_limit: int, validation_holder):
     """
@@ -583,29 +614,34 @@ def has_valid_fieldset_pair(
         pl.Series: list of series with update validations
     """
     start = datetime.now()
+    '''
     df = grouped_data.lazyframe.collect()
     target_values = df[grouped_data.key]
     should_check_values = target_values.is_in(condition_values)
     check_results = []
     for idx in range(len(df)):
         if should_check_values[idx]:
-            result = not check_fieldset(df.slice(idx,1), groupby_fields, should_fieldset_key_equal_to, grouped_data.key == "action_taken")
+            result = not check_fieldset(df.slice(idx,1), groupby_fields, should_fieldset_key_equal_to, help_calc)
         else:
             result = True
         check_results.append(result)
     rf = pl.DataFrame(check_results).lazy()
-    print(f"Processing of has_valid_fieldset_pair took {(datetime.now() - start).total_seconds()} seconds")
-    return rf
+    '''
+    lf = grouped_data.lazyframe
+
+    def check_fieldset_expression(field, condition):
+        idx, must_equal, target_value = condition
+        operator_check = pl.col(field) == target_value if must_equal else pl.col(field) != target_value
+        return operator_check
     
-
-def check_fieldset(dataframe, groupby_fields, should_fieldset_key_equal_to, do_print):
-    check_result = True
-    for field in groupby_fields:
-        operator_check = operator.eq if should_fieldset_key_equal_to[field][1] else operator.ne
-        check_value = should_fieldset_key_equal_to[field][2]
-        check_result &= operator_check(dataframe[field][0], check_value)
-    return not check_result
-
+    conditions = [check_fieldset_expression(field, condition) for field, condition in should_fieldset_key_equal_to.items()]
+    combinded_conditions = conditions[0]
+    for cond in conditions[1:]:
+        combinded_conditions &= cond
+        
+    conditions_check = pl.when(~pl.col(grouped_data.key).is_in(condition_values)).then(pl.lit(True)).when(combinded_conditions).then(pl.lit(True)).otherwise(pl.lit(False))
+    rf = lf.with_columns(conditions_check.alias("check_results"))
+    return rf.select("check_results")
 
 def string_contains(
     value: str,

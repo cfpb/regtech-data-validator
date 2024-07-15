@@ -447,3 +447,14 @@ def get_template() -> Dict:
     to debug."""
 
     return deepcopy(_schema_template)
+
+_register_template = {
+        "uid": Column(
+            str,
+            title="Field 1: Unique identifier",
+            checks=[],
+        )
+    }
+
+def get_register_template() -> Dict:
+    return deepcopy(_register_template)
