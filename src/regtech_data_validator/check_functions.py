@@ -148,7 +148,7 @@ def has_valid_multi_field_value_count(
     groupby_lengths = groupby_list.set_difference(list(ignored_values)).list.lengths()
     field_lengths = check_field_list.set_difference(list(ignored_values)).list.lengths()
     
-    rf = lf.with_columns([groupby_lengths.alias("groupby_length"), field_lengths.alias("field_length")]).collect()
+    rf = lf.with_columns([groupby_lengths.alias("groupby_length"), field_lengths.alias("field_length")]).select(["groupby_length", "field_length"]).collect()
     
     check_results = (rf["groupby_length"] + rf["field_length"]) <= max_length
     
@@ -198,11 +198,21 @@ def has_no_conditional_field_conflict(
     
     return pl.DataFrame(~rf).lazy()
 
-
+'''
 def is_unique_in_field(ct_value: str, separator: str = ";") -> bool:
     values = ct_value.split(separator)
     return len(set(values)) == len(values)
-
+'''
+def is_unique_in_field(
+    grouped_data: pa.PolarsData,
+    separator: str = ";",
+) -> pl.LazyFrame:
+    lf = grouped_data.lazyframe
+    val_list= pl.col(grouped_data.key).str.split(separator).list
+    unique_list = val_list.unique().list
+    unique_check = (val_list.len() == unique_list.len())
+    rf = lf.with_columns(unique_check.alias("check_results"))
+    return rf.select("check_results")
 
 def meets_multi_value_field_restriction(ct_value: str, single_values: set[str], separator: str = ";") -> bool:
     ct_values_set = set(ct_value.split(separator))
@@ -236,16 +246,28 @@ def is_valid_enum(
     else:
         return enum_check
 '''
-
+'''
 def has_valid_value_count(ct_value: str, min_length: int, max_length: int = None, separator: str = ";") -> bool:
     values_count = len(ct_value.split(separator))
     if max_length is None:
         return min_length <= values_count
     else:
         return min_length <= values_count and values_count <= max_length
+'''
+def has_valid_value_count(
+    grouped_data: pa.PolarsData,
+    min_length: int, 
+    max_length: int = None, 
+    separator: str = ";"
+) -> pl.LazyFrame:
+    lf = grouped_data.lazyframe
+    val_list= pl.col(grouped_data.key).str.split(separator).list.len()
+    length_check = val_list.is_between(min_length, max_length)
+    rf = lf.with_columns(length_check.alias("check_results"))
+    return rf.select("check_results")
 
 
-def is_date_in_range(date_value: str, start_date_value: str, end_date_value: str) -> bool:
+def is_date_in_range(grouped_data: pa.PolarsData, start_date_value: str, end_date_value: str) -> bool:
     """Checks that the date_value is within the range of the start_date_value
         and the end_date_value
 
@@ -256,13 +278,15 @@ def is_date_in_range(date_value: str, start_date_value: str, end_date_value: str
 
     Returns: Returns True if date_value occurs within the current reporting period
     """
-    try:
-        date = datetime.strptime(date_value, "%Y%m%d")
-        start_date = datetime.strptime(start_date_value, "%Y%m%d")
-        end_date = datetime.strptime(end_date_value, "%Y%m%d")
-        return start_date <= date <= end_date
-    except ValueError:
-        return False
+    lf = grouped_data.lazyframe
+    
+    start_date = datetime.strptime(start_date_value, "%Y%m%d")
+    end_date = datetime.strptime(end_date_value, "%Y%m%d")
+    
+    value_dates = pl.col(grouped_data.key).str.strptime(pl.Date, "%Y%m%d")
+    range_check = value_dates.is_between(start_date, end_date)
+
+    return lf.with_columns(range_check.alias("check_results")).select("check_results")
 
 
 def is_date_after(
@@ -277,10 +301,14 @@ def is_date_after(
     Returns: Series with corresponding True/False validation values for the column
     """
     lf = grouped_data.lazyframe
-    rf = lf.with_columns([pl.col(groupby_fields).str.strptime(pl.Date, "%Y%m%d").alias("check_date_tmp"), pl.col(grouped_data.key).str.strptime(pl.Date, "%Y%m%d").alias("v_date_tmp")]).collect()
+    
+    groupby_dates = pl.col(groupby_fields).str.strptime(pl.Date, "%Y%m%d")
+    check_col_dates = pl.col(grouped_data.key).str.strptime(pl.Date, "%Y%m%d")
+    
+    rf = lf.with_columns([groupby_dates.alias("check_date_tmp"), check_col_dates.alias("v_date_tmp")])
+    rf = rf.select(["check_date_tmp", "v_date_tmp"]).collect()
     check_results = rf['check_date_tmp'] <= rf['v_date_tmp']
-    rf = pl.DataFrame(check_results).lazy()
-    return rf
+    return pl.DataFrame(check_results).lazy()
 
 
 def is_number(ct_value: str, accept_blank: bool = False, is_whole: bool = False) -> bool:

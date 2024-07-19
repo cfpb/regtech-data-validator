@@ -188,14 +188,14 @@ def validate(schema: pa.DataFrameSchema, submission_df: pl.LazyFrame, max_errors
 
 
 def add_uid(results_df: pl.DataFrame, submission_df: pl.DataFrame) -> pl.DataFrame:
-    if results_df.is_empty:
+    if results_df.is_empty():
         return results_df
 
     # uses pandas column operation to get list of record_no - 1 values, which would be indexes in the submission, since
     # record_no is index offset by 1, and the uid column values for that into a new series that is then
     # assigned to the results uid column.  Much simpler and faster than looping over and assigning row by row.
-
-    results_df['uid'] = submission_df.loc[results_df['record_no'] - 1, 'uid'].values
+    uid_records = results_df['record_no'] - 1
+    results_df = results_df.with_columns(submission_df['uid'].take(uid_records).alias('uid'))
     return results_df
 
 #def validate_phases(
@@ -224,9 +224,10 @@ def validate_phases(
     all_checks = get_phase_1_and_2_validations_for_lei(context)
     for column in all_checks:
         col = all_checks[column]
-        template = {column: phase_1_template[column]}
+        cols = [column, 'uid']
+        template = {c: deepcopy(phase_1_template[c]) for c in cols}
         template[column].checks = col[ValidationPhase.SYNTACTICAL]
-        results = validate(pa.DataFrameSchema(template, name=ValidationPhase.SYNTACTICAL), lf.select(column).collect())
+        results = validate(pa.DataFrameSchema(template, name=ValidationPhase.SYNTACTICAL), lf.select(set(cols)).collect())
         if not results.is_valid:
             syntax_results.append(results)
             
@@ -234,7 +235,7 @@ def validate_phases(
         for column in all_checks:
             col = all_checks[column]
             all_column_checks =col[ValidationPhase.LOGICAL]
-            cols = [column]
+            cols = [column, 'uid']
             for check in all_column_checks:
                 if "groupby_fields" in check._check_kwargs:
                     group_columns = check._check_kwargs["groupby_fields"]
@@ -283,7 +284,7 @@ def validate_phases(
         total_warns.append(lr.warning_counts.total_count)
         findings.append(lr.findings)
         valids.append(lr.is_valid)
-    if not register_results.findings.is_empty:
+    if not register_results.findings.is_empty():
         findings.append(register_results.findings)
     valids.append(register_results.is_valid)
     vr = ValidationResults(
@@ -358,7 +359,6 @@ def trim_down_errors(schema_errors: list[SchemaError], max_errors: int):
     for error, new_count in zip(schema_errors, new_counts):
         error.check_output = error.check_output.with_row_count("index")
         error_indices = error.check_output.filter(~pl.col("check_output"))["index"].to_list()
-        print(f"Error Indices: {error_indices}")
         keep_indices = error_indices[:new_count]
         error.check_output = error.check_output.filter(pl.col("index").is_in(keep_indices))
     return schema_errors

@@ -151,11 +151,18 @@ def validate(
             case OutputFormat.CSV:
                 print(df_to_csv(findings_df))
             case OutputFormat.JSON:
-                df_to_json(findings_df)
+                start = datetime.now()
+                with open("polars_json.json", "w") as file:
+                    file.write(df_to_json(findings_df))
+                print(f"JSON Formatting took {(datetime.now() - start).total_seconds()} seconds")
             case OutputFormat.TABLE:
                 print(df_to_table(findings_df))
             case OutputFormat.DOWNLOAD:
-                print(df_to_download(findings_df, total_errors))
+                start = datetime.now()
+                #with open("polars_download.csv", "w") as file:
+                #    file.write()
+                monitor_memory(df_to_download, findings_df, validation_results.warning_counts.total_count, validation_results.error_counts.total_count)
+                print(f"Download Formatting took {(datetime.now() - start).total_seconds()} seconds")
             case _:
                 raise ValueError(f'output format "{output}" not supported')
 
