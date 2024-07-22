@@ -36,4 +36,4 @@ jobs:
           poetry install --only linters
       - name: Run ruff
         run: |
-          poetry run ruff .
+          poetry run ruff check .
