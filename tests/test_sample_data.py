@@ -16,7 +16,7 @@ class TestValidatingSampleData:
         failed_fpath = "./file-does-not-exist.csv"
         with pytest.raises(Exception) as exc:
             pd.read_csv(failed_fpath, dtype=str, na_filter=False)
-        assert exc.type == FileNotFoundError
+        assert exc.type is FileNotFoundError
 
     def test_run_validation_on_good_data_invalid_lei(self):
         lei = "000TESTFIUIDDONOTUS1"
