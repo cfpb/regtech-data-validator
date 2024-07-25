@@ -6,4 +6,4 @@ class TestGlobalData:
         assert len(global_data.naics_codes) == 96
 
     def test_valid_geoids(self):
-        assert len(global_data.census_geoids) == 87275
+        assert len(global_data.census_geoids) == 87276
