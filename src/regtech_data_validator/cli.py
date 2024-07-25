@@ -4,18 +4,12 @@ from pathlib import Path
 from regtech_data_validator.data_formatters import df_to_csv, df_to_str, df_to_json, df_to_table, df_to_download
 from typing import Annotated, Optional
 
-import pandas as pd
 import polars as pl
 import typer
 import typer.core
 
-from regtech_data_validator.create_schemas import validate_phases
-
-import psutil
-import matplotlib.pyplot as plt
-import time
-import threading
-from threading import Thread
+from regtech_data_validator.create_schemas import validate_batch_csv
+from regtech_data_validator.validation_results import ValidationPhase
 
 # Need to do this because the latest version of typer, if the rich package exists
 # will create a Panel with borders in the error output.  This causes stderr during
@@ -26,35 +20,6 @@ from threading import Thread
 typer.core.rich = None
 
 app = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=False)
-
-def monitor_memory_usage(interval, stop_event, memory_log):
-    while not stop_event.is_set():
-        memory_log.append(psutil.Process().memory_info().rss / (1024 ** 2))
-        time.sleep(interval)
-
-def monitor_memory(f, *args, **kwargs):
-    memory_log = []
-    stop_event = threading.Event()
-    monitor_thread = Thread(target=monitor_memory_usage, args=(1, stop_event, memory_log))
-    start_time = time.time()
-    monitor_thread.start()
-    result = f(*args, **kwargs)
-    stop_event.set()
-    monitor_thread.join()
-    time_log = [start_time + i * 1 for i in range(len(memory_log))]
-    print(f"Average Memory: {sum(memory_log)/len(memory_log)}, Max: {max(memory_log)}, Min: {min(memory_log)}")
-    plot_mem_usage(f.__name__, time_log, memory_log)
-    return result
-
-def plot_mem_usage(f_name, time_log, memory_log):
-    plt.figure(figsize=(10, 6))
-    plt.plot(time_log, memory_log, label=f"{f_name} Memory Usage")
-    plt.xlabel('Time (s)')
-    plt.ylabel('Memory Usage (MB)')
-    plt.title(f'Memory Usage Over Time: {f_name}')
-    plt.legend()
-    plt.savefig(f'{f_name}_memory_usage.png')
-    plt.close()
 
 
 @dataclass
@@ -116,26 +81,24 @@ def validate(
     """
     Validate CFPB data submission
     """
-    from datetime import datetime
     context_dict = {x.key: x.value for x in context} if context else {}
-    input_df = None
-    start = datetime.now()
-    #try:
-    #    #input_df = pl.read_csv(path, infer_schema_length=0, missing_utf8_is_empty_string=True)
-    #    input_df = monitor_memory(pl.scan_csv, path, infer_schema_length=0, missing_utf8_is_empty_string=True)
-    #except Exception as e:
-    #    raise RuntimeError(e)
-    #validation_results = validate_phases(input_df, context_dict)
-    validation_results = monitor_memory(validate_phases, path, context_dict)
-    print(f"Validation took {(datetime.now() - start).total_seconds()} seconds")
 
+    total_findings = 0
+    final_phase = ValidationPhase.LOGICAL
+    for findings, phase in validate_batch_csv(path, context_dict, batch_size=50000, batch_count=5):
+        print(f"Findings: {findings}")
+        total_findings += findings.height
+        final_phase = phase
+
+    print(f"Total Errors: {total_findings}, Validation Phase: {final_phase}")
+    '''
     status = 'SUCCESS'
     no_of_findings = 0
     total_errors = 0
     findings_df = pl.DataFrame()
-    if not validation_results.is_valid:
+    if not True:
         status = 'FAILURE'
-        findings_df = validation_results.findings
+        #findings_df = validation_results.findings
         #no_of_findings = len(findings_df["finding_no"].unique())
         total_errors = sum(
             [
@@ -143,7 +106,6 @@ def validate(
                 validation_results.warning_counts.total_count,
             ]
         )
-        print(f"Findings length: {findings_df.with_row_count(name='row_nr',offset=0)['row_nr'].len()}")
 
         match output:
             case OutputFormat.PANDAS:
@@ -151,18 +113,11 @@ def validate(
             case OutputFormat.CSV:
                 print(df_to_csv(findings_df))
             case OutputFormat.JSON:
-                start = datetime.now()
-                with open("polars_json.json", "w") as file:
-                    file.write(df_to_json(findings_df))
-                print(f"JSON Formatting took {(datetime.now() - start).total_seconds()} seconds")
+                print(df_to_json(findings_df))
             case OutputFormat.TABLE:
                 print(df_to_table(findings_df))
             case OutputFormat.DOWNLOAD:
-                start = datetime.now()
-                #with open("polars_download.csv", "w") as file:
-                #    file.write()
-                monitor_memory(df_to_download, findings_df, validation_results.warning_counts.total_count, validation_results.error_counts.total_count)
-                print(f"Download Formatting took {(datetime.now() - start).total_seconds()} seconds")
+                df_to_download(findings_df, warning_count=validation_results.warning_counts.total_count, error_count=validation_results.error_counts.total_count)
             case _:
                 raise ValueError(f'output format "{output}" not supported')
 
@@ -173,6 +128,8 @@ def validate(
 
     # returned values are only used in unit tests
     return validation_results.is_valid, findings_df
+    '''
+    return (True, pl.DataFrame())
 
 
 if __name__ == '__main__':

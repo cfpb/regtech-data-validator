@@ -33,7 +33,8 @@ from regtech_data_validator.check_functions import (
 from regtech_data_validator.checks import SBLCheck, Severity
 from regtech_data_validator.validation_results import ValidationPhase
 
-def get_phase_2_register_validations(context: dict[str,str] | None = None):
+
+def get_phase_2_register_validations(context: dict[str, str] | None = None):
     return {
         "uid": {
             ValidationPhase.LOGICAL: [
@@ -55,7 +56,7 @@ def get_phase_2_register_validations(context: dict[str,str] | None = None):
             ]
         }
     }
-            
+
 
 def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None):
     lei: str | None = context.get("lei", None) if context else None
@@ -109,7 +110,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.WARNING,
                     scope="single-field",
-                    groupby="uid",
+                    element_wise=True,
                     containing_value=lei,
                     end_idx=20,
                 ),
@@ -279,7 +280,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="single-field",
-                    #element_wise=True,
+                    # element_wise=True,
                     min_length=1,
                     max_length=5,
                 ),
@@ -291,7 +292,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Type of guarantee' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
                     scope="single-field",
-                    #element_wise=True,
+                    # element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
@@ -518,7 +519,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="single-field",
-                    #element_wise=True,
+                    # element_wise=True,
                     min_length=1,
                     max_length=3,
                 ),
@@ -550,7 +551,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Credit purpose' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
                     scope="single-field",
-                    #element_wise=True,
+                    # element_wise=True,
                 ),
             ],
         },
@@ -929,7 +930,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="single-field",
-                    #element_wise=True,
+                    # element_wise=True,
                     min_length=1,
                     max_length=4,
                 ),
@@ -986,7 +987,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Denial reason(s)' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
                     scope="single-field",
-                    #element_wise=True,
+                    # element_wise=True,
                 ),
             ],
         },
@@ -1912,7 +1913,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Business ownership status' must contain at least one value.",
                     severity=Severity.ERROR,
                     scope="single-field",
-                    #element_wise=True,
+                    # element_wise=True,
                     min_length=1,
                 ),
                 SBLCheck(
@@ -1923,7 +1924,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Business ownership status' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
                     scope="single-field",
-                    #element_wise=True,
+                    # element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
@@ -1973,7 +1974,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* When present, 'number of principal owners' must equal 0, 1, 2, 3, or 4.",
                     severity=Severity.ERROR,
                     scope="single-field",
-
                     accepted_values=["0", "1", "2", "3", "4"],
                     accept_blank=True,
                 ),
@@ -2260,7 +2260,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Ethnicity of principal owner 1' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
                     scope="single-field",
-                    #element_wise=True,
+                    # element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
@@ -2382,7 +2382,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Race of principal owner 1' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
                     scope="single-field",
-                    #element_wise=True,
+                    # element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
@@ -2664,7 +2664,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Ethnicity of principal owner 2' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
                     scope="single-field",
-                    #element_wise=True,
+                    # element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
@@ -2786,7 +2786,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Race of principal owner 2' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
                     scope="single-field",
-                    #element_wise=True,
+                    # element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
@@ -3071,7 +3071,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Ethnicity of principal owner 3' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
                     scope="single-field",
-                    #element_wise=True,
+                    # element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
@@ -3193,7 +3193,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Race of principal owner 3' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
                     scope="single-field",
-                    #element_wise=True,
+                    # element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
@@ -3475,7 +3475,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Ethnicity of principal owner 4' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
                     scope="single-field",
-                    #element_wise=True,
+                    # element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
@@ -3597,7 +3597,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Race of principal owner 4' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
                     scope="single-field",
-                    #element_wise=True,
+                    # element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
