@@ -16,7 +16,7 @@ with naics_file_path.open('r') as f:
 
 # global variable for Census GEOIDs
 census_geoids: set[str] = set()
-census_file_path = files('regtech_data_validator.data.census').joinpath('Census2023.processed.csv')
+census_file_path = files('regtech_data_validator.data.census').joinpath('Census2024.processed.csv')
 
 with census_file_path.open('r') as f:
     for row in csv.DictReader(f):
