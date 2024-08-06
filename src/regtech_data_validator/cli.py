@@ -8,7 +8,7 @@ import polars as pl
 import typer
 import typer.core
 
-from regtech_data_validator.create_schemas import validate_batch_csv
+from regtech_data_validator.validator import validate_batch_csv
 from regtech_data_validator.validation_results import ValidationPhase
 
 # Need to do this because the latest version of typer, if the rich package exists
@@ -38,11 +38,11 @@ def parse_key_value(kv_str: str) -> KeyValueOpt:
 
 
 class OutputFormat(StrEnum):
-    CSV = 'csv'
     JSON = 'json'
-    PANDAS = 'pandas'
+    POLARS = 'polars'
     TABLE = 'table'
     DOWNLOAD = 'download'
+    CSV = 'csv'
 
 
 @app.command()
@@ -85,51 +85,43 @@ def validate(
 
     total_findings = 0
     final_phase = ValidationPhase.LOGICAL
+    all_findings = []
+    final_df = pl.DataFrame()
+
     for findings, phase in validate_batch_csv(path, context_dict, batch_size=50000, batch_count=5):
-        print(f"Findings: {findings}")
         total_findings += findings.height
         final_phase = phase
+        with pl.Config(tbl_width_chars=0, tbl_rows=-1, tbl_cols=-1):
+            print(f"Findings: {findings}")
+        # persist findings to datastore
+        all_findings.append(findings)
 
-    print(f"Total Errors: {total_findings}, Validation Phase: {final_phase}")
-    '''
-    status = 'SUCCESS'
-    no_of_findings = 0
-    total_errors = 0
-    findings_df = pl.DataFrame()
-    if not True:
-        status = 'FAILURE'
-        #findings_df = validation_results.findings
-        #no_of_findings = len(findings_df["finding_no"].unique())
-        total_errors = sum(
-            [
-                validation_results.error_counts.total_count,
-                validation_results.warning_counts.total_count,
-            ]
-        )
+    if all_findings:
+        final_df = pl.concat(all_findings, how="diagonal")
+    status = "SUCCESS" if total_findings == 0 else "FAILURE"
 
-        match output:
-            case OutputFormat.PANDAS:
-                print(df_to_str(findings_df))
-            case OutputFormat.CSV:
-                print(df_to_csv(findings_df))
-            case OutputFormat.JSON:
-                print(df_to_json(findings_df))
-            case OutputFormat.TABLE:
-                print(df_to_table(findings_df))
-            case OutputFormat.DOWNLOAD:
-                df_to_download(findings_df, warning_count=validation_results.warning_counts.total_count, error_count=validation_results.error_counts.total_count)
-            case _:
-                raise ValueError(f'output format "{output}" not supported')
+    match output:
+        case OutputFormat.CSV:
+            print(df_to_csv(final_df))
+        case OutputFormat.POLARS:
+            print(df_to_str(final_df))
+        case OutputFormat.JSON:
+            print(df_to_json(final_df))
+        case OutputFormat.TABLE:
+            print(df_to_table(final_df))
+        case OutputFormat.DOWNLOAD:
+            # uses streaming sink_csv, which doesn't print out
+            # to a string to save memory
+            df_to_download(final_df)
+        case _:
+            raise ValueError(f'output format "{output}" not supported')
 
     typer.echo(
-        f"status: {status}, total errors: {total_errors}, findings: {no_of_findings}, validation phase: {validation_results.phase}",
+        f"Status: {status}, Total Errors: {total_findings}, Validation Phase: {final_phase}",
         err=True,
     )
 
-    # returned values are only used in unit tests
-    return validation_results.is_valid, findings_df
-    '''
-    return (True, pl.DataFrame())
+    return (status, final_df)
 
 
 if __name__ == '__main__':

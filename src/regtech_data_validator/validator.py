@@ -13,7 +13,7 @@ from regtech_data_validator.phase_validations import (
     get_phase_2_register_validations,
 )
 from regtech_data_validator.schema_template import get_template, get_register_template
-from regtech_data_validator.validation_results import ValidationPhase, ValidationResults
+from regtech_data_validator.validation_results import ValidationPhase
 from regtech_data_validator.data_formatters import format_findings
 
 # Get separate schema templates for phase 1 and 2
@@ -38,7 +38,9 @@ def get_phase_2_schema_for_lei(context: dict[str, str] | None = None):
     return get_schema_by_phase_for_lei(phase_2_template, ValidationPhase.LOGICAL, context)
 
 
-def get_register_checks(context: dict[str, str] | None = None):
+# since we process the data in chunks/batch, we need to handle all file/register
+# checks separately, as a separate set of schema and checks.
+def get_register_schema(context: dict[str, str] | None = None):
     for column in get_phase_2_register_validations(context):
         validations = get_phase_2_register_validations(context)[column]
         register_template[column].checks = validations[ValidationPhase.LOGICAL]
@@ -46,61 +48,52 @@ def get_register_checks(context: dict[str, str] | None = None):
     return pa.DataFrameSchema(register_template, name=ValidationPhase.LOGICAL)
 
 
+# Gets all associated field names from the check
 def _get_check_fields(check: Check, primary_column: str) -> list[str]:
-    """
-    Don't sort field list to maintain original ordering.  Use List as
-    python Set does not guarantee order.
-    """
 
     field_list = [primary_column]
-    if "groupby_fields" in check._check_kwargs:
-        groupby_fields = check._check_kwargs["groupby_fields"]
-        if groupby_fields:
-            if isinstance(groupby_fields, str):
-                field_list.append(groupby_fields)
+    if "related_fields" in check._check_kwargs:
+        related_fields = check._check_kwargs["related_fields"]
+        if related_fields:
+            # related_fields can be a single str or list of str
+            if isinstance(related_fields, str):
+                field_list.append(related_fields)
             else:
-                field_list.extend(groupby_fields)
+                field_list.extend(related_fields)
     # remove possible dupes but maintain order
     field_list = list(dict.fromkeys(field_list))
     return field_list
 
 
+# Retrieves the row data from the original dataframe that threw errors/warnings, and pulls out the fields/values
+# from the original row data that caused the error/warning
 def _filter_valid_records(df: pl.DataFrame, check_output: pl.Series, fields: list[str]) -> pl.DataFrame:
-    """
-    Return only records and fields associated with a given `Check`'s
-    """
-
-    # `check_output` must be sorted so its index lines up with `df`'s index
 
     sorted_check_output = check_output["index"]
     fields = ["index"] + fields
     filtered_df = df.filter(pl.col('index').is_in(sorted_check_output))
     failed_records_df = filtered_df[fields]
+    # record_no is indexed by 1 instead of 0, so offset and drop index since it's no longer needed
     failed_records_df = failed_records_df.with_columns((pl.col("index") + 1).alias("record_no"))
     failed_records_df = failed_records_df.drop("index")
-    failed_records_df = failed_records_df.with_row_index(name='finding_no')
     return failed_records_df
 
 
 def _records_to_fields(failed_records_df: pl.DataFrame) -> pl.DataFrame:
-    """
-    Transforms a DataFrame with columns per Check field to DataFrame with a row per field
-    """
-
-    # Melts a DataFrame with the line number as the index columns for the validations's fields' values
-    # into one with the record_no, finding_no, field_value and field_name
+    # Melts the DataFrame with columns per Check field to DataFrame with a row per field
     failed_record_fields_df = failed_records_df.melt(
-        variable_name='field_name', value_name='field_value', id_vars=['record_no', 'finding_no']
+        variable_name='field_name', value_name='field_value', id_vars=['record_no']
     )
     return failed_record_fields_df
 
 
 def _add_validation_metadata(failed_check_fields_df: pl.DataFrame, check: SBLCheck):
+    # add the error/warning code from the check to the error dataframe
     validation_fields_df = failed_check_fields_df.with_columns(pl.lit(check.title).alias("validation_id"))
     return validation_fields_df
 
 
-def validate(schema: pa.DataFrameSchema, submission_df: pl.LazyFrame) -> ValidationResults:
+def validate(schema: pa.DataFrameSchema, submission_df: pl.LazyFrame) -> pl.DataFrame:
     """
     validate received dataframe with schema and return list of
     schema errors
@@ -112,13 +105,12 @@ def validate(schema: pa.DataFrameSchema, submission_df: pl.LazyFrame) -> Validat
         pd.DataFrame containing validation results data
     """
     findings_df: pl.DataFrame = pl.DataFrame()
-    next_finding_no: int = 1
 
     try:
+        # since polars dataframes don't normally have an index column, add it, so that we can match
+        # up original submission rows with rows found with errors/warnings
         submission_df = submission_df.with_row_index()
         schema(submission_df, lazy=True)
-    except pl.exceptions.ColumnNotFoundError as schema_err:
-        raise RuntimeError(schema_err) from schema_err
     except SchemaErrors as err:
         check_findings = []
         # NOTE: `type: ignore` because SchemaErrors.schema_errors is supposed to be
@@ -126,11 +118,14 @@ def validate(schema: pa.DataFrameSchema, submission_df: pl.LazyFrame) -> Validat
         schema_error: SchemaError
 
         for schema_error in err.schema_errors:
-
             check = schema_error.check
             column_name = schema_error.schema.name
 
-            if schema_error.reason_code is SchemaErrorReason.CHECK_ERROR:
+            # CHECK_ERROR is thrown by pandera polars if the check itself has a coding error, NOT if the check data results in an error
+            if (
+                schema_error.reason_code is SchemaErrorReason.CHECK_ERROR
+                or schema_error.reason_code is SchemaErrorReason.COLUMN_NOT_IN_DATAFRAME
+            ):
                 raise RuntimeError(schema_error) from schema_error
             if not check:
                 raise RuntimeError(
@@ -150,10 +145,6 @@ def validate(schema: pa.DataFrameSchema, submission_df: pl.LazyFrame) -> Validat
             if check_output is not None:
                 # Filter data not associated with failed Check, and update index for merging with findings_df
                 failed_records_df = _filter_valid_records(submission_df, check_output, fields)
-                failed_records_df = failed_records_df.with_columns(
-                    (pl.col("finding_no") + next_finding_no).alias("finding_no")
-                )
-                next_finding_no = failed_records_df.tail(1)["finding_no"] + 1  # type: ignore
                 failed_record_fields_df = _records_to_fields(failed_records_df)
                 check_findings.append(_add_validation_metadata(failed_record_fields_df, check))
             else:
@@ -161,12 +152,12 @@ def validate(schema: pa.DataFrameSchema, submission_df: pl.LazyFrame) -> Validat
                 raise RuntimeError(f'No check output for "{check.name}" check.  Pandera SchemaError: {schema_error}')
         if check_findings:
             findings_df = pl.concat(check_findings)
-            findings_df = findings_df.sort("finding_no")
 
     updated_df = add_uid(findings_df, submission_df)
     return updated_df
 
 
+# Add the uid for the record throwing the error/warning to the error dataframe
 def add_uid(results_df: pl.DataFrame, submission_df: pl.DataFrame) -> pl.DataFrame:
     if results_df.is_empty():
         return results_df
@@ -176,11 +167,15 @@ def add_uid(results_df: pl.DataFrame, submission_df: pl.DataFrame) -> pl.DataFra
     return results_df
 
 
+# This function is a Generator, and will yield the results of each batch of processing, along with the
+# phase (SYNTACTICAL/LOGICAL) that the findings were found.  Callers of this function will want to
+# store or concat each iteration of findings
 def validate_batch_csv(
-    path: Path, context: dict[str, str] | None = None, batch_size: int = 20000, batch_count: int = 5
+    path: Path, context: dict[str, str] | None = None, batch_size: int = 50000, batch_count: int = 1
 ):
     has_syntax_errors = False
 
+    # process the data first looking for syntax (phase 1) errors, then looking for logical (phase 2) errors/warnings
     syntax_schema = get_phase_1_schema_for_lei(context)
     syntax_checks = [check for col_schema in syntax_schema.columns.values() for check in col_schema.checks]
 
@@ -195,8 +190,10 @@ def validate_batch_csv(
             yield rf, ValidationPhase.SYNTACTICAL
 
     if not has_syntax_errors:
+        # check for register-wide errors, like dupicate UIDs.  Use scan_csv as it is faster and less resource intensive
+        # than reading in the whole csv and just selecting on the UID column (currently our only register level check data)
         uids = pl.scan_csv(path, infer_schema_length=0, missing_utf8_is_empty_string=True).select("uid").collect()
-        register_schema = get_register_checks(context)
+        register_schema = get_register_schema(context)
         findings = validate(register_schema, uids)
         if not findings.is_empty():
             rf = format_findings(
@@ -210,6 +207,11 @@ def validate_batch_csv(
                 yield rf, ValidationPhase.LOGICAL
 
 
+# Reads in a path to a csv in batches, using batch_size to determine number of rows to read into the buffer,
+# and batch_count to determine how many batches to process in parallel.  Performance testing for large files
+# shows 50K batch_size with 1 batch_count to be a nice balance of speed and resource utilization.  Increasing
+# these increases resource utilization but increases speed (especially batch_count).  Reducing these, espectially
+# batch_count adds processing cylces (time) but can significantly reduce resources.
 def validate_chunks(schema, path, batch_size, batch_count):
     reader = pl.read_csv_batched(path, infer_schema_length=0, missing_utf8_is_empty_string=True, batch_size=batch_size)
     batches = reader.next_batches(batch_count)
@@ -220,6 +222,8 @@ def validate_chunks(schema, path, batch_size, batch_count):
         yield findings
 
 
+# This function adds an index column (polars dataframes do not normally have one), and filters out
+# any row that did not fail a check.
 def gather_errors(schema_error: SchemaError):
     schema_error.check_output = schema_error.check_output.with_row_index()
     error_indices = schema_error.check_output.filter(~pl.col("check_output"))["index"].to_list()

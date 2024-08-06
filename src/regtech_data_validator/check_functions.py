@@ -9,7 +9,19 @@ unwieldy size. For now we'll just use a single module.
 
 The names of the check functions should clearly indicate the purpose of
 the function. This may or may not align with the name of the validation
-in the fig."""
+in the fig.
+
+Majority of these checks utilize Pandera Polars PolarsData objects.  These
+objects contain a key, which is the field the check is associated with, and
+a lazyframe which is then used to do the check.  This significantly improves
+processing time over Pandas, as well as resource utilization.  Pandera Polars
+does NOT support group_by functions, therefore a "related_fields" arg was added
+to the checks that require validating data across multiple fields.
+
+Each Pandera Polars check returns either a scalar boolean, or a lazyframe with a
+'check_results' boolean column which shows if each row passed or failed the check
+
+"""
 
 from datetime import datetime
 
@@ -66,7 +78,7 @@ def begins_with_same_lei(ulis: pl.Series) -> bool:
     return leis.nunique() == 1
 
 
-def is_date(grouped_data: pa.PolarsData) -> bool:
+def is_date(field_data: pa.PolarsData) -> bool:
     """Attempt datetime conversion.
 
     This checks whether the date string has the format %Y%m%d and
@@ -83,78 +95,95 @@ def is_date(grouped_data: pa.PolarsData) -> bool:
     """
 
     # check for number type and length must be 8 to match YYYYMMDD
-    lf = grouped_data.lazyframe
-    date_check = pl.col(grouped_data.key).str.strptime(pl.Date, "%Y%m%d", strict=False).is_not_null()
+    lf = field_data.lazyframe
+    # polars striptime uses chrono format which allows for non-padded %d, so check
+    # that a full 8 digits are present in the date.
+    date_check = (
+        pl.col(field_data.key).str.contains(r'^\d{8}$')
+        & pl.col(field_data.key).str.strptime(pl.Date, "%Y%m%d", strict=False).is_not_null()
+    )
     rf = lf.with_columns(date_check.alias("check_results"))
     return rf.select("check_results")
 
 
 def has_valid_multi_field_value_count(
-    grouped_data: pa.PolarsData,
+    field_data: pa.PolarsData,
     max_length: int,
     ignored_values: set[str] = set(),
-    groupby_fields: str = "",
+    related_fields: str = "",
     separator: str = ";",
 ) -> pl.LazyFrame:
-    lf = grouped_data.lazyframe
+    lf = field_data.lazyframe
 
-    groupby_list = pl.col(groupby_fields).str.split(separator).list
-    check_field_list = pl.col(grouped_data.key).str.split(separator).list
+    # split the related field and check field values, strip off empty spaces and only collect non-empty values
+    # this uses the polars str and list column type functions
+    groupby_list = (
+        pl.col(related_fields)
+        .str.split(separator)
+        .list.eval(pl.element().str.strip_chars())
+        .list.eval(pl.element().filter(pl.element() != ""))
+    )
+    check_field_list = (
+        pl.col(field_data.key)
+        .str.split(separator)
+        .list.eval(pl.element().str.strip_chars())
+        .list.eval(pl.element().filter(pl.element() != ""))
+    )
 
-    groupby_lengths = groupby_list.set_difference(list(ignored_values)).list.len()
-    field_lengths = check_field_list.set_difference(list(ignored_values)).list.len()
+    # expressions to get the list count of values not in ignored_values. Polars allows you
+    # to chain together expressions into a single expression reference
+    groupby_lengths = groupby_list.list.set_difference(list(ignored_values)).list.len()
+    field_lengths = check_field_list.list.set_difference(list(ignored_values)).list.len()
 
+    # evaluate the expressions on the lazyframe, putting the results into the alias columnns, and
+    # collect just the results of the expressions
     rf = (
         lf.with_columns([groupby_lengths.alias("groupby_length"), field_lengths.alias("field_length")])
         .select(["groupby_length", "field_length"])
         .collect()
     )
-
+    # sum up the total lengths of the related and field values and compare to the max_length
     check_results = (rf["groupby_length"] + rf["field_length"]) <= max_length
-
-    return pl.DataFrame(check_results).lazy()
+    return pl.DataFrame({"check_results": check_results}).lazy()
 
 
 def has_no_conditional_field_conflict(
-    grouped_data: pa.PolarsData,
+    field_data: pa.PolarsData,
     condition_values: set[str] = {"977"},
-    groupby_fields: str = "",
+    related_fields: str = "",
     separator: str = ";",
 ) -> pl.LazyFrame:
     """
     Validates a column's content based on another column's values.
-    - if (at least one) other column values is in condition_values list then create
+    - if (at least one) related_fields column values is in condition_values list then create
           validation that validate current column value is not empty.
-    - if other column values are NOT part of condition_values list then current column
-          values should be empty.
-
-    Args:
-        grouped_data (Dict[str, pl.Series]): parsed data/series from source file
-        condition_values (list[str], optional): list of acceptable values for other
-            column. Defaults to ["977"].
-        separator (str, optional): character used to separate multiple values.
-            Defaults to ";".
-
-    Returns:
-        pl.Series: series of current column validations
+    - if related_fields column values are NOT part of condition_values list then current column
+          should be empty.
     """
-    lf = grouped_data.lazyframe
+
+    lf = field_data.lazyframe
+    # expression to split the related field value and alias a boolean if the intersection with the conditional values is empty
     check_col = (
-        pl.col(groupby_fields).str.split(separator).list.set_intersection(list(condition_values)).list.len() == 0
+        pl.col(related_fields).str.split(separator).list.set_intersection(list(condition_values)).list.len() == 0
     ).alias("check_col")
-    val_col = (pl.col(grouped_data.key).str.strip_chars().str.len_chars() == 0).alias("val_col")
+    # expression to check if the check field value is empty
+    val_col = (pl.col(field_data.key).str.strip_chars().str.len_chars() == 0).alias("val_col")
+
     rf = lf.with_columns([check_col, val_col]).select(["check_col", "val_col"]).collect()
     rf = rf["check_col"] ^ rf["val_col"]
 
-    return pl.DataFrame(~rf).lazy()
+    # flip the results of ^ so that the check fails if one expression was True but the other False
+    return pl.DataFrame({"check_results": ~rf}).lazy()
 
 
 def is_unique_in_field(
-    grouped_data: pa.PolarsData,
+    field_data: pa.PolarsData,
     separator: str = ";",
 ) -> pl.LazyFrame:
-    lf = grouped_data.lazyframe
-    val_list = pl.col(grouped_data.key).str.split(separator).list
+    lf = field_data.lazyframe
+    # simply check that the length of a unique list of values equals the original list length.
+    # Otherwise, there are duplicates
+    val_list = pl.col(field_data.key).str.split(separator).list
     unique_list = val_list.unique().list
     unique_check = val_list.len() == unique_list.len()
     rf = lf.with_columns(unique_check.alias("check_results"))
@@ -170,14 +199,17 @@ def meets_multi_value_field_restriction(ct_value: str, single_values: set[str], 
 
 
 def is_valid_enum(
-    grouped_data: pa.PolarsData,
+    field_data: pa.PolarsData,
     accepted_values: list[str],
     accept_blank: bool = False,
     separator: str = ";",
 ) -> bool:
-    lf = grouped_data.lazyframe
-    split_col = pl.col(grouped_data.key).str.split(separator)
-    format_check = ((pl.col(grouped_data.key).str.strip_chars() == "") & accept_blank) | (
+    lf = field_data.lazyframe
+    split_col = pl.col(field_data.key).str.split(separator)
+
+    # format_check is two expressions.  Either the field data is empty and blanks are allowed,
+    # or the split field values are all in the accepted values (difference is 0).
+    format_check = ((pl.col(field_data.key).str.strip_chars() == "") & accept_blank) | (
         split_col.list.set_difference(accepted_values).list.len() == 0
     )
     rf = lf.with_columns(format_check.alias("check_results"))
@@ -185,57 +217,48 @@ def is_valid_enum(
 
 
 def has_valid_value_count(
-    grouped_data: pa.PolarsData, min_length: int, max_length: int = None, separator: str = ";"
+    field_data: pa.PolarsData, min_length: int, max_length: int = None, separator: str = ";"
 ) -> pl.LazyFrame:
-    lf = grouped_data.lazyframe
-    val_list = pl.col(grouped_data.key).str.split(separator).list.len()
+
+    # checks that the split list length of the check field is between the min/max length.
+    lf = field_data.lazyframe
+    val_list = pl.col(field_data.key).str.split(separator).list.len()
     length_check = val_list.is_between(min_length, max_length)
     rf = lf.with_columns(length_check.alias("check_results"))
     return rf.select("check_results")
 
 
-def is_date_in_range(grouped_data: pa.PolarsData, start_date_value: str, end_date_value: str) -> bool:
-    """Checks that the date_value is within the range of the start_date_value
-        and the end_date_value
+def is_date_in_range(field_data: pa.PolarsData, start_date_value: str, end_date_value: str) -> bool:
 
-    Args:
-        date_value: Date input ideally within the range of the current reporting period
-        start_date_value: Starting date of reporting period
-        end_date_value: End date of the reporting period
-
-    Returns: Returns True if date_value occurs within the current reporting period
-    """
-    lf = grouped_data.lazyframe
+    # checks the date field value is between the start and end date.
+    lf = field_data.lazyframe
 
     start_date = datetime.strptime(start_date_value, "%Y%m%d")
     end_date = datetime.strptime(end_date_value, "%Y%m%d")
 
-    value_dates = pl.col(grouped_data.key).str.strptime(pl.Date, "%Y%m%d")
+    value_dates = pl.col(field_data.key).str.strptime(pl.Date, "%Y%m%d")
     range_check = value_dates.is_between(start_date, end_date)
 
     return lf.with_columns(range_check.alias("check_results")).select("check_results")
 
 
 def is_date_after(
-    grouped_data: pa.PolarsData,
-    groupby_fields: str = "",
+    field_data: pa.PolarsData,
+    related_fields: str = "",
 ) -> pl.Series:
-    """Checks if date in column is after the date value of another column
 
-    Args:
-        grouped_data: Data grouped on before_date column
+    lf = field_data.lazyframe
 
-    Returns: Series with corresponding True/False validation values for the column
-    """
-    lf = grouped_data.lazyframe
+    related_dates = pl.col(related_fields).str.strptime(pl.Date, "%Y%m%d")
+    check_col_dates = pl.col(field_data.key).str.strptime(pl.Date, "%Y%m%d")
 
-    groupby_dates = pl.col(groupby_fields).str.strptime(pl.Date, "%Y%m%d")
-    check_col_dates = pl.col(grouped_data.key).str.strptime(pl.Date, "%Y%m%d")
-
-    rf = lf.with_columns([groupby_dates.alias("check_date_tmp"), check_col_dates.alias("v_date_tmp")])
+    # evaluates the above strings to dates expressions and puts them into new columns, and then
+    # collects just those columns for comparison, verifying the related field date is less than
+    # or equal to the check field date (happens on or before)
+    rf = lf.with_columns([related_dates.alias("check_date_tmp"), check_col_dates.alias("v_date_tmp")])
     rf = rf.select(["check_date_tmp", "v_date_tmp"]).collect()
     check_results = rf['check_date_tmp'] <= rf['v_date_tmp']
-    return pl.DataFrame(check_results).lazy()
+    return pl.DataFrame({"check_results": check_results}).lazy()
 
 
 def is_number(ct_value: str, accept_blank: bool = False, is_whole: bool = False) -> bool:
@@ -260,14 +283,14 @@ def is_number(ct_value: str, accept_blank: bool = False, is_whole: bool = False)
 
 
 def has_valid_enum_pair(
-    grouped_data: pa.PolarsData,
+    field_data: pa.PolarsData,
     conditions: list[list] = None,
-    groupby_fields: str = "",
+    related_fields: str = "",
     separator: str = ";",
 ) -> pl.Series:
     """Validates a column's enum value based on another column's enum values.
     Args:
-        grouped_data (Dict[str, pl.Series]): parsed data/series from source file
+        field_data (Dict[str, pl.Series]): parsed data/series from source file
         conditions: list of list of key-value pairs
         conditions should be passed in the following format:
             Example:
@@ -291,51 +314,72 @@ def has_valid_enum_pair(
 
     Returns: Series with corresponding True/False validation values for the column
     """
-    lf = grouped_data.lazyframe
-    check_values = pl.col(groupby_fields).str.split(separator)
-    target_values = pl.col(grouped_data.key).str.strip_chars()
+    lf = field_data.lazyframe
+
+    # expressions to strip off white space of the related value to check, and
+    # split the check field value
+    related_field_value = pl.col(related_fields).str.strip_chars()
+    field_values = pl.col(field_data.key).str.split(separator)
+    # start with a True series, which will then be anded to for each condition
     check_results = pl.lit(True)
 
     for condition in conditions:
-        check = check_condition(condition, check_values, target_values)
+        check = check_condition(condition, field_values, related_field_value)
+        # and all conditions, any failure fails the check
         check_results = check_results & check
     rf = lf.with_columns(check_results.alias("check_results"))
     return rf.select("check_results")
 
 
-def check_condition(condition, check_values, target_values):
-    target_operator = operator.eq if condition["should_equal_target"] else operator.ne
+def check_condition(condition, field_values, related_field_value):
+
+    # returns an expression to check if the field value list does or
+    # does not contain the target value
+    def field_check(field_values, target_value, should_equal_target):
+        if should_equal_target:
+            return field_values.list.contains(target_value)
+        else:
+            return ~field_values.list.contains(target_value)
+
     con_values = condition["condition_values"]
     target_value = condition["target_value"]
+    should_equal_target = condition["should_equal_target"]
 
+    # first build an expression based on if we're looking for
+    # the related field being in a list of conditional values
     if condition["is_equal_condition"]:
-        check = check_values.list.set_intersection(list(con_values)).list.len() > 0
+        check = related_field_value.is_in(list(con_values))
     else:
-        check = check_values.list.set_intersection(list(con_values)).list.len() == 0
-    return pl.when(check).then(target_operator(target_values, target_value)).otherwise(True)
+        check = ~related_field_value.is_in(list(con_values))
+    # next build an expression to check if the field values do or do not contain the target value
+    field_check_exp = field_check(field_values, target_value, should_equal_target)
+
+    # uses polars when/then/otherwise notation, which is basically an if/else
+    # here the expression is doing
+    # if the is_equal_condition check is met:
+    #     return target value field check result
+    # else:
+    #     return True (the conditional check wasn't meant, so we're good)
+    return pl.when(check).then(field_check_exp).otherwise(True)
 
 
-def is_date_before_in_days(grouped_data: pa.PolarsData, days_value: int = 730, groupby_fields: str = "") -> pl.Series:
-    """Checks if the provided date is not beyond
-       the grouped column date plus the days_value parameter
-    Args:
-        grouped_data: Data grouped on the initial date column
-        days_value: This value is added to our grouped data to find our
-            unreasonable_date value
+def is_date_before_in_days(field_data: pa.PolarsData, days_value: int = 730, related_fields: str = "") -> pl.Series:
 
-    Returns: Series with corresponding True/False validation values for the column
-    """
-    lf = grouped_data.lazyframe
+    lf = field_data.lazyframe
+    # builds a dataframe by converting the check and related fields from strings to dates and putting them
+    # into columns
     rf = lf.with_columns(
         [
-            pl.col(groupby_fields).str.strptime(pl.Date, "%Y%m%d").alias("check_date_tmp"),
-            pl.col(grouped_data.key).str.strptime(pl.Date, "%Y%m%d").alias("v_date_tmp"),
+            pl.col(related_fields).str.strptime(pl.Date, "%Y%m%d").alias("check_date_tmp"),
+            pl.col(field_data.key).str.strptime(pl.Date, "%Y%m%d").alias("v_date_tmp"),
         ]
     )
     rf = rf.select(["v_date_tmp", "check_date_tmp"]).collect()
+
+    # diff the two columns as date objects and verify the diff in days is less than the max days
     diff_values = (rf['v_date_tmp'] - rf['check_date_tmp']).dt.total_days()
     check_results = diff_values < days_value
-    rf = pl.DataFrame(check_results).lazy()
+    rf = pl.DataFrame({"check_results": check_results}).lazy()
     return rf
 
 
@@ -381,37 +425,30 @@ def is_less_than(value: str, max_value: str, accept_blank: bool = False) -> bool
     return comparison_helper(value, max_value, accept_blank, operator.lt)
 
 
-def has_valid_format(grouped_data: pa.PolarsData, regex: str, accept_blank: bool = False) -> bool:
-    lf = grouped_data.lazyframe
-    format_check = ((pl.col(grouped_data.key).str.strip_chars() == "") & accept_blank) | pl.col(
-        grouped_data.key
+def has_valid_format(field_data: pa.PolarsData, regex: str, accept_blank: bool = False) -> bool:
+    lf = field_data.lazyframe
+
+    # here format_check is two expressions, one that checks if the field value is empty and blanks are allowed,
+    # or the field value meets the passed in regex
+    format_check = ((pl.col(field_data.key).str.strip_chars() == "") & accept_blank) | pl.col(
+        field_data.key
     ).str.contains(regex)
     rf = lf.with_columns(format_check.alias("check_results"))
     return rf.select("check_results")
 
 
-def is_unique_column(grouped_data: pa.PolarsData, groupby_fields: str = "", count_limit: int = 1) -> pl.Series:
-    """
-    verify if the content of a column is unique.
-    - To be used with element_wise set to false
-    - To be used with group_by set to itself column
-    - Return validations for each row
+def is_unique_column(field_data: pa.PolarsData, related_fields: str = "", count_limit: int = 1) -> pl.Series:
 
-    Args:
-        grouped_data (Dict[any, pl.Series]): rows data
-
-    Returns:
-        pl.Series: all rows validations
-    """
-    rf = grouped_data.lazyframe.select(grouped_data.key).collect().is_unique()
-    rf = pl.DataFrame(rf).lazy()
+    # uses polars column is_unique() function to check there are no duplicate values
+    rf = field_data.lazyframe.select(field_data.key).collect().is_unique()
+    rf = pl.DataFrame({"check_results": rf}).lazy()
     return rf
 
 
 def has_valid_fieldset_pair(
-    grouped_data: pa.PolarsData,
+    field_data: pa.PolarsData,
     condition_values: list[str],
-    groupby_fields: list[str],
+    related_fields: list[str],
     should_fieldset_key_equal_to: dict({str: (int, bool, str)}) = None,
 ) -> pl.Series:
     """conditional check to verify if groups of fields equal to specific
@@ -423,7 +460,7 @@ def has_valid_fieldset_pair(
                 and the column data in the series
 
     Args:
-        grouped_data (Dict[list[str], pl.Series]): parsed data provided by pandera
+        field_data (Dict[list[str], pl.Series]): parsed data provided by pandera
         condition_values (list[str]): list of value to be compared to main series
         should_fieldset_key_equal_to Dict{str, (int, bool, str)}: dict of field name
         and tuple, where the first value is the index of field in the groupby and it
@@ -473,13 +510,15 @@ def has_valid_fieldset_pair(
     Returns:
         pl.Series: list of series with update validations
     """
-    lf = grouped_data.lazyframe
+    lf = field_data.lazyframe
 
     def check_fieldset_expression(field, condition):
         idx, must_equal, target_value = condition
         operator_check = pl.col(field) == target_value if must_equal else pl.col(field) != target_value
         return operator_check
 
+    # this builds a list of def calls to be anded together by the below expression, for each key/tuple defined
+    # in the check should_fieldset_key_equal_to
     conditions = [
         check_fieldset_expression(field, condition) for field, condition in should_fieldset_key_equal_to.items()
     ]
@@ -487,8 +526,16 @@ def has_valid_fieldset_pair(
     for cond in conditions[1:]:
         combinded_conditions &= cond
 
+    # polars has an expression chain called when/then/otherwise which equates to the concept of if/else.
+    # Here, this chain of expressions is doing:
+    # if field data is not in condition_values: (don't bother checking the conditionals)
+    #    return True
+    # elif evaluate the anded check_fieldset_expressions: (all conditional checks have to result in True)
+    #    return True
+    # else:
+    #   return False (field data was a condition value and one or more of the conditional checks failed)
     conditions_check = (
-        pl.when(~pl.col(grouped_data.key).is_in(condition_values))
+        pl.when(~pl.col(field_data.key).is_in(condition_values))
         .then(pl.lit(True))
         .when(combinded_conditions)
         .then(pl.lit(True))

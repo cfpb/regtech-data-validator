@@ -449,6 +449,8 @@ def get_template() -> Dict:
     return deepcopy(_schema_template)
 
 
+# since we process the data in chunks/batch, we need to handle all file/register
+# checks separately, as a separate set of schema and checks.
 _register_template = {
     "uid": Column(
         str,
