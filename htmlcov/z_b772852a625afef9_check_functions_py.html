@@ -66,8 +66,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_b772852a625afef9_checks_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.6.0">coverage.py v7.6.0</a>,
-            created at 2024-08-05 19:51 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.6.1">coverage.py v7.6.1</a>,
+            created at 2024-08-08 17:17 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -420,9 +420,9 @@
     <p class="pln"><span class="n"><a id="t336" href="#t336">336</a></span><span class="t"><span class="op">)</span> <span class="op">-></span> <span class="nam">pd</span><span class="op">.</span><span class="nam">Series</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t337" href="#t337">337</a></span><span class="t">    <span class="nam">result</span> <span class="op">=</span> <span class="nam">pd</span><span class="op">.</span><span class="nam">Series</span><span class="op">(</span><span class="nam">index</span><span class="op">=</span><span class="nam">series</span><span class="op">.</span><span class="nam">index</span><span class="op">,</span> <span class="nam">name</span><span class="op">=</span><span class="nam">series</span><span class="op">.</span><span class="nam">name</span><span class="op">,</span> <span class="nam">data</span><span class="op">=</span><span class="key">True</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t338" href="#t338">338</a></span><span class="t">    <span class="key">if</span> <span class="nam">condition</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t339" href="#t339">339</a></span><span class="t">        <span class="nam">result</span> <span class="op">=</span> <span class="nam">series</span> <span class="op">==</span> <span class="nam">condition_value</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t339" href="#t339">339</a></span><span class="t">        <span class="nam">result</span> <span class="op">=</span> <span class="nam">series</span><span class="op">.</span><span class="nam">str</span><span class="op">.</span><span class="nam">split</span><span class="op">(</span><span class="str">';'</span><span class="op">)</span><span class="op">.</span><span class="nam">apply</span><span class="op">(</span><span class="key">lambda</span> <span class="nam">x</span><span class="op">:</span> <span class="nam">condition_value</span> <span class="key">in</span> <span class="nam">x</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t340" href="#t340">340</a></span><span class="t">    <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t341" href="#t341">341</a></span><span class="t">        <span class="nam">result</span> <span class="op">=</span> <span class="nam">series</span> <span class="op">!=</span> <span class="nam">condition_value</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t341" href="#t341">341</a></span><span class="t">        <span class="nam">result</span> <span class="op">=</span> <span class="nam">series</span><span class="op">.</span><span class="nam">str</span><span class="op">.</span><span class="nam">split</span><span class="op">(</span><span class="str">';'</span><span class="op">)</span><span class="op">.</span><span class="nam">apply</span><span class="op">(</span><span class="key">lambda</span> <span class="nam">x</span><span class="op">:</span> <span class="nam">condition_value</span> <span class="key">not</span> <span class="key">in</span> <span class="nam">x</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t342" href="#t342">342</a></span><span class="t">    <span class="key">return</span> <span class="nam">result</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t343" href="#t343">343</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t344" href="#t344">344</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -774,8 +774,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_b772852a625afef9_checks_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.6.0">coverage.py v7.6.0</a>,
-            created at 2024-08-05 19:51 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.6.1">coverage.py v7.6.1</a>,
+            created at 2024-08-08 17:17 +0000
         </p>
     </div>
 </footer>
