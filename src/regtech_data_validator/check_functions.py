@@ -336,9 +336,9 @@ def _has_valid_enum_pair_validation_helper(
 ) -> pd.Series:
     result = pd.Series(index=series.index, name=series.name, data=True)
     if condition:
-        result = series == condition_value
+        result = series.str.split(';').apply(lambda x: condition_value in x)
     else:
-        result = series != condition_value
+        result = series.str.split(';').apply(lambda x: condition_value not in x)
     return result
 
 
