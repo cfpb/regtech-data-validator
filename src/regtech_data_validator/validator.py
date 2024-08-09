@@ -101,7 +101,6 @@ def validate(schema: pa.DataFrameSchema, submission_df: pl.LazyFrame) -> pl.Data
         schema (DataFrameSchema): schema to be used for validation
         submission_df (pl.DataFrame): data to be validated against the schema
     Returns:
-        bool whether the given submission was valid or not
         pd.DataFrame containing validation results data
     """
     findings_df: pl.DataFrame = pl.DataFrame()
