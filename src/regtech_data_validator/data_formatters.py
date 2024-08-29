@@ -39,8 +39,8 @@ def format_findings(df: pd.DataFrame, checks):
         )
         df_pivot.columns = [
             (
-                col.replace('field_name_field_number_', 'field_').replace('field_value_field_number_', 'value_')
-                if ('field_name_field_number_' in col or 'field_value_field_number_' in col)
+                col.replace('field_name_', 'field_').replace('field_value_', 'value_')
+                if ('field_name_' in col or 'field_value_' in col)
                 else col
             )
             for col in df_pivot.columns
@@ -167,7 +167,7 @@ def process_group_data(group_df, json_results):
 def process_chunk(df: pl.DataFrame, validation_id: str) -> [dict]:
     # once we have a grouped dataframe, working with the data as a
     # python dict is much faster
-    findings_json = ujson.loads(df.write_json(row_oriented=True))
+    findings_json = ujson.loads(df.write_json())
     records = []
     if not findings_json:
         return

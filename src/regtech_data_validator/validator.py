@@ -16,6 +16,11 @@ from regtech_data_validator.schema_template import get_template, get_register_te
 from regtech_data_validator.validation_results import ValidationPhase
 from regtech_data_validator.data_formatters import format_findings
 
+from fsspec import AbstractFileSystem, filesystem
+
+import shutil
+import os
+
 # Get separate schema templates for phase 1 and 2
 phase_1_template = get_template()
 phase_2_template = get_template()
@@ -170,10 +175,10 @@ def add_uid(results_df: pl.DataFrame, submission_df: pl.DataFrame) -> pl.DataFra
 # phase (SYNTACTICAL/LOGICAL) that the findings were found.  Callers of this function will want to
 # store or concat each iteration of findings
 def validate_batch_csv(
-    path: Path, context: dict[str, str] | None = None, batch_size: int = 50000, batch_count: int = 1
+    path: Path | str, context: dict[str, str] | None = None, batch_size: int = 50000, batch_count: int = 1
 ):
     has_syntax_errors = False
-
+    real_path = get_real_file_path(path)
     # process the data first looking for syntax (phase 1) errors, then looking for logical (phase 2) errors/warnings
     syntax_schema = get_phase_1_schema_for_lei(context)
     syntax_checks = [check for col_schema in syntax_schema.columns.values() for check in col_schema.checks]
@@ -181,7 +186,7 @@ def validate_batch_csv(
     logic_schema = get_phase_2_schema_for_lei(context)
     logic_checks = [check for col_schema in logic_schema.columns.values() for check in col_schema.checks]
 
-    for findings in validate_chunks(syntax_schema, path, batch_size, batch_count):
+    for findings in validate_chunks(syntax_schema, real_path, batch_size, batch_count):
         # validate, and therefore validate_chunks, can return an empty dataframe for findings
         if not findings.is_empty():
             has_syntax_errors = True
@@ -191,7 +196,7 @@ def validate_batch_csv(
     if not has_syntax_errors:
         # check for register-wide errors, like dupicate UIDs.  Use scan_csv as it is faster and less resource intensive
         # than reading in the whole csv and just selecting on the UID column (currently our only register level check data)
-        uids = pl.scan_csv(path, infer_schema_length=0, missing_utf8_is_empty_string=True).select("uid").collect()
+        uids = pl.scan_csv(real_path, infer_schema_length=0, missing_utf8_is_empty_string=True).select("uid").collect()
         register_schema = get_register_schema(context)
         findings = validate(register_schema, uids)
         if not findings.is_empty():
@@ -199,11 +204,14 @@ def validate_batch_csv(
                 findings, [check for col_schema in register_schema.columns.values() for check in col_schema.checks]
             )
             yield rf, ValidationPhase.LOGICAL
-        for findings in validate_chunks(logic_schema, path, batch_size, batch_count):
+        for findings in validate_chunks(logic_schema, real_path, batch_size, batch_count):
             # validate, and therefore validate_chunks, can return an empty dataframe for findings
             if not findings.is_empty():
                 rf = format_findings(findings, logic_checks)
                 yield rf, ValidationPhase.LOGICAL
+
+    if os.path.isdir("/tmp/s3"):
+        shutil.rmtree("/tmp/s3")
 
 
 # Reads in a path to a csv in batches, using batch_size to determine number of rows to read into the buffer,
@@ -219,6 +227,16 @@ def validate_chunks(schema, path, batch_size, batch_count):
         findings = validate(schema, df)
         batches = reader.next_batches(batch_count)
         yield findings
+
+
+def get_real_file_path(path):
+    path = str(path)
+    if path.startswith("s3://"):
+        fs: AbstractFileSystem = filesystem(protocol="filecache", target_protocol="s3", cache_storage="/tmp/s3")
+        path = fs.unstrip_protocol(path)
+        with fs.open(path, "r") as f:
+            return f.name
+    return path
 
 
 # This function adds an index column (polars dataframes do not normally have one), and filters out

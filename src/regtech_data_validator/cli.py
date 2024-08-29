@@ -4,6 +4,8 @@ from pathlib import Path
 from regtech_data_validator.data_formatters import df_to_csv, df_to_str, df_to_json, df_to_table, df_to_download
 from typing import Annotated, Optional
 
+import fsspec
+from fsspec import AbstractFileSystem, filesystem
 import polars as pl
 import typer
 import typer.core
@@ -91,8 +93,9 @@ def validate(
     for findings, phase in validate_batch_csv(path, context_dict, batch_size=50000, batch_count=5):
         total_findings += findings.height
         final_phase = phase
-        with pl.Config(tbl_width_chars=0, tbl_rows=-1, tbl_cols=-1):
-            print(f"Findings: {findings}")
+        print(f"{phase} findings {findings.height}")
+        # with pl.Config(tbl_width_chars=0, tbl_rows=-1, tbl_cols=-1):
+        #    print(f"Findings: {findings}")
         # persist findings to datastore
         all_findings.append(findings)
 
