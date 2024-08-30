@@ -1,11 +1,16 @@
 import ujson
 import pandas as pd
 import polars as pl
+import fsspec
+import threading
+import s3fs
+import psutil
+import csv
 
 from tabulate import tabulate
 
 from functools import partial
-
+from fsspec import AbstractFileSystem, filesystem
 
 def find_check(group_name, checks):
     gen = (check for check in checks if check.title == group_name)
@@ -94,7 +99,7 @@ def format_findings(df: pd.DataFrame, checks):
     return final_df
 
 
-def df_to_download(df: pd.DataFrame, report_name: str = "download_report.csv"):
+def df_to_download(df: pd.DataFrame, path: str = "download_report.csv"):
     if df.is_empty():
         # return headers of csv for 'emtpy' report
         pl.DataFrame(
@@ -116,8 +121,15 @@ def df_to_download(df: pd.DataFrame, report_name: str = "download_report.csv"):
         .drop(["scope"])
     )
 
-    # like scan, this is a lazyframe impl of writing to a csv in a streaming fashion which is faster and takes way less memory
-    sorted_df.lazy().sink_csv(report_name, quote_style='non_numeric')
+    with fsspec.open(path, mode='wb') as f:
+        df.write_csv(f, quote_style='non_numeric')
+
+
+def monitor_memory(writing_thread, interval=1):
+    import time
+    while writing_thread.is_alive():
+        get_memory_usage()
+        time.sleep(interval)
 
 
 def df_to_csv(df: pl.DataFrame) -> str:
