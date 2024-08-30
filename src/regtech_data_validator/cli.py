@@ -4,13 +4,10 @@ from pathlib import Path
 from regtech_data_validator.data_formatters import df_to_csv, df_to_str, df_to_json, df_to_table, df_to_download
 from typing import Annotated, Optional
 
-import fsspec
-from fsspec import AbstractFileSystem, filesystem
 import polars as pl
 import typer
 import typer.core
 
-from regtech_data_validator.checks import Severity
 from regtech_data_validator.validator import validate_batch_csv
 from regtech_data_validator.validation_results import ValidationPhase
 
@@ -90,7 +87,7 @@ def validate(
     final_phase = ValidationPhase.LOGICAL
     all_findings = []
     final_df = pl.DataFrame()
-    #path = "s3://cfpb-devpub-regtech-sbl-filing-main/upload/2024/1234364890REGTECH006/156.csv"
+    # path = "s3://cfpb-devpub-regtech-sbl-filing-main/upload/2024/1234364890REGTECH006/156.csv"
     for findings, phase in validate_batch_csv(path, context_dict, batch_size=50000, batch_count=5):
         total_findings += findings.height
         final_phase = phase
@@ -102,11 +99,7 @@ def validate(
 
     if all_findings:
         final_df = pl.concat(all_findings, how="diagonal")
-    
-    print(f"Single Errors: {final_df.filter(pl.col('validation_type') == Severity.ERROR, pl.col('scope') == 'single-field').height}")
-    print(f"Multi Errors: {final_df.filter(pl.col('validation_type') == Severity.ERROR, pl.col('scope') == 'multi-field').height}")
-    print(f"Single Warns: {final_df.filter(pl.col('validation_type') == Severity.WARNING, pl.col('scope') == 'single-field').height}")
-    print(f"Multi Warns: {final_df.filter(pl.col('validation_type') == Severity.WARNING, pl.col('scope') == 'multi-field').height}")
+
     status = "SUCCESS" if total_findings == 0 else "FAILURE"
 
     match output:
@@ -119,10 +112,7 @@ def validate(
         case OutputFormat.TABLE:
             print(df_to_table(final_df))
         case OutputFormat.DOWNLOAD:
-            # uses streaming sink_csv, which doesn't print out
-            # to a string to save memory
-           df_to_download(final_df, "s3://cfpb-devpub-regtech-sbl-filing-main/upload/2024/1234364890REGTECH006/156_report.csv")
-           #df_to_download(final_df)
+            df_to_download(final_df)
         case _:
             raise ValueError(f'output format "{output}" not supported')
 

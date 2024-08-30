@@ -1,16 +1,11 @@
 import ujson
-import pandas as pd
 import polars as pl
 import fsspec
-import threading
-import s3fs
-import psutil
-import csv
 
 from tabulate import tabulate
 
 from functools import partial
-from fsspec import AbstractFileSystem, filesystem
+
 
 def find_check(group_name, checks):
     gen = (check for check in checks if check.title == group_name)
@@ -22,7 +17,7 @@ def find_check(group_name, checks):
 # which corresponds to severity, error/warning code, name of error/warning, row number in sblar, UID, fig link,
 # error/warning description (markdown formatted), single/multi/register, and the fields and values associated with the error/warning.
 # Each row in the final dataframe represents all data for that one finding.
-def format_findings(df: pd.DataFrame, checks):
+def format_findings(df: pl.DataFrame, checks):
     final_df = pl.DataFrame()
 
     sorted_df = df.with_columns(pl.col('validation_id').cast(pl.Categorical(ordering='lexical'))).sort('validation_id')
@@ -99,10 +94,10 @@ def format_findings(df: pd.DataFrame, checks):
     return final_df
 
 
-def df_to_download(df: pd.DataFrame, path: str = "download_report.csv"):
+def df_to_download(df: pl.DataFrame, path: str = "download_report.csv"):
     if df.is_empty():
         # return headers of csv for 'emtpy' report
-        pl.DataFrame(
+        empty_df = pl.DataFrame(
             {
                 "validation_type": [],
                 "validation_id": [],
@@ -112,7 +107,9 @@ def df_to_download(df: pd.DataFrame, path: str = "download_report.csv"):
                 "fig_link": [],
                 "validation_description": [],
             }
-        ).lazy().sink_csv(report_name, quote_style='non_numeric')
+        )
+        with fsspec.open(path, mode='wb') as f:
+            empty_df.write_csv(f, quote_style='non_numeric')
         return
 
     sorted_df = (
@@ -122,14 +119,7 @@ def df_to_download(df: pd.DataFrame, path: str = "download_report.csv"):
     )
 
     with fsspec.open(path, mode='wb') as f:
-        df.write_csv(f, quote_style='non_numeric')
-
-
-def monitor_memory(writing_thread, interval=1):
-    import time
-    while writing_thread.is_alive():
-        get_memory_usage()
-        time.sleep(interval)
+        sorted_df.write_csv(f, quote_style='non_numeric')
 
 
 def df_to_csv(df: pl.DataFrame) -> str:
