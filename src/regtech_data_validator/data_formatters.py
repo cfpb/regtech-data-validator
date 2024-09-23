@@ -49,7 +49,7 @@ def format_findings(df: pl.DataFrame, checks):
         check = find_check(validation_id, checks)
         # convert the SBLCheck data into column data
         df_pivot = df_pivot.with_columns(
-            validation_type=pl.lit(check.severity),
+            validation_type=pl.lit(check.severity.value),
             validation_id=pl.lit(validation_id),
             validation_description=pl.lit(check.description),
             validation_name=pl.lit(check.name),

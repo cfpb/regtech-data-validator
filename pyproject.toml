@@ -20,7 +20,7 @@ ujson = "^5.9.0"
 matplotlib = "^3.9.0"
 fsspec = "^2024.6.1"
 s3fs = "^2024.6.1"
-polars-lts-cpu = "^1.6.0"
+polars = "^1.6.0"
 pyarrow = "^17.0.0"
 
 [tool.poetry.group.dev.dependencies]
