@@ -136,7 +136,7 @@ def upload(path: str, content: bytes) -> None:
     opath = path.split("s3://")[1].replace(bucket+"/", "")
     s3 = boto3.client("s3")
     r = s3.put_object(
-        Bucket=settings.fs_upload_config.root,
+        Bucket=bucket,
         Key=opath,
         Body=content,
     )
