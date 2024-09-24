@@ -1,3 +1,4 @@
+import boto3
 import ujson
 import polars as pl
 import fsspec
@@ -5,6 +6,8 @@ import fsspec
 from tabulate import tabulate
 
 from functools import partial
+
+from io import BytesIO
 
 
 def find_check(group_name, checks):
@@ -118,8 +121,25 @@ def df_to_download(df: pl.DataFrame, path: str = "download_report.csv"):
         .drop(["scope"])
     )
 
-    with fsspec.open(path, mode='wb') as f:
-        sorted_df.write_csv(f, quote_style='non_numeric')
+    if path.startswith("s3"):
+        buffer = BytesIO()
+        df.write_csv(buffer)
+        buffer.seek(0)
+        upload(path, buffer.getvalue())
+    else:
+        with fsspec.open(path, mode='wb') as f:
+            sorted_df.write_csv(f, quote_style='non_numeric')
+
+
+def upload(path: str, content: bytes) -> None:
+    bucket = path.split("s3://")[1].split("/")[0]
+    opath = path.split("s3://")[1].replace(bucket+"/", "")
+    s3 = boto3.client("s3")
+    r = s3.put_object(
+        Bucket=settings.fs_upload_config.root,
+        Key=opath,
+        Body=content,
+    )
 
 
 def df_to_csv(df: pl.DataFrame) -> str:
