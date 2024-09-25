@@ -171,17 +171,28 @@ def df_to_dicts(df: pl.DataFrame, max_records: int = 10000, max_group_size: int 
         sorted_df = df.with_columns(pl.col('validation_id').cast(pl.Categorical(ordering='lexical'))).sort(
             'validation_id'
         )
-        partial_process_group = partial(process_group_data, json_results=json_results)
+        partial_process_group = partial(process_group_data, json_results=json_results, group_size=max_group_size)
         # collecting just the currently processed group from a lazyframe is faster and more efficient than using "apply"
         sorted_df.lazy().group_by('validation_id').map_groups(partial_process_group, schema=None).collect()
         json_results = sorted(json_results, key=lambda x: x['validation']['id'])
     return json_results
 
 
-def process_group_data(group_df, json_results):
+# Cuts off the number of records.  Can't just 'head' on the group due to the dataframe structure.
+# So this function uses the group error counts to truncate on record numbers
+def truncate_validation_group_records(group, group_size):
+    need_to_truncate = group.select(pl.col('record_no').n_unique()).item() > group_size
+    unique_record_nos = group.select('record_no').unique().limit(group_size)
+    truncated_group = group.filter(pl.col('record_no').is_in(unique_record_nos['record_no']))
+    return truncated_group, need_to_truncate
+
+
+def process_group_data(group_df, json_results, group_size):
     validation_id = group_df['validation_id'].item(0)
-    group_json = process_chunk(group_df, validation_id)
+    trunc_group, need_to_truncate = truncate_validation_group_records(group_df, group_size)
+    group_json = process_chunk(trunc_group, validation_id)
     if group_json:
+        group_json["validation"]["is_truncated"] = need_to_truncate
         json_results.append(group_json)
     return group_df
 
