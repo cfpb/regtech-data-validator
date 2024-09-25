@@ -181,9 +181,9 @@ def df_to_dicts(df: pl.DataFrame, max_records: int = 10000, max_group_size: int 
 # Cuts off the number of records.  Can't just 'head' on the group due to the dataframe structure.
 # So this function uses the group error counts to truncate on record numbers
 def truncate_validation_group_records(group, group_size):
-    need_to_truncate = group.select(pl.col('record_no').n_unique()).item() > group_size
-    unique_record_nos = group.select('record_no').unique().limit(group_size)
-    truncated_group = group.filter(pl.col('record_no').is_in(unique_record_nos['record_no']))
+    need_to_truncate = group.select(pl.col('row').n_unique()).item() > group_size
+    unique_record_nos = group.select('row').unique().limit(group_size)
+    truncated_group = group.filter(pl.col('row').is_in(unique_record_nos['row']))
     return truncated_group, need_to_truncate
 
 
