@@ -165,7 +165,7 @@ def validate_batch_csv(
         if not findings.is_empty():
             has_syntax_errors = True
             rf = format_findings(findings,  ValidationPhase.SYNTACTICAL.value, syntax_checks)
-            yield rf, ValidationPhase.SYNTACTICAL
+            yield rf.to_dict(as_series=False), ValidationPhase.SYNTACTICAL
 
     if not has_syntax_errors:
         # check for register-wide errors, like dupicate UIDs.  Use scan_csv as it is faster and less resource intensive
@@ -177,12 +177,12 @@ def validate_batch_csv(
             rf = format_findings(
                 findings, ValidationPhase.LOGICAL.value, [check for col_schema in register_schema.columns.values() for check in col_schema.checks]
             )
-            yield rf, ValidationPhase.LOGICAL
+            yield rf.to_dict(as_series=False), ValidationPhase.LOGICAL
         for findings in validate_chunks(logic_schema, real_path, batch_size, batch_count):
             # validate, and therefore validate_chunks, can return an empty dataframe for findings
             if not findings.is_empty():
                 rf = format_findings(findings,  ValidationPhase.LOGICAL.value, logic_checks)
-                yield rf, ValidationPhase.LOGICAL
+                yield rf.to_dict(as_series=False), ValidationPhase.LOGICAL
 
     if os.path.isdir("/tmp/s3"):
         shutil.rmtree("/tmp/s3")
