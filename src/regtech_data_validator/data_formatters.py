@@ -109,7 +109,7 @@ def format_findings(df: pl.DataFrame, phase, checks):
             + sorted_columns
         )
         final_df = pl.concat([final_df, df_pivot], how="diagonal")
-        final_df = final_df.with_columns(phase=pl.lit(final_phase.value))
+        final_df = final_df.with_columns(phase=pl.lit(phase))
     return final_df
 
 
