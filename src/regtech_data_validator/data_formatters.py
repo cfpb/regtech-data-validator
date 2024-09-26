@@ -74,10 +74,10 @@ def format_findings(df: pl.DataFrame, phase, checks):
         df_pivot = df_pivot.with_columns(
             validation_type=pl.lit(check.severity.value),
             validation_id=pl.lit(validation_id),
+            scope=pl.lit(check.scope),
             #validation_description=pl.lit(check.description),
             #validation_name=pl.lit(check.name),
             #fig_link=pl.lit(check.fig_link),
-            #scope=pl.lit(check.scope),
         ).rename(
             {
                 "record_no": "row",
