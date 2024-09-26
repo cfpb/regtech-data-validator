@@ -40,7 +40,7 @@ def get_checks(phase):
 # which corresponds to severity, error/warning code, name of error/warning, row number in sblar, UID, fig link,
 # error/warning description (markdown formatted), single/multi/register, and the fields and values associated with the error/warning.
 # Each row in the final dataframe represents all data for that one finding.
-def format_findings(df: pl.DataFrame, checks):
+def format_findings(df: pl.DataFrame, phase, checks):
     final_df = pl.DataFrame()
 
     sorted_df = df.with_columns(pl.col('validation_id').cast(pl.Categorical(ordering='lexical'))).sort('validation_id')
@@ -109,6 +109,7 @@ def format_findings(df: pl.DataFrame, checks):
             + sorted_columns
         )
         final_df = pl.concat([final_df, df_pivot], how="diagonal")
+        final_df = final_df.with_columns(phase=pl.lit(final_phase.value))
     return final_df
 
 

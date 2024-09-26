@@ -101,7 +101,6 @@ def validate(
 
     if all_findings:
         final_df = pl.concat(all_findings, how="diagonal")
-        final_df = final_df.with_columns(phase=pl.lit(final_phase.value))
 
     status = "SUCCESS" if total_findings == 0 else "FAILURE"
 

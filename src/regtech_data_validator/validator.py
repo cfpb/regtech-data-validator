@@ -164,7 +164,7 @@ def validate_batch_csv(
         # validate, and therefore validate_chunks, can return an empty dataframe for findings
         if not findings.is_empty():
             has_syntax_errors = True
-            rf = format_findings(findings, syntax_checks)
+            rf = format_findings(findings,  ValidationPhase.SYNTACTICAL.value, syntax_checks)
             yield rf, ValidationPhase.SYNTACTICAL
 
     if not has_syntax_errors:
@@ -175,13 +175,13 @@ def validate_batch_csv(
         findings = validate(register_schema, uids)
         if not findings.is_empty():
             rf = format_findings(
-                findings, [check for col_schema in register_schema.columns.values() for check in col_schema.checks]
+                findings, ValidationPhase.LOGICAL.value, [check for col_schema in register_schema.columns.values() for check in col_schema.checks]
             )
             yield rf, ValidationPhase.LOGICAL
         for findings in validate_chunks(logic_schema, real_path, batch_size, batch_count):
             # validate, and therefore validate_chunks, can return an empty dataframe for findings
             if not findings.is_empty():
-                rf = format_findings(findings, logic_checks)
+                rf = format_findings(findings,  ValidationPhase.LOGICAL.value, logic_checks)
                 yield rf, ValidationPhase.LOGICAL
 
     if os.path.isdir("/tmp/s3"):
