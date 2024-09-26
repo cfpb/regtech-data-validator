@@ -3,6 +3,7 @@ Defined in validation_results.ValidationPhase.
 
 This mapping is used to populate the schema template object and create
 an instance of a PanderaSchema object for SYNTACTICAL and LOGICAL phases"""
+import pandera.polars as pa
 
 from textwrap import dedent
 
@@ -31,7 +32,38 @@ from regtech_data_validator.check_functions import (
     string_contains,
 )
 from regtech_data_validator.checks import SBLCheck, Severity
+from regtech_data_validator.schema_template import get_template, get_register_template
 from regtech_data_validator.validation_results import ValidationPhase
+
+# Get separate schema templates for phase 1 and 2
+phase_1_template = get_template()
+phase_2_template = get_template()
+register_template = get_register_template()
+
+
+def get_schema_by_phase_for_lei(template: dict, phase: str, context: dict[str, str] | None = None):
+    for column in get_phase_1_and_2_validations_for_lei(context):
+        validations = get_phase_1_and_2_validations_for_lei(context)[column]
+        template[column].checks = validations[phase]
+
+    return pa.DataFrameSchema(template, name=phase)
+
+
+def get_phase_1_schema_for_lei(context: dict[str, str] | None = None):
+    return get_schema_by_phase_for_lei(phase_1_template, ValidationPhase.SYNTACTICAL, context)
+
+
+def get_phase_2_schema_for_lei(context: dict[str, str] | None = None):
+    return get_schema_by_phase_for_lei(phase_2_template, ValidationPhase.LOGICAL, context)
+
+# since we process the data in chunks/batch, we need to handle all file/register
+# checks separately, as a separate set of schema and checks.
+def get_register_schema(context: dict[str, str] | None = None):
+    for column in get_phase_2_register_validations(context):
+        validations = get_phase_2_register_validations(context)[column]
+        register_template[column].checks = validations[ValidationPhase.LOGICAL]
+
+    return pa.DataFrameSchema(register_template, name=ValidationPhase.LOGICAL)
 
 
 # since we process the data in chunks/batch, we need to handle all file/register

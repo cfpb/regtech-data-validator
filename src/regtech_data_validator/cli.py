@@ -83,6 +83,8 @@ def validate(
     """
     context_dict = {x.key: x.value for x in context} if context else {}
 
+    from datetime import datetime
+    start = datetime.now()
     total_findings = 0
     final_phase = ValidationPhase.LOGICAL
     all_findings = []
@@ -99,6 +101,7 @@ def validate(
 
     if all_findings:
         final_df = pl.concat(all_findings, how="diagonal")
+        final_df = final_df.with_columns(phase=pl.lit(final_phase.value))
 
     status = "SUCCESS" if total_findings == 0 else "FAILURE"
 
@@ -113,6 +116,7 @@ def validate(
             print(df_to_table(final_df))
         case OutputFormat.DOWNLOAD:
             df_to_download(final_df)
+            print(f"Took {(datetime.now() - start).total_seconds()} seconds")
         case _:
             raise ValueError(f'output format "{output}" not supported')
 

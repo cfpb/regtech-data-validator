@@ -9,10 +9,30 @@ from functools import partial
 
 from io import BytesIO
 
+from regtech_data_validator.checks import SBLCheck
+from regtech_data_validator.validation_results import ValidationPhase
+from regtech_data_validator.phase_validations import (
+    get_phase_1_schema_for_lei,
+    get_phase_2_schema_for_lei,
+    get_register_schema,
+)
+
 
 def find_check(group_name, checks):
     gen = (check for check in checks if check.title == group_name)
     return next(gen)
+
+
+def get_checks(phase):
+    if phase == ValidationPhase.SYNTACTICAL:
+        syntax_schema = get_phase_1_schema_for_lei()
+        checks = [check for col_schema in syntax_schema.columns.values() for check in col_schema.checks]
+    else:
+        logic_schema = get_phase_2_schema_for_lei()
+        checks = [check for col_schema in logic_schema.columns.values() for check in col_schema.checks]
+        register_schema = get_register_schema()
+        checks.extend([check for col_schema in register_schema.columns.values() for check in col_schema.checks])
+    return checks
 
 
 # Takes the error dataframe, which is a bit obscure, and translates it to a format of:
@@ -54,10 +74,10 @@ def format_findings(df: pl.DataFrame, checks):
         df_pivot = df_pivot.with_columns(
             validation_type=pl.lit(check.severity.value),
             validation_id=pl.lit(validation_id),
-            validation_description=pl.lit(check.description),
-            validation_name=pl.lit(check.name),
-            fig_link=pl.lit(check.fig_link),
-            scope=pl.lit(check.scope),
+            #validation_description=pl.lit(check.description),
+            #validation_name=pl.lit(check.name),
+            #fig_link=pl.lit(check.fig_link),
+            #scope=pl.lit(check.scope),
         ).rename(
             {
                 "record_no": "row",
@@ -83,21 +103,16 @@ def format_findings(df: pl.DataFrame, checks):
             [
                 "validation_type",
                 "validation_id",
-                "validation_name",
                 "row",
                 "unique_identifier",
-                "fig_link",
-                "validation_description",
-                "scope",
             ]
             + sorted_columns
         )
         final_df = pl.concat([final_df, df_pivot], how="diagonal")
-    print(f"Final DF: {final_df}")
     return final_df
 
 
-def df_to_download(df: pl.DataFrame, path: str = "download_report.csv"):
+def df_to_download(df: pl.DataFrame, path: str = "download_report.csv", warning_count: int = 0, error_count: int = 0, max_errors: int = 1000000):
     if df.is_empty():
         # return headers of csv for 'emtpy' report
         empty_df = pl.DataFrame(
@@ -115,20 +130,65 @@ def df_to_download(df: pl.DataFrame, path: str = "download_report.csv"):
             empty_df.write_csv(f, quote_style='non_numeric')
         return
 
-    sorted_df = (
-        df.with_columns(pl.col('validation_id').cast(pl.Categorical(ordering='lexical')))
+    #get the check for the phase the results were in, so we can pull out static data from each
+    #found check
+    checks = get_checks(df.select(pl.first("phase")).item())
+
+    #place the static data into a dataframe, and then join the results frame with it where the validation ids are the same.
+    #This is much faster than applying the fields
+    check_values = [{"validation_id": check.title, "validation_description":check.description, "validation_name":check.name, "fig_link":check.fig_link} for check in checks]
+    checks_df = pl.DataFrame(check_values)
+    joined_df = df.join(checks_df, on="validation_id")
+
+    #Sort by validation id, order the field and value columns so they end up like field_1, value_1, field_2, value_2,...
+    #and organize the columns as desired for the csv
+    joined_df = (
+        joined_df.with_columns(pl.col('validation_id').cast(pl.Categorical(ordering='lexical')))
         .sort('validation_id')
-        .drop(["scope"])
     )
 
+    field_columns = [col for col in joined_df.columns if col.startswith('field_')]
+    value_columns = [col for col in joined_df.columns if col.startswith('value_')]
+    sorted_columns = [col for pair in zip(field_columns, value_columns) for col in pair]
+
+    sorted_df = joined_df[
+        [
+            "validation_type",
+            "validation_id",
+            "validation_name",
+            "row",
+            "unique_identifier",
+            "fig_link",
+            "validation_description",
+        ]
+        + sorted_columns
+    ]
+
+    buffer = BytesIO()
+    headers = ','.join(sorted_df.columns) + '\n'
+    buffer.write(headers.encode())
+
+
+    total_errors = warning_count + error_count
+    error_type = "errors"
+    if warning_count > 0:
+        if error_count > 0:
+            error_type = "errors and warnings"
+        else:
+            error_type = "warnings"
+
+    if total_errors and total_errors > max_errors:
+        buffer.write(f'"Your register contains {total_errors} {error_type}, however, only {max_errors} records are displayed in this report. To see additional {error_type}, correct the listed records, and upload a new file."\n'.encode())
+
     if path.startswith("s3"):
-        buffer = BytesIO()
-        df.write_csv(buffer)
+        sorted_df.write_csv(buffer, quote_style='non_numeric', include_header=False)
         buffer.seek(0)
         upload(path, buffer.getvalue())
     else:
         with fsspec.open(path, mode='wb') as f:
-            sorted_df.write_csv(f, quote_style='non_numeric')
+            sorted_df.write_csv(buffer, quote_style='non_numeric', include_header=False)
+            buffer.seek(0)
+            f.write(buffer.getvalue())
 
 
 def upload(path: str, content: bytes) -> None:
@@ -171,7 +231,10 @@ def df_to_dicts(df: pl.DataFrame, max_records: int = 10000, max_group_size: int 
         sorted_df = df.with_columns(pl.col('validation_id').cast(pl.Categorical(ordering='lexical'))).sort(
             'validation_id'
         )
-        partial_process_group = partial(process_group_data, json_results=json_results, group_size=max_group_size)
+
+        checks = get_checks(df.select(pl.first("phase")).item())
+
+        partial_process_group = partial(process_group_data, json_results=json_results, group_size=max_group_size, checks=checks)
         # collecting just the currently processed group from a lazyframe is faster and more efficient than using "apply"
         sorted_df.lazy().group_by('validation_id').map_groups(partial_process_group, schema=None).collect()
         json_results = sorted(json_results, key=lambda x: x['validation']['id'])
@@ -187,17 +250,18 @@ def truncate_validation_group_records(group, group_size):
     return truncated_group, need_to_truncate
 
 
-def process_group_data(group_df, json_results, group_size):
+def process_group_data(group_df, json_results, group_size, checks):
     validation_id = group_df['validation_id'].item(0)
+    check = find_check(validation_id, checks)
     trunc_group, need_to_truncate = truncate_validation_group_records(group_df, group_size)
-    group_json = process_chunk(trunc_group, validation_id)
+    group_json = process_chunk(trunc_group, validation_id, check)
     if group_json:
         group_json["validation"]["is_truncated"] = need_to_truncate
         json_results.append(group_json)
     return group_df
 
 
-def process_chunk(df: pl.DataFrame, validation_id: str) -> [dict]:
+def process_chunk(df: pl.DataFrame, validation_id: str, check: SBLCheck) -> [dict]:
     # once we have a grouped dataframe, working with the data as a
     # python dict is much faster
     findings_json = ujson.loads(df.write_json())
@@ -218,11 +282,11 @@ def process_chunk(df: pl.DataFrame, validation_id: str) -> [dict]:
     validation_info = {
         'validation': {
             'id': validation_id,
-            'name': first_finding['validation_name'],
-            'description': first_finding['validation_description'],
+            'name': check.name,
+            'description': check.description,
             'severity': first_finding['validation_type'],
-            'scope': first_finding['scope'],
-            'fig_link': first_finding['fig_link'],
+            'scope': check.scope,
+            'fig_link': check.fig_link,
         },
         'records': records,
     }
