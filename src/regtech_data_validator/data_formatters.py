@@ -105,6 +105,7 @@ def format_findings(df: pl.DataFrame, phase, checks):
                 "validation_id",
                 "row",
                 "unique_identifier",
+                "scope",
             ]
             + sorted_columns
         )
