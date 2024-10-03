@@ -90,17 +90,13 @@ def validate(
     all_findings = []
     final_df = pl.DataFrame()
     # path = "s3://cfpb-devpub-regtech-sbl-filing-main/upload/2024/1234364890REGTECH006/156.csv"
-    for findings, phase in validate_batch_csv(path, context_dict, batch_size=50000, batch_count=5):
-        total_findings += findings.height
-        final_phase = phase
-        print(f"{phase} findings {findings.height}")
-        # with pl.Config(tbl_width_chars=0, tbl_rows=-1, tbl_cols=-1):
-        #    print(f"Findings: {findings}")
-        # persist findings to datastore
-        all_findings.append(findings)
+    for validation_results in validate_batch_csv(path, context_dict, batch_size=50000, batch_count=1):
+        total_findings += (validation_results.error_counts.total_count + validation_results.warning_counts.total_count)
+        final_phase = validation_results.phase
+        all_findings.append(validation_results)
 
     if all_findings:
-        final_df = pl.concat(all_findings, how="diagonal")
+        final_df = pl.concat([v.findings for v in all_findings], how="diagonal")
 
     status = "SUCCESS" if total_findings == 0 else "FAILURE"
 
@@ -115,6 +111,7 @@ def validate(
             print(df_to_table(final_df))
         case OutputFormat.DOWNLOAD:
             df_to_download(final_df)
+            print(f"Final DF Height: {final_df.height}")
             print(f"Took {(datetime.now() - start).total_seconds()} seconds")
         case _:
             raise ValueError(f'output format "{output}" not supported')
