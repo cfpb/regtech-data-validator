@@ -225,7 +225,7 @@ def df_to_json(df: pl.DataFrame, max_records: int = 10000, max_group_size: int =
     return ujson.dumps(results, indent=4, escape_forward_slashes=False)
 
 
-def df_to_dicts(df: pl.DataFrame, max_records: int = 10000, max_group_size: int = None) -> list[dict]:
+def df_to_dicts(df: pl.DataFrame, max_records: int = 10000, max_group_size: int = 100) -> list[dict]:
     json_results = []
     if not df.is_empty():
         # polars str columns sort by entry, not lexigraphical sorting like we'd expect, so cast the column to use
@@ -235,8 +235,9 @@ def df_to_dicts(df: pl.DataFrame, max_records: int = 10000, max_group_size: int 
         )
 
         checks = get_checks(df.select(pl.first("phase")).item())
-
+        
         partial_process_group = partial(process_group_data, json_results=json_results, group_size=max_group_size, checks=checks)
+        sorted_df.group_by('validation_id').map_groups(partial_process_group)
         # collecting just the currently processed group from a lazyframe is faster and more efficient than using "apply"
         sorted_df.lazy().group_by('validation_id').map_groups(partial_process_group, schema=None).collect()
         json_results = sorted(json_results, key=lambda x: x['validation']['id'])
@@ -246,6 +247,7 @@ def df_to_dicts(df: pl.DataFrame, max_records: int = 10000, max_group_size: int 
 # Cuts off the number of records.  Can't just 'head' on the group due to the dataframe structure.
 # So this function uses the group error counts to truncate on record numbers
 def truncate_validation_group_records(group, group_size):
+    print(f"Group rows: {group.select(pl.col('row').n_unique()).item()}")
     need_to_truncate = group.select(pl.col('row').n_unique()).item() > group_size
     unique_record_nos = group.select('row').unique().limit(group_size)
     truncated_group = group.filter(pl.col('row').is_in(unique_record_nos['row']))
