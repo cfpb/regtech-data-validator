@@ -75,9 +75,9 @@ def format_findings(df: pl.DataFrame, phase, checks):
             validation_type=pl.lit(check.severity.value),
             validation_id=pl.lit(validation_id),
             scope=pl.lit(check.scope),
-            #validation_description=pl.lit(check.description),
-            #validation_name=pl.lit(check.name),
-            #fig_link=pl.lit(check.fig_link),
+            # validation_description=pl.lit(check.description),
+            # validation_name=pl.lit(check.name),
+            # fig_link=pl.lit(check.fig_link),
         ).rename(
             {
                 "record_no": "row",
@@ -114,7 +114,13 @@ def format_findings(df: pl.DataFrame, phase, checks):
     return final_df
 
 
-def df_to_download(df: pl.DataFrame, path: str = "download_report.csv", warning_count: int = 0, error_count: int = 0, max_errors: int = 1000000):
+def df_to_download(
+    df: pl.DataFrame,
+    path: str = "download_report.csv",
+    warning_count: int = 0,
+    error_count: int = 0,
+    max_errors: int = 1000000,
+):
     if df.is_empty():
         # return headers of csv for 'emtpy' report
         empty_df = pl.DataFrame(
@@ -132,21 +138,28 @@ def df_to_download(df: pl.DataFrame, path: str = "download_report.csv", warning_
             empty_df.write_csv(f, quote_style='non_numeric')
         return
 
-    #get the check for the phase the results were in, so we can pull out static data from each
-    #found check
+    # get the check for the phase the results were in, so we can pull out static data from each
+    # found check
     checks = get_checks(df.select(pl.first("phase")).item())
 
-    #place the static data into a dataframe, and then join the results frame with it where the validation ids are the same.
-    #This is much faster than applying the fields
-    check_values = [{"validation_id": check.title, "validation_description":check.description, "validation_name":check.name, "fig_link":check.fig_link} for check in checks]
+    # place the static data into a dataframe, and then join the results frame with it where the validation ids are the same.
+    # This is much faster than applying the fields
+    check_values = [
+        {
+            "validation_id": check.title,
+            "validation_description": check.description,
+            "validation_name": check.name,
+            "fig_link": check.fig_link,
+        }
+        for check in checks
+    ]
     checks_df = pl.DataFrame(check_values)
     joined_df = df.join(checks_df, on="validation_id")
 
-    #Sort by validation id, order the field and value columns so they end up like field_1, value_1, field_2, value_2,...
-    #and organize the columns as desired for the csv
-    joined_df = (
-        joined_df.with_columns(pl.col('validation_id').cast(pl.Categorical(ordering='lexical')))
-        .sort('validation_id')
+    # Sort by validation id, order the field and value columns so they end up like field_1, value_1, field_2, value_2,...
+    # and organize the columns as desired for the csv
+    joined_df = joined_df.with_columns(pl.col('validation_id').cast(pl.Categorical(ordering='lexical'))).sort(
+        'validation_id'
     )
 
     field_columns = [col for col in joined_df.columns if col.startswith('field_')]
@@ -170,7 +183,6 @@ def df_to_download(df: pl.DataFrame, path: str = "download_report.csv", warning_
     headers = ','.join(sorted_df.columns) + '\n'
     buffer.write(headers.encode())
 
-
     total_errors = warning_count + error_count
     error_type = "errors"
     if warning_count > 0:
@@ -180,7 +192,9 @@ def df_to_download(df: pl.DataFrame, path: str = "download_report.csv", warning_
             error_type = "warnings"
 
     if total_errors and total_errors > max_errors:
-        buffer.write(f'"Your register contains {total_errors} {error_type}, however, only {max_errors} records are displayed in this report. To see additional {error_type}, correct the listed records, and upload a new file."\n'.encode())
+        buffer.write(
+            f'"Your register contains {total_errors} {error_type}, however, only {max_errors} records are displayed in this report. To see additional {error_type}, correct the listed records, and upload a new file."\n'.encode()
+        )
 
     if path.startswith("s3"):
         sorted_df.write_csv(buffer, quote_style='non_numeric', include_header=False)
@@ -195,9 +209,9 @@ def df_to_download(df: pl.DataFrame, path: str = "download_report.csv", warning_
 
 def upload(path: str, content: bytes) -> None:
     bucket = path.split("s3://")[1].split("/")[0]
-    opath = path.split("s3://")[1].replace(bucket+"/", "")
+    opath = path.split("s3://")[1].replace(bucket + "/", "")
     s3 = boto3.client("s3")
-    r = s3.put_object(
+    s3.put_object(
         Bucket=bucket,
         Key=opath,
         Body=content,
@@ -220,7 +234,7 @@ def df_to_table(df: pl.DataFrame) -> str:
     return tabulate(df, headers='keys', showindex=True, tablefmt='rounded_outline')  # type: ignore
 
 
-def df_to_json(df: pl.DataFrame, max_records: int = 10000, max_group_size: int = None) -> str:
+def df_to_json(df: pl.DataFrame, max_records: int = 10000, max_group_size: int = 100) -> str:
     results = df_to_dicts(df, max_records, max_group_size)
     return ujson.dumps(results, indent=4, escape_forward_slashes=False)
 
@@ -235,9 +249,11 @@ def df_to_dicts(df: pl.DataFrame, max_records: int = 10000, max_group_size: int 
         )
 
         checks = get_checks(df.select(pl.first("phase")).item())
-        
-        partial_process_group = partial(process_group_data, json_results=json_results, group_size=max_group_size, checks=checks)
-        sorted_df.group_by('validation_id').map_groups(partial_process_group)
+
+        partial_process_group = partial(
+            process_group_data, json_results=json_results, group_size=max_group_size, checks=checks
+        )
+
         # collecting just the currently processed group from a lazyframe is faster and more efficient than using "apply"
         sorted_df.lazy().group_by('validation_id').map_groups(partial_process_group, schema=None).collect()
         json_results = sorted(json_results, key=lambda x: x['validation']['id'])
@@ -247,7 +263,6 @@ def df_to_dicts(df: pl.DataFrame, max_records: int = 10000, max_group_size: int 
 # Cuts off the number of records.  Can't just 'head' on the group due to the dataframe structure.
 # So this function uses the group error counts to truncate on record numbers
 def truncate_validation_group_records(group, group_size):
-    print(f"Group rows: {group.select(pl.col('row').n_unique()).item()}")
     need_to_truncate = group.select(pl.col('row').n_unique()).item() > group_size
     unique_record_nos = group.select('row').unique().limit(group_size)
     truncated_group = group.filter(pl.col('row').is_in(unique_record_nos['row']))

@@ -206,12 +206,12 @@ class TestValidate:
 class TestValidatePhases:
 
     def test_with_valid_data(self, csv_df_file):
-        results = list(validate_batch_csv(csv_df_file))
-        assert len(results) == 0
+        results = validate_batch_csv(csv_df_file)
+        assert all([r.findings.is_empty() for r in results])
 
     def test_with_valid_lei(self, csv_df_file):
-        results = list(validate_batch_csv(csv_df_file, context={'lei': "000TESTFIUIDDONOTUSE"}))
-        assert len(results) == 0
+        results = validate_batch_csv(csv_df_file, context={'lei': "000TESTFIUIDDONOTUSE"})
+        assert all([r.findings.is_empty() for r in results])
 
     @pytest.mark.parametrize(
         "csv_df_file",
@@ -221,8 +221,8 @@ class TestValidatePhases:
     def test_with_invalid_data(self, csv_df_file):
         results = list(validate_batch_csv(csv_df_file))
         assert len(results) == 1
-        assert results[0][0].height == 1
-        assert results[0][1] == ValidationPhase.SYNTACTICAL
+        assert results[0].findings.height == 1
+        assert results[0].phase == ValidationPhase.SYNTACTICAL
 
     @pytest.mark.parametrize(
         "csv_df_file",
@@ -240,8 +240,8 @@ class TestValidatePhases:
     def test_with_multi_invalid_data_with_phase1(self, csv_df_file):
         results = list(validate_batch_csv(csv_df_file))
         assert len(results) == 1
-        assert results[0][0].height == 3
-        assert results[0][1] == ValidationPhase.SYNTACTICAL
+        assert results[0].findings.height == 3
+        assert results[0].phase == ValidationPhase.SYNTACTICAL
 
     @pytest.mark.parametrize(
         "csv_df_file",
@@ -259,16 +259,16 @@ class TestValidatePhases:
     )
     def test_with_multi_invalid_data_with_phase2(self, csv_df_file):
         results = list(validate_batch_csv(csv_df_file))
-        assert len(results) == 1
-        assert results[0][0].height == 7
-        assert results[0][1] == ValidationPhase.LOGICAL
+        assert len(results) == 3
+        assert results[2].findings.height == 7
+        assert results[2].phase == ValidationPhase.LOGICAL
 
     def test_with_non_matching_lei(self, csv_df_file):
         results = list(validate_batch_csv(csv_df_file, context={'lei': "000TESTFIUIDDONOTUS1"}))
-        assert len(results) == 1
-        assert results[0][0].height == 1
-        assert results[0][0]['validation_id'].item() == 'W0003'
-        assert results[0][1] == ValidationPhase.LOGICAL
+        assert len(results) == 3
+        assert results[2].findings.height == 1
+        assert results[2].findings['validation_id'].item() == 'W0003'
+        assert results[2].phase == ValidationPhase.LOGICAL
 
     def test_column_not_found_in_df(self, csv_df_mission_column_file):
         with pytest.raises(RuntimeError) as re:
@@ -277,7 +277,7 @@ class TestValidatePhases:
 
     def test_same_uids(self, csv_df_same_uids_file):
         results = list(validate_batch_csv(csv_df_same_uids_file))
-        assert len(results) == 1
-        assert results[0][0].height == 2
-        assert results[0][0]['validation_id'].eq('E3000').all()
-        assert results[0][1] == ValidationPhase.LOGICAL
+        assert len(results) == 3
+        assert results[1].findings.height == 2
+        assert results[1].findings.select(pl.col('validation_id').eq('E3000').all()).item()
+        assert results[1].phase == ValidationPhase.LOGICAL

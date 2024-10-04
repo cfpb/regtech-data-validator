@@ -3,6 +3,7 @@ Defined in validation_results.ValidationPhase.
 
 This mapping is used to populate the schema template object and create
 an instance of a PanderaSchema object for SYNTACTICAL and LOGICAL phases"""
+
 import pandera.polars as pa
 
 from textwrap import dedent
@@ -55,6 +56,7 @@ def get_phase_1_schema_for_lei(context: dict[str, str] | None = None):
 
 def get_phase_2_schema_for_lei(context: dict[str, str] | None = None):
     return get_schema_by_phase_for_lei(phase_2_template, ValidationPhase.LOGICAL, context)
+
 
 # since we process the data in chunks/batch, we need to handle all file/register
 # checks separately, as a separate set of schema and checks.

@@ -84,6 +84,7 @@ def validate(
     context_dict = {x.key: x.value for x in context} if context else {}
 
     from datetime import datetime
+
     start = datetime.now()
     total_findings = 0
     final_phase = ValidationPhase.LOGICAL
@@ -91,7 +92,7 @@ def validate(
     final_df = pl.DataFrame()
     # path = "s3://cfpb-devpub-regtech-sbl-filing-main/upload/2024/1234364890REGTECH006/156.csv"
     for validation_results in validate_batch_csv(path, context_dict, batch_size=50000, batch_count=1):
-        total_findings += (validation_results.error_counts.total_count + validation_results.warning_counts.total_count)
+        total_findings += validation_results.error_counts.total_count + validation_results.warning_counts.total_count
         final_phase = validation_results.phase
         all_findings.append(validation_results)
 
@@ -106,7 +107,7 @@ def validate(
         case OutputFormat.POLARS:
             print(df_to_str(final_df))
         case OutputFormat.JSON:
-            print(df_to_json(final_df))
+            print(df_to_json(final_df, max_group_size=200))
         case OutputFormat.TABLE:
             print(df_to_table(final_df))
         case OutputFormat.DOWNLOAD:

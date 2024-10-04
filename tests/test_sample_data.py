@@ -21,14 +21,14 @@ class TestValidatingSampleData:
         lei = "000TESTFIUIDDONOTUS1"
         results = list(validate_batch_csv(GOOD_FILE_PATH, {'lei': lei}))
 
-        assert results[0][0]['validation_id'].eq('W0003').all()
-        assert results[0][1] == ValidationPhase.LOGICAL.value
+        assert results[2].findings.select(pl.col('validation_id').eq('W0003').all()).item()
+        assert results[2].findings.select(pl.col('phase').eq(ValidationPhase.LOGICAL.value).all()).item()
 
     def test_run_validation_on_good_data_valid_lei(self):
         lei = "123456789TESTBANK123"
         results = list(validate_batch_csv(GOOD_FILE_PATH, {'lei': lei}))
 
-        assert len(results) == 0
+        assert results[2].findings.is_empty()
 
     def test_all_syntax_errors(self):
         results = list(validate_batch_csv(ALL_SYNTAX_ERRORS))
@@ -37,18 +37,15 @@ class TestValidatingSampleData:
         syntax_checks = [check.title for col_schema in syntax_schema.columns.values() for check in col_schema.checks]
 
         # check that the findings validation_id Series contains at least 1 of every syntax check id
-        assert len(set(results[0][0]['validation_id'].to_list()).difference(set(syntax_checks))) == 0
-        assert results[0][1] == ValidationPhase.SYNTACTICAL
+        assert len(set(results[0].findings['validation_id'].to_list()).difference(set(syntax_checks))) == 0
+        assert results[0].findings.select(pl.col('phase').eq(ValidationPhase.SYNTACTICAL.value).all()).item()
 
     def test_all_logic_errors(self):
-        findings = []
-        final_phase = None
-        for finding, phase in validate_batch_csv(ALL_LOGIC_ERRORS):
-            print(f"Appending {finding}")
-            findings.append(finding)
-            final_phase = phase
+        vresults = []
+        for vresult in validate_batch_csv(ALL_LOGIC_ERRORS):
+            vresults.append(vresult)
 
-        results = pl.concat(findings, how="diagonal")
+        results = pl.concat([vr.findings for vr in vresults], how="diagonal")
 
         logic_schema = get_phase_2_schema_for_lei()
         register_schema = get_register_schema()
@@ -66,16 +63,14 @@ class TestValidatingSampleData:
 
         # check that the findings validation_id Series contains at least 1 of every logic error check id
         assert len(set(results['validation_id'].to_list()).difference(set(logic_checks))) == 0
-        assert final_phase == ValidationPhase.LOGICAL
+        assert results.select(pl.col('phase').eq(ValidationPhase.LOGICAL.value).all()).item()
 
     def test_all_logic_warnings(self):
-        findings = []
-        final_phase = None
-        for finding, phase in validate_batch_csv(ALL_LOGIC_WARNINGS, context={"lei": "000TESTFIUIDDONOTUSE"}):
-            findings.append(finding)
-            final_phase = phase
+        vresults = []
+        for vresult in validate_batch_csv(ALL_LOGIC_WARNINGS, context={"lei": "000TESTFIUIDDONOTUSE"}):
+            vresults.append(vresult)
 
-        results = pl.concat(findings, how="diagonal")
+        results = pl.concat([vr.findings for vr in vresults], how="diagonal")
 
         logic_schema = get_phase_2_schema_for_lei()
         logic_checks = [
@@ -89,4 +84,4 @@ class TestValidatingSampleData:
 
         # check that the findings validation_id Series contains at least 1 of every logic warning check id
         assert len(set(results['validation_id'].to_list()).difference(set(logic_checks))) == 0
-        assert final_phase == ValidationPhase.LOGICAL
+        assert results.select(pl.col('phase').eq(ValidationPhase.LOGICAL.value).all()).item()

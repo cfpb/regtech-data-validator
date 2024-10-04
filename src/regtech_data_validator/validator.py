@@ -8,11 +8,7 @@ from pandera import Check
 from pandera.errors import SchemaErrors, SchemaError, SchemaErrorReason
 
 from regtech_data_validator.checks import SBLCheck, Severity
-from regtech_data_validator.phase_validations import (
-    get_phase_1_and_2_validations_for_lei,
-    get_phase_2_register_validations,
-)
-from regtech_data_validator.schema_template import get_template, get_register_template
+
 from regtech_data_validator.validation_results import ValidationPhase, Counts, ValidationResults
 from regtech_data_validator.data_formatters import format_findings
 
@@ -26,6 +22,7 @@ from regtech_data_validator.phase_validations import (
     get_phase_2_schema_for_lei,
     get_register_schema,
 )
+
 
 # Gets all associated field names from the check
 def _get_check_fields(check: Check, primary_column: str) -> list[str]:
@@ -131,7 +128,9 @@ def validate(schema: pa.DataFrameSchema, submission_df: pl.LazyFrame, process_er
                     check_findings.append(findings)
                 else:
                     # The above exception handling _should_ prevent this from ever happenin, but...just in case.
-                    raise RuntimeError(f'No check output for "{check.name}" check.  Pandera SchemaError: {schema_error}')
+                    raise RuntimeError(
+                        f'No check output for "{check.name}" check.  Pandera SchemaError: {schema_error}'
+                    )
             if check_findings:
                 findings_df = pl.concat(check_findings)
 
@@ -160,7 +159,11 @@ def add_uid(results_df: pl.DataFrame, submission_df: pl.DataFrame) -> pl.DataFra
 # phase (SYNTACTICAL/LOGICAL) that the findings were found.  Callers of this function will want to
 # store or concat each iteration of findings
 def validate_batch_csv(
-    path: Path | str, context: dict[str, str] | None = None, batch_size: int = 50000, batch_count: int = 1, max_errors = 1000000
+    path: Path | str,
+    context: dict[str, str] | None = None,
+    batch_size: int = 50000,
+    batch_count: int = 1,
+    max_errors=1000000,
 ):
     has_syntax_errors = False
     real_path = get_real_file_path(path)
@@ -171,7 +174,9 @@ def validate_batch_csv(
     logic_schema = get_phase_2_schema_for_lei(context)
     logic_checks = [check for col_schema in logic_schema.columns.values() for check in col_schema.checks]
 
-    for validation_results in validate_chunks(syntax_schema, real_path, batch_size, batch_count, max_errors, syntax_checks):
+    for validation_results in validate_chunks(
+        syntax_schema, real_path, batch_size, batch_count, max_errors, syntax_checks
+    ):
         # validate, and therefore validate_chunks, can return an empty dataframe for findings
         if not validation_results.findings.is_empty():
             has_syntax_errors = True
@@ -185,11 +190,15 @@ def validate_batch_csv(
         validation_results = validate(register_schema, uids, True)
         if not validation_results.findings.is_empty():
             validation_results.findings = format_findings(
-                validation_results.findings, ValidationPhase.LOGICAL.value, [check for col_schema in register_schema.columns.values() for check in col_schema.checks]
+                validation_results.findings,
+                ValidationPhase.LOGICAL.value,
+                [check for col_schema in register_schema.columns.values() for check in col_schema.checks],
             )
         yield validation_results
 
-        for validation_results in validate_chunks(logic_schema, real_path, batch_size, batch_count, max_errors, logic_checks):
+        for validation_results in validate_chunks(
+            logic_schema, real_path, batch_size, batch_count, max_errors, logic_checks
+        ):
             yield validation_results
 
     if os.path.isdir("/tmp/s3"):
@@ -210,13 +219,15 @@ def validate_chunks(schema, path, batch_size, batch_count, max_errors, checks):
         df = pl.concat(batches)
         validation_results = validate(schema, df, process_errors)
         if not validation_results.findings.is_empty():
-            validation_results.findings = format_findings(validation_results.findings,  validation_results.phase.value, checks)
+            validation_results.findings = format_findings(
+                validation_results.findings, validation_results.phase.value, checks
+            )
 
         total_count += validation_results.findings.height
 
         if total_count > max_errors and process_errors:
             process_errors = False
-            head_count = validation_results.findings.height - (total_count -  max_errors)
+            head_count = validation_results.findings.height - (total_count - max_errors)
             validation_results.findings = validation_results.findings.head(head_count)
 
         batches = reader.next_batches(batch_count)
@@ -248,17 +259,43 @@ def get_scope_counts(schema_errors: list[SchemaError]):
     ]
 
     single_errors = int(
-        sum([(error.check_output.filter(~pl.col("check_output"))).height for error in singles if error.check.severity == Severity.ERROR])
+        sum(
+            [
+                (error.check_output.filter(~pl.col("check_output"))).height
+                for error in singles
+                if error.check.severity == Severity.ERROR
+            ]
+        )
     )
     single_warnings = int(
-        sum([(error.check_output.filter(~pl.col("check_output"))).height for error in singles if error.check.severity == Severity.WARNING])
+        sum(
+            [
+                (error.check_output.filter(~pl.col("check_output"))).height
+                for error in singles
+                if error.check.severity == Severity.WARNING
+            ]
+        )
     )
     multi = [
         error for error in schema_errors if isinstance(error.check, SBLCheck) and error.check.scope == 'multi-field'
     ]
-    multi_errors = int(sum([(error.check_output.filter(~pl.col("check_output"))).height for error in multi if error.check.severity == Severity.ERROR]))
+    multi_errors = int(
+        sum(
+            [
+                (error.check_output.filter(~pl.col("check_output"))).height
+                for error in multi
+                if error.check.severity == Severity.ERROR
+            ]
+        )
+    )
     multi_warnings = int(
-        sum([(error.check_output.filter(~pl.col("check_output"))).height for error in multi if error.check.severity == Severity.WARNING])
+        sum(
+            [
+                (error.check_output.filter(~pl.col("check_output"))).height
+                for error in multi
+                if error.check.severity == Severity.WARNING
+            ]
+        )
     )
 
     register_errors = int(
