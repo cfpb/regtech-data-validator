@@ -234,12 +234,12 @@ def df_to_table(df: pl.DataFrame) -> str:
     return tabulate(df, headers='keys', showindex=True, tablefmt='rounded_outline')  # type: ignore
 
 
-def df_to_json(df: pl.DataFrame, max_records: int = 10000, max_group_size: int = 100) -> str:
+def df_to_json(df: pl.DataFrame, max_records: int = 10000, max_group_size: int = 200) -> str:
     results = df_to_dicts(df, max_records, max_group_size)
     return ujson.dumps(results, indent=4, escape_forward_slashes=False)
 
 
-def df_to_dicts(df: pl.DataFrame, max_records: int = 10000, max_group_size: int = 100) -> list[dict]:
+def df_to_dicts(df: pl.DataFrame, max_records: int = 10000, max_group_size: int = 200) -> list[dict]:
     json_results = []
     if not df.is_empty():
         # polars str columns sort by entry, not lexigraphical sorting like we'd expect, so cast the column to use
@@ -264,7 +264,7 @@ def df_to_dicts(df: pl.DataFrame, max_records: int = 10000, max_group_size: int 
 # So this function uses the group error counts to truncate on record numbers
 def truncate_validation_group_records(group, group_size):
     need_to_truncate = group.select(pl.col('row').n_unique()).item() > group_size
-    unique_record_nos = group.select('row').unique().limit(group_size)
+    unique_record_nos = group.select('row').unique(maintain_order=True).limit(group_size)
     truncated_group = group.filter(pl.col('row').is_in(unique_record_nos['row']))
     return truncated_group, need_to_truncate
 
