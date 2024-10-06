@@ -47,11 +47,8 @@ class FindingDAO(Base):
     __tablename__ = "findings"
     validation_type: Mapped[str],
     validation_id: Mapped[str],
-    validation_name: Mapped[str],
     row: Mapped[int], 
     unique_identifier: Mapped[str],
-    fig_link: Mapped[str],
-    validation_description: Mapped[str],
     scope: Mapped[str],
     phase: Mapped[str],
     submission_id: Mapped[int],
