@@ -41,3 +41,44 @@ class SubmissionDAO(Base):
 
     def __str__(self):
         return f"Submission ID: {self.id}, State: {self.state}, Ruleset: {self.validation_ruleset_version}, Filing Period: {self.filing}, Submission: {self.submission_time}"
+
+
+class FindingDAO(Base):
+    __tablename__ = "findings"
+    validation_type: Mapped[str],
+    validation_id: Mapped[str],
+    validation_name: Mapped[str],
+    row: Mapped[int], 
+    unique_identifier: Mapped[str],
+    fig_link: Mapped[str],
+    validation_description: Mapped[str],
+    scope: Mapped[str],
+    phase: Mapped[str],
+    submission_id: Mapped[int],
+    field_1: Mapped[str],
+    field_2: Mapped[str],
+    field_3: Mapped[str],
+    field_4: Mapped[str],
+    field_5: Mapped[str],
+    field_6: Mapped[str],
+    field_7: Mapped[str],
+    field_8: Mapped[str],
+    field_9: Mapped[str],
+    field_10: Mapped[str],
+    field_11: Mapped[str],
+    field_12: Mapped[str],
+    field_13: Mapped[str],
+    value_1: Mapped[str],
+    value_2: Mapped[str],
+    value_3: Mapped[str],
+    value_4: Mapped[str],
+    value_5: Mapped[str],
+    value_6: Mapped[str],
+    value_7: Mapped[str],
+    value_8: Mapped[str],
+    value_9: Mapped[str],
+    value_10: Mapped[str],
+    value_11: Mapped[str],
+    value_12: Mapped[str],
+    value_13: Mapped[str]
+
