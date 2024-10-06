@@ -1,21 +1,21 @@
-import csv
-import math
+import boto3
 import ujson
-import pandas as pd
+import polars as pl
+import fsspec
 
 from tabulate import tabulate
 
-from regtech_data_validator.phase_validations import get_phase_1_and_2_validations_for_lei
+from functools import partial
+
+from io import BytesIO
+
 from regtech_data_validator.checks import SBLCheck
-
-
-def get_all_checks():
-    return [
-        check
-        for phases in get_phase_1_and_2_validations_for_lei().values()
-        for checks in phases.values()
-        for check in checks
-    ]
+from regtech_data_validator.validation_results import ValidationPhase
+from regtech_data_validator.phase_validations import (
+    get_phase_1_schema_for_lei,
+    get_phase_2_schema_for_lei,
+    get_register_schema,
+)
 
 
 def find_check(group_name, checks):
@@ -23,240 +23,293 @@ def find_check(group_name, checks):
     return next(gen)
 
 
-def df_to_download(df: pd.DataFrame, warning_count: int = 0, error_count: int = 0, max_errors: int = 1000000) -> str:
-    header = "validation_type,validation_id,validation_name,row,unique_identifier,fig_link,validation_description,"
-    if df.empty:
-        # return headers of csv for 'emtpy' report
-        return header
+def get_checks(phase):
+    if phase == ValidationPhase.SYNTACTICAL:
+        syntax_schema = get_phase_1_schema_for_lei()
+        checks = [check for col_schema in syntax_schema.columns.values() for check in col_schema.checks]
     else:
-        total_csv = ""
-        largest_field_count = 1
-        checks = get_all_checks()
-        df.reset_index(drop=True, inplace=True)
+        logic_schema = get_phase_2_schema_for_lei()
+        checks = [check for col_schema in logic_schema.columns.values() for check in col_schema.checks]
+        register_schema = get_register_schema()
+        checks.extend([check for col_schema in register_schema.columns.values() for check in col_schema.checks])
+    return checks
 
-        for validation_id, group in df.groupby("validation_id"):
-            group['field_number'] = (
-                group.groupby(
-                    [
-                        "record_no",
-                        "uid",
-                    ]
-                ).cumcount()
-                + 1
+
+# Takes the error dataframe, which is a bit obscure, and translates it to a format of:
+# validation_type, validation_id, validation_name, row, unique_identifier, fig_link, validation_description, scope, field_#, value_#
+# which corresponds to severity, error/warning code, name of error/warning, row number in sblar, UID, fig link,
+# error/warning description (markdown formatted), single/multi/register, and the fields and values associated with the error/warning.
+# Each row in the final dataframe represents all data for that one finding.
+def format_findings(df: pl.DataFrame, checks):
+    final_df = pl.DataFrame()
+
+    sorted_df = df.with_columns(pl.col('validation_id').cast(pl.Categorical(ordering='lexical'))).sort('validation_id')
+
+    # validation_id is a tuple returned from the group_by, so we'll be getting [0] for the actual error/warning code
+    for validation_id, group in sorted_df.group_by(["validation_id"], maintain_order=True):
+        validation_id = validation_id[0]
+        # in the error dataframe, each field is its own row, so count those and put them into field_name_field_number_#
+        # and field_value_field_number_# columns to break out eventually to related field_# and value_#
+        group = group.with_columns(pl.col('record_no').cum_count().over(['record_no', 'uid']).alias('field_number'))
+        df_pivot = group.pivot(
+            index=[
+                "record_no",
+                "uid",
+            ],
+            columns="field_number",
+            values=["field_name", "field_value"],
+            aggregate_function="first",
+        )
+        df_pivot.columns = [
+            (
+                col.replace('field_name_', 'field_').replace('field_value_', 'value_')
+                if ('field_name_' in col or 'field_value_' in col)
+                else col
             )
-            df_pivot = group.pivot_table(
-                index=[
-                    "record_no",
-                    "uid",
-                ],
-                columns="field_number",
-                values=["field_name", "field_value"],
-                aggfunc="first",
-            ).reset_index()
+            for col in df_pivot.columns
+        ]
 
-            df_pivot.columns = [f"{col[0]}_{col[1]}" if col[1] else col[0] for col in df_pivot.columns]
-
-            check = find_check(validation_id, checks)
-            df_pivot['validation_type'] = check.severity
-            df_pivot['validation_description'] = check.description
-            df_pivot['validation_name'] = check.name
-            df_pivot['fig_link'] = check.fig_link
-
-            df_pivot.rename(
-                columns={
-                    "record_no": "row",
-                    "uid": "unique_identifier",
-                },
-                inplace=True,
+        check = find_check(validation_id, checks)
+        # convert the SBLCheck data into column data
+        df_pivot = df_pivot.with_columns(
+            validation_type=pl.lit(check.severity),
+            validation_id=pl.lit(validation_id),
+            scope=pl.lit(check.scope),
+            # validation_description=pl.lit(check.description),
+            # validation_name=pl.lit(check.name),
+            # fig_link=pl.lit(check.fig_link),
+            # scope=pl.lit(check.scope),
+        ).rename(
+            {
+                "record_no": "row",
+                "uid": "unique_identifier",
+            }
+        )
+        # match field_1 with value_1, field_2 with value_2, etc
+        field_columns = [col for col in df_pivot.columns if col.startswith('field_')]
+        value_columns = [col for col in df_pivot.columns if col.startswith('value_')]
+        sorted_columns = [col for pair in zip(field_columns, value_columns) for col in pair]
+        # swap two-field errors/warnings to keep order of FIG
+        if len(field_columns) == 2:
+            df_pivot = df_pivot.with_columns(
+                field_1=pl.col('field_2'),
+                value_1=pl.col('value_2'),
+                field_2=pl.col('field_1'),
+                value_2=pl.col('value_1'),
             )
-            field_columns = [col for col in df_pivot.columns if col.startswith('field_name_')]
-            value_columns = [col for col in df_pivot.columns if col.startswith('field_value_')]
-            sorted_columns = [col for pair in zip(field_columns, value_columns) for col in pair]
-            group_field_count = len(field_columns)
-            largest_field_count = largest_field_count if group_field_count <= largest_field_count else group_field_count
-            # swap two-field errors/warnings to keep order of FIG
-            if len(field_columns) == 2:
-                f1_data = df_pivot['field_name_1']
-                v1_data = df_pivot['field_value_1']
-                df_pivot['field_name_1'] = df_pivot['field_name_2']
-                df_pivot['field_value_1'] = df_pivot['field_value_2']
-                df_pivot['field_name_2'] = f1_data
-                df_pivot['field_value_2'] = v1_data
-            df_pivot['validation_id'] = validation_id
 
-            df_pivot = df_pivot[
-                [
-                    "validation_type",
-                    "validation_id",
-                    "validation_name",
-                    "row",
-                    "unique_identifier",
-                    "fig_link",
-                    "validation_description",
-                ]
-                + sorted_columns
+        # adjust row by 1 and concat group with final dataframe
+        df_pivot = df_pivot.with_columns(row=pl.col('row') + 1).select(
+            [
+                "validation_type",
+                "validation_id",
+                "row",
+                "unique_identifier",
+                "scope",
             ]
+            + sorted_columns
+        )
 
-            df_pivot['row'] += 1
-            total_csv += df_pivot.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC, header=False)
+        df_pivot = df_pivot.with_columns(pl.col('row').cast(pl.UInt32)).sort('row')
+        final_df = pl.concat([final_df, df_pivot], how="diagonal")
 
-        field_headers = []
-        for i in range(largest_field_count):
-            field_headers.append(f"field_{i+1}")
-            field_headers.append(f"value_{i+1}")
-        header += ",".join(field_headers) + "\n"
-
-        total_errors = warning_count + error_count
-        error_type = "errors"
-        if warning_count > 0:
-            if error_count > 0:
-                error_type = "errors and warnings"
-            else:
-                error_type = "warnings"
-
-        if total_errors and total_errors > max_errors:
-            header += f'"Your register contains {total_errors} {error_type}, however, only {max_errors} records are displayed in this report. To see additional {error_type}, correct the listed records, and upload a new file."\n'
-
-        csv_data = header + total_csv
-        return csv_data
+    return final_df
 
 
-def df_to_str(df: pd.DataFrame) -> str:
-    with pd.option_context('display.width', None, 'display.max_rows', None):
+def df_to_download(
+    df: pl.DataFrame,
+    path: str = "download_report.csv",
+    warning_count: int = 0,
+    error_count: int = 0,
+    max_errors: int = 1000000,
+):
+    if df.is_empty():
+        # return headers of csv for 'emtpy' report
+        empty_df = pl.DataFrame(
+            {
+                "validation_type": [],
+                "validation_id": [],
+                "validation_name": [],
+                "row": [],
+                "unique_identifier": [],
+                "fig_link": [],
+                "validation_description": [],
+            }
+        )
+        with fsspec.open(path, mode='wb') as f:
+            empty_df.write_csv(f, quote_style='non_numeric')
+        return
+
+    # get the check for the phase the results were in, so we can pull out static data from each
+    # found check
+    checks = get_checks(df.select(pl.first("phase")).item())
+
+    # place the static data into a dataframe, and then join the results frame with it where the validation ids are the same.
+    # This is much faster than applying the fields
+    check_values = [
+        {
+            "validation_id": check.title,
+            "validation_description": check.description,
+            "validation_name": check.name,
+            "fig_link": check.fig_link,
+        }
+        for check in checks
+    ]
+    checks_df = pl.DataFrame(check_values)
+    joined_df = df.join(checks_df, on="validation_id")
+
+    # Sort by validation id, order the field and value columns so they end up like field_1, value_1, field_2, value_2,...
+    # and organize the columns as desired for the csv
+    joined_df = joined_df.with_columns(pl.col('validation_id').cast(pl.Categorical(ordering='lexical'))).sort(
+        'validation_id'
+    )
+
+    field_columns = [col for col in joined_df.columns if col.startswith('field_')]
+    value_columns = [col for col in joined_df.columns if col.startswith('value_')]
+    sorted_columns = [col for pair in zip(field_columns, value_columns) for col in pair]
+
+    sorted_df = joined_df[
+        [
+            "validation_type",
+            "validation_id",
+            "validation_name",
+            "row",
+            "unique_identifier",
+            "fig_link",
+            "validation_description",
+        ]
+        + sorted_columns
+    ]
+
+    buffer = BytesIO()
+    headers = ','.join(sorted_df.columns) + '\n'
+    buffer.write(headers.encode())
+
+    total_errors = warning_count + error_count
+    error_type = "errors"
+    if warning_count > 0:
+        if error_count > 0:
+            error_type = "errors and warnings"
+        else:
+            error_type = "warnings"
+
+    if total_errors and total_errors > max_errors:
+        buffer.write(
+            f'"Your register contains {total_errors} {error_type}, however, only {max_errors} records are displayed in this report. To see additional {error_type}, correct the listed records, and upload a new file."\n'.encode()
+        )
+
+    if path.startswith("s3"):
+        sorted_df.write_csv(buffer, quote_style='non_numeric', include_header=False)
+        buffer.seek(0)
+        upload(path, buffer.getvalue())
+    else:
+        with fsspec.open(path, mode='wb') as f:
+            sorted_df.write_csv(buffer, quote_style='non_numeric', include_header=False)
+            buffer.seek(0)
+            f.write(buffer.getvalue())
+
+
+def upload(path: str, content: bytes) -> None:
+    bucket = path.split("s3://")[1].split("/")[0]
+    opath = path.split("s3://")[1].replace(bucket + "/", "")
+    s3 = boto3.client("s3")
+    s3.put_object(
+        Bucket=bucket,
+        Key=opath,
+        Body=content,
+    )
+
+
+def df_to_csv(df: pl.DataFrame) -> str:
+    sorted_df = df.with_columns(pl.col('validation_id').cast(pl.Categorical(ordering='lexical'))).sort('validation_id')
+    return sorted_df.write_csv(quote_style='non_numeric')
+
+
+def df_to_str(df: pl.DataFrame) -> str:
+    with pl.Config(tbl_width_chars=0, tbl_rows=-1, tbl_cols=-1):
         return str(df)
 
 
-def df_to_csv(df: pd.DataFrame) -> str:
-    return df.to_csv()
+def df_to_table(df: pl.DataFrame) -> str:
+    df = df.select([df[col].str.slice(0, 50) for col in df.columns if df[col].dtype == pl.Utf8])
+
+    return tabulate(df, headers='keys', showindex=True, tablefmt='rounded_outline')  # type: ignore
 
 
-def df_to_table(df: pd.DataFrame) -> str:
-    # trim field_value field to just 50 chars, similar to DataFrame default
-    table_df = df.sort_index()
-    table_df['field_value'] = table_df['field_value'].str[0:50]
-
-    # NOTE: `type: ignore` because tabulate package typing does not include Pandas
-    #        DataFrame as input, but the library itself does support it. ¯\_(ツ)_/¯
-    return tabulate(table_df, headers='keys', showindex=True, tablefmt='rounded_outline')  # type: ignore
+def df_to_json(df: pl.DataFrame, max_records: int = 10000, max_group_size: int = 200) -> str:
+    results = df_to_dicts(df, max_records, max_group_size)
+    return ujson.dumps(results, indent=4, escape_forward_slashes=False)
 
 
-def df_to_json(df: pd.DataFrame, max_records: int = 10000, max_group_size: int = None) -> str:
-    return ujson.dumps(df_to_dicts(df, max_records, max_group_size), indent=4, escape_forward_slashes=False)
-
-
-def df_to_dicts(df: pd.DataFrame, max_records: int = 10000, max_group_size: int = None) -> list[dict]:
-    # grouping and processing keeps the process from crashing on really large error
-    # dataframes (millions of errors).  We can't chunk because could cause splitting
-    # related validation data across chunks, without having to add extra processing
-    # for tying those objects back together.  Grouping adds a little more processing
-    # time for smaller datasets but keeps really larger ones from crashing.
-
-    checks = get_all_checks()
-
+def df_to_dicts(df: pl.DataFrame, max_records: int = 10000, max_group_size: int = 200) -> list[dict]:
     json_results = []
-    if not df.empty:
-        grouped_df = df.groupby('validation_id', group_keys=False)
-        if not max_group_size:
-            total_errors_per_group = calculate_group_chunk_sizes(grouped_df, max_records)
-        else:
-            total_errors_per_group = {}
-            for group_name, group_data in grouped_df:
-                total_errors_per_group[group_name] = max_group_size
-        for validation_id, group in df.groupby("validation_id"):
-            check = find_check(validation_id, checks)
-            truncated_group, need_to_truncate = truncate_validation_group_records(
-                group, total_errors_per_group[validation_id]
-            )
-            group_json = process_chunk(truncated_group, validation_id, check)
-            if group_json:
-                group_json["validation"]["is_truncated"] = need_to_truncate
-                json_results.append(group_json)
+    if not df.is_empty():
+        # polars str columns sort by entry, not lexigraphical sorting like we'd expect, so cast the column to use
+        # standard python str column sorting.  Polars throws a warning at this.
+        sorted_df = df.with_columns(pl.col('validation_id').cast(pl.Categorical(ordering='lexical'))).sort(
+            'validation_id'
+        )
+
+        checks = get_checks(df.select(pl.first("phase")).item())
+
+        partial_process_group = partial(
+            process_group_data, json_results=json_results, group_size=max_group_size, checks=checks
+        )
+
+        # collecting just the currently processed group from a lazyframe is faster and more efficient than using "apply"
+        sorted_df.lazy().group_by('validation_id').map_groups(partial_process_group, schema=None).collect()
         json_results = sorted(json_results, key=lambda x: x['validation']['id'])
     return json_results
-
-
-def calculate_group_chunk_sizes(grouped_df, max_records):
-    # This function is similar to create_schemas.trim_down_errors but focuses on number of
-    # records per validation id.  It uses a ratio relative to total errors to determine
-    # each group's adjusted errors relative to max_records, and then adjusts to hit max.
-    error_counts = {}
-    for group_name, group_data in grouped_df:
-        error_counts[group_name] = len(group_data["record_no"].unique())
-    error_count_list = list(error_counts.values())
-    total_error_count = sum(error_count_list)
-
-    if total_error_count > max_records:
-        error_ratios = [(count / total_error_count) for count in error_count_list]
-        new_counts = [math.ceil(max_records * prop) for prop in error_ratios]
-
-        # Adjust the counts in case we went over max.  This is very likely since we're using
-        # ceil, unless we have an exact equality of the new counts.  Because of the use
-        # of ceil, we will never have the sum of the new counts be less than max.
-        if sum(new_counts) > max_records:
-            while sum(new_counts) > max_records:
-                # arbitrary reversal to contain errors in FIG order, if we need to remove
-                # records from errors to fit max
-                for i in reversed(range(len(new_counts))):
-                    if new_counts[i] > 1:
-                        new_counts[i] -= 1
-                    # check if all the counts are equal to 1, then
-                    # start removing those until we hit max
-                    elif new_counts[i] == 1 and sum(new_counts) <= len(new_counts):
-                        new_counts[i] -= 1
-                    if sum(new_counts) == max_records:
-                        break
-
-        error_counts = dict(zip(error_counts.keys(), new_counts))
-    return error_counts
 
 
 # Cuts off the number of records.  Can't just 'head' on the group due to the dataframe structure.
 # So this function uses the group error counts to truncate on record numbers
 def truncate_validation_group_records(group, group_size):
-    need_to_truncate = len(group['record_no'].unique()) > group_size
-    unique_record_nos = group['record_no'].unique()[:group_size]
-    truncated_group = group[group['record_no'].isin(unique_record_nos)]
+    need_to_truncate = group.select(pl.col('row').n_unique()).item() > group_size
+    unique_record_nos = group.select('row').unique(maintain_order=True).limit(group_size)
+    truncated_group = group.filter(pl.col('row').is_in(unique_record_nos['row']))
     return truncated_group, need_to_truncate
 
 
-def process_chunk(df: pd.DataFrame, validation_id: str, check: SBLCheck) -> [dict]:
-    df.reset_index(drop=True, inplace=True)
-    findings_json = ujson.loads(df.to_json(orient='columns'))
-    grouped_data = []
-    if not findings_json['record_no']:
+def process_group_data(group_df, json_results, group_size, checks):
+    validation_id = group_df['validation_id'].item(0)
+    check = find_check(validation_id, checks)
+    trunc_group, need_to_truncate = truncate_validation_group_records(group_df, group_size)
+    group_json = process_chunk(trunc_group, validation_id, check)
+    if group_json:
+        group_json["validation"]["is_truncated"] = need_to_truncate
+        json_results.append(group_json)
+    return group_df
+
+
+def process_chunk(df: pl.DataFrame, validation_id: str, check: SBLCheck) -> [dict]:
+    # once we have a grouped dataframe, working with the data as a
+    # python dict is much faster
+    findings_json = ujson.loads(df.write_json())
+    records = []
+    if not findings_json:
         return
 
-    for i in range(len(findings_json['record_no'])):
-        grouped_data.append(
-            {
-                'record_no': findings_json['record_no'][str(i)],
-                'uid': findings_json['uid'][str(i)],
-                'field_name': findings_json['field_name'][str(i)],
-                'field_value': findings_json['field_value'][str(i)],
-            }
-        )
+    for finding in findings_json:
+        fields = []
+        for key, value in finding.items():
+            if 'field_' in key and value:
+                num = key.split("_")[1]
+                fields.append({"name": value, "value": finding[f"value_{num}"]})
+        records.append({'record_no': finding['row'] - 1, 'uid': finding['unique_identifier'], 'fields': fields})
+
+    first_finding = findings_json[0]
 
     validation_info = {
         'validation': {
             'id': validation_id,
             'name': check.name,
             'description': check.description,
-            'severity': check.severity,
+            'severity': first_finding['validation_type'],
             'scope': check.scope,
             'fig_link': check.fig_link,
         },
-        'records': [],
+        'records': records,
     }
-    records_dict = {}
-    for record in grouped_data:
-        record_no = record['record_no']
-        if record_no not in records_dict:
-            records_dict[record_no] = {'record_no': record['record_no'], 'uid': record['uid'], 'fields': []}
-        records_dict[record_no]['fields'].append({'name': record['field_name'], 'value': record['field_value']})
-    validation_info['records'] = list(records_dict.values())
-
-    for record in validation_info['records']:
-        if len(record['fields']) == 2:
-            record['fields'][0], record['fields'][1] = record['fields'][1], record['fields'][0]
 
     return validation_info
