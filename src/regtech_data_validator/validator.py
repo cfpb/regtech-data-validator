@@ -164,6 +164,9 @@ def validate_batch_csv(
     batch_count: int = 1,
     max_errors=1000000,
 ):
+    from datetime import datetime
+    import psutil
+    start = datetime.now()
     has_syntax_errors = False
     real_path = get_real_file_path(path)
     # process the data first looking for syntax (phase 1) errors, then looking for logical (phase 2) errors/warnings
@@ -173,20 +176,20 @@ def validate_batch_csv(
     logic_schema = get_phase_2_schema_for_lei(context)
     logic_checks = [check for col_schema in logic_schema.columns.values() for check in col_schema.checks]
 
-    for validation_results in validate_chunks(
+    all_uids = []
+
+    for validation_results, uids in validate_chunks(
         syntax_schema, real_path, batch_size, batch_count, max_errors, syntax_checks
     ):
+        all_uids.extend(uids)
         # validate, and therefore validate_chunks, can return an empty dataframe for findings
         if not validation_results.findings.is_empty():
             has_syntax_errors = True
         yield validation_results
 
     if not has_syntax_errors:
-        # check for register-wide errors, like dupicate UIDs.  Use scan_csv as it is faster and less resource intensive
-        # than reading in the whole csv and just selecting on the UID column (currently our only register level check data)
-        uids = pl.scan_csv(real_path, infer_schema_length=0, missing_utf8_is_empty_string=True).select("uid").collect()
         register_schema = get_register_schema(context)
-        validation_results = validate(register_schema, uids, 0, True)
+        validation_results = validate(register_schema, pl.DataFrame({"uid": all_uids}), 0, True)
         if not validation_results.findings.is_empty():
             validation_results.findings = format_findings(
                 validation_results.findings,
@@ -195,13 +198,16 @@ def validate_batch_csv(
             )
         yield validation_results
 
-        for validation_results in validate_chunks(
+        for validation_results, _ in validate_chunks(
             logic_schema, real_path, batch_size, batch_count, max_errors, logic_checks
         ):
             yield validation_results
 
     if os.path.isdir("/tmp/s3"):
         shutil.rmtree("/tmp/s3")
+    
+    print(f"Total time: {(datetime.now() - start).total_seconds()} seconds")
+    print(f"Total Memory: {psutil.Process(os.getpid()).memory_info().rss / (1024*1024)}MB")
 
 
 # Reads in a path to a csv in batches, using batch_size to determine number of rows to read into the buffer,
@@ -232,7 +238,7 @@ def validate_chunks(schema, path, batch_size, batch_count, max_errors, checks):
 
         row_start += df.height
         batches = reader.next_batches(batch_count)
-        yield validation_results
+        yield validation_results, df["uid"].to_list()
 
 
 def get_real_file_path(path):
