@@ -42,40 +42,40 @@ class SubmissionDAO(Base):
     def __str__(self):
         return f"Submission ID: {self.id}, State: {self.state}, Ruleset: {self.validation_ruleset_version}, Filing Period: {self.filing}, Submission: {self.submission_time}"
 
-
+#model for finding table
 class FindingDAO(Base):
     __tablename__ = "findings"
-    validation_type: Mapped[str],
-    validation_id: Mapped[str],
-    row: Mapped[int], 
-    unique_identifier: Mapped[str],
-    scope: Mapped[str],
-    phase: Mapped[str],
-    submission_id: Mapped[int],
-    field_1: Mapped[str],
-    field_2: Mapped[str],
-    field_3: Mapped[str],
-    field_4: Mapped[str],
-    field_5: Mapped[str],
-    field_6: Mapped[str],
-    field_7: Mapped[str],
-    field_8: Mapped[str],
-    field_9: Mapped[str],
-    field_10: Mapped[str],
-    field_11: Mapped[str],
-    field_12: Mapped[str],
-    field_13: Mapped[str],
-    value_1: Mapped[str],
-    value_2: Mapped[str],
-    value_3: Mapped[str],
-    value_4: Mapped[str],
-    value_5: Mapped[str],
-    value_6: Mapped[str],
-    value_7: Mapped[str],
-    value_8: Mapped[str],
-    value_9: Mapped[str],
-    value_10: Mapped[str],
-    value_11: Mapped[str],
-    value_12: Mapped[str],
-    value_13: Mapped[str]
-
+    id: Mapped[int] = mapped_column(index=True, primary_key=True, autoincrement=True)
+    validation_type: Mapped[str]
+    validation_id: Mapped[str]
+    row: Mapped[int]
+    unique_identifier: Mapped[str]
+    scope: Mapped[str]
+    phase: Mapped[str]
+    submission_id: Mapped[int]
+    field_1: Mapped[str]
+    field_2: Mapped[str] = mapped_column(nullable=True)
+    field_3: Mapped[str] = mapped_column(nullable=True)
+    field_4: Mapped[str] = mapped_column(nullable=True)
+    field_5: Mapped[str] = mapped_column(nullable=True)
+    field_6: Mapped[str] = mapped_column(nullable=True)
+    field_7: Mapped[str] = mapped_column(nullable=True)
+    field_8: Mapped[str] = mapped_column(nullable=True)
+    field_9: Mapped[str] = mapped_column(nullable=True)
+    field_10: Mapped[str] = mapped_column(nullable=True)
+    field_11: Mapped[str] = mapped_column(nullable=True)
+    field_12: Mapped[str] = mapped_column(nullable=True)
+    field_13: Mapped[str] = mapped_column(nullable=True)
+    value_1: Mapped[str]
+    value_2: Mapped[str] = mapped_column(nullable=True)
+    value_3: Mapped[str] = mapped_column(nullable=True)
+    value_4: Mapped[str] = mapped_column(nullable=True)
+    value_5: Mapped[str] = mapped_column(nullable=True)
+    value_6: Mapped[str] = mapped_column(nullable=True)
+    value_7: Mapped[str] = mapped_column(nullable=True)
+    value_8: Mapped[str] = mapped_column(nullable=True)
+    value_9: Mapped[str] = mapped_column(nullable=True)
+    value_10: Mapped[str] = mapped_column(nullable=True)
+    value_11: Mapped[str] = mapped_column(nullable=True)
+    value_12: Mapped[str] = mapped_column(nullable=True)
+    value_13: Mapped[str] = mapped_column(nullable=True)

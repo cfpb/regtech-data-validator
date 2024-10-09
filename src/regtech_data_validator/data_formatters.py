@@ -210,8 +210,10 @@ def df_to_download(
 
 
 def upload(path: str, content: bytes) -> None:
+    print(f"Uploading to {path}")
     bucket = path.split("s3://")[1].split("/")[0]
     opath = path.split("s3://")[1].replace(bucket + "/", "")
+    print(f"Bucket: {bucket}, OPath: {opath}, Data: {content}")
     s3 = boto3.client("s3")
     s3.put_object(
         Bucket=bucket,

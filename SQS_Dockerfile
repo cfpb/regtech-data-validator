@@ -1,0 +1,13 @@
+FROM --platform=linux/amd64 python:3.12
+
+WORKDIR /usr/app
+
+COPY sqs_requirements.txt requirements.txt
+
+RUN pip install -r requirements.txt
+
+COPY src/ .
+
+ENV PYTHONPATH "${PYTHONPATH}:/usr/app"
+
+CMD python regtech_data_validator/sqs_wrapper.py

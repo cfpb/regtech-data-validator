@@ -22,7 +22,7 @@ def watch_queue():
             MessageAttributeNames=['.*'],
             MaxNumberOfMessages=1,
             VisibilityTimeout=1200,
-            # WaitTimeSeconds=10,
+            WaitTimeSeconds=20,
         )
 
         if response and 'Messages' in response:

@@ -1,0 +1,11 @@
+polars
+pandera
+ujson
+boto3 
+tabulate
+fsspec
+s3fs
+sqlalchemy
+pydantic
+psycopg2-binary
+pyarrow
