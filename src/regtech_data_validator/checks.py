@@ -7,7 +7,7 @@ from typing import Any, Callable, Type
 
 from pandera import Check
 from pandera.backends.base import BaseCheckBackend
-from pandera.backends.pandas.checks import PandasCheckBackend
+from pandera.backends.polars.checks import PolarsCheckBackend
 
 
 class Severity(StrEnum):
@@ -56,4 +56,4 @@ class SBLCheck(Check):
     @classmethod
     def get_backend(cls, check_obj: Any) -> Type[BaseCheckBackend]:
         """Assume Pandas DataFrame and return PandasCheckBackend"""
-        return PandasCheckBackend
+        return PolarsCheckBackend
