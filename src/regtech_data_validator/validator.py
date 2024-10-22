@@ -68,7 +68,9 @@ def _add_validation_metadata(failed_check_fields_df: pl.DataFrame, check: SBLChe
     return validation_fields_df
 
 
-def validate(schema: pa.DataFrameSchema, submission_df: pl.LazyFrame, row_start: int, process_errors: bool) -> pl.DataFrame:
+def validate(
+    schema: pa.DataFrameSchema, submission_df: pl.LazyFrame, row_start: int, process_errors: bool
+) -> pl.DataFrame:
     """
     validate received dataframe with schema and return list of
     schema errors
@@ -164,9 +166,6 @@ def validate_batch_csv(
     batch_count: int = 1,
     max_errors=1000000,
 ):
-    from datetime import datetime
-    import psutil
-    start = datetime.now()
     has_syntax_errors = False
     real_path = get_real_file_path(path)
     # process the data first looking for syntax (phase 1) errors, then looking for logical (phase 2) errors/warnings
@@ -205,9 +204,6 @@ def validate_batch_csv(
 
     if os.path.isdir("/tmp/s3"):
         shutil.rmtree("/tmp/s3")
-    
-    print(f"Total time: {(datetime.now() - start).total_seconds()} seconds")
-    print(f"Total Memory: {psutil.Process(os.getpid()).memory_info().rss / (1024*1024)}MB")
 
 
 # Reads in a path to a csv in batches, using batch_size to determine number of rows to read into the buffer,

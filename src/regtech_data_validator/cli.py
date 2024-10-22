@@ -112,8 +112,6 @@ def validate(
             print(df_to_table(final_df))
         case OutputFormat.DOWNLOAD:
             df_to_download(final_df)
-            print(f"Final DF Height: {final_df.height}")
-            print(f"Took {(datetime.now() - start).total_seconds()} seconds")
         case _:
             raise ValueError(f'output format "{output}" not supported')
 
