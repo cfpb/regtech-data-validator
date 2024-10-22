@@ -8,7 +8,7 @@ import polars as pl
 import typer
 import typer.core
 
-from regtech_data_validator.validator import validate_batch_csv
+from regtech_data_validator.validator import validate_batch
 from regtech_data_validator.validation_results import ValidationPhase
 
 # Need to do this because the latest version of typer, if the rich package exists
@@ -57,12 +57,12 @@ def describe() -> None:
 @app.command(no_args_is_help=True)
 def validate(
     path: Annotated[
-        Path,
+        str,
         typer.Argument(
-            exists=True,
+            exists=False,
             dir_okay=False,
-            readable=True,
-            resolve_path=True,
+            readable=False,
+            resolve_path=False,
             show_default=False,
             help='Path of file to be validated',
         ),
@@ -91,7 +91,7 @@ def validate(
     all_findings = []
     final_df = pl.DataFrame()
     # path = "s3://cfpb-devpub-regtech-sbl-filing-main/upload/2024/1234364890REGTECH006/156.csv"
-    for validation_results in validate_batch_csv(path, context_dict, batch_size=50000, batch_count=1):
+    for validation_results in validate_batch(path, context_dict, batch_size=50000, batch_count=1):
         total_findings += validation_results.error_counts.total_count + validation_results.warning_counts.total_count
         final_phase = validation_results.phase
         all_findings.append(validation_results)

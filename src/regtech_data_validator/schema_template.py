@@ -446,7 +446,12 @@ def get_template() -> Dict:
     cause absolute havoc in a program and it's proactically impossible
     to debug."""
 
-    return deepcopy(_schema_template)
+    template = deepcopy(_schema_template)
+
+    for field in template:
+        template[field].nullable = True
+
+    return template
 
 
 # since we process the data in chunks/batch, we need to handle all file/register

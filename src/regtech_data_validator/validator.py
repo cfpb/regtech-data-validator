@@ -2,6 +2,7 @@
 with validations listed in phase 1 and phase 2."""
 
 from pathlib import Path
+from typing import Dict, List
 import polars as pl
 import pandera.polars as pa
 from pandera import Check
@@ -16,6 +17,7 @@ from fsspec import AbstractFileSystem, filesystem
 
 import shutil
 import os
+import boto3.session
 
 from regtech_data_validator.phase_validations import (
     get_phase_1_schema_for_lei,
@@ -68,7 +70,7 @@ def _add_validation_metadata(failed_check_fields_df: pl.DataFrame, check: SBLChe
     return validation_fields_df
 
 
-def validate(schema: pa.DataFrameSchema, submission_df: pl.LazyFrame, row_start: int, process_errors: bool) -> pl.DataFrame:
+def validate(schema: pa.DataFrameSchema, submission_df: pl.DataFrame, row_start: int, process_errors: bool) -> ValidationResults:
     """
     validate received dataframe with schema and return list of
     schema errors
@@ -154,6 +156,64 @@ def add_uid(results_df: pl.DataFrame, submission_df: pl.DataFrame) -> pl.DataFra
     return results_df
 
 
+def validate_batch(
+    path: Path | str,
+    context: dict[str, str] | None = None,
+    batch_size: int = 50000,
+    batch_count: int = 1,
+    max_errors=1000000,
+):
+    validate_func = validate_batch_parquet if str(path).endswith(".parquet") else validate_batch_csv
+    for validation_results in validate_func(path, context, batch_size, batch_count, max_errors):
+        yield validation_results
+
+def validate_batch_parquet(
+    path: Path | str,
+    context: dict[str, str] | None = None,
+    batch_size: int = 50000,
+    batch_count: int = 1,
+    max_errors=1000000,
+):
+    has_syntax_errors = False
+    syntax_schema = get_phase_1_schema_for_lei(context)
+    syntax_checks = [check for col_schema in syntax_schema.columns.values() for check in col_schema.checks]
+
+    logic_schema = get_phase_2_schema_for_lei(context)
+    logic_checks = [check for col_schema in logic_schema.columns.values() for check in col_schema.checks]
+
+    all_uids = []
+    storage_options = {}
+
+    if str(path).startswith("s3://"):
+        session = boto3.session.Session()
+        creds = session.get_credentials()
+        storage_options = {
+            'aws_access_key_id': creds.access_key,
+            'aws_secret_access_key': creds.secret_key,
+            'session_token': creds.token,
+            'aws_region': 'us-east-1'
+        }
+
+    lf = pl.scan_parquet(path, allow_missing_columns=True, storage_options=storage_options)
+
+    for validation_results, uids in validate_lazy_chunks(
+        syntax_schema, lf, batch_size, batch_count, max_errors, syntax_checks
+    ):
+        all_uids.extend(uids)
+        # validate, and therefore validate_chunks, can return an empty dataframe for findings
+        if not validation_results.findings.is_empty():
+            has_syntax_errors = True
+        yield validation_results
+
+    if not has_syntax_errors:
+        yield validate_register_level(context, all_uids)
+
+        for validation_results, _ in validate_lazy_chunks(
+            logic_schema, lf, batch_size, batch_count, max_errors, logic_checks
+        ):
+            yield validation_results
+
+
 # This function is a Generator, and will yield the results of each batch of processing, along with the
 # phase (SYNTACTICAL/LOGICAL) that the findings were found.  Callers of this function will want to
 # store or concat each iteration of findings
@@ -188,15 +248,7 @@ def validate_batch_csv(
         yield validation_results
 
     if not has_syntax_errors:
-        register_schema = get_register_schema(context)
-        validation_results = validate(register_schema, pl.DataFrame({"uid": all_uids}), 0, True)
-        if not validation_results.findings.is_empty():
-            validation_results.findings = format_findings(
-                validation_results.findings,
-                ValidationPhase.LOGICAL.value,
-                [check for col_schema in register_schema.columns.values() for check in col_schema.checks],
-            )
-        yield validation_results
+        yield validate_register_level(context, all_uids)
 
         for validation_results, _ in validate_chunks(
             logic_schema, real_path, batch_size, batch_count, max_errors, logic_checks
@@ -208,6 +260,18 @@ def validate_batch_csv(
     
     print(f"Total time: {(datetime.now() - start).total_seconds()} seconds")
     print(f"Total Memory: {psutil.Process(os.getpid()).memory_info().rss / (1024*1024)}MB")
+
+
+def validate_register_level(context: Dict[str, str] | None, all_uids: List[str]):
+    register_schema = get_register_schema(context)
+    validation_results = validate(register_schema, pl.DataFrame({"uid": all_uids}), 0, True)
+    if not validation_results.findings.is_empty():
+        validation_results.findings = format_findings(
+            validation_results.findings,
+            ValidationPhase.LOGICAL.value,
+            [check for col_schema in register_schema.columns.values() for check in col_schema.checks],
+        )
+    return validation_results
 
 
 # Reads in a path to a csv in batches, using batch_size to determine number of rows to read into the buffer,
@@ -223,23 +287,34 @@ def validate_chunks(schema, path, batch_size, batch_count, max_errors, checks):
     row_start = 0
     while batches:
         df = pl.concat(batches)
-        validation_results = validate(schema, df, row_start, process_errors)
-        if not validation_results.findings.is_empty():
-            validation_results.findings = format_findings(
-                validation_results.findings, validation_results.phase.value, checks
-            )
-
-        total_count += validation_results.findings.height
-
-        if total_count > max_errors and process_errors:
-            process_errors = False
-            head_count = validation_results.findings.height - (total_count - max_errors)
-            validation_results.findings = validation_results.findings.head(head_count)
-
+        validation_results, total_count, process_errors = validate_chunk(schema, df, total_count, row_start, max_errors, process_errors, checks)
         row_start += df.height
         batches = reader.next_batches(batch_count)
         yield validation_results, df["uid"].to_list()
 
+def validate_lazy_chunks(schema, lf: pl.LazyFrame, batch_size: int, batch_count, max_errors, checks):
+    process_errors = True
+    total_count = 0
+    row_start = 0
+    df = lf.slice(row_start, batch_size).collect()
+    while df.height:
+        validation_results, total_count, process_errors = validate_chunk(schema, df, total_count, row_start, max_errors, process_errors, checks)
+        row_start += df.height
+        yield validation_results, df["uid"].to_list()
+        df = lf.slice(row_start, batch_size).collect()
+
+def validate_chunk(schema, df, total_count, row_start, max_errors, process_errors, checks):
+    validation_results = validate(schema, df, row_start, process_errors)
+    if not validation_results.findings.is_empty():
+        validation_results.findings = format_findings(
+            validation_results.findings, validation_results.phase.value, checks
+        )
+    total_count += validation_results.findings.height
+    if total_count > max_errors and process_errors:
+        process_errors = False
+        head_count = validation_results.findings.height - (total_count - max_errors)
+        validation_results.findings = validation_results.findings.head(head_count)
+    return validation_results, total_count, process_errors
 
 def get_real_file_path(path):
     path = str(path)
