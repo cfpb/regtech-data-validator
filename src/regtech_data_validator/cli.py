@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from enum import StrEnum
-from pathlib import Path
 from regtech_data_validator.data_formatters import df_to_csv, df_to_str, df_to_json, df_to_table, df_to_download
 from typing import Annotated, Optional
 
