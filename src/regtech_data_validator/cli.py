@@ -83,9 +83,6 @@ def validate(
     """
     context_dict = {x.key: x.value for x in context} if context else {}
 
-    from datetime import datetime
-
-    start = datetime.now()
     total_findings = 0
     final_phase = ValidationPhase.LOGICAL
     all_findings = []
