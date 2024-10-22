@@ -197,7 +197,7 @@ def validate_batch_parquet(
             'aws_region': 'us-east-1',
         }
 
-    lf = pl.scan_parquet(path, allow_missing_columns=True, storage_options=storage_options)
+    lf = pl.scan_parquet(path, allow_missing_columns=True, storage_options=storage_options).fill_null('')
 
     for validation_results, uids in validate_lazy_chunks(
         syntax_schema, lf, batch_size, batch_count, max_errors, syntax_checks
