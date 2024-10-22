@@ -4,11 +4,12 @@ from pathlib import Path
 from regtech_data_validator.data_formatters import df_to_csv, df_to_str, df_to_json, df_to_table, df_to_download
 from typing import Annotated, Optional
 
-import pandas as pd
+import polars as pl
 import typer
 import typer.core
 
-from regtech_data_validator.create_schemas import validate_phases
+from regtech_data_validator.validator import validate_batch_csv
+from regtech_data_validator.validation_results import ValidationPhase
 
 # Need to do this because the latest version of typer, if the rich package exists
 # will create a Panel with borders in the error output.  This causes stderr during
@@ -37,11 +38,11 @@ def parse_key_value(kv_str: str) -> KeyValueOpt:
 
 
 class OutputFormat(StrEnum):
-    CSV = 'csv'
     JSON = 'json'
-    PANDAS = 'pandas'
+    POLARS = 'polars'
     TABLE = 'table'
     DOWNLOAD = 'download'
+    CSV = 'csv'
 
 
 @app.command()
@@ -76,50 +77,47 @@ def validate(
         ),
     ] = None,
     output: Annotated[Optional[OutputFormat], typer.Option()] = OutputFormat.TABLE,
-) -> tuple[bool, pd.DataFrame]:
+) -> tuple[bool, pl.DataFrame]:
     """
     Validate CFPB data submission
     """
     context_dict = {x.key: x.value for x in context} if context else {}
-    input_df = None
-    try:
-        input_df = pd.read_csv(path, dtype=str, na_filter=False)
-    except Exception as e:
-        raise RuntimeError(e)
-    validation_results = validate_phases(input_df, context_dict)
 
-    status = 'SUCCESS'
-    no_of_findings = 0
-    total_errors = 0
-    findings_df = pd.DataFrame()
-    if not validation_results.is_valid:
-        status = 'FAILURE'
-        findings_df = validation_results.findings
-        no_of_findings = len(findings_df.index.unique())
-        warning_count = validation_results.warning_counts.total_count
-        error_count = validation_results.error_counts.total_count
+    total_findings = 0
+    final_phase = ValidationPhase.LOGICAL
+    all_findings = []
+    final_df = pl.DataFrame()
+    # path = "s3://cfpb-devpub-regtech-sbl-filing-main/upload/2024/1234364890REGTECH006/156.csv"
+    for validation_results in validate_batch_csv(path, context_dict, batch_size=50000, batch_count=1):
+        total_findings += validation_results.error_counts.total_count + validation_results.warning_counts.total_count
+        final_phase = validation_results.phase
+        all_findings.append(validation_results)
 
-        match output:
-            case OutputFormat.PANDAS:
-                print(df_to_str(findings_df))
-            case OutputFormat.CSV:
-                print(df_to_csv(findings_df))
-            case OutputFormat.JSON:
-                print(df_to_json(findings_df))
-            case OutputFormat.TABLE:
-                print(df_to_table(findings_df))
-            case OutputFormat.DOWNLOAD:
-                print(df_to_download(findings_df, warning_count, error_count))
-            case _:
-                raise ValueError(f'output format "{output}" not supported')
+    if all_findings:
+        final_df = pl.concat([v.findings for v in all_findings], how="diagonal")
+
+    status = "SUCCESS" if total_findings == 0 else "FAILURE"
+
+    match output:
+        case OutputFormat.CSV:
+            print(df_to_csv(final_df))
+        case OutputFormat.POLARS:
+            print(df_to_str(final_df))
+        case OutputFormat.JSON:
+            print(df_to_json(final_df, max_group_size=200))
+        case OutputFormat.TABLE:
+            print(df_to_table(final_df))
+        case OutputFormat.DOWNLOAD:
+            df_to_download(final_df)
+        case _:
+            raise ValueError(f'output format "{output}" not supported')
 
     typer.echo(
-        f"status: {status}, total errors: {total_errors}, findings: {no_of_findings}, validation phase: {validation_results.phase}",
+        f"Status: {status}, Total Errors: {total_findings}, Validation Phase: {final_phase}",
         err=True,
     )
 
-    # returned values are only used in unit tests
-    return validation_results.is_valid, findings_df
+    return (status, final_df)
 
 
 if __name__ == '__main__':
