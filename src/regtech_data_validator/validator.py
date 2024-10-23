@@ -18,6 +18,8 @@ from fsspec import AbstractFileSystem, filesystem
 import shutil
 import os
 import boto3.session
+from datetime import datetime
+import psutil
 
 from regtech_data_validator.phase_validations import (
     get_phase_1_schema_for_lei,
@@ -177,6 +179,8 @@ def validate_batch_parquet(
     batch_count: int = 1,
     max_errors=1000000,
 ):
+
+    start = datetime.now()
     has_syntax_errors = False
     syntax_schema = get_phase_1_schema_for_lei(context)
     syntax_checks = [check for col_schema in syntax_schema.columns.values() for check in col_schema.checks]
@@ -216,6 +220,9 @@ def validate_batch_parquet(
         ):
             yield validation_results
 
+    print(f"Total time parquet: {(datetime.now() - start).total_seconds()} seconds")
+    print(f"Total Memory: {psutil.Process(os.getpid()).memory_info().rss / (1024*1024)}MB")
+
 
 # This function is a Generator, and will yield the results of each batch of processing, along with the
 # phase (SYNTACTICAL/LOGICAL) that the findings were found.  Callers of this function will want to
@@ -227,8 +234,6 @@ def validate_batch_csv(
     batch_count: int = 1,
     max_errors=1000000,
 ):
-    from datetime import datetime
-    import psutil
 
     start = datetime.now()
     has_syntax_errors = False
