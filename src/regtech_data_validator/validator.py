@@ -167,7 +167,7 @@ def validate_batch(
     batch_count: int = 1,
     max_errors=1000000,
 ):
-    validate_func = validate_batch_parquet if str(path).endswith(".parquet") else validate_batch_csv
+    validate_func = validate_batch_csv if str(path).endswith(".csv") else validate_batch_parquet
     for validation_results in validate_func(path, context, batch_size, batch_count, max_errors):
         yield validation_results
 
@@ -201,7 +201,7 @@ def validate_batch_parquet(
             'aws_region': 'us-east-1',
         }
 
-    lf = pl.scan_parquet(path, allow_missing_columns=True, storage_options=storage_options).fill_null('')
+    lf = pl.scan_parquet(path, storage_options=storage_options).fill_null('')
 
     for validation_results, uids in validate_lazy_chunks(
         syntax_schema, lf, batch_size, batch_count, max_errors, syntax_checks
