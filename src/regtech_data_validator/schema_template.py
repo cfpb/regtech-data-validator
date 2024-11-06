@@ -12,7 +12,7 @@ See See https://docs.python.org/3/library/copy.html#copy.deepcopy for details.""
 from copy import deepcopy
 from typing import Dict
 
-from pandera import Column
+from pandera.polars import Column
 
 _schema_template = {
     "uid": Column(
@@ -447,3 +447,18 @@ def get_template() -> Dict:
     to debug."""
 
     return deepcopy(_schema_template)
+
+
+# since we process the data in chunks/batch, we need to handle all file/register
+# checks separately, as a separate set of schema and checks.
+_register_template = {
+    "uid": Column(
+        str,
+        title="Field 1: Unique identifier",
+        checks=[],
+    )
+}
+
+
+def get_register_template() -> Dict:
+    return deepcopy(_register_template)

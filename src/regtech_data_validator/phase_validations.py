@@ -4,6 +4,8 @@ Defined in validation_results.ValidationPhase.
 This mapping is used to populate the schema template object and create
 an instance of a PanderaSchema object for SYNTACTICAL and LOGICAL phases"""
 
+import pandera.polars as pa
+
 from textwrap import dedent
 
 from regtech_data_validator import global_data
@@ -31,7 +33,65 @@ from regtech_data_validator.check_functions import (
     string_contains,
 )
 from regtech_data_validator.checks import SBLCheck, Severity
+from regtech_data_validator.schema_template import get_template, get_register_template
 from regtech_data_validator.validation_results import ValidationPhase
+
+# Get separate schema templates for phase 1 and 2
+phase_1_template = get_template()
+phase_2_template = get_template()
+register_template = get_register_template()
+
+
+def get_schema_by_phase_for_lei(template: dict, phase: str, context: dict[str, str] | None = None):
+    for column in get_phase_1_and_2_validations_for_lei(context):
+        validations = get_phase_1_and_2_validations_for_lei(context)[column]
+        template[column].checks = validations[phase]
+
+    return pa.DataFrameSchema(template, name=phase)
+
+
+def get_phase_1_schema_for_lei(context: dict[str, str] | None = None):
+    return get_schema_by_phase_for_lei(phase_1_template, ValidationPhase.SYNTACTICAL, context)
+
+
+def get_phase_2_schema_for_lei(context: dict[str, str] | None = None):
+    return get_schema_by_phase_for_lei(phase_2_template, ValidationPhase.LOGICAL, context)
+
+
+# since we process the data in chunks/batch, we need to handle all file/register
+# checks separately, as a separate set of schema and checks.
+def get_register_schema(context: dict[str, str] | None = None):
+    for column in get_phase_2_register_validations(context):
+        validations = get_phase_2_register_validations(context)[column]
+        register_template[column].checks = validations[ValidationPhase.LOGICAL]
+
+    return pa.DataFrameSchema(register_template, name=ValidationPhase.LOGICAL)
+
+
+# since we process the data in chunks/batch, we need to handle all file/register
+# checks separately, as a separate set of schema and checks.
+def get_phase_2_register_validations(context: dict[str, str] | None = None):
+    return {
+        "uid": {
+            ValidationPhase.LOGICAL: [
+                SBLCheck(
+                    is_unique_column,
+                    id="E3000",
+                    fig_link=global_data.fig_base_url + "#4.3.1",
+                    name="uid.duplicates_in_dataset",
+                    description=dedent(
+                        """\
+                        * Any 'unique identifier' may **not** be used in more than one 
+                        record within a small business lending application register.
+                    """
+                    ),
+                    severity=Severity.ERROR,
+                    scope="register",
+                    related_fields="uid",
+                ),
+            ]
+        }
+    }
 
 
 def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None):
@@ -69,26 +129,10 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     regex="^[A-Z0-9]+$",
                 ),
             ],
             ValidationPhase.LOGICAL: [
-                SBLCheck(
-                    is_unique_column,
-                    id="E3000",
-                    fig_link=global_data.fig_base_url + "#4.3.1",
-                    name="uid.duplicates_in_dataset",
-                    description=dedent(
-                        """\
-                        * Any 'unique identifier' may **not** be used in more than one 
-                        record within a small business lending application register.
-                    """
-                    ),
-                    severity=Severity.ERROR,
-                    scope="register",
-                    groupby="uid",
-                ),
                 SBLCheck(
                     string_contains,
                     id="W0003",
@@ -118,7 +162,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Application date' must be a real calendar date using YYYYMMDD format.",
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                 ),
             ],
             ValidationPhase.LOGICAL: [],
@@ -133,7 +176,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Application method' must equal 1, 2, 3, or 4.",
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "2",
@@ -154,7 +196,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Application recipient' must equal 1 or 2.",
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "2",
@@ -173,7 +214,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Credit product' must equal 1, 2, 3, 4, 5, 6, 7, 8, 977, or 988.",
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "2",
@@ -225,7 +265,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="ct_credit_product",
+                    related_fields="ct_credit_product",
                     condition_values={"977"},
                 ),
             ],
@@ -245,7 +285,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "2",
@@ -277,7 +316,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     min_length=1,
                     max_length=5,
                 ),
@@ -289,7 +327,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Type of guarantee' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
                     scope="single-field",
-                    element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
@@ -336,7 +373,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="ct_guarantee",
+                    related_fields="ct_guarantee",
                     condition_values={"977"},
                 ),
                 SBLCheck(
@@ -354,7 +391,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.WARNING,
                     scope="multi-field",
-                    groupby="ct_guarantee",
+                    related_fields="ct_guarantee",
                     ignored_values={"977"},
                     max_length=5,
                 ),
@@ -370,7 +407,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Loan term: NA/NP flag' must equal 900, 988, or 999.",
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "900",
                         "988",
@@ -394,7 +430,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="ct_credit_product",
+                    related_fields="ct_credit_product",
                     conditions=[
                         {
                             "condition_values": {"1", "2"},
@@ -441,7 +477,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="ct_loan_term_flag",
+                    related_fields="ct_loan_term_flag",
                     condition_values={"900"},
                 ),
                 SBLCheck(
@@ -485,7 +521,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "2",
@@ -518,7 +553,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     min_length=1,
                     max_length=3,
                 ),
@@ -550,7 +584,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Credit purpose' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
                     scope="single-field",
-                    element_wise=True,
                 ),
             ],
         },
@@ -588,7 +621,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="credit_purpose",
+                    related_fields="credit_purpose",
                     condition_values={"977"},
                 ),
                 SBLCheck(
@@ -607,7 +640,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.WARNING,
                     scope="multi-field",
-                    groupby="credit_purpose",
+                    related_fields="credit_purpose",
                     ignored_values={"977"},
                     max_length=3,
                 ),
@@ -623,7 +656,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Amount applied For: NA/NP flag' must equal 900, 988, or 999.",
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "900",
                         "988",
@@ -663,7 +695,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="amount_applied_for_flag",
+                    related_fields="amount_applied_for_flag",
                     condition_values={"900"},
                 ),
                 SBLCheck(
@@ -721,7 +753,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="action_taken",
+                    related_fields="action_taken",
                     condition_values={"1", "2"},
                 ),
             ],
@@ -736,7 +768,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Action taken' must equal 1, 2, 3, 4, or 5.",
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "2",
@@ -770,7 +801,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby=[
+                    related_fields=[
                         "pricing_interest_rate_type",
                         "pricing_mca_addcost_flag",
                         "pricing_prepenalty_allowed",
@@ -811,7 +842,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby=[
+                    related_fields=[
                         "pricing_origination_charges",
                         "pricing_broker_fees",
                         "pricing_initial_charges",
@@ -839,7 +870,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Action taken date' must be a real calendar date using YYYYMMDD format.",
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                 ),
             ],
             ValidationPhase.LOGICAL: [
@@ -856,7 +886,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     start_date_value="20241001",
                     end_date_value="20241231",
                 ),
@@ -868,7 +897,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* The date indicated by 'action taken date' must occur on or after 'application date'.",
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="app_date",
+                    related_fields="app_date",
                 ),
                 SBLCheck(
                     is_date_before_in_days,
@@ -884,7 +913,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.WARNING,
                     scope="multi-field",
-                    groupby="app_date",
+                    related_fields="app_date",
                     days_value=730,
                 ),
             ],
@@ -904,7 +933,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "2",
@@ -934,7 +962,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     min_length=1,
                     max_length=4,
                 ),
@@ -951,7 +978,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="action_taken",
+                    related_fields="action_taken",
                     conditions=[
                         {
                             "condition_values": {"3"},
@@ -991,7 +1018,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Denial reason(s)' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
                     scope="single-field",
-                    element_wise=True,
                 ),
             ],
         },
@@ -1029,7 +1055,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="denial_reasons",
+                    related_fields="denial_reasons",
                     condition_values={"977"},
                 ),
                 SBLCheck(
@@ -1048,7 +1074,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.WARNING,
                     scope="multi-field",
-                    groupby="denial_reasons",
+                    related_fields="denial_reasons",
                     ignored_values={"977"},
                     max_length=4,
                 ),
@@ -1064,7 +1090,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Interest rate type' must equal 1, 2, 3, 4, 5, 6, or 999.",
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "2",
@@ -1113,7 +1138,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="pricing_interest_rate_type",
+                    related_fields="pricing_interest_rate_type",
                     condition_values={"3", "4", "5", "6"},
                 ),
                 SBLCheck(
@@ -1164,7 +1189,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="pricing_interest_rate_type",
+                    related_fields="pricing_interest_rate_type",
                     condition_values={"2", "4", "6"},
                 ),
                 SBLCheck(
@@ -1212,7 +1237,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="pricing_interest_rate_type",
+                    related_fields="pricing_interest_rate_type",
                     condition_values={"1", "3", "5"},
                 ),
                 SBLCheck(
@@ -1248,7 +1273,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "2",
@@ -1282,7 +1306,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="pricing_interest_rate_type",
+                    related_fields="pricing_interest_rate_type",
                     conditions=[
                         {
                             "condition_values": {"1", "3", "5"},
@@ -1333,7 +1357,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="pricing_adj_index_name",
+                    related_fields="pricing_adj_index_name",
                     condition_values={"977"},
                 ),
             ],
@@ -1368,7 +1392,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="pricing_interest_rate_type",
+                    related_fields="pricing_interest_rate_type",
                     condition_values={"1", "3"},
                 ),
             ],
@@ -1436,7 +1460,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "900",
                         "999",
@@ -1460,7 +1483,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="ct_credit_product",
+                    related_fields="ct_credit_product",
                     conditions=[
                         {
                             "condition_values": {"7", "8", "977"},
@@ -1510,7 +1533,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="pricing_mca_addcost_flag",
+                    related_fields="pricing_mca_addcost_flag",
                     condition_values={"900"},
                 ),
             ],
@@ -1525,7 +1548,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* Prepayment penalty could be imposed' must equal 1, 2, or 999.",
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "2",
@@ -1545,7 +1567,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Prepayment penalty exists' must equal 1, 2, or 999.",
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "2",
@@ -1565,7 +1586,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Census tract: type of address' must equal 1, 2, 3, or 988.",
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "2",
@@ -1609,7 +1629,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="census_tract_adr_type",
+                    related_fields="census_tract_adr_type",
                     conditions=[
                         {
                             "condition_values": {"1", "2", "3"},
@@ -1654,7 +1674,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Gross annual revenue: NP flag' must equal 900 or 988.",
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "900",
                         "988",
@@ -1693,7 +1712,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="gross_annual_revenue_flag",
+                    related_fields="gross_annual_revenue_flag",
                     condition_values={"900"},
                 ),
             ],
@@ -1713,7 +1732,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "900",
                         "988",
@@ -1793,7 +1811,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="naics_code_flag",
+                    related_fields="naics_code_flag",
                     condition_values={"900"},
                 ),
             ],
@@ -1808,7 +1826,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Number of workers' must equal 1, 2, 3, 4, 5, 6, 7, 8, 9, or 988.",
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "2",
@@ -1835,7 +1852,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Time in business: type of response' must equal 1, 2, 3, or 988.",
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "2",
@@ -1888,7 +1904,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="time_in_business_type",
+                    related_fields="time_in_business_type",
                     condition_values={"1"},
                 ),
             ],
@@ -1908,7 +1924,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "2",
@@ -1928,7 +1943,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Business ownership status' must contain at least one value.",
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     min_length=1,
                 ),
                 SBLCheck(
@@ -1939,7 +1953,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Business ownership status' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
                     scope="single-field",
-                    element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
@@ -1971,7 +1984,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Number of principal owners: NP flag' must equal 900 or 988.",
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "900",
                         "988",
@@ -1990,7 +2002,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* When present, 'number of principal owners' must equal 0, 1, 2, 3, or 4.",
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=["0", "1", "2", "3", "4"],
                     accept_blank=True,
                 ),
@@ -2011,7 +2022,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="num_principal_owners_flag",
+                    related_fields="num_principal_owners_flag",
                     condition_values={"900"},
                 ),
                 SBLCheck(
@@ -2028,7 +2039,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.WARNING,
                     scope="multi-field",
-                    groupby=[
+                    related_fields=[
                         "po_1_ethnicity",
                         "po_1_race",
                         "po_1_gender_flag",
@@ -2073,7 +2084,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.WARNING,
                     scope="multi-field",
-                    groupby=[
+                    related_fields=[
                         "po_1_ethnicity",
                         "po_1_race",
                         "po_1_gender_flag",
@@ -2118,7 +2129,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.WARNING,
                     scope="multi-field",
-                    groupby=[
+                    related_fields=[
                         "po_1_ethnicity",
                         "po_1_race",
                         "po_1_gender_flag",
@@ -2163,7 +2174,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.WARNING,
                     scope="multi-field",
-                    groupby=[
+                    related_fields=[
                         "po_1_ethnicity",
                         "po_1_race",
                         "po_1_gender_flag",
@@ -2207,7 +2218,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.WARNING,
                     scope="multi-field",
-                    groupby=[
+                    related_fields=[
                         "po_1_ethnicity",
                         "po_1_race",
                         "po_1_gender_flag",
@@ -2254,7 +2265,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "11",
@@ -2278,7 +2288,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Ethnicity of principal owner 1' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
                     scope="single-field",
-                    element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
@@ -2335,7 +2344,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="po_1_ethnicity",
+                    related_fields="po_1_ethnicity",
                     condition_values={"977"},
                 ),
             ],
@@ -2357,7 +2366,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "2",
@@ -2401,7 +2409,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Race of principal owner 1' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
                     scope="single-field",
-                    element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
@@ -2459,7 +2466,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="po_1_race",
+                    related_fields="po_1_race",
                     condition_values={"971"},
                 ),
             ],
@@ -2498,7 +2505,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="po_1_race",
+                    related_fields="po_1_race",
                     condition_values={"972"},
                 ),
             ],
@@ -2539,7 +2546,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="po_1_race",
+                    related_fields="po_1_race",
                     condition_values={"973"},
                 ),
             ],
@@ -2580,7 +2587,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="po_1_race",
+                    related_fields="po_1_race",
                     condition_values={"974"},
                 ),
             ],
@@ -2595,7 +2602,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* When present, 'sex/gender of principal owner 1: NP flag' must equal 1, 966, or 988.",
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "966",
@@ -2641,7 +2647,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="po_1_gender_flag",
+                    related_fields="po_1_gender_flag",
                     condition_values={"1"},
                 ),
             ],
@@ -2661,7 +2667,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "11",
@@ -2685,7 +2690,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Ethnicity of principal owner 2' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
                     scope="single-field",
-                    element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
@@ -2742,7 +2746,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="po_2_ethnicity",
+                    related_fields="po_2_ethnicity",
                     condition_values={"977"},
                 ),
             ],
@@ -2764,7 +2768,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "2",
@@ -2808,7 +2811,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Race of principal owner 2' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
                     scope="single-field",
-                    element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
@@ -2868,7 +2870,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="po_2_race",
+                    related_fields="po_2_race",
                     condition_values={"971"},
                 ),
             ],
@@ -2907,7 +2909,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="po_2_race",
+                    related_fields="po_2_race",
                     condition_values={"972"},
                 ),
             ],
@@ -2947,7 +2949,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="po_2_race",
+                    related_fields="po_2_race",
                     condition_values={"973"},
                 ),
             ],
@@ -2987,7 +2989,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="po_2_race",
+                    related_fields="po_2_race",
                     condition_values={"974"},
                 ),
             ],
@@ -3002,7 +3004,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* When present, 'sex/gender of principal owner 2: NP flag' must equal 1, 966, or 988.",
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "966",
@@ -3050,7 +3051,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="po_2_gender_flag",
+                    related_fields="po_2_gender_flag",
                     condition_values={"1"},
                 ),
             ],
@@ -3071,7 +3072,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "11",
@@ -3095,7 +3095,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Ethnicity of principal owner 3' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
                     scope="single-field",
-                    element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
@@ -3152,7 +3151,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="po_3_ethnicity",
+                    related_fields="po_3_ethnicity",
                     condition_values={"977"},
                 ),
             ],
@@ -3174,7 +3173,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "2",
@@ -3218,7 +3216,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Race of principal owner 3' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
                     scope="single-field",
-                    element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
@@ -3277,7 +3274,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="po_3_race",
+                    related_fields="po_3_race",
                     condition_values={"971"},
                 ),
             ],
@@ -3317,7 +3314,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="po_3_race",
+                    related_fields="po_3_race",
                     condition_values={"972"},
                 ),
             ],
@@ -3357,7 +3354,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="po_3_race",
+                    related_fields="po_3_race",
                     condition_values={"973"},
                 ),
             ],
@@ -3397,7 +3394,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="po_3_race",
+                    related_fields="po_3_race",
                     condition_values={"974"},
                 ),
             ],
@@ -3412,7 +3409,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* When present, 'sex/gender of principal owner 3: NP flag' must equal 1, 966, or 988.",
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "966",
@@ -3458,7 +3454,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="po_3_gender_flag",
+                    related_fields="po_3_gender_flag",
                     condition_values={"1"},
                 ),
             ],
@@ -3478,7 +3474,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "11",
@@ -3502,7 +3497,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Ethnicity of principal owner 4' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
                     scope="single-field",
-                    element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
@@ -3559,7 +3553,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="po_4_ethnicity",
+                    related_fields="po_4_ethnicity",
                     condition_values={"977"},
                 ),
             ],
@@ -3581,7 +3575,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "2",
@@ -3625,7 +3618,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* 'Race of principal owner 4' should **not** contain duplicated values.",
                     severity=Severity.WARNING,
                     scope="single-field",
-                    element_wise=True,
                 ),
                 SBLCheck(
                     meets_multi_value_field_restriction,
@@ -3684,7 +3676,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="po_4_race",
+                    related_fields="po_4_race",
                     condition_values={"971"},
                 ),
             ],
@@ -3724,7 +3716,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="po_4_race",
+                    related_fields="po_4_race",
                     condition_values={"972"},
                 ),
             ],
@@ -3765,7 +3757,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="po_4_race",
+                    related_fields="po_4_race",
                     condition_values={"973"},
                 ),
             ],
@@ -3806,7 +3798,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="po_4_race",
+                    related_fields="po_4_race",
                     condition_values={"974"},
                 ),
             ],
@@ -3821,7 +3813,6 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     description="* When present, 'sex/gender of principal owner 4: NP flag' must equal 1, 966, or 988.",
                     severity=Severity.ERROR,
                     scope="single-field",
-                    element_wise=True,
                     accepted_values=[
                         "1",
                         "966",
@@ -3869,7 +3860,7 @@ def get_phase_1_and_2_validations_for_lei(context: dict[str, str] | None = None)
                     ),
                     severity=Severity.ERROR,
                     scope="multi-field",
-                    groupby="po_4_gender_flag",
+                    related_fields="po_4_gender_flag",
                     condition_values={"1"},
                 ),
             ],

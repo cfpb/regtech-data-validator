@@ -1,5 +1,4 @@
 from pathlib import Path
-import os
 
 import pytest
 from typer.testing import CliRunner
@@ -7,9 +6,8 @@ from typer.testing import CliRunner
 from regtech_data_validator import cli
 
 cli_runner = CliRunner(mix_stderr=False)
-data_dir = f'{os.path.dirname(os.path.realpath(__file__))}/data'
-pass_file = f'{data_dir}/sbl-validations-pass.csv'
-fail_file = f'{data_dir}/sbl-validations-fail.csv'
+pass_file = './tests/data/sblar_no_findings.csv'
+fail_file = './tests/data/all_syntax_errors.csv'
 
 
 class TestParseKeyValue:
@@ -45,51 +43,51 @@ class TestDescribeCommand:
 
 
 class TestValidateCommand:
-    valid_lei_context = cli.KeyValueOpt('lei', '000TESTFIUIDDONOTUSE')
+    valid_lei_context = cli.KeyValueOpt('lei', '123456789TESTBANK123')
     invalid_lei_context = cli.KeyValueOpt('lei', 'XXXXXXXXXXXXXXXXXXXX')
 
     pass_path = Path(pass_file)
     fail_path = Path(fail_file)
 
     def test_pass_file_defaults(self):
-        is_valid, findings_df = cli.validate(path=self.pass_path)
+        status, findings_df = cli.validate(path=self.pass_path)
 
-        assert is_valid
+        assert status == 'SUCCESS'
 
     def test_pass_file_with_valid_context(self):
-        is_valid, findings_df = cli.validate(path=self.pass_path, context=[self.valid_lei_context])
+        status, findings_df = cli.validate(path=self.pass_path, context=[self.valid_lei_context])
 
-        assert is_valid
+        assert status == 'SUCCESS'
 
     def test_pass_file_with_invalid_context(self):
-        is_valid, findings_df = cli.validate(path=self.pass_path, context=[self.invalid_lei_context])
+        status, findings_df = cli.validate(path=self.pass_path, context=[self.invalid_lei_context])
 
-        assert not is_valid
+        assert status == 'FAILURE'
 
     def test_fail_file_csv_output(self):
-        is_valid, findings_df = cli.validate(path=self.fail_path, output=cli.OutputFormat.CSV)
+        status, findings_df = cli.validate(path=self.fail_path, output=cli.OutputFormat.CSV)
 
-        assert not is_valid
+        assert status == 'FAILURE'
 
     def test_fail_file_json_output(self):
-        is_valid, findings_df = cli.validate(path=self.fail_path, output=cli.OutputFormat.JSON)
+        status, findings_df = cli.validate(path=self.fail_path, output=cli.OutputFormat.JSON)
 
-        assert not is_valid
+        assert status == 'FAILURE'
 
     def test_fail_file_pandas_output(self):
-        is_valid, findings_df = cli.validate(path=self.fail_path, output=cli.OutputFormat.PANDAS)
+        status, findings_df = cli.validate(path=self.fail_path, output=cli.OutputFormat.POLARS)
 
-        assert not is_valid
+        assert status == 'FAILURE'
 
     def test_fail_file_table_output(self):
-        is_valid, findings_df = cli.validate(path=self.fail_path, output=cli.OutputFormat.TABLE)
+        status, findings_df = cli.validate(path=self.fail_path, output=cli.OutputFormat.TABLE)
 
-        assert not is_valid
+        assert status == 'FAILURE'
 
     def test_fail_download_output(self):
-        is_valid, findings_df = cli.validate(path=self.fail_path, output=cli.OutputFormat.DOWNLOAD)
+        status, findings_df = cli.validate(path=self.fail_path, output=cli.OutputFormat.DOWNLOAD)
 
-        assert not is_valid
+        assert status == 'FAILURE'
 
 
 class TestDescribeCli:
@@ -113,8 +111,8 @@ class TestValidateCli:
         result = cli_runner.invoke(cli.app, ['validate', pass_file])
 
         assert result.exit_code == 0
-        assert result.stdout == ''
-        assert result.stderr == 'status: SUCCESS, total errors: 0, findings: 0, validation phase: Logical\n'
+        assert result.stdout == '\n'
+        assert result.stderr == 'Status: SUCCESS, Total Errors: 0, Validation Phase: Logical\n'
 
     def test_pass_file_invalid_output_arg_value(self):
         result = cli_runner.invoke(cli.app, ['validate', pass_file, '--output', 'pdf'])
@@ -126,7 +124,6 @@ class TestValidateCli:
 
         assert result.exit_code == 0
         assert result.stdout != ''
-        assert 'status: FAILURE' in result.stderr
-        assert 'total errors:' in result.stderr
-        assert 'findings:' in result.stderr
-        assert 'validation phase: Syntactical' in result.stderr
+        assert 'Status: FAILURE' in result.stderr
+        assert 'Total Errors:' in result.stderr
+        assert 'Validation Phase: Syntactical' in result.stderr

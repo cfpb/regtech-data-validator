@@ -1,102 +1,190 @@
-import pandas as pd
+import polars as pl
 import ujson
 
+import tempfile
+from pathlib import Path
+
+from regtech_data_validator import global_data
 from regtech_data_validator.data_formatters import df_to_csv, df_to_str, df_to_json, df_to_table, df_to_download
+from regtech_data_validator.validation_results import ValidationPhase
 from textwrap import dedent
 
 
 class TestOutputFormat:
     # TODO: Figure out why uid.duplicates_in_dataset returns different findings for matched records
-    input_df = pd.DataFrame(
+    findings_df = pl.DataFrame(
         data=[
             {
-                'record_no': 1,
-                'uid': '12345678901234567890',
-                'field_name': 'uid',
-                'field_value': '12345678901234567890',
+                'validation_type': 'Error',
                 'validation_id': 'E3000',
+                'validation_name': 'uid.duplicates_in_dataset',
+                'row': 2,
+                'unique_identifier': '12345678901234567890',
+                'fig_link': global_data.fig_base_url + "#4.3.1",
+                'scope': 'register',
+                'phase': ValidationPhase.LOGICAL.value,
+                'validation_description': dedent(
+                    """\
+                        * Any 'unique identifier' may **not** be used in more than one 
+                        record within a small business lending application register.
+                    """
+                ),
+                'field_1': 'uid',
+                'value_1': '12345678901234567890',
             },
             {
-                'record_no': 2,
-                'uid': '12345678901234567890',
-                'field_name': 'uid',
-                'field_value': '12345678901234567890',
+                'validation_type': 'Error',
                 'validation_id': 'E3000',
+                'validation_name': 'uid.duplicates_in_dataset',
+                'row': 3,
+                'unique_identifier': '12345678901234567890',
+                'fig_link': global_data.fig_base_url + "#4.3.1",
+                'scope': 'register',
+                'phase': ValidationPhase.LOGICAL.value,
+                'validation_description': dedent(
+                    """\
+                        * Any 'unique identifier' may **not** be used in more than one 
+                        record within a small business lending application register.
+                    """
+                ),
+                'field_1': 'uid',
+                'value_1': '12345678901234567890',
             },
             {
-                'record_no': 3,
-                'uid': '12345678901234567891',
-                'field_name': 'action_taken',
-                'field_value': '1',
+                'validation_type': 'Error',
                 'validation_id': 'E2008',
-            },
-            {
-                'record_no': 3,
-                'uid': '12345678901234567891',
-                'field_name': 'amount_approved',
-                'field_value': '',
-                'validation_id': 'E2008',
+                'validation_name': 'amount_approved.conditional_field_conflict',
+                'row': 4,
+                'unique_identifier': '12345678901234567891',
+                'fig_link': global_data.fig_base_url + "#4.2.7",
+                'scope': 'multi-field',
+                'phase': ValidationPhase.LOGICAL.value,
+                'validation_description': dedent(
+                    """\
+                        * When 'action taken' does **not** equal 1 (originated) or 
+                        2 (approved but not accepted), 'amount approved or originated' must be blank.
+                        * When 'action taken' equals 1 or 2, 'amount approved or originated' must **not** be blank.
+                    """
+                ),
+                'field_1': 'action_taken',
+                'value_1': '1',
+                'field_2': 'amount_approved',
+                'value_2': '',
             },
         ],
     )
-    input_df.index.name = 'finding_no'
-    input_df.index += 1
 
-    def test_output_pandas(self):
+    def test_output_polars(self):
         expected_output = dedent(
             """
-                        record_no                   uid       field_name           field_value validation_id
-            finding_no                                                                                      
-            1                   1  12345678901234567890              uid  12345678901234567890         E3000
-            2                   2  12345678901234567890              uid  12345678901234567890         E3000
-            3                   3  12345678901234567891     action_taken                     1         E2008
-            4                   3  12345678901234567891  amount_approved                               E2008
+                shape: (3, 13)
+                ┌─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┐
+                │ val ┆ val ┆ val ┆ row ┆ uni ┆ fig ┆ sco ┆ pha ┆ val ┆ fie ┆ val ┆ fie ┆ val │
+                │ ida ┆ ida ┆ ida ┆ --- ┆ que ┆ _li ┆ pe  ┆ se  ┆ ida ┆ ld_ ┆ ue_ ┆ ld_ ┆ ue_ │
+                │ tio ┆ tio ┆ tio ┆ i64 ┆ _id ┆ nk  ┆ --- ┆ --- ┆ tio ┆ 1   ┆ 1   ┆ 2   ┆ 2   │
+                │ n_t ┆ n_i ┆ n_n ┆     ┆ ent ┆ --- ┆ str ┆ str ┆ n_d ┆ --- ┆ --- ┆ --- ┆ --- │
+                │ ype ┆ d   ┆ ame ┆     ┆ ifi ┆ str ┆     ┆     ┆ esc ┆ str ┆ str ┆ str ┆ str │
+                │ --- ┆ --- ┆ --- ┆     ┆ er  ┆     ┆     ┆     ┆ rip ┆     ┆     ┆     ┆     │
+                │ str ┆ str ┆ str ┆     ┆ --- ┆     ┆     ┆     ┆ tio ┆     ┆     ┆     ┆     │
+                │     ┆     ┆     ┆     ┆ str ┆     ┆     ┆     ┆ n   ┆     ┆     ┆     ┆     │
+                │     ┆     ┆     ┆     ┆     ┆     ┆     ┆     ┆ --- ┆     ┆     ┆     ┆     │
+                │     ┆     ┆     ┆     ┆     ┆     ┆     ┆     ┆ str ┆     ┆     ┆     ┆     │
+                ╞═════╪═════╪═════╪═════╪═════╪═════╪═════╪═════╪═════╪═════╪═════╪═════╪═════╡
+                │ Err ┆ E30 ┆ uid ┆ 2   ┆ 123 ┆ htt ┆ reg ┆ Log ┆ *   ┆ uid ┆ 123 ┆ nul ┆ nul │
+                │ or  ┆ 00  ┆ .du ┆     ┆ 456 ┆ ps: ┆ ist ┆ ica ┆ Any ┆     ┆ 456 ┆ l   ┆ l   │
+                │     ┆     ┆ pli ┆     ┆ 789 ┆ //w ┆ er  ┆ l   ┆ 'un ┆     ┆ 789 ┆     ┆     │
+                │     ┆     ┆ cat ┆     ┆ 012 ┆ ww. ┆     ┆     ┆ iqu ┆     ┆ 012 ┆     ┆     │
+                │     ┆     ┆ es_ ┆     ┆ 345 ┆ con ┆     ┆     ┆ e   ┆     ┆ 345 ┆     ┆     │
+                │     ┆     ┆ in_ ┆     ┆ 678 ┆ sum ┆     ┆     ┆ ide ┆     ┆ 678 ┆     ┆     │
+                │     ┆     ┆ dat ┆     ┆ 90  ┆ erf ┆     ┆     ┆ nti ┆     ┆ 90  ┆     ┆     │
+                │     ┆     ┆ ase ┆     ┆     ┆ ina ┆     ┆     ┆ fie ┆     ┆     ┆     ┆     │
+                │     ┆     ┆ t   ┆     ┆     ┆ nce ┆     ┆     ┆ r'  ┆     ┆     ┆     ┆     │
+                │     ┆     ┆     ┆     ┆     ┆ .go ┆     ┆     ┆ may ┆     ┆     ┆     ┆     │
+                │     ┆     ┆     ┆     ┆     ┆ …   ┆     ┆     ┆ …   ┆     ┆     ┆     ┆     │
+                │ Err ┆ E30 ┆ uid ┆ 3   ┆ 123 ┆ htt ┆ reg ┆ Log ┆ *   ┆ uid ┆ 123 ┆ nul ┆ nul │
+                │ or  ┆ 00  ┆ .du ┆     ┆ 456 ┆ ps: ┆ ist ┆ ica ┆ Any ┆     ┆ 456 ┆ l   ┆ l   │
+                │     ┆     ┆ pli ┆     ┆ 789 ┆ //w ┆ er  ┆ l   ┆ 'un ┆     ┆ 789 ┆     ┆     │
+                │     ┆     ┆ cat ┆     ┆ 012 ┆ ww. ┆     ┆     ┆ iqu ┆     ┆ 012 ┆     ┆     │
+                │     ┆     ┆ es_ ┆     ┆ 345 ┆ con ┆     ┆     ┆ e   ┆     ┆ 345 ┆     ┆     │
+                │     ┆     ┆ in_ ┆     ┆ 678 ┆ sum ┆     ┆     ┆ ide ┆     ┆ 678 ┆     ┆     │
+                │     ┆     ┆ dat ┆     ┆ 90  ┆ erf ┆     ┆     ┆ nti ┆     ┆ 90  ┆     ┆     │
+                │     ┆     ┆ ase ┆     ┆     ┆ ina ┆     ┆     ┆ fie ┆     ┆     ┆     ┆     │
+                │     ┆     ┆ t   ┆     ┆     ┆ nce ┆     ┆     ┆ r'  ┆     ┆     ┆     ┆     │
+                │     ┆     ┆     ┆     ┆     ┆ .go ┆     ┆     ┆ may ┆     ┆     ┆     ┆     │
+                │     ┆     ┆     ┆     ┆     ┆ …   ┆     ┆     ┆ …   ┆     ┆     ┆     ┆     │
+                │ Err ┆ E20 ┆ amo ┆ 4   ┆ 123 ┆ htt ┆ mul ┆ Log ┆ *   ┆ act ┆ 1   ┆ amo ┆     │
+                │ or  ┆ 08  ┆ unt ┆     ┆ 456 ┆ ps: ┆ ti- ┆ ica ┆ Whe ┆ ion ┆     ┆ unt ┆     │
+                │     ┆     ┆ _ap ┆     ┆ 789 ┆ //w ┆ fie ┆ l   ┆ n   ┆ _ta ┆     ┆ _ap ┆     │
+                │     ┆     ┆ pro ┆     ┆ 012 ┆ ww. ┆ ld  ┆     ┆ 'ac ┆ ken ┆     ┆ pro ┆     │
+                │     ┆     ┆ ved ┆     ┆ 345 ┆ con ┆     ┆     ┆ tio ┆     ┆     ┆ ved ┆     │
+                │     ┆     ┆ .co ┆     ┆ 678 ┆ sum ┆     ┆     ┆ n   ┆     ┆     ┆     ┆     │
+                │     ┆     ┆ ndi ┆     ┆ 91  ┆ erf ┆     ┆     ┆ tak ┆     ┆     ┆     ┆     │
+                │     ┆     ┆ tio ┆     ┆     ┆ ina ┆     ┆     ┆ en' ┆     ┆     ┆     ┆     │
+                │     ┆     ┆ nal ┆     ┆     ┆ nce ┆     ┆     ┆ doe ┆     ┆     ┆     ┆     │
+                │     ┆     ┆ _fi ┆     ┆     ┆ .go ┆     ┆     ┆ s   ┆     ┆     ┆     ┆     │
+                │     ┆     ┆ …   ┆     ┆     ┆ …   ┆     ┆     ┆ **n ┆     ┆     ┆     ┆     │
+                │     ┆     ┆     ┆     ┆     ┆     ┆     ┆     ┆ …   ┆     ┆     ┆     ┆     │
+                └─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┘
             """
         ).strip(
             '\n'
         )  # noqa: E501
 
-        actual_output = df_to_str(self.input_df)
+        actual_output = df_to_str(self.findings_df)
         assert actual_output == expected_output
 
     def test_output_table(self):
         expected_output = dedent(
             """
-            ╭──────────────┬─────────────┬──────────────────────┬─────────────────┬──────────────────────┬─────────────────╮
-            │   finding_no │   record_no │                  uid │ field_name      │ field_value          │ validation_id   │
-            ├──────────────┼─────────────┼──────────────────────┼─────────────────┼──────────────────────┼─────────────────┤
-            │            1 │           1 │ 12345678901234567890 │ uid             │ 12345678901234567890 │ E3000           │
-            │            2 │           2 │ 12345678901234567890 │ uid             │ 12345678901234567890 │ E3000           │
-            │            3 │           3 │ 12345678901234567891 │ action_taken    │ 1                    │ E2008           │
-            │            4 │           3 │ 12345678901234567891 │ amount_approved │                      │ E2008           │
-            ╰──────────────┴─────────────┴──────────────────────┴─────────────────┴──────────────────────┴─────────────────╯
+                ╭────┬────────────────────────────────────────────────────┬────────────────────────────────────────────────────┬────────────────────────────────────────────────────╮
+                │    │ 0                                                  │ 1                                                  │ 2                                                  │
+                ├────┼────────────────────────────────────────────────────┼────────────────────────────────────────────────────┼────────────────────────────────────────────────────┤
+                │  0 │ Error                                              │ Error                                              │ Error                                              │
+                │  1 │ E3000                                              │ E3000                                              │ E2008                                              │
+                │  2 │ uid.duplicates_in_dataset                          │ uid.duplicates_in_dataset                          │ amount_approved.conditional_field_conflict         │
+                │  3 │ 12345678901234567890                               │ 12345678901234567890                               │ 12345678901234567891                               │
+                │  4 │ https://www.consumerfinance.gov/data-research/smal │ https://www.consumerfinance.gov/data-research/smal │ https://www.consumerfinance.gov/data-research/smal │
+                │  5 │ register                                           │ register                                           │ multi-field                                        │
+                │  6 │ Logical                                            │ Logical                                            │ Logical                                            │
+                │  7 │ * Any 'unique identifier' may **not** be used in m │ * Any 'unique identifier' may **not** be used in m │ * When 'action taken' does **not** equal 1 (origin │
+                │  8 │ uid                                                │ uid                                                │ action_taken                                       │
+                │  9 │ 12345678901234567890                               │ 12345678901234567890                               │ 1                                                  │
+                │ 10 │                                                    │                                                    │ amount_approved                                    │
+                │ 11 │                                                    │                                                    │                                                    │
+                ╰────┴────────────────────────────────────────────────────┴────────────────────────────────────────────────────┴────────────────────────────────────────────────────╯
             """
         ).strip(
             '\n'
         )  # noqa: E501
 
-        actual_output = df_to_table(self.input_df)
+        actual_output = df_to_table(self.findings_df)
         assert actual_output == expected_output
 
     def test_output_csv(self):
         expected_output = dedent(
             """
-            finding_no,record_no,uid,field_name,field_value,validation_id
-            1,1,12345678901234567890,uid,12345678901234567890,E3000
-            2,2,12345678901234567890,uid,12345678901234567890,E3000
-            3,3,12345678901234567891,action_taken,1,E2008
-            4,3,12345678901234567891,amount_approved,,E2008
+                "validation_type","validation_id","validation_name","row","unique_identifier","fig_link","scope","phase","validation_description","field_1","value_1","field_2","value_2"
+                "Error","E2008","amount_approved.conditional_field_conflict",4,"12345678901234567891","https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.7","multi-field","Logical","* When 'action taken' does **not** equal 1 (originated) or 
+                2 (approved but not accepted), 'amount approved or originated' must be blank.
+                * When 'action taken' equals 1 or 2, 'amount approved or originated' must **not** be blank.
+                ","action_taken","1","amount_approved",""
+                "Error","E3000","uid.duplicates_in_dataset",2,"12345678901234567890","https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1","register","Logical","* Any 'unique identifier' may **not** be used in more than one 
+                record within a small business lending application register.
+                ","uid","12345678901234567890",,
+                "Error","E3000","uid.duplicates_in_dataset",3,"12345678901234567890","https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1","register","Logical","* Any 'unique identifier' may **not** be used in more than one 
+                record within a small business lending application register.
+                ","uid","12345678901234567890",,
             """
         ).strip(
             '\n'
         )  # noqa: E501
 
-        actual_output = df_to_csv(self.input_df)
+        actual_output = df_to_csv(self.findings_df)
         assert actual_output.strip('\n') == expected_output
 
     def test_empty_results_json(self):
         expected_output = ujson.dumps([], indent=4, escape_forward_slashes=False)
-        actual_output = df_to_json(pd.DataFrame())
+        actual_output = df_to_json(pl.DataFrame())
 
         assert actual_output == expected_output
 
@@ -116,7 +204,7 @@ class TestOutputFormat:
                     {
                         "record_no": 3,
                         "uid": "12345678901234567891",
-                        "fields": [{"name": "amount_approved", "value": ""}, {"name": "action_taken", "value": "1"}],
+                        "fields": [{"name": "action_taken", "value": "1"}, {"name": "amount_approved", "value": ""}],
                     }
                 ],
             },
@@ -146,143 +234,46 @@ class TestOutputFormat:
         ]
         expected_output = ujson.dumps(results_object, indent=4, escape_forward_slashes=False)
 
-        actual_output = df_to_json(self.input_df)
-        assert actual_output == expected_output
-
-    def test_output_json_with_max_group_size(self):
-        results_object = [
-            {
-                "validation": {
-                    "id": "E2008",
-                    "name": "amount_approved.conditional_field_conflict",
-                    "description": "* When 'action taken' does **not** equal 1 (originated) or \n2 (approved but not accepted), 'amount approved or originated' must be blank.\n* When 'action taken' equals 1 or 2, 'amount approved or originated' must **not** be blank.\n",
-                    "severity": "Error",
-                    "scope": "multi-field",
-                    "fig_link": "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.7",
-                    "is_truncated": False,
-                },
-                "records": [
-                    {
-                        "record_no": 3,
-                        "uid": "12345678901234567891",
-                        "fields": [{"name": "amount_approved", "value": ""}, {"name": "action_taken", "value": "1"}],
-                    }
-                ],
-            },
-            {
-                "validation": {
-                    "id": "E3000",
-                    "name": "uid.duplicates_in_dataset",
-                    "description": "* Any 'unique identifier' may **not** be used in more than one \nrecord within a small business lending application register.\n",
-                    "severity": "Error",
-                    "scope": "register",
-                    "fig_link": "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1",
-                    "is_truncated": True,
-                },
-                "records": [
-                    {
-                        "record_no": 1,
-                        "uid": "12345678901234567890",
-                        "fields": [{"name": "uid", "value": "12345678901234567890"}],
-                    },
-                ],
-            },
-        ]
-        expected_output = ujson.dumps(results_object, indent=4, escape_forward_slashes=False)
-
-        actual_output = df_to_json(self.input_df, max_group_size=1)
-        assert actual_output == expected_output
-
-    def test_output_json_with_max_records(self):
-        results_object = [
-            {
-                "validation": {
-                    "id": "E0040",
-                    "name": "app_method.invalid_enum_value",
-                    "description": "* 'Application method' must equal 1, 2, 3, or 4.",
-                    "severity": "Error",
-                    "scope": "single-field",
-                    "fig_link": "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.1.4",
-                    "is_truncated": True,
-                },
-                "records": [
-                    {"record_no": 4, "uid": "12345678901234567890", "fields": [{"name": "app_method", "value": "5"}]}
-                ],
-            },
-            {
-                "validation": {
-                    "id": "E2008",
-                    "name": "amount_approved.conditional_field_conflict",
-                    "description": "* When 'action taken' does **not** equal 1 (originated) or \n2 (approved but not accepted), 'amount approved or originated' must be blank.\n* When 'action taken' equals 1 or 2, 'amount approved or originated' must **not** be blank.\n",
-                    "severity": "Error",
-                    "scope": "multi-field",
-                    "fig_link": "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.7",
-                    "is_truncated": False,
-                },
-                "records": [
-                    {
-                        "record_no": 3,
-                        "uid": "12345678901234567891",
-                        "fields": [{"name": "amount_approved", "value": ""}, {"name": "action_taken", "value": "1"}],
-                    }
-                ],
-            },
-        ]
-        expected_output = ujson.dumps(results_object, indent=4, escape_forward_slashes=False)
-
-        error_df = pd.DataFrame(self.input_df)
-        error_df.loc[-1] = [5, '12345678901234567890', 'app_method', '5', 'E0040']
-        error_df.loc[-2] = [4, '12345678901234567890', 'app_method', '5', 'E0040']
-        error_df.index = error_df.index + 2
-        error_df.sort_index(inplace=True)
-
-        actual_output = df_to_json(error_df, max_records=2)
+        actual_output = df_to_json(self.findings_df)
         assert actual_output == expected_output
 
     def test_download_csv(self):
         expected_output = dedent(
             """
-            validation_type,validation_id,validation_name,row,unique_identifier,fig_link,validation_description,field_1,value_1,field_2,value_2
-            "Error","E2008","amount_approved.conditional_field_conflict",4,"12345678901234567891","https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.7","* When 'action taken' does **not** equal 1 (originated) or 
-            2 (approved but not accepted), 'amount approved or originated' must be blank.
-            * When 'action taken' equals 1 or 2, 'amount approved or originated' must **not** be blank.
-            ","amount_approved","","action_taken","1"
-            "Error","E3000","uid.duplicates_in_dataset",2,"12345678901234567890","https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1","* Any 'unique identifier' may **not** be used in more than one 
-            record within a small business lending application register.
-            ","uid","12345678901234567890"
-            "Error","E3000","uid.duplicates_in_dataset",3,"12345678901234567890","https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1","* Any 'unique identifier' may **not** be used in more than one 
-            record within a small business lending application register.
-            ","uid","12345678901234567890"
+                validation_type,validation_id,validation_name,row,unique_identifier,fig_link,validation_description,field_1,value_1,field_2,value_2
+                "Error","E2008","amount_approved.conditional_field_conflict",4,"12345678901234567891","https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.7","* When 'action taken' does **not** equal 1 (originated) or 
+                2 (approved but not accepted), 'amount approved or originated' must be blank.
+                * When 'action taken' equals 1 or 2, 'amount approved or originated' must **not** be blank.
+                ","action_taken","1","amount_approved",""
+                "Error","E3000","uid.duplicates_in_dataset",2,"12345678901234567890","https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1","* Any 'unique identifier' may **not** be used in more than one 
+                record within a small business lending application register.
+                ","uid","12345678901234567890",,
+                "Error","E3000","uid.duplicates_in_dataset",3,"12345678901234567890","https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1","* Any 'unique identifier' may **not** be used in more than one 
+                record within a small business lending application register.
+                ","uid","12345678901234567890",,
             """
         ).strip('\n')
-        actual_output = df_to_download(self.input_df, error_count=2)
-        assert actual_output.strip() == expected_output
 
-    def test_download_max_message_csv(self):
-        expected_output = dedent(
-            """
-            validation_type,validation_id,validation_name,row,unique_identifier,fig_link,validation_description,field_1,value_1,field_2,value_2
-            "Your register contains 6 errors and warnings, however, only 3 records are displayed in this report. To see additional errors and warnings, correct the listed records, and upload a new file."
-            "Error","E2008","amount_approved.conditional_field_conflict",4,"12345678901234567891","https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.7","* When 'action taken' does **not** equal 1 (originated) or 
-            2 (approved but not accepted), 'amount approved or originated' must be blank.
-            * When 'action taken' equals 1 or 2, 'amount approved or originated' must **not** be blank.
-            ","amount_approved","","action_taken","1"
-            "Error","E3000","uid.duplicates_in_dataset",2,"12345678901234567890","https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1","* Any 'unique identifier' may **not** be used in more than one 
-            record within a small business lending application register.
-            ","uid","12345678901234567890"
-            "Error","E3000","uid.duplicates_in_dataset",3,"12345678901234567890","https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1","* Any 'unique identifier' may **not** be used in more than one 
-            record within a small business lending application register.
-            ","uid","12345678901234567890"
-            """
-        ).strip('\n')
-        actual_output = df_to_download(self.input_df, warning_count=1, error_count=5, max_errors=3)
+        gf = tempfile.NamedTemporaryFile(delete=False, mode='w', suffix='.csv')
+        temp_path = Path(gf.name)
+        df_to_download(self.findings_df, str(temp_path.resolve()))
+        with open(temp_path, 'r') as output:
+            actual_output = output.read()
+        print(f"{actual_output}")
         assert actual_output.strip() == expected_output
+        temp_path.unlink()
 
     def test_empty_download_csv(self):
         expected_output = dedent(
             """
-            validation_type,validation_id,validation_name,row,unique_identifier,fig_link,validation_description,
+            "validation_type","validation_id","validation_name","row","unique_identifier","fig_link","validation_description"
             """
         ).strip('\n')
-        actual_output = df_to_download(pd.DataFrame(), warning_count=0, error_count=0)
-        assert actual_output == expected_output
+
+        gf = tempfile.NamedTemporaryFile(delete=False, mode='w', suffix='.csv')
+        temp_path = Path(gf.name)
+        df_to_download(pl.DataFrame(), str(temp_path.resolve()))
+        with open(temp_path, 'r') as output:
+            actual_output = output.read()
+        assert actual_output.strip() == expected_output
+        temp_path.unlink()

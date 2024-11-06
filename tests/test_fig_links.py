@@ -1,11 +1,14 @@
 import requests
 
-from regtech_data_validator.phase_validations import get_phase_1_and_2_validations_for_lei
+from regtech_data_validator.phase_validations import (
+    get_phase_1_and_2_validations_for_lei,
+    get_phase_2_register_validations,
+)
 from regtech_data_validator.global_data import fig_base_url
 from bs4 import BeautifulSoup
 
 
-class TestFigAnchors:
+class TestFigLinks:
 
     def test_fig_links(self):
 
@@ -15,12 +18,18 @@ class TestFigAnchors:
         source_links = BeautifulSoup(html_text, 'html.parser')
 
         validators = get_phase_1_and_2_validations_for_lei()
+        registers = get_phase_2_register_validations()
         checks = []
         validator_anchors = []
         fig_links = []
 
         for k in validators.keys():
             v = validators[k]
+            for p in v.keys():
+                checks.extend(v[p])
+
+        for k in registers.keys():
+            v = registers[k]
             for p in v.keys():
                 checks.extend(v[p])
 
