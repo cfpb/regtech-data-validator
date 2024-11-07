@@ -1,9 +1,6 @@
 import polars as pl
 import ujson
 
-import tempfile
-from pathlib import Path
-
 from regtech_data_validator import global_data
 from regtech_data_validator.data_formatters import df_to_csv, df_to_str, df_to_json, df_to_table, df_to_download
 from regtech_data_validator.validation_results import ValidationPhase
@@ -254,14 +251,8 @@ class TestOutputFormat:
             """
         ).strip('\n')
 
-        gf = tempfile.NamedTemporaryFile(delete=False, mode='w', suffix='.csv')
-        temp_path = Path(gf.name)
-        df_to_download(self.findings_df, str(temp_path.resolve()))
-        with open(temp_path, 'r') as output:
-            actual_output = output.read()
-        print(f"{actual_output}")
+        actual_output = df_to_download(self.findings_df).decode('utf-8')
         assert actual_output.strip() == expected_output
-        temp_path.unlink()
 
     def test_empty_download_csv(self):
         expected_output = dedent(
@@ -270,10 +261,5 @@ class TestOutputFormat:
             """
         ).strip('\n')
 
-        gf = tempfile.NamedTemporaryFile(delete=False, mode='w', suffix='.csv')
-        temp_path = Path(gf.name)
-        df_to_download(pl.DataFrame(), str(temp_path.resolve()))
-        with open(temp_path, 'r') as output:
-            actual_output = output.read()
+        actual_output = df_to_download(pl.DataFrame()).decode('utf-8')
         assert actual_output.strip() == expected_output
-        temp_path.unlink()
