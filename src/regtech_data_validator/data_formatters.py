@@ -1,7 +1,5 @@
-import boto3
 import ujson
 import polars as pl
-import fsspec
 
 from tabulate import tabulate
 
@@ -116,13 +114,13 @@ def format_findings(df: pl.DataFrame, phase, checks):
 
 def df_to_download(
     df: pl.DataFrame,
-    path: str = "download_report.csv",
     warning_count: int = 0,
     error_count: int = 0,
     max_errors: int = 1000000,
 ):
     if df.is_empty():
         # return headers of csv for 'emtpy' report
+        buffer = BytesIO()
         empty_df = pl.DataFrame(
             {
                 "validation_type": [],
@@ -134,9 +132,9 @@ def df_to_download(
                 "validation_description": [],
             }
         )
-        with fsspec.open(path, mode='wb') as f:
-            empty_df.write_csv(f, quote_style='non_numeric')
-        return
+        empty_df.write_csv(buffer, quote_style='non_numeric', include_header=True)
+        buffer.seek(0)
+        return buffer.getvalue()
 
     # get the check for the phase the results were in, so we can pull out static data from each
     # found check
@@ -196,26 +194,9 @@ def df_to_download(
             f'"Your register contains {total_errors} {error_type}, however, only {max_errors} records are displayed in this report. To see additional {error_type}, correct the listed records, and upload a new file."\n'.encode()
         )
 
-    if path.startswith("s3"):
-        sorted_df.write_csv(buffer, quote_style='non_numeric', include_header=False)
-        buffer.seek(0)
-        upload(path, buffer.getvalue())
-    else:
-        with fsspec.open(path, mode='wb') as f:
-            sorted_df.write_csv(buffer, quote_style='non_numeric', include_header=False)
-            buffer.seek(0)
-            f.write(buffer.getvalue())
-
-
-def upload(path: str, content: bytes) -> None:
-    bucket = path.split("s3://")[1].split("/")[0]
-    opath = path.split("s3://")[1].replace(bucket + "/", "")
-    s3 = boto3.client("s3")
-    s3.put_object(
-        Bucket=bucket,
-        Key=opath,
-        Body=content,
-    )
+    sorted_df.write_csv(buffer, quote_style='non_numeric', include_header=False)
+    buffer.seek(0)
+    return buffer.getvalue()
 
 
 def df_to_csv(df: pl.DataFrame) -> str:
