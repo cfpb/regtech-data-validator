@@ -100,21 +100,21 @@ def validate(
 
     status = "SUCCESS" if total_findings == 0 else "FAILURE"
 
-    match output:
-        case OutputFormat.CSV:
-            print(df_to_csv(final_df))
-        case OutputFormat.POLARS:
-            print(df_to_str(final_df))
-        case OutputFormat.JSON:
-            print(df_to_json(final_df, max_group_size=200))
-        case OutputFormat.TABLE:
-            print(df_to_table(final_df))
-        case OutputFormat.DOWNLOAD:
-            df_to_download(final_df)
-            print(f"Final DF Height: {final_df.height}")
-            print(f"Took {(datetime.now() - start).total_seconds()} seconds")
-        case _:
-            raise ValueError(f'output format "{output}" not supported')
+    # match output:
+    #     case OutputFormat.CSV:
+    #         print(df_to_csv(final_df))
+    #     case OutputFormat.POLARS:
+    #         print(df_to_str(final_df))
+    #     case OutputFormat.JSON:
+    #         print(df_to_json(final_df, max_group_size=200))
+    #     case OutputFormat.TABLE:
+    #         print(df_to_table(final_df))
+    #     case OutputFormat.DOWNLOAD:
+    #         df_to_download(final_df)
+    #         print(f"Final DF Height: {final_df.height}")
+    #         print(f"Took {(datetime.now() - start).total_seconds()} seconds")
+    #     case _:
+    #         raise ValueError(f'output format "{output}" not supported')
 
     typer.echo(
         f"Status: {status}, Total Errors: {total_findings}, Validation Phase: {final_phase}",

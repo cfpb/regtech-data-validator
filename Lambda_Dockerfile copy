@@ -1,0 +1,14 @@
+FROM --platform=linux/amd64 public.ecr.aws/lambda/python:3.12
+
+RUN dnf install -y git
+
+ARG reqs="lambda_requirements copy.txt"
+
+COPY ${reqs} ${LAMBDA_TASK_ROOT}/requirements.txt
+
+RUN pip install -r requirements.txt --target "${LAMBDA_TASK_ROOT}"
+
+COPY src/ ${LAMBDA_TASK_ROOT}
+
+# Pass the name of the function handler as an argument to the runtime
+CMD [ "regtech_data_validator.lambda_wrapper_parquet.lambda_handler" ]

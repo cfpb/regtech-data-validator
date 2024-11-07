@@ -19,7 +19,7 @@ import shutil
 import os
 import boto3.session
 from datetime import datetime
-# import psutil
+import psutil
 
 from regtech_data_validator.phase_validations import (
     get_phase_1_schema_for_lei,
@@ -220,8 +220,8 @@ def validate_batch_parquet(
         ):
             yield validation_results
 
-    # print(f"Total time parquet: {(datetime.now() - start).total_seconds()} seconds")
-    # print(f"Total Memory: {psutil.Process(os.getpid()).memory_info().rss / (1024*1024)}MB")
+    print(f"Total time parquet: {(datetime.now() - start).total_seconds()} seconds")
+    print(f"Total Memory: {psutil.Process(os.getpid()).memory_info().rss / (1024*1024)}MB")
 
 
 # This function is a Generator, and will yield the results of each batch of processing, along with the
@@ -267,8 +267,8 @@ def validate_batch_csv(
     if os.path.isdir("/tmp/s3"):
         shutil.rmtree("/tmp/s3")
 
-    # print(f"Total time: {(datetime.now() - start).total_seconds()} seconds")
-    # print(f"Total Memory: {psutil.Process(os.getpid()).memory_info().rss / (1024*1024)}MB")
+    print(f"Total time: {(datetime.now() - start).total_seconds()} seconds")
+    print(f"Total Memory: {psutil.Process(os.getpid()).memory_info().rss / (1024*1024)}MB")
 
 
 def validate_register_level(context: Dict[str, str] | None, all_uids: List[str]):
