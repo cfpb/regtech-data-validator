@@ -98,8 +98,7 @@ def validate(
             final_phase = validation_results.phase
             all_findings.append(validation_results)
     elif filetype == FileType.PARQUET:
-        lf = pl.scan_parquet(path, allow_missing_columns=True)
-        # lf = pl.scan_csv(path, infer_schema=False, missing_utf8_is_empty_string=True)
+        lf = pl.scan_parquet(path)
         for validation_results in validate_lazy_frame(lf, context_dict, batch_size=50000, batch_count=1):
             total_findings += validation_results.error_counts.total_count + validation_results.warning_counts.total_count
             final_phase = validation_results.phase
