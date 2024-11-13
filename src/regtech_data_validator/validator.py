@@ -72,7 +72,7 @@ def _add_validation_metadata(failed_check_fields_df: pl.DataFrame, check: SBLChe
 
 def validate(
     schema: pa.DataFrameSchema, submission_df: pl.DataFrame, row_start: int, process_errors: bool
-) -> ValidationResults:
+) -> pl.DataFrame:
     """
     validate received dataframe with schema and return list of
     schema errors
@@ -83,7 +83,6 @@ def validate(
         pd.DataFrame containing validation results data
     """
     findings_df: pl.DataFrame = pl.DataFrame()
-    error_counts = warning_counts = Counts()
 
     try:
         # since polars dataframes don't normally have an index column, add it, so that we can match
@@ -96,7 +95,6 @@ def validate(
         #       `list[dict[str,Any]]`, but it's actually of type `SchemaError`
         schema_error: SchemaError
 
-        error_counts, warning_counts = get_scope_counts(err.schema_errors)
         if process_errors:
             for schema_error in err.schema_errors:
                 check = schema_error.check
@@ -138,14 +136,7 @@ def validate(
                 findings_df = pl.concat(check_findings)
 
     updated_df = add_uid(findings_df, submission_df)
-    results = ValidationResults(
-        error_counts=error_counts,
-        warning_counts=warning_counts,
-        is_valid=((error_counts.total_count + warning_counts.total_count) == 0),
-        findings=updated_df,
-        phase=schema.name,
-    )
-    return results
+    return updated_df
 
 
 # Add the uid for the record throwing the error/warning to the error dataframe
@@ -156,6 +147,103 @@ def add_uid(results_df: pl.DataFrame, submission_df: pl.DataFrame) -> pl.DataFra
     uid_records = results_df['record_no'] - 1
     results_df = results_df.with_columns(submission_df['uid'].gather(uid_records).alias('uid'))
     return results_df
+
+
+# This function is a Generator, and will yield the results of each batch of processing, along with the
+# phase (SYNTACTICAL/LOGICAL) that the findings were found.  Callers of this function will want to
+# store or concat each iteration of findings
+def validate_batch_csv(
+    path: Path | str,
+    context: dict[str, str] | None = None,
+    batch_size: int = 50000,
+    batch_count: int = 1,
+    max_errors=1000000,
+):
+    has_syntax_errors = False
+    real_path = get_real_file_path(path)
+    # process the data first looking for syntax (phase 1) errors, then looking for logical (phase 2) errors/warnings
+    syntax_schema = get_phase_1_schema_for_lei(context)
+    syntax_checks = [check for col_schema in syntax_schema.columns.values() for check in col_schema.checks]
+
+    logic_schema = get_phase_2_schema_for_lei(context)
+    logic_checks = [check for col_schema in logic_schema.columns.values() for check in col_schema.checks]
+
+    all_uids = []
+
+    for validation_results, uids in validate_chunks(
+        syntax_schema, real_path, batch_size, batch_count, max_errors, syntax_checks
+    ):
+        all_uids.extend(uids)
+        # validate, and therefore validate_chunks, can return an empty dataframe for findings
+        if not validation_results.findings.is_empty():
+            has_syntax_errors = True
+        yield validation_results
+
+    if not has_syntax_errors:
+        register_schema = get_register_schema(context)
+        validation_results = validate(register_schema, pl.DataFrame({"uid": all_uids}), 0, True)
+        if not validation_results.is_empty():
+            validation_results = format_findings(
+                validation_results,
+                ValidationPhase.LOGICAL.value,
+                [check for col_schema in register_schema.columns.values() for check in col_schema.checks],
+            )
+        error_counts, warning_counts = get_scope_counts(validation_results)
+        results = ValidationResults(
+            error_counts=error_counts,
+            warning_counts=warning_counts,
+            is_valid=((error_counts.total_count + warning_counts.total_count) == 0),
+            findings=validation_results,
+            phase=register_schema.name,
+        )
+        yield results
+
+        for validation_results, _ in validate_chunks(
+            logic_schema, real_path, batch_size, batch_count, max_errors, logic_checks
+        ):
+            yield validation_results
+
+    if os.path.isdir("/tmp/s3"):
+        shutil.rmtree("/tmp/s3")
+
+
+# Reads in a path to a csv in batches, using batch_size to determine number of rows to read into the buffer,
+# and batch_count to determine how many batches to process in parallel.  Performance testing for large files
+# shows 50K batch_size with 1 batch_count to be a nice balance of speed and resource utilization.  Increasing
+# these increases resource utilization but increases speed (especially batch_count).  Reducing these, espectially
+# batch_count adds processing cylces (time) but can significantly reduce resources.
+def validate_chunks(schema, path, batch_size, batch_count, max_errors, checks):
+    reader = pl.read_csv_batched(path, infer_schema_length=0, missing_utf8_is_empty_string=True, batch_size=batch_size)
+    batches = reader.next_batches(batch_count)
+    process_errors = True
+    total_count = 0
+    row_start = 0
+    while batches:
+        df = pl.concat(batches)
+        validation_results = validate(schema, df, row_start, process_errors)
+        if not validation_results.is_empty():
+
+            validation_results = format_findings(validation_results, schema.name.value, checks)
+
+        error_counts, warning_counts = get_scope_counts(validation_results)
+        results = ValidationResults(
+            error_counts=error_counts,
+            warning_counts=warning_counts,
+            is_valid=((error_counts.total_count + warning_counts.total_count) == 0),
+            findings=validation_results,
+            phase=schema.name,
+        )
+
+        total_count += results.findings.height
+
+        if total_count > max_errors and process_errors:
+            process_errors = False
+            head_count = results.findings.height - (total_count - max_errors)
+            results.findings = results.findings.head(head_count)
+
+        row_start += df.height
+        batches = reader.next_batches(batch_count)
+        yield results, df["uid"].to_list()
 
 
 def validate_lazy_frame(
@@ -193,79 +281,49 @@ def validate_lazy_frame(
             yield validation_results
 
 
-# This function is a Generator, and will yield the results of each batch of processing, along with the
-# phase (SYNTACTICAL/LOGICAL) that the findings were found.  Callers of this function will want to
-# store or concat each iteration of findings
-def validate_batch_csv(
-    path: Path | str,
-    context: dict[str, str] | None = None,
-    batch_size: int = 50000,
-    batch_count: int = 1,
-    max_errors=1000000,
-):
-    has_syntax_errors = False
-    real_path = get_real_file_path(path)
-    # process the data first looking for syntax (phase 1) errors, then looking for logical (phase 2) errors/warnings
-    syntax_schema = get_phase_1_schema_for_lei(context)
-    syntax_checks = [check for col_schema in syntax_schema.columns.values() for check in col_schema.checks]
-
-    logic_schema = get_phase_2_schema_for_lei(context)
-    logic_checks = [check for col_schema in logic_schema.columns.values() for check in col_schema.checks]
-
-    all_uids = []
-
-    for validation_results, uids in validate_chunks(
-        syntax_schema, real_path, batch_size, batch_count, max_errors, syntax_checks
-    ):
-        all_uids.extend(uids)
-        # validate, and therefore validate_chunks, can return an empty dataframe for findings
-        if not validation_results.findings.is_empty():
-            has_syntax_errors = True
-        yield validation_results
-
-    if not has_syntax_errors:
-        yield validate_register_level(context, all_uids)
-
-        for validation_results, _ in validate_chunks(
-            logic_schema, real_path, batch_size, batch_count, max_errors, logic_checks
-        ):
-            yield validation_results
-
-    if os.path.isdir("/tmp/s3"):
-        shutil.rmtree("/tmp/s3")
-
-
 def validate_register_level(context: Dict[str, str] | None, all_uids: List[str]):
     register_schema = get_register_schema(context)
     validation_results = validate(register_schema, pl.DataFrame({"uid": all_uids}), 0, True)
-    if not validation_results.findings.is_empty():
-        validation_results.findings = format_findings(
-            validation_results.findings,
+    if not validation_results.is_empty():
+        validation_results = format_findings(
+            validation_results,
             ValidationPhase.LOGICAL.value,
             [check for col_schema in register_schema.columns.values() for check in col_schema.checks],
         )
-    return validation_results
+    error_counts, warning_counts = get_scope_counts(validation_results)
+    results = ValidationResults(
+        error_counts=error_counts,
+        warning_counts=warning_counts,
+        is_valid=((error_counts.total_count + warning_counts.total_count) == 0),
+        findings=validation_results,
+        phase=register_schema.name,
+    )
+    return results
 
 
-# Reads in a path to a csv in batches, using batch_size to determine number of rows to read into the buffer,
-# and batch_count to determine how many batches to process in parallel.  Performance testing for large files
-# shows 50K batch_size with 1 batch_count to be a nice balance of speed and resource utilization.  Increasing
-# these increases resource utilization but increases speed (especially batch_count).  Reducing these, espectially
-# batch_count adds processing cylces (time) but can significantly reduce resources.
-def validate_chunks(schema, path, batch_size, batch_count, max_errors, checks):
-    reader = pl.read_csv_batched(path, infer_schema_length=0, missing_utf8_is_empty_string=True, batch_size=batch_size)
-    batches = reader.next_batches(batch_count)
-    process_errors = True
-    total_count = 0
-    row_start = 0
-    while batches:
-        df = pl.concat(batches)
-        validation_results, total_count, process_errors = validate_chunk(
-            schema, df, total_count, row_start, max_errors, process_errors, checks
+def validate_chunk(schema, df, total_count, row_start, max_errors, process_errors, checks):
+    validation_results = validate(schema, df, row_start, process_errors)
+    if not validation_results.is_empty():
+        validation_results = format_findings(
+            validation_results, schema.name.value, checks
         )
-        row_start += df.height
-        batches = reader.next_batches(batch_count)
-        yield validation_results, df["uid"].to_list()
+
+    error_counts, warning_counts = get_scope_counts(validation_results)
+    results = ValidationResults(
+        error_counts=error_counts,
+        warning_counts=warning_counts,
+        is_valid=((error_counts.total_count + warning_counts.total_count) == 0),
+        findings=validation_results,
+        phase=schema.name,
+    )
+
+    total_count += results.findings.height
+
+    if total_count > max_errors and process_errors:
+        process_errors = False
+        head_count = results.findings.height - (total_count - max_errors)
+        results.findings = results.findings.head(head_count)
+    return results, total_count, process_errors
 
 
 def validate_lazy_chunks(schema, lf: pl.LazyFrame, batch_size: int, batch_count, max_errors, checks):
@@ -280,22 +338,6 @@ def validate_lazy_chunks(schema, lf: pl.LazyFrame, batch_size: int, batch_count,
         row_start += df.height
         yield validation_results, df["uid"].to_list()
         df = lf.slice(row_start, batch_size).collect()
-
-
-def validate_chunk(schema, df, total_count, row_start, max_errors, process_errors, checks):
-    validation_results = validate(schema, df, row_start, process_errors)
-    if not validation_results.findings.is_empty():
-        validation_results.findings = format_findings(
-            validation_results.findings, validation_results.phase.value, checks
-        )
-
-    total_count += validation_results.findings.height
-
-    if total_count > max_errors and process_errors:
-        process_errors = False
-        head_count = validation_results.findings.height - (total_count - max_errors)
-        validation_results.findings = validation_results.findings.head(head_count)
-    return validation_results, total_count, process_errors
 
 
 def get_real_file_path(path):
@@ -317,68 +359,34 @@ def gather_errors(schema_error: SchemaError):
     return schema_error
 
 
-def get_scope_counts(schema_errors: list[SchemaError]):
-    singles = [
-        error for error in schema_errors if isinstance(error.check, SBLCheck) and error.check.scope == 'single-field'
-    ]
+def get_scope_counts(error_frame: pl.DataFrame):
+    if not error_frame.is_empty():
+        single_errors = error_frame.filter(
+            (pl.col("validation_type") == Severity.ERROR) & (pl.col("scope") == "single-field")
+        ).height
+        single_warnings = error_frame.filter(
+            (pl.col("validation_type") == Severity.WARNING) & (pl.col("scope") == "single-field")
+        ).height
+        register_errors = error_frame.filter(
+            (pl.col("validation_type") == Severity.ERROR) & (pl.col("scope") == "register")
+        ).height
+        multi_errors = error_frame.filter(
+            (pl.col("validation_type") == Severity.ERROR) & (pl.col("scope") == "multi-field")
+        ).height
+        multi_warnings = error_frame.filter(
+            (pl.col("validation_type") == Severity.WARNING) & (pl.col("scope") == "multi-field")
+        ).height
 
-    single_errors = int(
-        sum(
-            [
-                (error.check_output.filter(~pl.col("check_output"))).height
-                for error in singles
-                if error.check.severity == Severity.ERROR
-            ]
+        return Counts(
+            single_field_count=single_errors,
+            multi_field_count=multi_errors,
+            register_count=register_errors,
+            total_count=sum([single_errors, multi_errors, register_errors]),
+        ), Counts(
+            single_field_count=single_warnings,
+            multi_field_count=multi_warnings,
+            total_count=sum([single_warnings, multi_warnings]),  # There are no register-level warnings at this time
         )
-    )
-    single_warnings = int(
-        sum(
-            [
-                (error.check_output.filter(~pl.col("check_output"))).height
-                for error in singles
-                if error.check.severity == Severity.WARNING
-            ]
-        )
-    )
-    multi = [
-        error for error in schema_errors if isinstance(error.check, SBLCheck) and error.check.scope == 'multi-field'
-    ]
-    multi_errors = int(
-        sum(
-            [
-                (error.check_output.filter(~pl.col("check_output"))).height
-                for error in multi
-                if error.check.severity == Severity.ERROR
-            ]
-        )
-    )
-    multi_warnings = int(
-        sum(
-            [
-                (error.check_output.filter(~pl.col("check_output"))).height
-                for error in multi
-                if error.check.severity == Severity.WARNING
-            ]
-        )
-    )
 
-    register_errors = int(
-        sum(
-            [
-                (error.check_output.filter(~pl.col("check_output"))).height
-                for error in schema_errors
-                if isinstance(error.check, SBLCheck) and error.check.scope == 'register'
-            ]
-        )
-    )
-
-    return Counts(
-        single_field_count=single_errors,
-        multi_field_count=multi_errors,
-        register_count=register_errors,
-        total_count=sum([single_errors, multi_errors, register_errors]),
-    ), Counts(
-        single_field_count=single_warnings,
-        multi_field_count=multi_warnings,
-        total_count=sum([single_warnings, multi_warnings]),  # There are no register-level warnings at this time
-    )
+    else:
+        return Counts(), Counts()
