@@ -44,7 +44,8 @@ class TestValidatingSampleData:
         vresults = []
         for vresult in validate_batch_csv(ALL_LOGIC_ERRORS):
             vresults.append(vresult)
-
+        # 3 phases
+        assert len(vresults) == 3
         results = pl.concat([vr.findings for vr in vresults], how="diagonal")
 
         logic_schema = get_phase_2_schema_for_lei()
@@ -83,5 +84,31 @@ class TestValidatingSampleData:
         results = results.filter(pl.col('validation_type') == 'Warning')
 
         # check that the findings validation_id Series contains at least 1 of every logic warning check id
+        assert len(set(results['validation_id'].to_list()).difference(set(logic_checks))) == 0
+        assert results.select(pl.col('phase').eq(ValidationPhase.LOGICAL.value).all()).item()
+
+    def test_all_logic_errors_batched(self):
+        vresults = []
+        for vresult in validate_batch_csv(ALL_LOGIC_ERRORS, batch_size=3):
+            vresults.append(vresult)
+        # 3 phases with 3 batches
+        assert len(vresults) == 9
+        results = pl.concat([vr.findings for vr in vresults], how="diagonal")
+
+        logic_schema = get_phase_2_schema_for_lei()
+        register_schema = get_register_schema()
+        logic_checks = [
+            check.title
+            for col_schema in logic_schema.columns.values()
+            for check in col_schema.checks
+            if check.severity == Severity.ERROR
+        ]
+        logic_checks.extend(
+            [check.title for col_schema in register_schema.columns.values() for check in col_schema.checks]
+        )
+
+        results = results.filter(pl.col('validation_type') == 'Error')
+
+        # check that the findings validation_id Series contains at least 1 of every logic error check id
         assert len(set(results['validation_id'].to_list()).difference(set(logic_checks))) == 0
         assert results.select(pl.col('phase').eq(ValidationPhase.LOGICAL.value).all()).item()
