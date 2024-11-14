@@ -121,6 +121,7 @@ def validate(
 
                 if check_output is not None:
                     # Filter data not associated with failed Check, and update index for merging with findings_df
+                    check_output = check_output.with_columns(pl.col('index').add(row_start))
                     failed_records_df = _filter_valid_records(submission_df, check_output, fields)
                     failed_record_fields_df = _records_to_fields(failed_records_df)
                     findings = _add_validation_metadata(failed_record_fields_df, check)
@@ -133,16 +134,16 @@ def validate(
             if check_findings:
                 findings_df = pl.concat(check_findings)
 
-    updated_df = add_uid(findings_df, submission_df)
+    updated_df = add_uid(findings_df, submission_df, row_start)
     return updated_df
 
 
 # Add the uid for the record throwing the error/warning to the error dataframe
-def add_uid(results_df: pl.DataFrame, submission_df: pl.DataFrame) -> pl.DataFrame:
+def add_uid(results_df: pl.DataFrame, submission_df: pl.DataFrame, offset: int) -> pl.DataFrame:
     if results_df.is_empty():
         return results_df
 
-    uid_records = results_df['record_no'] - 1
+    uid_records = results_df['record_no'] - 1 - offset
     results_df = results_df.with_columns(submission_df['uid'].gather(uid_records).alias('uid'))
     return results_df
 
