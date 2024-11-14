@@ -44,7 +44,8 @@ class TestValidatingSampleData:
         vresults = []
         for vresult in validate_batch_csv(ALL_LOGIC_ERRORS):
             vresults.append(vresult)
-
+        # 3 phases
+        assert len(vresults) == 3
         results = pl.concat([vr.findings for vr in vresults], how="diagonal")
 
         logic_schema = get_phase_2_schema_for_lei()
