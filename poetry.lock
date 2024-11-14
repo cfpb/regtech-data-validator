@@ -1710,17 +1710,17 @@ testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
 name = "polars"
-version = "1.8.2"
+version = "1.13.1"
 description = "Blazingly fast DataFrame library"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 files = [
-    {file = "polars-1.8.2-cp38-abi3-macosx_10_12_x86_64.whl", hash = "sha256:114be1ebfb051b794fb9e1f15999430c79cc0824595e237d3f45632be3e56d73"},
-    {file = "polars-1.8.2-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:e4fc36cfe48972d4c5be21a7cb119d6378fb7af0bb3eeb61456b66a1f43228e3"},
-    {file = "polars-1.8.2-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:67c1e448d6e38697650b22dd359f13c40b567c0b66686c8602e4367400e87801"},
-    {file = "polars-1.8.2-cp38-abi3-manylinux_2_24_aarch64.whl", hash = "sha256:570ee86b033dc5a6dbe2cb0df48522301642f304dda3da48f53d7488899a2206"},
-    {file = "polars-1.8.2-cp38-abi3-win_amd64.whl", hash = "sha256:ce1a1c1e2150ffcc44a5f1c461d738e1dcd95abbd0f210af0271c7ac0c9f7ef9"},
-    {file = "polars-1.8.2.tar.gz", hash = "sha256:42f69277d5be2833b0b826af5e75dcf430222d65c9633872856e176a0bed27a0"},
+    {file = "polars-1.13.1-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:9d5c74229fdc180fdbe99e4dc121a2ce0de6f0fcea2769a208f033112d5729dd"},
+    {file = "polars-1.13.1-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:faa436c721179fca978a470ade1072acc5e510396a88ce7e3aa4fcc75186739f"},
+    {file = "polars-1.13.1-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:405826a78c20721d0f47ee58bafdbd5311551c306cc52ff2e8dc0e2f5fc53d07"},
+    {file = "polars-1.13.1-cp39-abi3-manylinux_2_24_aarch64.whl", hash = "sha256:792d9de49de6ebcfb137885e1643e09b35bcad1ae3bc86971f0d82a06372e1a4"},
+    {file = "polars-1.13.1-cp39-abi3-win_amd64.whl", hash = "sha256:060148c687920c7af2dc16a9de0aa6de293233f1a2634db503c497504fdb19ad"},
+    {file = "polars-1.13.1.tar.gz", hash = "sha256:a8a7bb70aca0657939552a4505eccabb07c9d59d330d5a66409fe67295082860"},
 ]
 
 [package.extras]
@@ -2528,4 +2528,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.12,<4"
-content-hash = "fb8a08c7c1da12b081700fafe44dc79d727f1a7eadb115762d67af4a5c90a049"
+content-hash = "c07ecc7211c824e80fff70961347b17fbf67ab98509cfbf95e8393759443ffbf"
