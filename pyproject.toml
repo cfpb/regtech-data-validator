@@ -55,7 +55,7 @@ typer = "^0.13.1"
 
 [tool.poetry.scripts]
 cfpb-val = 'regtech_data_validator.cli:app'
-install-polars = 'polars_chip_install:install_polars'
+install-polars = 'regtech_data_validator.polars_chip_install:install_polars'
 
 # Black formatting
 [tool.black]
