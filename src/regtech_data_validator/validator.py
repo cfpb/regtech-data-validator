@@ -333,6 +333,7 @@ def validate_lazy_chunks(schema, lf: pl.LazyFrame, batch_size: int, batch_count,
     row_start = 0
     df = lf.slice(row_start, batch_size).collect()
     while df.height:
+        print(f"Chunk height: {df.height}")
         validation_results, total_count, process_errors = validate_chunk(
             schema, df, total_count, row_start, max_errors, process_errors, checks
         )
