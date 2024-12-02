@@ -303,6 +303,7 @@ def validate_register_level(context: Dict[str, str] | None, all_uids: List[str])
 
 
 def validate_chunk(schema, df, total_count, row_start, max_errors, process_errors, checks):
+    print(f"Start UID: {df['uid'][0]}, Last UID: {df['uid'][-1]}")
     validation_results = validate(schema, df, row_start, process_errors)
     if not validation_results.is_empty():
         validation_results = format_findings(
