@@ -1704,17 +1704,17 @@ testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
 name = "polars-lts-cpu"
-version = "1.14.0"
+version = "1.16.0"
 description = "Blazingly fast DataFrame library"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "polars_lts_cpu-1.14.0-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:919522d2175f2090b707bb332b966a23207f8d8ef96e3614008997043fda8f62"},
-    {file = "polars_lts_cpu-1.14.0-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:30c4e8e177caffc677767885982eff51617d59ae8c3e1e36d6fdd8032479d5f8"},
-    {file = "polars_lts_cpu-1.14.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4c164231650450ecf0301a5491bfaa20fa44ac052d06596952af9f36f13f323c"},
-    {file = "polars_lts_cpu-1.14.0-cp39-abi3-manylinux_2_24_aarch64.whl", hash = "sha256:c719921984211d0b83cd1055e45b03b09e9f3f7b9dda742a916bbc09021cbf1c"},
-    {file = "polars_lts_cpu-1.14.0-cp39-abi3-win_amd64.whl", hash = "sha256:b49dc3f9992b4986566a5cf7dc208ac02c30eac095a955abb65ee34959b23ea7"},
-    {file = "polars_lts_cpu-1.14.0.tar.gz", hash = "sha256:32638cb45bb9b66efc981f203f43ff4510335348b144f61ac0357b695e43f04e"},
+    {file = "polars_lts_cpu-1.16.0-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:973d09458e29020fc069be154ef40fab701a782e279f3422dd9f879d0f97ac3c"},
+    {file = "polars_lts_cpu-1.16.0-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:e4f17caa168f2d591fa3501cec5a9cd08d4b8ea06868ce7e221a83a71cb4473b"},
+    {file = "polars_lts_cpu-1.16.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:435ad63a129640f01c2d29c1d3ae8dba62fd4e4e6fe6ba673d152934eddc6eab"},
+    {file = "polars_lts_cpu-1.16.0-cp39-abi3-manylinux_2_24_aarch64.whl", hash = "sha256:64e2b79415d8d771fae08bb4a01a5a8acec62825597c2f6deac120fb77e2dd38"},
+    {file = "polars_lts_cpu-1.16.0-cp39-abi3-win_amd64.whl", hash = "sha256:f43ad4c274d858605bc41b75ad6d470ebd717da3888026f5c58eb82a71638a1d"},
+    {file = "polars_lts_cpu-1.16.0.tar.gz", hash = "sha256:c8175468b7354fb0a5dd78822ff1f5839182062e326e4080e330534670e21cb7"},
 ]
 
 [package.extras]
@@ -2626,4 +2626,4 @@ propcache = ">=0.2.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.12,<4"
-content-hash = "b5cfd3e1e673b830df73e661584de28e55c964f91786525e82891b935ec4aa51"
+content-hash = "75d418696850135b0e9ff9cb850f7bc6b734630ecaec44365d61ad2538dd6f23"
