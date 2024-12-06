@@ -39,7 +39,7 @@ ruff = "0.8.2"
 
 
 [tool.poetry.group.cli.dependencies]
-typer = "^0.13.1"
+typer = "^0.15.1"
 
 [tool.poetry.scripts]
 cfpb-val = 'regtech_data_validator.cli:app'
