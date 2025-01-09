@@ -134,7 +134,8 @@ def df_to_download(
         )
         empty_df.write_csv(buffer, quote_style='non_numeric', include_header=True)
         buffer.seek(0)
-        return buffer.getvalue()
+        return buffer
+        # return buffer.getvalue()
 
     # get the check for the phase the results were in, so we can pull out static data from each
     # found check
@@ -196,7 +197,8 @@ def df_to_download(
 
     sorted_df.write_csv(buffer, quote_style='non_numeric', include_header=False)
     buffer.seek(0)
-    return buffer.getvalue()
+    return buffer
+    # return buffer.getvalue()
 
 
 def df_to_csv(df: pl.DataFrame) -> str:
