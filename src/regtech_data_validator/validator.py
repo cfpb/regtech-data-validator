@@ -306,7 +306,7 @@ def validate_register_level(context: Dict[str, str] | None, all_uids: List[str])
 
 
 def validate_chunk(schema, df, total_count, row_start, max_errors, process_errors, checks):
-    print(f"Validating chunk")
+    print(f"Start UID: {df['uid'][0]}, Last UID: {df['uid'][-1]}")
     validation_results = validate(schema, df, row_start)
     if not validation_results.is_empty():
         validation_results = format_findings(
@@ -325,9 +325,19 @@ def validate_chunk(schema, df, total_count, row_start, max_errors, process_error
     total_count += (error_counts.total_count + warning_counts.total_count)
     print(f"Counts: {error_counts} {warning_counts}")
     if total_count > max_errors and process_errors:
+        print("Reached max errors, adjusting results")
         process_errors = False
         head_count = results.findings.height - (total_count - max_errors)
+        print(f"Results height: {results.findings.height}, total count: {total_count}, head count: {head_count}")
         results.findings = results.findings.head(head_count)
+        print(f"Results height after heading {results.findings.height}")
+
+    if not results.findings.is_empty():
+        result = results.findings.group_by("validation_id").agg([pl.count().alias("count")]).sort("validation_id")
+        result_dict = dict(zip(result["validation_id"], result["count"]))
+        print(f"{result_dict}\nTotal Results: {results.findings.height}")
+
+    
     return results, total_count, process_errors
 
 
