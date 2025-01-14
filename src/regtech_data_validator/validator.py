@@ -71,7 +71,7 @@ def _add_validation_metadata(failed_check_fields_df: pl.DataFrame, check: SBLChe
 
 
 def validate(
-    schema: pa.DataFrameSchema, submission_df: pl.DataFrame, row_start: int, process_errors: bool
+    schema: pa.DataFrameSchema, submission_df: pl.DataFrame, row_start: int
 ) -> pl.DataFrame:
     """
     validate received dataframe with schema and return list of
@@ -95,56 +95,57 @@ def validate(
         #       `list[dict[str,Any]]`, but it's actually of type `SchemaError`
         schema_error: SchemaError
 
-        if process_errors:
-            for schema_error in err.schema_errors:
-                check = schema_error.check
-                column_name = schema_error.schema.name
+        #if process_errors:
+        for schema_error in err.schema_errors:
+            check = schema_error.check
+            column_name = schema_error.schema.name
 
-                # CHECK_ERROR is thrown by pandera polars if the check itself has a coding error, NOT if the check data results in an error
-                if (
-                    schema_error.reason_code is SchemaErrorReason.CHECK_ERROR
-                    or schema_error.reason_code is SchemaErrorReason.COLUMN_NOT_IN_DATAFRAME
-                ):
-                    raise RuntimeError(schema_error) from schema_error
-                if not check:
-                    raise RuntimeError(
-                        f'SchemaError occurred with no associated Check for {column_name} column'
-                    ) from schema_error
+            # CHECK_ERROR is thrown by pandera polars if the check itself has a coding error, NOT if the check data results in an error
+            if (
+                schema_error.reason_code is SchemaErrorReason.CHECK_ERROR
+                or schema_error.reason_code is SchemaErrorReason.COLUMN_NOT_IN_DATAFRAME
+            ):
+                raise RuntimeError(schema_error) from schema_error
+            if not check:
+                raise RuntimeError(
+                    f'SchemaError occurred with no associated Check for {column_name} column'
+                ) from schema_error
 
-                if not isinstance(check, SBLCheck):
-                    raise RuntimeError(
-                        f'Check {check} type on {column_name} column not supported. Must be of type {SBLCheck}'
-                    ) from schema_error
+            if not isinstance(check, SBLCheck):
+                raise RuntimeError(
+                    f'Check {check} type on {column_name} column not supported. Must be of type {SBLCheck}'
+                ) from schema_error
 
-                schema_error = gather_errors(schema_error)
+            schema_error = gather_errors(schema_error)
 
-                fields = _get_check_fields(check, column_name)
-                check_output: pl.Series | None = schema_error.check_output
+            fields = _get_check_fields(check, column_name)
+            check_output: pl.Series | None = schema_error.check_output
 
-                if check_output is not None:
-                    # Filter data not associated with failed Check, and update index for merging with findings_df
-                    failed_records_df = _filter_valid_records(submission_df, check_output, fields)
-                    failed_record_fields_df = _records_to_fields(failed_records_df)
-                    findings = _add_validation_metadata(failed_record_fields_df, check)
-                    check_findings.append(findings)
-                else:
-                    # The above exception handling _should_ prevent this from ever happenin, but...just in case.
-                    raise RuntimeError(
-                        f'No check output for "{check.name}" check.  Pandera SchemaError: {schema_error}'
-                    )
-            if check_findings:
-                findings_df = pl.concat(check_findings)
+            if check_output is not None:
+                # Filter data not associated with failed Check, and update index for merging with findings_df
+                check_output = check_output.with_columns(pl.col('index').add(row_start))
+                failed_records_df = _filter_valid_records(submission_df, check_output, fields)
+                failed_record_fields_df = _records_to_fields(failed_records_df)
+                findings = _add_validation_metadata(failed_record_fields_df, check)
+                check_findings.append(findings)
+            else:
+                # The above exception handling _should_ prevent this from ever happenin, but...just in case.
+                raise RuntimeError(
+                    f'No check output for "{check.name}" check.  Pandera SchemaError: {schema_error}'
+                )
+        if check_findings:
+            findings_df = pl.concat(check_findings)
 
-    updated_df = add_uid(findings_df, submission_df)
+    updated_df = add_uid(findings_df, submission_df, row_start)
     return updated_df
 
 
 # Add the uid for the record throwing the error/warning to the error dataframe
-def add_uid(results_df: pl.DataFrame, submission_df: pl.DataFrame) -> pl.DataFrame:
+def add_uid(results_df: pl.DataFrame, submission_df: pl.DataFrame, offset: int) -> pl.DataFrame:
     if results_df.is_empty():
         return results_df
 
-    uid_records = results_df['record_no'] - 1
+    uid_records = results_df['record_no'] - 1 - offset
     results_df = results_df.with_columns(submission_df['uid'].gather(uid_records).alias('uid'))
     return results_df
 
@@ -181,7 +182,7 @@ def validate_batch_csv(
 
     if not has_syntax_errors:
         register_schema = get_register_schema(context)
-        validation_results = validate(register_schema, pl.DataFrame({"uid": all_uids}), 0, True)
+        validation_results = validate(register_schema, pl.DataFrame({"uid": all_uids}), 0)
         if not validation_results.is_empty():
             validation_results = format_findings(
                 validation_results,
@@ -198,6 +199,7 @@ def validate_batch_csv(
         )
         yield results
 
+        print("Processing other logic errors")
         for validation_results, _ in validate_chunks(
             logic_schema, real_path, batch_size, batch_count, max_errors, logic_checks
         ):
@@ -220,7 +222,7 @@ def validate_chunks(schema, path, batch_size, batch_count, max_errors, checks):
     row_start = 0
     while batches:
         df = pl.concat(batches)
-        validation_results = validate(schema, df, row_start, process_errors)
+        validation_results = validate(schema, df, row_start)
         if not validation_results.is_empty():
 
             validation_results = format_findings(validation_results, schema.name.value, checks)
@@ -230,12 +232,12 @@ def validate_chunks(schema, path, batch_size, batch_count, max_errors, checks):
             error_counts=error_counts,
             warning_counts=warning_counts,
             is_valid=((error_counts.total_count + warning_counts.total_count) == 0),
-            findings=validation_results,
+            findings=validation_results if process_errors else pl.DataFrame(),
             phase=schema.name,
         )
-
-        total_count += results.findings.height
-
+        print(f"Findings height: {validation_results.height}")
+        total_count += (error_counts.total_count + warning_counts.total_count)
+        print(f"Total Count: {total_count}")
         if total_count > max_errors and process_errors:
             process_errors = False
             head_count = results.findings.height - (total_count - max_errors)
@@ -282,8 +284,9 @@ def validate_lazy_frame(
 
 
 def validate_register_level(context: Dict[str, str] | None, all_uids: List[str]):
+    print("Processing register logic errors")
     register_schema = get_register_schema(context)
-    validation_results = validate(register_schema, pl.DataFrame({"uid": all_uids}), 0, True)
+    validation_results = validate(register_schema, pl.DataFrame({"uid": all_uids}), 0)
     if not validation_results.is_empty():
         validation_results = format_findings(
             validation_results,
@@ -298,11 +301,13 @@ def validate_register_level(context: Dict[str, str] | None, all_uids: List[str])
         findings=validation_results,
         phase=register_schema.name,
     )
+    print(f"Register counts: {error_counts} {warning_counts}")
     return results
 
 
 def validate_chunk(schema, df, total_count, row_start, max_errors, process_errors, checks):
-    validation_results = validate(schema, df, row_start, process_errors)
+    print(f"Validating chunk")
+    validation_results = validate(schema, df, row_start)
     if not validation_results.is_empty():
         validation_results = format_findings(
             validation_results, schema.name.value, checks
@@ -313,12 +318,12 @@ def validate_chunk(schema, df, total_count, row_start, max_errors, process_error
         error_counts=error_counts,
         warning_counts=warning_counts,
         is_valid=((error_counts.total_count + warning_counts.total_count) == 0),
-        findings=validation_results,
+        findings=validation_results if process_errors else df.DataFrame(),
         phase=schema.name,
     )
 
-    total_count += results.findings.height
-
+    total_count += (error_counts.total_count + warning_counts.total_count)
+    print(f"Counts: {error_counts} {warning_counts}")
     if total_count > max_errors and process_errors:
         process_errors = False
         head_count = results.findings.height - (total_count - max_errors)

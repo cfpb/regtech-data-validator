@@ -7,6 +7,7 @@ from typing import Annotated, Optional
 import polars as pl
 import typer
 import typer.core
+import boto3
 
 from regtech_data_validator.validator import validate_batch_csv, validate_lazy_frame
 from regtech_data_validator.validation_results import ValidationPhase
@@ -98,7 +99,16 @@ def validate(
             final_phase = validation_results.phase
             all_findings.append(validation_results)
     elif filetype == FileType.PARQUET:
-        lf = pl.scan_parquet(path)
+        session = boto3.session.Session()
+        creds = session.get_credentials()
+        storage_options = {
+            'aws_access_key_id': creds.access_key,
+            'aws_secret_access_key': creds.secret_key,
+            'session_token': creds.token,
+            'aws_region': 'us-east-1',
+        }
+        lf = pl.scan_parquet("s3://cfpb-devpub-regtech-sbl-filing-main/upload/2024/1234364890REGTECH002/99_pqs/", allow_missing_columns=True, storage_options=storage_options)
+        print(f"LazyFrame: {lf}")
         for validation_results in validate_lazy_frame(lf, context_dict, batch_size=50000, batch_count=1):
             total_findings += validation_results.error_counts.total_count + validation_results.warning_counts.total_count
             final_phase = validation_results.phase
@@ -119,7 +129,7 @@ def validate(
         case OutputFormat.TABLE:
             print(df_to_table(final_df))
         case OutputFormat.DOWNLOAD:
-            print(df_to_download(final_df))
+            df_to_download(final_df)
         case _:
             raise ValueError(f'output format "{output}" not supported')
 
