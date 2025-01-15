@@ -235,9 +235,9 @@ def validate_chunks(schema, path, batch_size, batch_count, max_errors, checks):
             findings=validation_results if process_errors else pl.DataFrame(),
             phase=schema.name,
         )
-        print(f"Findings height: {validation_results.height}")
+        print(f"Findings height: {validation_results.height}", flush=True)
         total_count += (error_counts.total_count + warning_counts.total_count)
-        print(f"Total Count: {total_count}")
+        print(f"Total Count: {total_count}", flush=True)
         if total_count > max_errors and process_errors:
             process_errors = False
             head_count = results.findings.height - (total_count - max_errors)
@@ -301,12 +301,12 @@ def validate_register_level(context: Dict[str, str] | None, all_uids: List[str])
         findings=validation_results,
         phase=register_schema.name,
     )
-    print(f"Register counts: {error_counts} {warning_counts}")
+    print(f"Register counts: {error_counts} {warning_counts}", flush=True)
     return results
 
 
 def validate_chunk(schema, df, total_count, row_start, max_errors, process_errors, checks):
-    print(f"Start UID: {df['uid'][0]}, Last UID: {df['uid'][-1]}")
+    print(f"Start UID: {df['uid'][0]}, Last UID: {df['uid'][-1]}", flush=True)
     validation_results = validate(schema, df, row_start)
     if not validation_results.is_empty():
         validation_results = format_findings(
@@ -323,19 +323,19 @@ def validate_chunk(schema, df, total_count, row_start, max_errors, process_error
     )
 
     total_count += (error_counts.total_count + warning_counts.total_count)
-    print(f"Counts: {error_counts} {warning_counts}")
+    print(f"Counts: {error_counts} {warning_counts}", flush=True)
     if total_count > max_errors and process_errors:
-        print("Reached max errors, adjusting results")
+        print("Reached max errors, adjusting results", flush=True)
         process_errors = False
         head_count = results.findings.height - (total_count - max_errors)
-        print(f"Results height: {results.findings.height}, total count: {total_count}, head count: {head_count}")
+        print(f"Results height: {results.findings.height}, total count: {total_count}, head count: {head_count}", flush=True)
         results.findings = results.findings.head(head_count)
-        print(f"Results height after heading {results.findings.height}")
+        print(f"Results height after heading {results.findings.height}", flush=True)
 
     if not results.findings.is_empty():
         result = results.findings.group_by("validation_id").agg([pl.count().alias("count")]).sort("validation_id")
         result_dict = dict(zip(result["validation_id"], result["count"]))
-        print(f"{result_dict}\nTotal Results: {results.findings.height}")
+        print(f"{result_dict}\nTotal Results: {results.findings.height}", flush=True)
 
     
     return results, total_count, process_errors
