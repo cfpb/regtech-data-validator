@@ -318,7 +318,7 @@ def validate_chunk(schema, df, total_count, row_start, max_errors, process_error
         error_counts=error_counts,
         warning_counts=warning_counts,
         is_valid=((error_counts.total_count + warning_counts.total_count) == 0),
-        findings=validation_results if process_errors else df.DataFrame(),
+        findings=validation_results if process_errors else pl.DataFrame(),
         phase=schema.name,
     )
 
