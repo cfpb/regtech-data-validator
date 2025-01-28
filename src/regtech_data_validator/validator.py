@@ -310,7 +310,7 @@ def validate_register_level(context: Dict[str, str] | None, all_uids: List[str])
     return results
 
 
-def validate_chunk(schema, df, total_count, row_start, max_errors, process_errors, checks):
+def validate_chunk(schema, df: pl.DataFrame, total_count, row_start, max_errors, process_errors, checks):
     # print(f"Start UID: {df['uid'][0]}, Last UID: {df['uid'][-1]}", flush=True)
     validation_results = validate(schema, df, row_start, process_errors)
     if process_errors and not validation_results.is_empty():
@@ -320,6 +320,7 @@ def validate_chunk(schema, df, total_count, row_start, max_errors, process_error
 
     error_counts, warning_counts = get_scope_counts(validation_results)
     results = ValidationResults(
+        record_count=df.height,
         error_counts=error_counts,
         warning_counts=warning_counts,
         is_valid=((error_counts.total_count + warning_counts.total_count) == 0),
