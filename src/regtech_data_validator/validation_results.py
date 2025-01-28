@@ -26,3 +26,4 @@ class ValidationResults(object):
     is_valid: bool
     findings: pl.DataFrame
     phase: ValidationPhase
+    record_count: int = 0
