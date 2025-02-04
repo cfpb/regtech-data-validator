@@ -12,10 +12,6 @@ RUN apt update && apt install -y git curl
 RUN pip install --upgrade pip 
 RUN pip install poetry
 
-# run poetry install
-RUN poetry config virtualenvs.create false
-RUN poetry install --no-root
-
 # create a non root sbl user
 ARG USER=sbl
 ENV HOME /home/$USER

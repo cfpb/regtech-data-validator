@@ -3,6 +3,11 @@
     "dockerfile": "Dockerfile",
     "context": ".."
   },
+  "runArgs": [
+    "--mount",
+    "type=volume,target=/${containerWorkspaceFolder}/.venv"
+  ],
+  "postCreateCommand": "poetry install",
   "customizations": {
     "vscode": {
       "extensions": [
