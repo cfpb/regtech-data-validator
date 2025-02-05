@@ -123,7 +123,7 @@ def validate(
         case OutputFormat.TABLE:
             print(df_to_table(final_df))
         case OutputFormat.DOWNLOAD:
-            df_to_download(final_df)
+            print(df_to_download(final_df))
         case _:
             raise ValueError(f'output format "{output}" not supported')
 
