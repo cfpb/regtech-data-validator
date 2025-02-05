@@ -8,7 +8,6 @@ import polars as pl
 import pandera.polars as pa
 from pandera import Check
 from pandera.errors import SchemaErrors, SchemaError, SchemaErrorReason
-from polars.io.csv.batched_reader import BatchedCsvReader
 
 from regtech_data_validator.checks import SBLCheck, Severity
 
@@ -22,6 +21,7 @@ from regtech_data_validator.phase_validations import (
 )
 
 log = logging.getLogger(__name__)
+
 
 # Gets all associated field names from the check
 def _get_check_fields(check: Check, primary_column: str) -> list[str]:
@@ -54,9 +54,11 @@ def _filter_valid_records(df: pl.DataFrame, check_output: pl.Series, fields: lis
 
 
 def _records_to_fields(failed_records_df: pl.DataFrame) -> pl.DataFrame:
-    # Melts the DataFrame with columns per Check field to DataFrame with a row per field
-    failed_record_fields_df = failed_records_df.melt(
-        variable_name='field_name', value_name='field_value', id_vars=['record_no']
+    # Unpivot the DataFrame with columns per Check field to DataFrame with a row per field
+    failed_record_fields_df = failed_records_df.unpivot(
+        variable_name='field_name',
+        value_name='field_value',
+        index=['record_no'],
     )
     return failed_record_fields_df
 
@@ -125,13 +127,13 @@ def validate(
                     findings = _add_validation_metadata(failed_record_fields_df, check)
                 else:
                     findings = _add_validation_metadata(check_output, check)
-                    findings = findings.with_columns(pl.lit(check.scope).alias("scope"), pl.lit(check.severity.value).alias("validation_type"))
+                    findings = findings.with_columns(
+                        pl.lit(check.scope).alias("scope"), pl.lit(check.severity.value).alias("validation_type")
+                    )
                 check_findings.append(findings)
             else:
                 # The above exception handling _should_ prevent this from ever happenin, but...just in case.
-                raise RuntimeError(
-                    f'No check output for "{check.name}" check.  Pandera SchemaError: {schema_error}'
-                )
+                raise RuntimeError(f'No check output for "{check.name}" check.  Pandera SchemaError: {schema_error}')
         if check_findings:
             findings_df = pl.concat(check_findings)
 
@@ -185,6 +187,7 @@ def validate_data(
             logic_schema, source, batch_size, batch_count, max_errors, logic_checks
         ):
             yield validation_results
+
 
 def validate_batch_csv(
     path: Path | str,
@@ -247,9 +250,7 @@ def validate_chunk(schema, df: pl.DataFrame, total_count, row_start, max_errors,
     log.debug("Start UID: %s, Last UID: %s", df['uid'][0], df['uid'][-1])
     validation_results = validate(schema, df, row_start, process_errors)
     if process_errors and not validation_results.is_empty():
-        validation_results = format_findings(
-            validation_results, schema.name.value, checks
-        )
+        validation_results = format_findings(validation_results, schema.name.value, checks)
 
     error_counts, warning_counts = get_scope_counts(validation_results)
     results = ValidationResults(
@@ -261,13 +262,15 @@ def validate_chunk(schema, df: pl.DataFrame, total_count, row_start, max_errors,
         phase=schema.name,
     )
 
-    total_count += (error_counts.total_count + warning_counts.total_count)
+    total_count += error_counts.total_count + warning_counts.total_count
     log.debug("Counts: %d %d", error_counts, warning_counts)
     if total_count > max_errors and process_errors:
         log.debug("Reached max errors, adjusting results")
         process_errors = False
         head_count = results.findings.height - (total_count - max_errors)
-        log.debug("Results height: %d, total count: %d, head count: %d", results.findings.height, total_count, head_count)
+        log.debug(
+            "Results height: %d, total count: %d, head count: %d", results.findings.height, total_count, head_count
+        )
         results.findings = results.findings.head(head_count)
         log.debug("Results height after heading %d", results.findings.height)
 

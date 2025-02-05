@@ -20,9 +20,11 @@ typer.core.rich = None
 
 app = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=False)
 
+
 class FileType(StrEnum):
     CSV = 'csv'
     PARQUET = 'parquet'
+
 
 @dataclass
 class KeyValueOpt:
@@ -79,7 +81,7 @@ def validate(
         ),
     ] = None,
     output: Annotated[Optional[OutputFormat], typer.Option()] = OutputFormat.TABLE,
-    filetype: Annotated[Optional[FileType], typer.Option()] = FileType.CSV
+    filetype: Annotated[Optional[FileType], typer.Option()] = FileType.CSV,
 ) -> tuple[bool, pl.DataFrame]:
     """
     Validate CFPB data submission
@@ -92,13 +94,17 @@ def validate(
     final_df = pl.DataFrame()
     if filetype == FileType.CSV:
         for validation_results in validate_batch_csv(path, context_dict, batch_size=50000, batch_count=1):
-            total_findings += validation_results.error_counts.total_count + validation_results.warning_counts.total_count
+            total_findings += (
+                validation_results.error_counts.total_count + validation_results.warning_counts.total_count
+            )
             final_phase = validation_results.phase
             all_findings.append(validation_results)
     elif filetype == FileType.PARQUET:
         lf = pl.scan_parquet(path, allow_missing_columns=True)
         for validation_results in validate_lazy_frame(lf, context_dict, batch_size=50000, batch_count=1):
-            total_findings += validation_results.error_counts.total_count + validation_results.warning_counts.total_count
+            total_findings += (
+                validation_results.error_counts.total_count + validation_results.warning_counts.total_count
+            )
             final_phase = validation_results.phase
             all_findings.append(validation_results)
 

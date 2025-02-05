@@ -55,7 +55,7 @@ def format_findings(df: pl.DataFrame, phase, checks):
                 "record_no",
                 "uid",
             ],
-            columns="field_number",
+            on="field_number",
             values=["field_name", "field_value"],
             aggregate_function="first",
         )
