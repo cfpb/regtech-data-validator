@@ -1,6 +1,7 @@
 import ujson
 import polars as pl
 
+from typing import Dict, Any
 from tabulate import tabulate
 
 from functools import partial
@@ -54,7 +55,7 @@ def format_findings(df: pl.DataFrame, phase, checks):
                 "record_no",
                 "uid",
             ],
-            columns="field_number",
+            on="field_number",
             values=["field_name", "field_value"],
             aggregate_function="first",
         )
@@ -261,7 +262,7 @@ def process_group_data(group_df, json_results, group_size, checks):
     return group_df
 
 
-def process_chunk(df: pl.DataFrame, validation_id: str, check: SBLCheck) -> [dict]:
+def process_chunk(df: pl.DataFrame, validation_id: str, check: SBLCheck) -> Dict[str, Any]:
     # once we have a grouped dataframe, working with the data as a
     # python dict is much faster
     findings_json = ujson.loads(df.write_json())

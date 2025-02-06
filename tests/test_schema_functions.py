@@ -2,6 +2,7 @@ import polars as pl
 import pytest
 import tempfile
 from pathlib import Path
+from polars.exceptions import ColumnNotFoundError
 
 from regtech_data_validator.validator import validate_batch_csv
 from regtech_data_validator.validation_results import ValidationPhase
@@ -271,9 +272,9 @@ class TestValidatePhases:
         assert results[2].phase == ValidationPhase.LOGICAL
 
     def test_column_not_found_in_df(self, csv_df_mission_column_file):
-        with pytest.raises(RuntimeError) as re:
+        with pytest.raises(ColumnNotFoundError) as re:
             list(validate_batch_csv(csv_df_mission_column_file))
-        assert "column 'uid' not in dataframe" in str(re.value)
+        assert '"uid" not found' in str(re.value)
 
     def test_same_uids(self, csv_df_same_uids_file):
         results = list(validate_batch_csv(csv_df_same_uids_file))

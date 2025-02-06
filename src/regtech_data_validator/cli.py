@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from enum import StrEnum
-from pathlib import Path
 from regtech_data_validator.data_formatters import df_to_csv, df_to_str, df_to_json, df_to_table, df_to_download
 from typing import Annotated, Optional
 
@@ -8,7 +7,7 @@ import polars as pl
 import typer
 import typer.core
 
-from regtech_data_validator.validator import validate_batch_csv
+from regtech_data_validator.validator import validate_batch_csv, validate_lazy_frame
 from regtech_data_validator.validation_results import ValidationPhase
 
 # Need to do this because the latest version of typer, if the rich package exists
@@ -20,6 +19,11 @@ from regtech_data_validator.validation_results import ValidationPhase
 typer.core.rich = None
 
 app = typer.Typer(no_args_is_help=True, pretty_exceptions_enable=False)
+
+
+class FileType(StrEnum):
+    CSV = 'csv'
+    PARQUET = 'parquet'
 
 
 @dataclass
@@ -57,7 +61,7 @@ def describe() -> None:
 @app.command(no_args_is_help=True)
 def validate(
     path: Annotated[
-        Path,
+        str,
         typer.Argument(
             exists=True,
             dir_okay=False,
@@ -77,6 +81,7 @@ def validate(
         ),
     ] = None,
     output: Annotated[Optional[OutputFormat], typer.Option()] = OutputFormat.TABLE,
+    filetype: Annotated[Optional[FileType], typer.Option()] = FileType.CSV,
 ) -> tuple[bool, pl.DataFrame]:
     """
     Validate CFPB data submission
@@ -87,11 +92,21 @@ def validate(
     final_phase = ValidationPhase.LOGICAL
     all_findings = []
     final_df = pl.DataFrame()
-    # path = "s3://cfpb-devpub-regtech-sbl-filing-main/upload/2024/1234364890REGTECH006/156.csv"
-    for validation_results in validate_batch_csv(path, context_dict, batch_size=50000, batch_count=1):
-        total_findings += validation_results.error_counts.total_count + validation_results.warning_counts.total_count
-        final_phase = validation_results.phase
-        all_findings.append(validation_results)
+    if filetype == FileType.CSV:
+        for validation_results in validate_batch_csv(path, context_dict, batch_size=50000, batch_count=1):
+            total_findings += (
+                validation_results.error_counts.total_count + validation_results.warning_counts.total_count
+            )
+            final_phase = validation_results.phase
+            all_findings.append(validation_results)
+    elif filetype == FileType.PARQUET:
+        lf = pl.scan_parquet(path, allow_missing_columns=True)
+        for validation_results in validate_lazy_frame(lf, context_dict, batch_size=50000, batch_count=1):
+            total_findings += (
+                validation_results.error_counts.total_count + validation_results.warning_counts.total_count
+            )
+            final_phase = validation_results.phase
+            all_findings.append(validation_results)
 
     if all_findings:
         final_df = pl.concat([v.findings for v in all_findings], how="diagonal")
