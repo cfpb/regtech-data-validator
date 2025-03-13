@@ -216,7 +216,7 @@ class TestValidatePhases:
 
     @pytest.mark.parametrize(
         "csv_df_file",
-        [({"ct_credit_product": ["989"]})],
+        [{"ct_credit_product": ["989"]}],
         indirect=True,
     )
     def test_with_invalid_data(self, csv_df_file):
@@ -228,13 +228,11 @@ class TestValidatePhases:
     @pytest.mark.parametrize(
         "csv_df_file",
         [
-            (
-                {
-                    "ct_credit_product": ["989"],
-                    "num_principal_owners": ["10"],
-                    "action_taken": ["20"],
-                }
-            )
+            {
+                "ct_credit_product": ["989"],
+                "num_principal_owners": ["10"],
+                "action_taken": ["20"],
+            }
         ],
         indirect=True,
     )
@@ -247,14 +245,12 @@ class TestValidatePhases:
     @pytest.mark.parametrize(
         "csv_df_file",
         [
-            (
-                {
-                    "num_principal_owners_flag": ["988"],
-                    "num_principal_owners": ["1"],
-                    "action_taken": ["3"],
-                    "pricing_interest_rate_type": ["1"],
-                }
-            )
+            {
+                "num_principal_owners_flag": ["988"],
+                "num_principal_owners": ["1"],
+                "action_taken": ["3"],
+                "pricing_interest_rate_type": ["1"],
+            }
         ],
         indirect=True,
     )
