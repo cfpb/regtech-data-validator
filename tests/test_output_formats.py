@@ -191,10 +191,14 @@ class TestOutputFormat:
                 "validation": {
                     "id": "E2008",
                     "name": "amount_approved.conditional_field_conflict",
-                    "description": "* When 'action taken' does **not** equal 1 (originated) or \n2 (approved but not accepted), 'amount approved or originated' must be blank.\n* When 'action taken' equals 1 or 2, 'amount approved or originated' must **not** be blank.\n",
+                    "description": (
+                        "* When 'action taken' does **not** equal 1 (originated) or \n2 (approved but not accepted), 'amount approved or originated' must be blank.\n* When 'action taken' equals 1 or 2, 'amount approved or originated' must **not** be blank.\n"
+                    ),
                     "severity": "Error",
                     "scope": "multi-field",
-                    "fig_link": "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.7",
+                    "fig_link": (
+                        "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.2.7"
+                    ),
                     "is_truncated": False,
                 },
                 "records": [
@@ -209,10 +213,14 @@ class TestOutputFormat:
                 "validation": {
                     "id": "E3000",
                     "name": "uid.duplicates_in_dataset",
-                    "description": "* Any 'unique identifier' may **not** be used in more than one \nrecord within a small business lending application register.\n",
+                    "description": (
+                        "* Any 'unique identifier' may **not** be used in more than one \nrecord within a small business lending application register.\n"
+                    ),
                     "severity": "Error",
                     "scope": "register",
-                    "fig_link": "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1",
+                    "fig_link": (
+                        "https://www.consumerfinance.gov/data-research/small-business-lending/filing-instructions-guide/2024-guide/#4.3.1"
+                    ),
                     "is_truncated": False,
                 },
                 "records": [
