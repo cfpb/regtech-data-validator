@@ -798,19 +798,19 @@ testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
 name = "polars-lts-cpu"
-version = "1.24.0"
+version = "1.28.1"
 description = "Blazingly fast DataFrame library"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "polars_lts_cpu-1.24.0-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:9cfd790c05fbe7a03ac3846b89d734c2e033e80be1bd349495a08697206cde71"},
-    {file = "polars_lts_cpu-1.24.0-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:6be1426b328aa8bcf34fc08231b5fbd8bc69ba8de1526ae706cd7d5e3305ec46"},
-    {file = "polars_lts_cpu-1.24.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9b301fde1d3f83643a79cbc8673b971efb4ee415afa5b1211fdd9ff4f8de7f47"},
-    {file = "polars_lts_cpu-1.24.0-cp39-abi3-manylinux_2_24_aarch64.whl", hash = "sha256:b620352b16b0896a428cb78473ad575941ec920b4f75830246b063d406cee82d"},
-    {file = "polars_lts_cpu-1.24.0-cp39-abi3-win_amd64.whl", hash = "sha256:47138b31264cd05f6d1dd70682c7389a10c834e6f3077546cf5ab5b2b855a78a"},
-    {file = "polars_lts_cpu-1.24.0-cp39-abi3-win_arm64.whl", hash = "sha256:79603404011ef5edab31dc06af37a56d90be9e9647e099049c2690fa11f3824b"},
-    {file = "polars_lts_cpu-1.24.0.tar.gz", hash = "sha256:e9d8401f5dcdb8564512e4ba874ed8899b2e0c4ad296de5723f8f3df21c85cb2"},
+    {file = "polars_lts_cpu-1.28.1-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:8e435d12f12053e00fc1e4876956d75bba695c454908f17e2490b2c6c5ae9115"},
+    {file = "polars_lts_cpu-1.28.1-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:dcedd80b50eec8d01ba7dd1e420ec13edb785a250adb5620992e9dc17f85df0d"},
+    {file = "polars_lts_cpu-1.28.1-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ae338770f40a6bbbe28cf06f4141e43d1a6a75b1cab2569a85f31261cffebc65"},
+    {file = "polars_lts_cpu-1.28.1-cp39-abi3-manylinux_2_24_aarch64.whl", hash = "sha256:b3d3c53758450413cdb9f7be0762e7b5fc8267690a0725ac6e591cae27881f9d"},
+    {file = "polars_lts_cpu-1.28.1-cp39-abi3-win_amd64.whl", hash = "sha256:4e4c8c8d73b04648d3b8c370248924a5303627431cd9a960942a09440686cb7b"},
+    {file = "polars_lts_cpu-1.28.1-cp39-abi3-win_arm64.whl", hash = "sha256:3713c2b68d232e8db3ce6c9eeadea17d92bf5c07f6063260a22fda8c171bd168"},
+    {file = "polars_lts_cpu-1.28.1.tar.gz", hash = "sha256:701cde57af879ae8da5c1123a23adf311cf69255828532c9c6bcc2ecb9a14792"},
 ]
 
 [package.extras]
@@ -1417,4 +1417,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4"
-content-hash = "5356e8dfd9cfb1261e6293ba83acecc4debbf3680ec5221e939bde2c05956d42"
+content-hash = "100aa891fa4229b6c35d84877bd48ea1656fe7448f612e1461e76c5de7a57266"
