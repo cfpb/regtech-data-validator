@@ -24,7 +24,7 @@ pytest = "8.3.4"
 pytest-cov = "6.0.0"
 beautifulsoup4 = "^4.12.3"
 lxml = "^5.3.1"
-requests = "^2.32.3"
+requests = "^2.32.5"
 
 [tool.poetry.group.data.dependencies]
 openpyxl = "^3.1.5"
